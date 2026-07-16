@@ -15,7 +15,7 @@
     "expo-speech": "~12.0.2",
     "react": "18.2.0",
     "react-native": "0.74.5",
-    "@supabase/supabase-js": "^2.45.0",
+    "@supabase/supabase-js": "2.45.0",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
     "react-native-screens": "~3.31.1",
