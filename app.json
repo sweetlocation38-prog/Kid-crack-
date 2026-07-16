@@ -6,7 +6,10 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#F7F1E1",
+    "splash": {
+      "backgroundColor": "#F7F1E1",
+      "resizeMode": "contain"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kidcrack.app"
