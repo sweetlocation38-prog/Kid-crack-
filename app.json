@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Kid Crack",
+    "slug": "kid-crack",
+    "owner": "titi38s-team",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F7F1E1",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kidcrack.app"
+    },
+    "android": {
+      "package": "com.kidcrack.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#F7F1E1"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
