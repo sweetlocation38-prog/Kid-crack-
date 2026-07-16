@@ -11,6 +11,9 @@ import {
   ActivityIndicator,
   FlatList,
   Modal,
+  ScrollView,
+  Animated,
+  Easing,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
@@ -56,16 +59,106 @@ const STONE_COLORS = ['#FFE1A8', '#B8E0D2', '#FFD3D3', '#D4E4FF', '#FCE8B4'];
 // Chaine d'avatar de jeu (100 echelons, un tous les 10 niveaux)
 // ============================================================
 const AVATAR_CHAIN = [
-  '🐜 Fourmi','🐞 Coccinelle','🦋 Papillon','🐝 Abeille','🐌 Escargot','🐛 Ver luisant','🦗 Sauterelle','🪰 Libellule','🪲 Scarabee','🦗 Grillon',
-  '🐭 Souris','🐭 Mulot','🐁 Musaraigne','🐸 Grenouille','🐸 Crapaud','🦎 Lezard','🐸 Tetard','🐹 Campagnol','🐛 Chenille','🦗 Criquet',
-  '🦔 Herisson','🐹 Taupe','🐿️ Ecureuil','🐿️ Tamia','🦇 Chauve-souris','🦡 Belette','🦡 Furet','🦡 Putois','🐀 Rat des champs','🐭 Loir',
-  '🐦 Geai','🐦‍⬛ Pie','🐦‍⬛ Corbeau','🦅 Faucon crecerelle','🦉 Chouette','🦩 Heron','🦢 Cigogne','🐦 Pelican','🦜 Perruche','🦜 Toucan',
-  '🦡 Martre','🦡 Fouine','🦡 Mangouste','🦫 Suricate','🦡 Blaireau','🐆 Genette','🐺 Chacal','🦫 Ragondin','🦦 Loutre','🐆 Ocelot',
-  '🦌 Gazelle','🦌 Impala','🦌 Antilope','🦌 Springbok','🦓 Zebre','🐃 Gnou','🦩 Autruche','🐗 Phacochere','🐗 Sanglier','🐐 Chevre de montagne',
-  '🐇 Lievre','🦊 Renard des neiges','🐺 Coyote','🐈 Lynx','🐈 Caracal','🐈‍⬛ Chat sauvage','🐆 Guepard','🐺 Loup','🐆 Puma','🐆 Panthere',
-  '🦌 Cerf','🦌 Elan','🦌 Wapiti','🦬 Bison','🐃 Buffle d\'Afrique','🦛 Hippopotame','🐫 Chameau','🐂 Yack','🦒 Girafe','🦏 Rhinoceros noir',
-  '🐻 Ours brun','🐻 Ours noir','🦍 Gorille','🐒 Chimpanze','🐆 Jaguar','🐆 Leopard','🐅 Tigre du Bengale','🐊 Crocodile du Nil','🐍 Python','🦅 Aigle royal',
-  '🐻‍❄️ Ours polaire','🦏 Rhinoceros blanc','🦍 Gorille des montagnes','🐘 Elephant de foret','🐘 Elephant de savane','🐆 Panthere des neiges','🐅 Tigre de Siberie','🐻 Grizzly geant','🦁 Lionne','🦁 Lion',
+  { code: 'fourmi', name: 'Fourmi', emoji: '🐜' },
+  { code: 'coccinelle', name: 'Coccinelle', emoji: '🐞' },
+  { code: 'papillon', name: 'Papillon', emoji: '🦋' },
+  { code: 'abeille', name: 'Abeille', emoji: '🐝' },
+  { code: 'escargot', name: 'Escargot', emoji: '🐌' },
+  { code: 'ver_luisant', name: 'Ver luisant', emoji: '🐛' },
+  { code: 'sauterelle', name: 'Sauterelle', emoji: '🦗' },
+  { code: 'libellule', name: 'Libellule', emoji: '🪰' },
+  { code: 'scarabee', name: 'Scarabee', emoji: '🪲' },
+  { code: 'grillon', name: 'Grillon', emoji: '🦗' },
+  { code: 'souris', name: 'Souris', emoji: '🐭' },
+  { code: 'mulot', name: 'Mulot', emoji: '🐭' },
+  { code: 'musaraigne', name: 'Musaraigne', emoji: '🐁' },
+  { code: 'grenouille', name: 'Grenouille', emoji: '🐸' },
+  { code: 'crapaud', name: 'Crapaud', emoji: '🐸' },
+  { code: 'lezard', name: 'Lezard', emoji: '🦎' },
+  { code: 'tetard', name: 'Tetard', emoji: '🐸' },
+  { code: 'campagnol', name: 'Campagnol', emoji: '🐹' },
+  { code: 'chenille', name: 'Chenille', emoji: '🐛' },
+  { code: 'criquet', name: 'Criquet', emoji: '🦗' },
+  { code: 'herisson', name: 'Herisson', emoji: '🦔' },
+  { code: 'taupe', name: 'Taupe', emoji: '🐹' },
+  { code: 'ecureuil', name: 'Ecureuil', emoji: '🐿️' },
+  { code: 'tamia', name: 'Tamia', emoji: '🐿️' },
+  { code: 'chauve_souris', name: 'Chauve-souris', emoji: '🦇' },
+  { code: 'belette', name: 'Belette', emoji: '🦡' },
+  { code: 'furet', name: 'Furet', emoji: '🦡' },
+  { code: 'putois', name: 'Putois', emoji: '🦡' },
+  { code: 'rat_des_champs', name: 'Rat des champs', emoji: '🐀' },
+  { code: 'loir', name: 'Loir', emoji: '🐭' },
+  { code: 'geai', name: 'Geai', emoji: '🐦' },
+  { code: 'pie', name: 'Pie', emoji: '🐦\u200d⬛' },
+  { code: 'corbeau', name: 'Corbeau', emoji: '🐦\u200d⬛' },
+  { code: 'faucon_crecerelle', name: 'Faucon crecerelle', emoji: '🦅' },
+  { code: 'chouette', name: 'Chouette', emoji: '🦉' },
+  { code: 'heron', name: 'Heron', emoji: '🦩' },
+  { code: 'cigogne', name: 'Cigogne', emoji: '🦢' },
+  { code: 'pelican', name: 'Pelican', emoji: '🐦' },
+  { code: 'perruche', name: 'Perruche', emoji: '🦜' },
+  { code: 'toucan', name: 'Toucan', emoji: '🦜' },
+  { code: 'martre', name: 'Martre', emoji: '🦡' },
+  { code: 'fouine', name: 'Fouine', emoji: '🦡' },
+  { code: 'mangouste', name: 'Mangouste', emoji: '🦡' },
+  { code: 'suricate', name: 'Suricate', emoji: '🦫' },
+  { code: 'blaireau', name: 'Blaireau', emoji: '🦡' },
+  { code: 'genette', name: 'Genette', emoji: '🐆' },
+  { code: 'chacal', name: 'Chacal', emoji: '🐺' },
+  { code: 'ragondin', name: 'Ragondin', emoji: '🦫' },
+  { code: 'loutre', name: 'Loutre', emoji: '🦦' },
+  { code: 'ocelot', name: 'Ocelot', emoji: '🐆' },
+  { code: 'gazelle', name: 'Gazelle', emoji: '🦌' },
+  { code: 'impala', name: 'Impala', emoji: '🦌' },
+  { code: 'antilope', name: 'Antilope', emoji: '🦌' },
+  { code: 'springbok', name: 'Springbok', emoji: '🦌' },
+  { code: 'zebre', name: 'Zebre', emoji: '🦓' },
+  { code: 'gnou', name: 'Gnou', emoji: '🐃' },
+  { code: 'autruche', name: 'Autruche', emoji: '🦩' },
+  { code: 'phacochere', name: 'Phacochere', emoji: '🐗' },
+  { code: 'sanglier', name: 'Sanglier', emoji: '🐗' },
+  { code: 'chevre_de_montagne', name: 'Chevre de montagne', emoji: '🐐' },
+  { code: 'lievre', name: 'Lievre', emoji: '🐇' },
+  { code: 'renard_des_neiges', name: 'Renard des neiges', emoji: '🦊' },
+  { code: 'coyote', name: 'Coyote', emoji: '🐺' },
+  { code: 'lynx', name: 'Lynx', emoji: '🐈' },
+  { code: 'caracal', name: 'Caracal', emoji: '🐈' },
+  { code: 'chat_sauvage', name: 'Chat sauvage', emoji: '🐈\u200d⬛' },
+  { code: 'guepard', name: 'Guepard', emoji: '🐆' },
+  { code: 'loup', name: 'Loup', emoji: '🐺' },
+  { code: 'puma', name: 'Puma', emoji: '🐆' },
+  { code: 'panthere', name: 'Panthere', emoji: '🐆' },
+  { code: 'cerf', name: 'Cerf', emoji: '🦌' },
+  { code: 'elan', name: 'Elan', emoji: '🦌' },
+  { code: 'wapiti', name: 'Wapiti', emoji: '🦌' },
+  { code: 'bison', name: 'Bison', emoji: '🦬' },
+  { code: 'buffle_d_afrique', name: 'Buffle d\'Afrique', emoji: '🐃' },
+  { code: 'hippopotame', name: 'Hippopotame', emoji: '🦛' },
+  { code: 'chameau', name: 'Chameau', emoji: '🐫' },
+  { code: 'yack', name: 'Yack', emoji: '🐂' },
+  { code: 'girafe', name: 'Girafe', emoji: '🦒' },
+  { code: 'rhinoceros_noir', name: 'Rhinoceros noir', emoji: '🦏' },
+  { code: 'ours_brun', name: 'Ours brun', emoji: '🐻' },
+  { code: 'ours_noir', name: 'Ours noir', emoji: '🐻' },
+  { code: 'gorille', name: 'Gorille', emoji: '🦍' },
+  { code: 'chimpanze', name: 'Chimpanze', emoji: '🐒' },
+  { code: 'jaguar', name: 'Jaguar', emoji: '🐆' },
+  { code: 'leopard', name: 'Leopard', emoji: '🐆' },
+  { code: 'tigre_du_bengale', name: 'Tigre du Bengale', emoji: '🐅' },
+  { code: 'crocodile_du_nil', name: 'Crocodile du Nil', emoji: '🐊' },
+  { code: 'python', name: 'Python', emoji: '🐍' },
+  { code: 'aigle_royal', name: 'Aigle royal', emoji: '🦅' },
+  { code: 'ours_polaire', name: 'Ours polaire', emoji: '🐻\u200d❄️' },
+  { code: 'rhinoceros_blanc', name: 'Rhinoceros blanc', emoji: '🦏' },
+  { code: 'gorille_des_montagnes', name: 'Gorille des montagnes', emoji: '🦍' },
+  { code: 'elephant_de_foret', name: 'Elephant de foret', emoji: '🐘' },
+  { code: 'elephant_de_savane', name: 'Elephant de savane', emoji: '🐘' },
+  { code: 'panthere_des_neiges', name: 'Panthere des neiges', emoji: '🐆' },
+  { code: 'tigre_de_siberie', name: 'Tigre de Siberie', emoji: '🐅' },
+  { code: 'grizzly_geant', name: 'Grizzly geant', emoji: '🐻' },
+  { code: 'lionne', name: 'Lionne', emoji: '🦁' },
+  { code: 'lion', name: 'Lion', emoji: '🦁' },
 ];
 
 function avatarRankFor(niveauGlobal) {
@@ -73,7 +166,8 @@ function avatarRankFor(niveauGlobal) {
 }
 
 function avatarLabelFor(niveauGlobal) {
-  return AVATAR_CHAIN[avatarRankFor(niveauGlobal) - 1];
+  const a = AVATAR_CHAIN[avatarRankFor(niveauGlobal) - 1];
+  return a.emoji + ' ' + a.name;
 }
 
 // ============================================================
@@ -136,11 +230,24 @@ async function completeSession({ profil, miniJeuId, finalPalier, erreursTotal, d
       .eq('id', rewardRow.id);
   }
 
+  let ficheAnimal = null;
+  const rankChanged = newRank !== previousRank;
+  if (rankChanged) {
+    const code = AVATAR_CHAIN[newRank - 1].code;
+    const { data: fiche } = await supabase
+      .from('fiches_animaux')
+      .select('*')
+      .eq('code', code)
+      .maybeSingle();
+    ficheAnimal = fiche ?? null;
+  }
+
   return {
     newNiveau,
-    rankChanged: newRank !== previousRank,
+    rankChanged,
     newRank,
     reward,
+    ficheAnimal,
   };
 }
 
@@ -480,7 +587,7 @@ function WorldMapScreen({ route, navigation }) {
       </Pressable>
 
       <View style={styles.mapHeader}>
-        <Text style={styles.mapAvatar}>{profil.avatar_personnel ?? '🐾'}</Text>
+        <BouncingEmoji emoji={profil.avatar_personnel ?? '🐾'} size={44} />
         <View style={{ flex: 1 }}>
           <Text style={styles.title}>{profil.prenom}</Text>
           <Text style={styles.mapSubtitle}>
@@ -722,14 +829,16 @@ function PontDesLettresScreen({ route, navigation }) {
       </View>
 
       {feedback && (
-        <Text
-          style={[
-            styles.feedback,
-            feedback === 'Bravo !' ? styles.feedbackSuccess : styles.feedbackError,
-          ]}
-        >
-          {feedback}
-        </Text>
+        <PopIn key={feedback + round}>
+          <Text
+            style={[
+              styles.feedback,
+              feedback === 'Bravo !' ? styles.feedbackSuccess : styles.feedbackError,
+            ]}
+          >
+            {feedback}
+          </Text>
+        </PopIn>
       )}
 
       <View style={styles.stonesWrap}>
@@ -761,32 +870,104 @@ function PontDesLettresScreen({ route, navigation }) {
 // ============================================================
 // Écran de fin de session partagé (résultat, montée d'avatar, récompense)
 // ============================================================
-function SessionEndScreen({ profil, palier, summary, navigation }) {
+function BouncingEmoji({ emoji, size }) {
+  const bounce = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounce, { toValue: -10, duration: 450, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.timing(bounce, { toValue: 0, duration: 450, easing: Easing.in(Easing.quad), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [bounce]);
+
   return (
-    <View style={styles.center}>
-      <Text style={styles.endEmoji}>🌟</Text>
+    <Animated.Text style={{ fontSize: size ?? 56, transform: [{ translateY: bounce }] }}>
+      {emoji}
+    </Animated.Text>
+  );
+}
+
+function PopIn({ children, delay, style }) {
+  const scale = useRef(new Animated.Value(0.7)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scale, { toValue: 1, delay: delay ?? 0, friction: 6, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 1, delay: delay ?? 0, duration: 300, useNativeDriver: true }),
+    ]).start();
+  }, [scale, opacity, delay]);
+
+  return (
+    <Animated.View style={[style, { opacity, transform: [{ scale }] }]}>
+      {children}
+    </Animated.View>
+  );
+}
+
+function speak(text) {
+  if (text) Speech.speak(String(text), { language: 'fr-FR', rate: 0.85 });
+}
+
+function SessionEndScreen({ profil, palier, summary, navigation }) {
+  const fiche = summary?.ficheAnimal;
+
+  return (
+    <ScrollView contentContainerStyle={styles.endScroll}>
+      <BouncingEmoji emoji="🌟" size={56} />
       <Text style={styles.endTitle}>Bravo {profil.prenom} !</Text>
       {palier != null && (
         <Text style={styles.endText}>Tu as fini ta session au palier {palier} sur 3.</Text>
       )}
+
       {summary?.rankChanged && (
-        <View style={styles.rankUpBox}>
+        <PopIn delay={150} style={styles.rankUpBox}>
           <Text style={styles.rankUpTitle}>Nouvel avatar débloqué !</Text>
-          <Text style={styles.rankUpAvatar}>{AVATAR_CHAIN[summary.newRank - 1]}</Text>
-        </View>
+          <BouncingEmoji emoji={AVATAR_CHAIN[summary.newRank - 1].emoji} size={44} />
+          <Text style={styles.rankUpAvatar}>{AVATAR_CHAIN[summary.newRank - 1].name}</Text>
+        </PopIn>
       )}
+
+      {fiche && (
+        <PopIn delay={350} style={styles.ficheBox}>
+          <Text style={styles.ficheTitle}>{fiche.nom_affiche}</Text>
+          {fiche.epoque ? <Text style={styles.ficheLine}>🕰️ {fiche.epoque}</Text> : null}
+          {fiche.habitat ? <Text style={styles.ficheLine}>🏡 {fiche.habitat}</Text> : null}
+          {fiche.alimentation ? <Text style={styles.ficheLine}>🍽️ {fiche.alimentation}</Text> : null}
+          {fiche.esperance_de_vie ? <Text style={styles.ficheLine}>⏳ {fiche.esperance_de_vie}</Text> : null}
+          {fiche.fait_amusant ? <Text style={styles.ficheFait}>✨ {fiche.fait_amusant}</Text> : null}
+          <Pressable
+            style={styles.listenButton}
+            onPress={() =>
+              speak(
+                [fiche.nom_affiche, fiche.habitat, fiche.alimentation, fiche.fait_amusant]
+                  .filter(Boolean)
+                  .join('. ')
+              )
+            }
+          >
+            <Text style={styles.listenText}>🔊 Écouter</Text>
+          </Pressable>
+        </PopIn>
+      )}
+
       {summary?.reward && (
-        <View style={styles.rewardBox}>
+        <PopIn delay={500} style={styles.rewardBox}>
           <Text style={styles.rewardTitle}>🎁 Une récompense t'attend !</Text>
           {summary.reward.description ? (
             <Text style={styles.rewardText}>{summary.reward.description}</Text>
           ) : null}
-        </View>
+        </PopIn>
       )}
+
       <Pressable style={styles.button} onPress={() => navigation.goBack()}>
         <Text style={styles.buttonText}>Retour à la carte</Text>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -948,9 +1129,11 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt })
       </View>
 
       {feedback && (
-        <Text style={[styles.feedback, feedback === 'Bravo !' ? styles.feedbackSuccess : styles.feedbackError]}>
-          {feedback}
-        </Text>
+        <PopIn key={feedback + round}>
+          <Text style={[styles.feedback, feedback === 'Bravo !' ? styles.feedbackSuccess : styles.feedbackError]}>
+            {feedback}
+          </Text>
+        </PopIn>
       )}
 
       <View style={styles.stonesWrap}>
@@ -1382,4 +1565,9 @@ const styles = StyleSheet.create({
   rewardRowSub: { fontSize: 12, opacity: 0.6, marginTop: 2 },
   checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: colors.mossSoft, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
   checkboxChecked: { backgroundColor: colors.mossSoft },
+  endScroll: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cream, padding: 24, paddingTop: 60 },
+  ficheBox: { backgroundColor: '#fff', borderRadius: 20, padding: 18, marginBottom: 16, alignItems: 'center', width: '100%', borderWidth: 2, borderColor: colors.mossSoft },
+  ficheTitle: { fontSize: 18, fontWeight: '800', color: colors.mossDeep, marginBottom: 8 },
+  ficheLine: { fontSize: 14, color: colors.ink, marginBottom: 4, textAlign: 'center' },
+  ficheFait: { fontSize: 14, color: colors.mossDeep, fontWeight: '700', marginTop: 8, textAlign: 'center' },
 });
