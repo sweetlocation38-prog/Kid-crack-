@@ -37,14 +37,20 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 // Thème
 // ============================================================
 const colors = {
-  cream: '#F7F1E1',
-  mossDeep: '#3E5A3A',
+  cream: '#FFF8E7',
+  mossDeep: '#2F4A2C',
   mossSoft: '#7FA36B',
-  sand: '#EEDDA9',
+  sand: '#FFE1A8',
   ink: '#3A3226',
-  gold: '#E7B559',
+  gold: '#F5A623',
   blue: '#1E96D6',
+  success: '#3FAE6B',
+  error: '#E85D5D',
 };
+
+// Petite variété de couleurs pour les pierres, pour que ce soit plus vivant
+// qu'une seule teinte uniforme.
+const STONE_COLORS = ['#FFE1A8', '#B8E0D2', '#FFD3D3', '#D4E4FF', '#FCE8B4'];
 
 const NIVEAU_CHOICES = [
   { value: 'ms', label: 'Moyenne Section' },
@@ -607,33 +613,53 @@ function PontDesLettresScreen({ route, navigation }) {
         {isModelMode ? (
           current.showModel && (
             <View style={styles.modelBox}>
-              <Text style={styles.modelText}>{current.sequence[0]}</Text>
+              <Text style={styles.modelText} numberOfLines={1} adjustsFontSizeToFit>
+                {current.sequence[0]}
+              </Text>
             </View>
           )
         ) : (
           <View style={styles.slots}>
             {current.sequence.map((_, i) => (
               <View key={i} style={styles.slot}>
-                <Text style={styles.slotText}>{foundLetters[i] ?? ''}</Text>
+                <Text style={styles.slotText} numberOfLines={1} adjustsFontSizeToFit>
+                  {foundLetters[i] ?? ''}
+                </Text>
               </View>
             ))}
           </View>
         )}
       </View>
 
-      {feedback && <Text style={styles.feedback}>{feedback}</Text>}
+      {feedback && (
+        <Text
+          style={[
+            styles.feedback,
+            feedback === 'Bravo !' ? styles.feedbackSuccess : styles.feedbackError,
+          ]}
+        >
+          {feedback}
+        </Text>
+      )}
 
       <View style={styles.stonesWrap}>
         {tokens.map((token, i) => {
           const used = usedTokens.includes(token + '#' + i);
+          const bg = STONE_COLORS[i % STONE_COLORS.length];
           return (
             <Pressable
               key={i}
               disabled={used}
               onPress={() => onTokenPress(token, i)}
-              style={[styles.stone, used && styles.stoneUsed]}
+              style={[
+                styles.stone,
+                { backgroundColor: bg },
+                used && styles.stoneUsed,
+              ]}
             >
-              <Text style={styles.stoneText}>{token}</Text>
+              <Text style={styles.stoneText} numberOfLines={1} adjustsFontSizeToFit>
+                {token}
+              </Text>
             </Pressable>
           );
         })}
@@ -774,16 +800,29 @@ const styles = StyleSheet.create({
   icon: { fontSize: 56, marginBottom: 8 },
   listenButton: { backgroundColor: '#fff', borderRadius: 999, paddingVertical: 10, paddingHorizontal: 18, marginBottom: 10 },
   listenText: { fontWeight: '700', color: colors.mossDeep },
-  modelBox: { width: 64, height: 64, borderRadius: 18, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.sand },
-  modelText: { fontSize: 26, fontWeight: '700', color: colors.mossDeep },
-  slots: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'center' },
-  slot: { minWidth: 42, height: 48, borderBottomWidth: 4, borderBottomColor: colors.mossSoft, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
-  slotText: { fontSize: 20, fontWeight: '700', color: colors.mossDeep },
-  feedback: { textAlign: 'center', fontWeight: '700', color: colors.mossDeep, marginBottom: 12 },
+  modelBox: {
+    minWidth: 64, height: 64, paddingHorizontal: 12, borderRadius: 18,
+    backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 3, borderColor: colors.gold, flexShrink: 0,
+  },
+  modelText: { fontSize: 26, fontWeight: '800', color: colors.mossDeep },
+  slots: { flexDirection: 'row', gap: 8, flexWrap: 'nowrap', justifyContent: 'center' },
+  slot: {
+    minWidth: 42, height: 48, borderBottomWidth: 4, borderBottomColor: colors.mossSoft,
+    alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8, flexShrink: 0,
+  },
+  slotText: { fontSize: 20, fontWeight: '800', color: colors.mossDeep },
+  feedback: { textAlign: 'center', fontWeight: '800', fontSize: 16, marginBottom: 12 },
+  feedbackSuccess: { color: colors.success },
+  feedbackError: { color: colors.error },
   stonesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
-  stone: { minWidth: 52, height: 52, paddingHorizontal: 10, borderRadius: 16, backgroundColor: colors.sand, alignItems: 'center', justifyContent: 'center' },
-  stoneUsed: { backgroundColor: colors.mossSoft, opacity: 0.6 },
-  stoneText: { fontSize: 16, fontWeight: '700', color: colors.mossDeep },
+  stone: {
+    minWidth: 52, height: 52, paddingHorizontal: 14, borderRadius: 16,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
+  },
+  stoneUsed: { backgroundColor: colors.mossSoft, opacity: 0.45, borderColor: 'transparent' },
+  stoneText: { fontSize: 17, fontWeight: '800', color: colors.ink },
   endEmoji: { fontSize: 48, marginBottom: 12 },
   endTitle: { fontSize: 22, fontWeight: '700', color: colors.mossDeep, marginBottom: 8 },
   endText: { fontSize: 15, opacity: 0.7, marginBottom: 24, textAlign: 'center' },
