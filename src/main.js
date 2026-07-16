@@ -52,6 +52,98 @@ const colors = {
 // qu'une seule teinte uniforme.
 const STONE_COLORS = ['#FFE1A8', '#B8E0D2', '#FFD3D3', '#D4E4FF', '#FCE8B4'];
 
+// ============================================================
+// Chaine d'avatar de jeu (100 echelons, un tous les 10 niveaux)
+// ============================================================
+const AVATAR_CHAIN = [
+  '🐜 Fourmi','🐞 Coccinelle','🦋 Papillon','🐝 Abeille','🐌 Escargot','🐛 Ver luisant','🦗 Sauterelle','🪰 Libellule','🪲 Scarabee','🦗 Grillon',
+  '🐭 Souris','🐭 Mulot','🐁 Musaraigne','🐸 Grenouille','🐸 Crapaud','🦎 Lezard','🐸 Tetard','🐹 Campagnol','🐛 Chenille','🦗 Criquet',
+  '🦔 Herisson','🐹 Taupe','🐿️ Ecureuil','🐿️ Tamia','🦇 Chauve-souris','🦡 Belette','🦡 Furet','🦡 Putois','🐀 Rat des champs','🐭 Loir',
+  '🐦 Geai','🐦‍⬛ Pie','🐦‍⬛ Corbeau','🦅 Faucon crecerelle','🦉 Chouette','🦩 Heron','🦢 Cigogne','🐦 Pelican','🦜 Perruche','🦜 Toucan',
+  '🦡 Martre','🦡 Fouine','🦡 Mangouste','🦫 Suricate','🦡 Blaireau','🐆 Genette','🐺 Chacal','🦫 Ragondin','🦦 Loutre','🐆 Ocelot',
+  '🦌 Gazelle','🦌 Impala','🦌 Antilope','🦌 Springbok','🦓 Zebre','🐃 Gnou','🦩 Autruche','🐗 Phacochere','🐗 Sanglier','🐐 Chevre de montagne',
+  '🐇 Lievre','🦊 Renard des neiges','🐺 Coyote','🐈 Lynx','🐈 Caracal','🐈‍⬛ Chat sauvage','🐆 Guepard','🐺 Loup','🐆 Puma','🐆 Panthere',
+  '🦌 Cerf','🦌 Elan','🦌 Wapiti','🦬 Bison','🐃 Buffle d\'Afrique','🦛 Hippopotame','🐫 Chameau','🐂 Yack','🦒 Girafe','🦏 Rhinoceros noir',
+  '🐻 Ours brun','🐻 Ours noir','🦍 Gorille','🐒 Chimpanze','🐆 Jaguar','🐆 Leopard','🐅 Tigre du Bengale','🐊 Crocodile du Nil','🐍 Python','🦅 Aigle royal',
+  '🐻‍❄️ Ours polaire','🦏 Rhinoceros blanc','🦍 Gorille des montagnes','🐘 Elephant de foret','🐘 Elephant de savane','🐆 Panthere des neiges','🐅 Tigre de Siberie','🐻 Grizzly geant','🦁 Lionne','🦁 Lion',
+];
+
+function avatarRankFor(niveauGlobal) {
+  return Math.min(100, Math.max(1, Math.floor((niveauGlobal ?? 0) / 10) + 1));
+}
+
+function avatarLabelFor(niveauGlobal) {
+  return AVATAR_CHAIN[avatarRankFor(niveauGlobal) - 1];
+}
+
+// ============================================================
+// Fin de session partagee entre tous les mini-jeux :
+// enregistre la progression, avance le niveau global, verifie
+// un changement d'echelon d'avatar et une recompense parentale.
+// ============================================================
+async function completeSession({ profil, miniJeuId, finalPalier, erreursTotal, dureeSecondes, totalRounds, startedAt }) {
+  await supabase
+    .from('progression')
+    .upsert(
+      { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: finalPalier },
+      { onConflict: 'profil_id,mini_jeu_id' }
+    );
+
+  await supabase.from('sessions_jeu').insert({
+    profil_id: profil.id,
+    mini_jeu_id: miniJeuId,
+    debut: new Date(startedAt).toISOString(),
+    duree_secondes: dureeSecondes,
+    manches_jouees: totalRounds,
+    erreurs_total: erreursTotal,
+  });
+
+  await supabase.from('jours_actifs').insert({
+    profil_id: profil.id,
+    date: new Date().toISOString().slice(0, 10),
+  });
+
+  const { data: profilRow } = await supabase
+    .from('profils_enfants')
+    .select('niveau_global')
+    .eq('id', profil.id)
+    .single();
+
+  const previousNiveau = profilRow?.niveau_global ?? 0;
+  const newNiveau = previousNiveau + 1;
+  const previousRank = avatarRankFor(previousNiveau);
+  const newRank = avatarRankFor(newNiveau);
+
+  await supabase
+    .from('profils_enfants')
+    .update({ niveau_global: newNiveau })
+    .eq('id', profil.id);
+
+  let reward = null;
+  const { data: rewardRow } = await supabase
+    .from('recompenses_parentales')
+    .select('*')
+    .eq('profil_id', profil.id)
+    .eq('niveau_declencheur', newNiveau)
+    .eq('statut', 'a_faire')
+    .maybeSingle();
+
+  if (rewardRow) {
+    reward = rewardRow;
+    await supabase
+      .from('recompenses_parentales')
+      .update({ statut: 'fait' })
+      .eq('id', rewardRow.id);
+  }
+
+  return {
+    newNiveau,
+    rankChanged: newRank !== previousRank,
+    newRank,
+    reward,
+  };
+}
+
 const NIVEAU_CHOICES = [
   { value: 'ms', label: 'Moyenne Section' },
   { value: 'gs', label: 'Grande Section' },
@@ -347,7 +439,7 @@ const GAME_SCREENS = {
 };
 
 function WorldMapScreen({ route, navigation }) {
-  const { profil } = route.params;
+  const [profil, setProfil] = useState(route.params.profil);
   const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -358,6 +450,20 @@ function WorldMapScreen({ route, navigation }) {
       setLoading(false);
     })();
   }, []);
+
+  // Rafraîchit le niveau/avatar à chaque retour sur cet écran (après une session de jeu).
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      const { data } = await supabase
+        .from('profils_enfants')
+        .select('*')
+        .eq('id', route.params.profil.id)
+        .maybeSingle();
+      if (data) setProfil(data);
+    });
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation]);
 
   if (loading) {
     return (
@@ -375,10 +481,15 @@ function WorldMapScreen({ route, navigation }) {
 
       <View style={styles.mapHeader}>
         <Text style={styles.mapAvatar}>{profil.avatar_personnel ?? '🐾'}</Text>
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={styles.title}>{profil.prenom}</Text>
-          <Text style={styles.mapSubtitle}>La Forêt des Murmures</Text>
+          <Text style={styles.mapSubtitle}>
+            Niveau {profil.niveau_global ?? 0} · {avatarLabelFor(profil.niveau_global ?? 0)}
+          </Text>
         </View>
+        <Pressable onPress={() => navigation.navigate('Recompenses', { profil })}>
+          <Text style={{ fontSize: 26 }}>🎁</Text>
+        </Pressable>
       </View>
 
       <FlatList
@@ -502,31 +613,19 @@ function PontDesLettresScreen({ route, navigation }) {
     Speech.speak(text, { language: 'fr-FR', rate: 0.85 });
   }
 
+  const [sessionSummary, setSessionSummary] = useState(null);
+
   async function finishSession(finalPalier) {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
-
-    await supabase
-      .from('progression')
-      .upsert(
-        { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: finalPalier },
-        { onConflict: 'profil_id,mini_jeu_id' }
-      );
-
-    await supabase.from('sessions_jeu').insert({
-      profil_id: profil.id,
-      mini_jeu_id: miniJeuId,
-      debut: new Date(startedAt.current).toISOString(),
-      duree_secondes: durationSeconds,
-      manches_jouees: TOTAL_ROUNDS,
-      erreurs_total: errorsTotal.current,
+    const summary = await completeSession({
+      profil, miniJeuId, finalPalier,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: TOTAL_ROUNDS,
+      startedAt: startedAt.current,
     });
-
-    await supabase.from('jours_actifs').insert({
-      profil_id: profil.id,
-      date: new Date().toISOString().slice(0, 10),
-    });
-
+    setSessionSummary(summary);
     setSessionDone(true);
   }
 
@@ -567,16 +666,7 @@ function PontDesLettresScreen({ route, navigation }) {
   }
 
   if (sessionDone) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.endEmoji}>🌟</Text>
-        <Text style={styles.endTitle}>Bravo {profil.prenom} !</Text>
-        <Text style={styles.endText}>Tu as fini ta session au palier {palier} sur 3.</Text>
-        <Pressable style={styles.button} onPress={() => navigation.goBack()}>
-          <Text style={styles.buttonText}>Retour à la carte</Text>
-        </Pressable>
-      </View>
-    );
+    return <SessionEndScreen profil={profil} palier={palier} summary={sessionSummary} navigation={navigation} />;
   }
 
   if (loading || !current) {
@@ -669,29 +759,476 @@ function PontDesLettresScreen({ route, navigation }) {
 }
 
 // ============================================================
-// Écrans temporaires (contenu prêt en base, écran à venir)
+// Écran de fin de session partagé (résultat, montée d'avatar, récompense)
 // ============================================================
-function ComingSoonScreen({ navigation, emoji, title }) {
+function SessionEndScreen({ profil, palier, summary, navigation }) {
+  return (
+    <View style={styles.center}>
+      <Text style={styles.endEmoji}>🌟</Text>
+      <Text style={styles.endTitle}>Bravo {profil.prenom} !</Text>
+      {palier != null && (
+        <Text style={styles.endText}>Tu as fini ta session au palier {palier} sur 3.</Text>
+      )}
+      {summary?.rankChanged && (
+        <View style={styles.rankUpBox}>
+          <Text style={styles.rankUpTitle}>Nouvel avatar débloqué !</Text>
+          <Text style={styles.rankUpAvatar}>{AVATAR_CHAIN[summary.newRank - 1]}</Text>
+        </View>
+      )}
+      {summary?.reward && (
+        <View style={styles.rewardBox}>
+          <Text style={styles.rewardTitle}>🎁 Une récompense t'attend !</Text>
+          {summary.reward.description ? (
+            <Text style={styles.rewardText}>{summary.reward.description}</Text>
+          ) : null}
+        </View>
+      )}
+      <Pressable style={styles.button} onPress={() => navigation.goBack()}>
+        <Text style={styles.buttonText}>Retour à la carte</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+// ============================================================
+// Moteur générique : question à choix (Sons Magiques + Pommes de Luma)
+// ============================================================
+function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt }) {
+  const { profil } = route.params;
+  const [loading, setLoading] = useState(true);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [palier, setPalier] = useState(1);
+  const [round, setRound] = useState(1);
+  const [promptData, setPromptData] = useState(null);
+  const [optionsOrder, setOptionsOrder] = useState([]);
+  const [answered, setAnswered] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const errorsThisRound = useRef(0);
+  const errorsTotal = useRef(0);
+  const lastItemId = useRef(null);
+  const startedAt = useRef(Date.now());
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase
+        .from('mini_jeux')
+        .select('id')
+        .eq('code', jeuCode)
+        .single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      setPalier(prog?.palier_actuel ?? 1);
+    })();
+  }, [profil.id]);
+
+  const loadRound = useCallback(async (jeuId, niveau, palierValue) => {
+    setLoading(true);
+    setFeedback(null);
+    setAnswered(null);
+    errorsThisRound.current = 0;
+
+    const { data } = await supabase
+      .from('contenu_mini_jeu')
+      .select('id, donnees')
+      .eq('mini_jeu_id', jeuId)
+      .eq('niveau', niveau)
+      .eq('palier', palierValue)
+      .eq('actif', true)
+      .limit(30);
+
+    const pool = (data ?? []).filter((r) => r.id !== lastItemId.current);
+    const pick = pool[Math.floor(Math.random() * pool.length)] ?? data?.[0];
+    if (!pick) {
+      setLoading(false);
+      return;
+    }
+    lastItemId.current = pick.id;
+    const prompt = buildPrompt(pick.donnees);
+    setPromptData(prompt);
+    setOptionsOrder(shuffle(prompt.options));
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (miniJeuId) loadRound(miniJeuId, profil.niveau_defaut, palier);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [miniJeuId]);
+
+  function speak(text) {
+    if (text) Speech.speak(String(text), { language: 'fr-FR', rate: 0.85 });
+  }
+
+  async function finishSession(finalPalier) {
+    if (!miniJeuId) return;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const summary = await completeSession({
+      profil, miniJeuId, finalPalier,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: TOTAL_ROUNDS,
+      startedAt: startedAt.current,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function onOptionPress(value) {
+    if (!promptData || answered !== null) return;
+    const isCorrect = String(value) === String(promptData.correct);
+    setAnswered(value);
+
+    if (isCorrect) {
+      setFeedback('Bravo !');
+      setTimeout(async () => {
+        let nextPalier = palier;
+        if (errorsThisRound.current === 0) nextPalier = Math.min(3, palier + 1);
+        else if (errorsThisRound.current >= 2) nextPalier = Math.max(1, palier - 1);
+
+        if (round >= TOTAL_ROUNDS) {
+          setPalier(nextPalier);
+          await finishSession(nextPalier);
+        } else {
+          setPalier(nextPalier);
+          setRound((r) => r + 1);
+          loadRound(miniJeuId, profil.niveau_defaut, nextPalier);
+        }
+      }, 700);
+    } else {
+      errorsThisRound.current += 1;
+      errorsTotal.current += 1;
+      setFeedback('Essaie encore !');
+      setTimeout(() => {
+        setFeedback(null);
+        setAnswered(null);
+      }, 700);
+    }
+  }
+
+  if (sessionDone) {
+    return <SessionEndScreen profil={profil} palier={palier} summary={sessionSummary} navigation={navigation} />;
+  }
+
+  if (loading || !promptData) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>{jeuTitre}</Text>
+        <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
+      </View>
+
+      <View style={styles.prompt}>
+        {promptData.icon ? <Text style={styles.icon}>{promptData.icon}</Text> : null}
+        {promptData.visual ? <Text style={styles.visualRow}>{promptData.visual}</Text> : null}
+        <Text style={styles.promptText}>{promptData.promptText}</Text>
+        {promptData.speak ? (
+          <Pressable style={styles.listenButton} onPress={() => speak(promptData.speak)}>
+            <Text style={styles.listenText}>🔊 Écouter</Text>
+          </Pressable>
+        ) : null}
+      </View>
+
+      {feedback && (
+        <Text style={[styles.feedback, feedback === 'Bravo !' ? styles.feedbackSuccess : styles.feedbackError]}>
+          {feedback}
+        </Text>
+      )}
+
+      <View style={styles.stonesWrap}>
+        {optionsOrder.map((option, i) => {
+          const isAnswered = answered !== null;
+          const isThisCorrect = String(option) === String(promptData.correct);
+          const isThisAnswer = isAnswered && String(option) === String(answered);
+          const bg = STONE_COLORS[i % STONE_COLORS.length];
+          return (
+            <Pressable
+              key={i}
+              disabled={isAnswered}
+              onPress={() => onOptionPress(option)}
+              style={[
+                styles.optionButton,
+                { backgroundColor: bg },
+                isAnswered && isThisCorrect && styles.optionCorrect,
+                isAnswered && isThisAnswer && !isThisCorrect && styles.optionWrong,
+              ]}
+            >
+              <Text style={styles.optionText} numberOfLines={1} adjustsFontSizeToFit>
+                {String(option)}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+// ============================================================
+// Les Sons Magiques
+// ============================================================
+function buildSonsPrompt(d) {
+  switch (d.etape) {
+    case 'segmenter':
+      return {
+        icon: d.icon,
+        promptText: 'Combien de syllabes dans ce mot ?',
+        speak: d.mot,
+        options: d.options,
+        correct: d.syllabes,
+      };
+    case 'rimer':
+      return {
+        icon: d.cible_icon,
+        promptText: 'Quel mot rime avec celui-ci ?',
+        speak: d.cible,
+        options: d.options,
+        correct: d.bonne_reponse,
+      };
+    case 'fusionner': {
+      const correct = d.options.find((o) => o.toLowerCase() === String(d.son).toLowerCase()) ?? d.options[0];
+      return {
+        promptText: 'Quelle lettre fait ce son ?',
+        speak: d.son,
+        options: d.options,
+        correct,
+      };
+    }
+    case 'fusionner_syllabe':
+      return {
+        promptText: 'Quelle syllabe fait "' + d.son1 + '" + "' + d.son2 + '" ?',
+        speak: d.son1 + d.son2,
+        options: d.options,
+        correct: d.resultat,
+      };
+    case 'manipuler': {
+      const instruction = d.instruction === 'enlever'
+        ? 'Dis "' + d.mot_depart + '" sans le son "' + d.son_cible + '"'
+        : 'Dans "' + d.mot_depart + '", remplace "' + d.son_cible + '" par "' + d.son_ajoute + '"';
+      return {
+        promptText: instruction,
+        speak: d.mot_depart,
+        options: d.options,
+        correct: d.resultat,
+      };
+    }
+    case 'premiere_syllabe':
+      return {
+        icon: d.icon,
+        promptText: 'Quelle est la première syllabe de ce mot ?',
+        speak: d.mot,
+        options: d.syllabes,
+        correct: d.reponse,
+      };
+    default:
+      return { promptText: '...', options: [], correct: null };
+  }
+}
+
+function SonsMagiquesScreen({ route, navigation }) {
+  return (
+    <ChoiceGameScreen
+      route={route}
+      navigation={navigation}
+      jeuCode="sons_magiques"
+      jeuTitre="🎵 Les Sons Magiques"
+      buildPrompt={buildSonsPrompt}
+    />
+  );
+}
+
+// ============================================================
+// Les Pommes de Luma
+// ============================================================
+function buildLumaPrompt(d) {
+  switch (d.etape) {
+    case 'concret':
+      return {
+        visual: '🍎'.repeat(d.cible),
+        promptText: 'Combien de pommes vois-tu ?',
+        options: d.options,
+        correct: d.cible,
+      };
+    case 'chiffre':
+      return {
+        visual: '🍎'.repeat(d.cible),
+        promptText: 'Quel chiffre correspond à cette quantité ?',
+        options: d.options,
+        correct: d.cible,
+      };
+    case 'image': {
+      const a = d.decomposition[0];
+      const b = d.decomposition[1];
+      return {
+        visual: '🍎'.repeat(a) + '   ' + '🍏'.repeat(b),
+        promptText: a + ' + ' + b + ' = ?',
+        options: [d.cible, d.cible - 1, d.cible + 1],
+        correct: d.cible,
+      };
+    }
+    case 'abstrait': {
+      const symbole = d.operation === 'addition' ? '+' : '−';
+      return {
+        promptText: d.a + ' ' + symbole + ' ' + d.b + ' = ?',
+        options: d.options,
+        correct: d.resultat,
+      };
+    }
+    case 'comparer':
+      return {
+        visual: '🍎'.repeat(d.gauche) + '    VS    ' + '🍎'.repeat(d.droite),
+        promptText: 'Le groupe de gauche a-t-il plus, moins ou autant que celui de droite ?',
+        options: ['plus', 'moins', 'autant'],
+        correct: d.reponse,
+      };
+    default:
+      return { promptText: '...', options: [], correct: null };
+  }
+}
+
+function PommesDeLumaScreen({ route, navigation }) {
+  return (
+    <ChoiceGameScreen
+      route={route}
+      navigation={navigation}
+      jeuCode="pommes_de_luma"
+      jeuTitre="🍎 Les Pommes de Luma"
+      buildPrompt={buildLumaPrompt}
+    />
+  );
+}
+
+// ============================================================
+// Écran parent : gestion des récompenses
+// ============================================================
+function RecompensesScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const [recompenses, setRecompenses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [niveauDeclencheur, setNiveauDeclencheur] = useState('');
+  const [description, setDescription] = useState('');
+  const [visibleAvant, setVisibleAvant] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('recompenses_parentales')
+      .select('*')
+      .eq('profil_id', profil.id)
+      .order('niveau_declencheur');
+    setRecompenses(data ?? []);
+    setLoading(false);
+  }, [profil.id]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function handleAdd() {
+    const niveau = parseInt(niveauDeclencheur, 10);
+    if (!niveau || !description.trim()) return;
+    setSaving(true);
+    await supabase.from('recompenses_parentales').insert({
+      profil_id: profil.id,
+      famille_id: profil.famille_id,
+      niveau_declencheur: niveau,
+      description: description.trim(),
+      visible_avant: visibleAvant,
+      statut: 'a_faire',
+    });
+    setNiveauDeclencheur('');
+    setDescription('');
+    setSaving(false);
+    load();
+  }
+
+  async function handleDelete(id) {
+    await supabase.from('recompenses_parentales').delete().eq('id', id);
+    load();
+  }
+
   return (
     <View style={styles.container}>
       <Pressable onPress={() => navigation.goBack()}>
         <Text style={styles.back}>‹ Retour</Text>
       </Pressable>
-      <View style={styles.center}>
-        <Text style={styles.endEmoji}>{emoji}</Text>
-        <Text style={styles.endTitle}>{title}</Text>
-        <Text style={styles.endText}>
-          Ce mini-jeu arrive bientôt ! Le contenu pédagogique est déjà prêt dans la forêt.
-        </Text>
+      <Text style={styles.title}>🎁 Récompenses pour {profil.prenom}</Text>
+
+      <View style={styles.rewardForm}>
+        <Text style={styles.label}>Niveau qui déclenche la récompense (1 à 1000)</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="ex. 10"
+          keyboardType="number-pad"
+          value={niveauDeclencheur}
+          onChangeText={setNiveauDeclencheur}
+        />
+        <Text style={styles.label}>Description</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="ex. Sortie au parc, une glace..."
+          value={description}
+          onChangeText={setDescription}
+        />
+        <Pressable style={styles.row} onPress={() => setVisibleAvant(!visibleAvant)}>
+          <View style={[styles.checkbox, visibleAvant && styles.checkboxChecked]}>
+            {visibleAvant ? <Text style={{ color: '#fff' }}>✓</Text> : null}
+          </View>
+          <Text style={{ color: colors.ink }}>Annoncer à l'avance (cadenas visible)</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.button, { opacity: saving ? 0.5 : 1 }]}
+          onPress={handleAdd}
+          disabled={saving}
+        >
+          <Text style={styles.buttonText}>{saving ? 'Ajout…' : 'Ajouter la récompense'}</Text>
+        </Pressable>
       </View>
+
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.mossDeep} style={{ marginTop: 20 }} />
+      ) : (
+        <FlatList
+          data={recompenses}
+          keyExtractor={(r) => r.id}
+          style={{ marginTop: 16 }}
+          renderItem={({ item }) => (
+            <View style={styles.rewardRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.rewardRowTitle}>
+                  Niveau {item.niveau_declencheur} — {item.description}
+                </Text>
+                <Text style={styles.rewardRowSub}>
+                  {item.statut === 'fait' ? '✅ Débloquée' : item.visible_avant ? '🔒 Annoncée' : '🎁 Surprise'}
+                </Text>
+              </View>
+              <Pressable onPress={() => handleDelete(item.id)}>
+                <Text style={{ color: colors.error, fontWeight: '700' }}>Suppr.</Text>
+              </Pressable>
+            </View>
+          )}
+          ListEmptyComponent={<Text style={styles.emptyText}>Aucune récompense pour l'instant.</Text>}
+        />
+      )}
     </View>
   );
-}
-function SonsMagiquesScreen({ navigation }) {
-  return <ComingSoonScreen navigation={navigation} emoji="🎵" title="Les Sons Magiques" />;
-}
-function PommesDeLumaScreen({ navigation }) {
-  return <ComingSoonScreen navigation={navigation} emoji="🍎" title="Les Pommes de Luma" />;
 }
 
 // ============================================================
@@ -734,6 +1271,7 @@ export default function RootNavigator() {
             <Stack.Screen name="PontDesLettres" component={PontDesLettresScreen} />
             <Stack.Screen name="SonsMagiques" component={SonsMagiquesScreen} />
             <Stack.Screen name="PommesDeLuma" component={PommesDeLumaScreen} />
+            <Stack.Screen name="Recompenses" component={RecompensesScreen} />
           </>
         )}
       </Stack.Navigator>
@@ -826,4 +1364,22 @@ const styles = StyleSheet.create({
   endEmoji: { fontSize: 48, marginBottom: 12 },
   endTitle: { fontSize: 22, fontWeight: '700', color: colors.mossDeep, marginBottom: 8 },
   endText: { fontSize: 15, opacity: 0.7, marginBottom: 24, textAlign: 'center' },
+  rankUpBox: { backgroundColor: colors.gold, borderRadius: 18, padding: 16, marginBottom: 16, alignItems: 'center' },
+  rankUpTitle: { fontWeight: '800', color: colors.ink, marginBottom: 6 },
+  rankUpAvatar: { fontSize: 22, fontWeight: '700', color: colors.ink },
+  rewardBox: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 16, alignItems: 'center', borderWidth: 2, borderColor: colors.gold },
+  rewardTitle: { fontWeight: '800', color: colors.mossDeep, marginBottom: 6 },
+  rewardText: { color: colors.ink, textAlign: 'center' },
+  visualRow: { fontSize: 26, marginBottom: 10, textAlign: 'center' },
+  promptText: { fontSize: 17, fontWeight: '700', color: colors.mossDeep, textAlign: 'center', marginBottom: 10 },
+  optionButton: { minWidth: 70, height: 56, paddingHorizontal: 16, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)' },
+  optionCorrect: { backgroundColor: colors.success, borderColor: colors.success },
+  optionWrong: { backgroundColor: colors.error, borderColor: colors.error },
+  optionText: { fontSize: 17, fontWeight: '800', color: colors.ink },
+  rewardForm: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginTop: 16 },
+  rewardRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 14, padding: 12, marginBottom: 8 },
+  rewardRowTitle: { fontWeight: '700', color: colors.mossDeep },
+  rewardRowSub: { fontSize: 12, opacity: 0.6, marginTop: 2 },
+  checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: colors.mossSoft, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  checkboxChecked: { backgroundColor: colors.mossSoft },
 });
