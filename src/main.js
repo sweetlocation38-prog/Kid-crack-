@@ -1169,17 +1169,10 @@ function PontDesLettresScreen({ route, navigation }) {
   const lastItemId = useRef(null);
   const startedAt = useRef(Date.now());
 
-  const { totalAllowed, baseRemaining } = useTimeBudget(profil);
-  const remainingSeconds = useLiveCountdown(baseRemaining);
-  const timeUpRef = useRef(false);
+  // Ne lit automatiquement que lorsqu'il n'y a AUCUNE image pour deviner
+  // le mot (sinon, la voix reste juste disponible en appuyant dessus).
   useEffect(() => {
-    if (baseRemaining != null && remainingSeconds <= 0) timeUpRef.current = true;
-  }, [remainingSeconds, baseRemaining]);
-
-  // Lit automatiquement la consigne et le mot/son a voix haute a chaque
-  // nouvelle manche, car les enfants ne savent pas tous lire encore.
-  useEffect(() => {
-    if (!current) return;
+    if (!current || current.icon) return;
     let cancelled = false;
     const isModelMode = !!current.options;
     const instruction = isModelMode ? 'Trouve la lettre.' : 'Écoute et assemble le mot.';
@@ -1297,7 +1290,7 @@ function PontDesLettresScreen({ route, navigation }) {
       if (nextStep === current.sequence.length) {
         setFeedback('Bravo !');
         setTimeout(async () => {
-          if (round >= TOTAL_ROUNDS || timeUpRef.current) {
+          if (round >= TOTAL_ROUNDS) {
             await finishSession();
           } else {
             setRound((r) => r + 1);
@@ -1317,7 +1310,7 @@ function PontDesLettresScreen({ route, navigation }) {
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} timeUp={timeUpRef.current} />;
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
   }
 
   if (loading || !current) {
@@ -1340,9 +1333,6 @@ function PontDesLettresScreen({ route, navigation }) {
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
 
-      {totalAllowed != null && (
-        <TimeGaugeBar remainingSeconds={remainingSeconds} totalSeconds={totalAllowed} />
-      )}
 
       <View style={styles.gameCharacter}>
         <BouncingWrap><Maestro size={48} /></BouncingWrap>
@@ -1355,7 +1345,7 @@ function PontDesLettresScreen({ route, navigation }) {
           </Pressable>
         ) : (
           <Pressable style={styles.listenButton} onPress={() => speak(current.sequence.join(''))}>
-            <Text style={styles.listenText}>🔊 Écouter</Text>
+            <Text style={styles.listenText}>🎤 Écouter</Text>
           </Pressable>
         )}
 
@@ -1534,7 +1524,7 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
               )
             }
           >
-            <Text style={styles.listenText}>🔊 Écouter</Text>
+            <Text style={styles.listenText}>🎤 Écouter</Text>
           </Pressable>
         </PopIn>
       )}
@@ -1575,18 +1565,11 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   const lastItemId = useRef(null);
   const startedAt = useRef(Date.now());
 
-  const { totalAllowed, baseRemaining } = useTimeBudget(profil);
-  const remainingSeconds = useLiveCountdown(baseRemaining);
-  const timeUpRef = useRef(false);
+  // Ne lit a voix haute AUTOMATIQUEMENT que lorsque c'est indispensable
+  // (aucune image ne permet de deviner la consigne autrement). Sinon,
+  // la voix reste disponible a la demande via le bouton micro.
   useEffect(() => {
-    if (baseRemaining != null && remainingSeconds <= 0) timeUpRef.current = true;
-  }, [remainingSeconds, baseRemaining]);
-
-  // Lit automatiquement la consigne a voix haute a chaque nouvelle manche,
-  // car les enfants ne savent pas tous lire encore. La cible (son/mot) suit
-  // juste apres, une fois la consigne terminee.
-  useEffect(() => {
-    if (!promptData) return;
+    if (!promptData || !promptData.mandatorySpeak) return;
     let cancelled = false;
     const parts = [promptData.promptText, promptData.speak].filter(Boolean);
     (async () => {
@@ -1690,7 +1673,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     if (isCorrect) {
       setFeedback('Bravo !');
       setTimeout(async () => {
-        if (round >= TOTAL_ROUNDS || timeUpRef.current) {
+        if (round >= TOTAL_ROUNDS) {
           await finishSession();
         } else {
           setRound((r) => r + 1);
@@ -1710,7 +1693,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} timeUp={timeUpRef.current} />;
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
   }
 
   if (loading || !promptData) {
@@ -1731,9 +1714,6 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
 
-      {totalAllowed != null && (
-        <TimeGaugeBar remainingSeconds={remainingSeconds} totalSeconds={totalAllowed} />
-      )}
 
       {Character ? (
         <View style={styles.gameCharacter}>
@@ -1752,7 +1732,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         <Text style={styles.promptText}>{promptData.promptText}</Text>
         {promptData.speak ? (
           <Pressable style={styles.listenButton} onPress={() => speak(promptData.speak)}>
-            <Text style={styles.listenText}>🔊 Écouter</Text>
+            <Text style={styles.listenText}>🎤 Écouter</Text>
           </Pressable>
         ) : null}
       </View>
@@ -1804,6 +1784,7 @@ function buildSonsPrompt(d) {
         icon: d.icon,
         promptText: 'Combien de syllabes dans ce mot ?',
         speak: d.mot,
+        mandatorySpeak: false, // une image est deja visible
         options: d.options,
         correct: d.syllabes,
       };
@@ -1812,6 +1793,7 @@ function buildSonsPrompt(d) {
         icon: d.cible_icon,
         promptText: 'Quel mot rime avec celui-ci ?',
         speak: d.cible,
+        mandatorySpeak: false, // une image est deja visible
         options: d.options,
         correct: d.bonne_reponse,
       };
@@ -1820,6 +1802,7 @@ function buildSonsPrompt(d) {
       return {
         promptText: 'Quelle lettre fait ce son ?',
         speak: d.son,
+        mandatorySpeak: true, // aucune image : le son doit etre entendu
         options: d.options,
         correct,
       };
@@ -1828,6 +1811,7 @@ function buildSonsPrompt(d) {
       return {
         promptText: 'Quelle syllabe fait "' + d.son1 + '" + "' + d.son2 + '" ?',
         speak: d.son1 + d.son2,
+        mandatorySpeak: true, // aucune image : le son doit etre entendu
         options: d.options,
         correct: d.resultat,
       };
@@ -1838,6 +1822,7 @@ function buildSonsPrompt(d) {
       return {
         promptText: instruction,
         speak: d.mot_depart,
+        mandatorySpeak: true, // aucune image : le mot doit etre entendu
         options: d.options,
         correct: d.resultat,
       };
@@ -1847,6 +1832,7 @@ function buildSonsPrompt(d) {
         icon: d.icon,
         promptText: 'Quelle est la première syllabe de ce mot ?',
         speak: d.mot,
+        mandatorySpeak: false, // une image est deja visible
         options: d.syllabes,
         correct: d.reponse,
       };
@@ -1855,6 +1841,7 @@ function buildSonsPrompt(d) {
         texteAffiche: d.texte,
         promptText: d.question,
         speak: `${d.texte} ${d.question}`,
+        mandatorySpeak: true, // c'est un texte a lire/entendre, coeur de l'exercice
         options: d.options,
         correct: d.bonne_reponse,
       };
@@ -1885,6 +1872,8 @@ function buildLumaPrompt(d) {
       return {
         visual: '🍎'.repeat(d.cible),
         promptText: 'Combien de pommes vois-tu ?',
+        speak: 'Combien de pommes vois-tu ?',
+        mandatorySpeak: false, // les pommes sont visibles a l'ecran
         options: d.options,
         correct: d.cible,
       };
@@ -1892,6 +1881,8 @@ function buildLumaPrompt(d) {
       return {
         visual: '🍎'.repeat(d.cible),
         promptText: 'Quel chiffre correspond à cette quantité ?',
+        speak: 'Quel chiffre correspond à cette quantité ?',
+        mandatorySpeak: false,
         options: d.options,
         correct: d.cible,
       };
@@ -1901,6 +1892,8 @@ function buildLumaPrompt(d) {
       return {
         visual: '🍎'.repeat(a) + '   ' + '🍏'.repeat(b),
         promptText: a + ' + ' + b + ' = ?',
+        speak: `${a} plus ${b}, ça fait combien ?`,
+        mandatorySpeak: false, // le calcul est deja affiche en chiffres
         options: [d.cible, d.cible - 1, d.cible + 1],
         correct: d.cible,
       };
@@ -1910,6 +1903,8 @@ function buildLumaPrompt(d) {
       const symbole = symboles[d.operation] ?? '+';
       return {
         promptText: d.a + ' ' + symbole + ' ' + d.b + ' = ?',
+        speak: `${d.a} ${d.operation === 'addition' ? 'plus' : d.operation === 'soustraction' ? 'moins' : d.operation === 'multiplication' ? 'fois' : 'divisé par'} ${d.b}, ça fait combien ?`,
+        mandatorySpeak: false, // le calcul est deja affiche en chiffres
         options: d.options,
         correct: d.resultat,
       };
@@ -1918,6 +1913,8 @@ function buildLumaPrompt(d) {
       return {
         visual: '🍎'.repeat(d.gauche) + '    VS    ' + '🍎'.repeat(d.droite),
         promptText: 'Le groupe de gauche a-t-il plus, moins ou autant que celui de droite ?',
+        speak: 'Le groupe de gauche a-t-il plus, moins ou autant que celui de droite ?',
+        mandatorySpeak: false, // les groupes de pommes sont visibles
         options: ['plus', 'moins', 'autant'],
         correct: d.reponse,
       };
@@ -1968,9 +1965,6 @@ function MemoryScreen({ route, navigation }) {
   const [sessionSummary, setSessionSummary] = useState(null);
   const errorsTotal = useRef(0);
   const startedAt = useRef(Date.now());
-
-  const { totalAllowed, baseRemaining } = useTimeBudget(profil);
-  const remainingSeconds = useLiveCountdown(baseRemaining);
 
   useEffect(() => {
     (async () => {
@@ -2084,9 +2078,6 @@ function MemoryScreen({ route, navigation }) {
         <Text style={styles.roundLabel}>{matched.length}/{cards.length / 2}</Text>
       </View>
 
-      {totalAllowed != null && (
-        <TimeGaugeBar remainingSeconds={remainingSeconds} totalSeconds={totalAllowed} />
-      )}
 
       <View style={styles.gameCharacter}>
         <BouncingWrap><Noisette size={44} /></BouncingWrap>
