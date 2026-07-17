@@ -168,13 +168,6 @@ function mapTipFor(profil) {
   return "Tu es un vrai champion de la forêt !";
 }
 
-function timeMessageFor(remainingSeconds) {
-  const minutes = Math.max(0, Math.round(remainingSeconds / 60));
-  if (minutes <= 0) return "Il ne te reste plus de temps de jeu aujourd'hui.";
-  if (minutes === 1) return "Attention, il te reste seulement 1 minute aujourd'hui !";
-  if (minutes <= 5) return `Attention, il te reste seulement ${minutes} minutes aujourd'hui !`;
-  return `Il te reste ${minutes} minutes de jeu aujourd'hui.`;
-}
 
 function CharacterRow({ Character, size, text, bounce }) {
   return (
@@ -392,16 +385,41 @@ function formatMinutesSeconds(totalSeconds) {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+// Degrade continu vert -> orange -> rouge selon la proportion de temps restant.
+function gaugeColorFor(ratio) {
+  const green = [63, 174, 107]; // colors.success
+  const yellow = [245, 166, 35]; // colors.gold
+  const red = [232, 93, 93]; // colors.error
+
+  let from = green;
+  let to = yellow;
+  let localRatio = 1;
+  if (ratio <= 0.5) {
+    from = yellow;
+    to = red;
+    localRatio = ratio / 0.5;
+  } else {
+    localRatio = (ratio - 0.5) / 0.5;
+  }
+
+  const mix = (a, b, t) => Math.round(a + (b - a) * t);
+  const [r, g, b] = [
+    mix(from[0], to[0], 1 - localRatio),
+    mix(from[1], to[1], 1 - localRatio),
+    mix(from[2], to[2], 1 - localRatio),
+  ];
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
 function TimeGaugeBar({ remainingSeconds, totalSeconds }) {
   const ratio = totalSeconds > 0 ? Math.max(0, Math.min(1, remainingSeconds / totalSeconds)) : 0;
-  const low = remainingSeconds <= 60;
   return (
     <View style={styles.liveGaugeBox}>
       <View style={styles.gaugeTrack}>
         <View
           style={[
             styles.gaugeFill,
-            { width: `${ratio * 100}%`, backgroundColor: low ? colors.error : colors.success },
+            { width: `${ratio * 100}%`, backgroundColor: gaugeColorFor(ratio) },
           ]}
         />
       </View>
@@ -687,10 +705,10 @@ function ProfileSelectScreen({ navigation }) {
 
       {familleId && (
         <Pressable
-          style={styles.settingsLink}
+          style={styles.settingsButton}
           onPress={() => navigation.navigate('ReglagesParentaux', { familleId })}
         >
-          <Text style={styles.settingsLinkText}>👪 Réglages parentaux</Text>
+          <Text style={styles.settingsButtonText}>👪 Réglages parentaux</Text>
         </Pressable>
       )}
 
@@ -710,35 +728,47 @@ function ProfileSelectScreen({ navigation }) {
 function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(null);
-  const [checkingBiometric, setCheckingBiometric] = useState(true);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [checkingHardware, setCheckingHardware] = useState(true);
+  const [authenticating, setAuthenticating] = useState(false);
 
   useEffect(() => {
     if (!visible) {
       setPin('');
       setError(null);
-      setCheckingBiometric(true);
+      setCheckingHardware(true);
       return;
     }
     (async () => {
       try {
         const hasHardware = await LocalAuthentication.hasHardwareAsync();
         const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-        if (hasHardware && isEnrolled) {
-          const result = await LocalAuthentication.authenticateAsync({
-            promptMessage: 'Confirme que tu es un parent',
-            cancelLabel: 'Utiliser le code',
-          });
-          if (result.success) {
-            onSuccess();
-            return;
-          }
-        }
+        setBiometricAvailable(hasHardware && isEnrolled);
       } catch (e) {
-        // pas grave, on retombe sur le code
+        setBiometricAvailable(false);
       }
-      setCheckingBiometric(false);
+      setCheckingHardware(false);
     })();
   }, [visible]);
+
+  async function handleBiometric() {
+    setError(null);
+    setAuthenticating(true);
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Confirme que tu es un parent',
+        cancelLabel: 'Annuler',
+      });
+      if (result.success) {
+        onSuccess();
+      } else {
+        setError("Empreinte non reconnue ou annulée. Réessaie, ou utilise le code.");
+      }
+    } catch (e) {
+      setError("L'empreinte n'a pas fonctionné. Utilise le code.");
+    }
+    setAuthenticating(false);
+  }
 
   function checkPin() {
     if (!expectedPin) {
@@ -758,12 +788,25 @@ function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
       <View style={styles.modalBackdrop}>
         <View style={styles.modalCard}>
           <Text style={styles.modalTitle}>👪 Validation parent</Text>
-          {checkingBiometric ? (
+
+          {checkingHardware ? (
             <ActivityIndicator size="large" color={colors.mossDeep} style={{ marginVertical: 12 }} />
           ) : (
             <>
-              <Text style={{ marginBottom: 12, color: colors.ink }}>
-                Empreinte non disponible ou annulée — entrez le code parent à 4 chiffres.
+              {biometricAvailable && (
+                <Pressable
+                  style={[styles.button, { marginBottom: 14, opacity: authenticating ? 0.6 : 1 }]}
+                  onPress={handleBiometric}
+                  disabled={authenticating}
+                >
+                  <Text style={styles.buttonText}>
+                    {authenticating ? 'Vérification…' : '👆 Valider avec empreinte / visage'}
+                  </Text>
+                </Pressable>
+              )}
+
+              <Text style={{ marginBottom: 8, color: colors.ink }}>
+                {biometricAvailable ? 'Ou entre le code parent :' : 'Entre le code parent à 4 chiffres :'}
               </Text>
               <TextInput
                 style={styles.input}
@@ -776,7 +819,7 @@ function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
               />
               {error && <Text style={{ color: colors.error, marginBottom: 8 }}>{error}</Text>}
               <Pressable style={styles.button} onPress={checkPin}>
-                <Text style={styles.buttonText}>Valider</Text>
+                <Text style={styles.buttonText}>Valider avec le code</Text>
               </Pressable>
             </>
           )}
@@ -892,14 +935,6 @@ function WorldMapScreen({ route, navigation }) {
   const { totalAllowed, baseRemaining, expectedPin } = useTimeBudget(profil, reloadKey);
   const remainingSeconds = useLiveCountdown(baseRemaining);
 
-  // Noisette annonce le temps restant a voix haute une seule fois par visite
-  // (pas a chaque seconde du compte a rebours).
-  useEffect(() => {
-    if (baseRemaining == null) return;
-    Speech.speak(timeMessageFor(baseRemaining), { language: 'fr-FR', rate: 0.85 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [baseRemaining]);
-
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from('mini_jeux').select('*').order('competence');
@@ -966,13 +1001,6 @@ function WorldMapScreen({ route, navigation }) {
         <Noisette size={44} />
         <SpeechBubble text={mapTipFor(profil)} />
       </View>
-
-      {baseRemaining != null && (
-        <View style={styles.guideRow}>
-          <Noisette size={36} />
-          <SpeechBubble text={timeMessageFor(remainingSeconds)} />
-        </View>
-      )}
 
       {totalAllowed != null && (
         <TimeGaugeBar remainingSeconds={remainingSeconds} totalSeconds={totalAllowed} />
@@ -1939,9 +1967,9 @@ function RecompensesScreen({ route, navigation }) {
 // ============================================================
 // Écran parent : réglages (temps de jeu quotidien, code PIN)
 // ============================================================
-const MINUTES_STEP = 15;
-const MINUTES_MIN = 15;
-const MINUTES_MAX = 180;
+const MINUTES_STEP = 5;
+const MINUTES_MIN = 5;
+const MINUTES_MAX = 120;
 
 function ReglagesParentauxScreen({ route, navigation }) {
   const { familleId } = route.params;
@@ -1950,13 +1978,24 @@ function ReglagesParentauxScreen({ route, navigation }) {
   const [pin, setPin] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
+  const [showGate, setShowGate] = useState(false);
+  const [existingPin, setExistingPin] = useState(null);
 
   useEffect(() => {
     (async () => {
       const parametres = await getParametresParentaux(familleId);
       setMinutesMaxJour(parametres?.minutes_max_jour ?? 30);
       setPin(parametres?.code_validation ?? '');
+      setExistingPin(parametres?.code_validation ?? null);
       setLoading(false);
+      // Si un code parent existe deja, on protege l'acces. Sinon (tout premier
+      // reglage), on laisse entrer directement pour permettre de le configurer.
+      if (parametres?.code_validation) {
+        setShowGate(true);
+      } else {
+        setUnlocked(true);
+      }
     })();
   }, [familleId]);
 
@@ -1979,6 +2018,26 @@ function ReglagesParentauxScreen({ route, navigation }) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  if (!unlocked) {
+    return (
+      <View style={styles.center}>
+        <Noisette size={64} />
+        <Text style={{ marginTop: 12, color: colors.ink, fontWeight: '600' }}>
+          Réglages protégés — validation parent requise.
+        </Text>
+        <ParentGateModal
+          visible={showGate}
+          expectedPin={existingPin}
+          onCancel={() => navigation.goBack()}
+          onSuccess={() => {
+            setShowGate(false);
+            setUnlocked(true);
+          }}
+        />
       </View>
     );
   }
@@ -2212,7 +2271,11 @@ const styles = StyleSheet.create({
     borderTopColor: 'transparent', borderBottomColor: 'transparent', borderRightColor: VIVID.orangeDark,
   },
   characterRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  settingsLink: { alignItems: 'center', marginTop: 18 },
+  settingsButton: {
+    backgroundColor: colors.mossDeep, borderRadius: 999, paddingVertical: 14,
+    alignItems: 'center', marginTop: 18,
+  },
+  settingsButtonText: { color: '#fff', fontWeight: '800', fontSize: 15 },
   settingsLinkText: { color: colors.mossDeep, fontWeight: '700', opacity: 0.8 },
   gaugeRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 },
   gaugeButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
