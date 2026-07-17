@@ -168,6 +168,14 @@ function mapTipFor(profil) {
   return "Tu es un vrai champion de la forêt !";
 }
 
+function timeMessageFor(remainingSeconds) {
+  const minutes = Math.max(0, Math.round(remainingSeconds / 60));
+  if (minutes <= 0) return "Il ne te reste plus de temps de jeu aujourd'hui.";
+  if (minutes === 1) return "Attention, il te reste seulement 1 minute aujourd'hui !";
+  if (minutes <= 5) return `Attention, il te reste seulement ${minutes} minutes aujourd'hui !`;
+  return `Il te reste ${minutes} minutes de jeu aujourd'hui.`;
+}
+
 function CharacterRow({ Character, size, text, bounce }) {
   return (
     <View style={styles.characterRow}>
@@ -884,6 +892,14 @@ function WorldMapScreen({ route, navigation }) {
   const { totalAllowed, baseRemaining, expectedPin } = useTimeBudget(profil, reloadKey);
   const remainingSeconds = useLiveCountdown(baseRemaining);
 
+  // Noisette annonce le temps restant a voix haute une seule fois par visite
+  // (pas a chaque seconde du compte a rebours).
+  useEffect(() => {
+    if (baseRemaining == null) return;
+    Speech.speak(timeMessageFor(baseRemaining), { language: 'fr-FR', rate: 0.85 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseRemaining]);
+
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from('mini_jeux').select('*').order('competence');
@@ -950,6 +966,13 @@ function WorldMapScreen({ route, navigation }) {
         <Noisette size={44} />
         <SpeechBubble text={mapTipFor(profil)} />
       </View>
+
+      {baseRemaining != null && (
+        <View style={styles.guideRow}>
+          <Noisette size={36} />
+          <SpeechBubble text={timeMessageFor(remainingSeconds)} />
+        </View>
+      )}
 
       {totalAllowed != null && (
         <TimeGaugeBar remainingSeconds={remainingSeconds} totalSeconds={totalAllowed} />
@@ -1044,6 +1067,34 @@ function PontDesLettresScreen({ route, navigation }) {
   useEffect(() => {
     if (baseRemaining != null && remainingSeconds <= 0) timeUpRef.current = true;
   }, [remainingSeconds, baseRemaining]);
+
+  // Lit automatiquement la consigne et le mot/son a voix haute a chaque
+  // nouvelle manche, car les enfants ne savent pas tous lire encore.
+  useEffect(() => {
+    if (!current) return;
+    let cancelled = false;
+    const isModelMode = !!current.options;
+    const instruction = isModelMode ? 'Trouve la lettre.' : 'Écoute et assemble le mot.';
+    const parts = [instruction, current.sequence.join('')];
+    (async () => {
+      for (const part of parts) {
+        if (cancelled) return;
+        await new Promise((resolve) => {
+          Speech.speak(part, {
+            language: 'fr-FR',
+            rate: 0.85,
+            onDone: resolve,
+            onStopped: resolve,
+            onError: resolve,
+          });
+        });
+      }
+    })();
+    return () => {
+      cancelled = true;
+      Speech.stop();
+    };
+  }, [current]);
 
   useEffect(() => {
     (async () => {
@@ -1422,6 +1473,33 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   useEffect(() => {
     if (baseRemaining != null && remainingSeconds <= 0) timeUpRef.current = true;
   }, [remainingSeconds, baseRemaining]);
+
+  // Lit automatiquement la consigne a voix haute a chaque nouvelle manche,
+  // car les enfants ne savent pas tous lire encore. La cible (son/mot) suit
+  // juste apres, une fois la consigne terminee.
+  useEffect(() => {
+    if (!promptData) return;
+    let cancelled = false;
+    const parts = [promptData.promptText, promptData.speak].filter(Boolean);
+    (async () => {
+      for (const part of parts) {
+        if (cancelled) return;
+        await new Promise((resolve) => {
+          Speech.speak(String(part), {
+            language: 'fr-FR',
+            rate: 0.85,
+            onDone: resolve,
+            onStopped: resolve,
+            onError: resolve,
+          });
+        });
+      }
+    })();
+    return () => {
+      cancelled = true;
+      Speech.stop();
+    };
+  }, [promptData]);
 
   useEffect(() => {
     (async () => {
