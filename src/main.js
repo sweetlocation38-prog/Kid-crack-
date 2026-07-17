@@ -995,11 +995,13 @@ const GAME_ICONS = {
   pont_des_lettres: '🌉',
   sons_magiques: '🎵',
   pommes_de_luma: '🍎',
+  memoire_etoiles: '⭐',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
   sons_magiques: 'SonsMagiques',
   pommes_de_luma: 'PommesDeLuma',
+  memoire_etoiles: 'MemoireEtoiles',
 };
 
 function WorldMapScreen({ route, navigation }) {
@@ -1940,6 +1942,177 @@ function PommesDeLumaScreen({ route, navigation }) {
 // ============================================================
 // Écran parent : gestion des récompenses
 // ============================================================
+// ============================================================
+// Le Mémory des Étoiles — mécanique différente : retourner des
+// cartes pour retrouver les paires emoji / mot.
+// ============================================================
+function shuffleCards(paires) {
+  const cards = [];
+  paires.forEach((p, i) => {
+    cards.push({ key: `${i}-emoji`, pairId: i, type: 'emoji', value: p.emoji });
+    cards.push({ key: `${i}-mot`, pairId: i, type: 'mot', value: p.mot });
+  });
+  return shuffle(cards);
+}
+
+function MemoryScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const [loading, setLoading] = useState(true);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [cards, setCards] = useState([]);
+  const [flipped, setFlipped] = useState([]);
+  const [matched, setMatched] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const errorsTotal = useRef(0);
+  const startedAt = useRef(Date.now());
+
+  const { totalAllowed, baseRemaining } = useTimeBudget(profil);
+  const remainingSeconds = useLiveCountdown(baseRemaining);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase
+        .from('mini_jeux')
+        .select('id')
+        .eq('code', 'memoire_etoiles')
+        .single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      const startRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      setRung(startRung);
+      const { niveau, palier } = gradeAndPalierFromRung(startRung);
+
+      const { data } = await supabase
+        .from('contenu_mini_jeu')
+        .select('id, donnees')
+        .eq('mini_jeu_id', jeu.id)
+        .eq('niveau', niveau)
+        .eq('palier', palier)
+        .eq('actif', true)
+        .limit(10);
+
+      const pick = (data ?? [])[Math.floor(Math.random() * (data?.length ?? 1))];
+      if (pick) {
+        setCards(shuffleCards(pick.donnees.paires));
+        Speech.speak('Trouve les paires !', { language: 'fr-FR', rate: 0.85 });
+      }
+      setLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  async function finishSession() {
+    if (!miniJeuId) return;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: 1,
+      startedAt: startedAt.current,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function onCardPress(index) {
+    if (busy) return;
+    if (flipped.includes(index)) return;
+    if (matched.includes(cards[index].pairId)) return;
+
+    const card = cards[index];
+    if (card.type === 'mot') {
+      Speech.speak(card.value, { language: 'fr-FR', rate: 0.85 });
+    }
+
+    const nextFlipped = [...flipped, index];
+    setFlipped(nextFlipped);
+
+    if (nextFlipped.length === 2) {
+      setBusy(true);
+      const [i1, i2] = nextFlipped;
+      const isMatch = cards[i1].pairId === cards[i2].pairId;
+
+      setTimeout(async () => {
+        if (isMatch) {
+          const newMatched = [...matched, cards[i1].pairId];
+          setMatched(newMatched);
+          setFlipped([]);
+          setBusy(false);
+          if (newMatched.length === cards.length / 2) {
+            await finishSession();
+          }
+        } else {
+          errorsTotal.current += 1;
+          setFlipped([]);
+          setBusy(false);
+        }
+      }, 900);
+    }
+  }
+
+  if (sessionDone) {
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} timeUp={false} />;
+  }
+
+  if (loading || cards.length === 0) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>⭐ Le Mémory des Étoiles</Text>
+        <Text style={styles.roundLabel}>{matched.length}/{cards.length / 2}</Text>
+      </View>
+
+      {totalAllowed != null && (
+        <TimeGaugeBar remainingSeconds={remainingSeconds} totalSeconds={totalAllowed} />
+      )}
+
+      <View style={styles.gameCharacter}>
+        <BouncingWrap><Noisette size={44} /></BouncingWrap>
+      </View>
+
+      <View style={styles.memoryGrid}>
+        {cards.map((card, index) => {
+          const isFlipped = flipped.includes(index) || matched.includes(card.pairId);
+          return (
+            <Pressable
+              key={card.key}
+              style={[styles.memoryCard, isFlipped && styles.memoryCardFlipped]}
+              onPress={() => onCardPress(index)}
+              disabled={isFlipped}
+            >
+              <Text style={card.type === 'emoji' ? styles.memoryEmoji : styles.memoryWord}>
+                {isFlipped ? card.value : '🌟'}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 function RecompensesScreen({ route, navigation }) {
   const { profil } = route.params;
   const [recompenses, setRecompenses] = useState([]);
@@ -2223,6 +2396,7 @@ export default function RootNavigator() {
             <Stack.Screen name="PontDesLettres" component={PontDesLettresScreen} />
             <Stack.Screen name="SonsMagiques" component={SonsMagiquesScreen} />
             <Stack.Screen name="PommesDeLuma" component={PommesDeLumaScreen} />
+            <Stack.Screen name="MemoireEtoiles" component={MemoryScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
@@ -2327,6 +2501,14 @@ const styles = StyleSheet.create({
   promptText: { fontSize: 17, fontWeight: '700', color: colors.mossDeep, textAlign: 'center', marginBottom: 10 },
   readingBox: { backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 2, borderColor: colors.sand },
   readingText: { fontSize: 18, color: colors.ink, textAlign: 'center', lineHeight: 26 },
+  memoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
+  memoryCard: {
+    width: 78, height: 78, borderRadius: 14, backgroundColor: colors.mossSoft,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  memoryCardFlipped: { backgroundColor: '#fff', borderWidth: 2, borderColor: colors.gold },
+  memoryEmoji: { fontSize: 32 },
+  memoryWord: { fontSize: 13, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', paddingHorizontal: 4 },
   optionButton: { minWidth: 70, height: 56, paddingHorizontal: 16, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)' },
   optionCorrect: { backgroundColor: colors.success, borderColor: colors.success },
   optionWrong: { backgroundColor: colors.error, borderColor: colors.error },
