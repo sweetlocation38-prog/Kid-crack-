@@ -931,12 +931,16 @@ function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [checkingHardware, setCheckingHardware] = useState(true);
   const [authenticating, setAuthenticating] = useState(false);
+  const [step, setStep] = useState('auth'); // 'auth' -> 'temps'
+  const [extraMinutes, setExtraMinutes] = useState(15);
 
   useEffect(() => {
     if (!visible) {
       setPin('');
       setError(null);
       setCheckingHardware(true);
+      setStep('auth');
+      setExtraMinutes(15);
       return;
     }
     (async () => {
@@ -960,7 +964,7 @@ function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
         cancelLabel: 'Annuler',
       });
       if (result.success) {
-        onSuccess();
+        setStep('temps');
       } else {
         setError("Empreinte non reconnue ou annulée. Réessaie, ou utilise le code.");
       }
@@ -976,7 +980,7 @@ function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
       return;
     }
     if (pin === expectedPin) {
-      onSuccess();
+      setStep('temps');
     } else {
       setError('Code incorrect.');
       setPin('');
@@ -987,45 +991,88 @@ function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.modalBackdrop}>
         <View style={styles.modalCard}>
-          <Text style={styles.modalTitle}>👪 Validation parent</Text>
-
-          {checkingHardware ? (
-            <ActivityIndicator size="large" color={colors.mossDeep} style={{ marginVertical: 12 }} />
-          ) : (
+          {step === 'auth' && (
             <>
-              {biometricAvailable && (
-                <Pressable
-                  style={[styles.button, { marginBottom: 14, opacity: authenticating ? 0.6 : 1 }]}
-                  onPress={handleBiometric}
-                  disabled={authenticating}
-                >
-                  <Text style={styles.buttonText}>
-                    {authenticating ? 'Vérification…' : '👆 Valider avec empreinte / visage'}
-                  </Text>
-                </Pressable>
-              )}
+              <Text style={styles.modalTitle}>👪 Validation parent</Text>
 
-              <Text style={{ marginBottom: 8, color: colors.ink }}>
-                {biometricAvailable ? 'Ou entre le code parent :' : 'Entre le code parent à 4 chiffres :'}
-              </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="• • • •"
-                keyboardType="number-pad"
-                secureTextEntry
-                maxLength={4}
-                value={pin}
-                onChangeText={setPin}
-              />
-              {error && <Text style={{ color: colors.error, marginBottom: 8 }}>{error}</Text>}
-              <Pressable style={styles.button} onPress={checkPin}>
-                <Text style={styles.buttonText}>Valider avec le code</Text>
+              {checkingHardware ? (
+                <ActivityIndicator size="large" color={colors.mossDeep} style={{ marginVertical: 12 }} />
+              ) : (
+                <>
+                  {biometricAvailable && (
+                    <Pressable
+                      style={[styles.button, { marginBottom: 14, opacity: authenticating ? 0.6 : 1 }]}
+                      onPress={handleBiometric}
+                      disabled={authenticating}
+                    >
+                      <Text style={styles.buttonText}>
+                        {authenticating ? 'Vérification…' : '👆 Valider avec empreinte / visage'}
+                      </Text>
+                    </Pressable>
+                  )}
+
+                  <Text style={{ marginBottom: 8, color: colors.ink }}>
+                    {biometricAvailable ? 'Ou entre le code parent :' : 'Entre le code parent à 4 chiffres :'}
+                  </Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="• • • •"
+                    keyboardType="number-pad"
+                    secureTextEntry
+                    maxLength={4}
+                    value={pin}
+                    onChangeText={setPin}
+                  />
+                  {error && <Text style={{ color: colors.error, marginBottom: 8 }}>{error}</Text>}
+                  <Pressable style={styles.button} onPress={checkPin}>
+                    <Text style={styles.buttonText}>Valider avec le code</Text>
+                  </Pressable>
+                </>
+              )}
+              <Pressable onPress={onCancel}>
+                <Text style={styles.cancelText}>Annuler</Text>
               </Pressable>
             </>
           )}
-          <Pressable onPress={onCancel}>
-            <Text style={styles.cancelText}>Annuler</Text>
-          </Pressable>
+
+          {step === 'temps' && (
+            <>
+              <Text style={styles.modalTitle}>⏳ Combien de temps ?</Text>
+              <Text style={{ marginBottom: 14, color: colors.ink, textAlign: 'center' }}>
+                Ajoute du temps de jeu pour la suite de la journée.
+              </Text>
+              <View style={styles.gaugeRow}>
+                <Pressable
+                  style={styles.gaugeButton}
+                  onPress={() => setExtraMinutes((m) => Math.max(5, m - 5))}
+                >
+                  <Text style={styles.gaugeButtonText}>−</Text>
+                </Pressable>
+                <View style={styles.gaugeTrack}>
+                  <View
+                    style={[
+                      styles.gaugeFill,
+                      { width: `${Math.min(100, (extraMinutes / 120) * 100)}%` },
+                    ]}
+                  />
+                </View>
+                <Pressable
+                  style={styles.gaugeButton}
+                  onPress={() => setExtraMinutes((m) => Math.min(120, m + 5))}
+                >
+                  <Text style={styles.gaugeButtonText}>+</Text>
+                </Pressable>
+              </View>
+              <Text style={styles.gaugeValue}>{extraMinutes} minutes de plus</Text>
+
+              <Pressable style={styles.button} onPress={() => onSuccess(extraMinutes)}>
+                <Text style={styles.buttonText}>Ajouter ce temps</Text>
+              </Pressable>
+              <Pressable onPress={onCancel}>
+                <Text style={styles.cancelText}>Annuler</Text>
+              </Pressable>
+            </>
+          )}
         </View>
       </View>
     </Modal>
@@ -1130,12 +1177,16 @@ function WorldMapScreen({ route, navigation }) {
   const [profil, setProfil] = useState(route.params.profil);
   const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [unlockedExtra, setUnlockedExtra] = useState(false);
+  // Minutes offertes en plus par un parent (persiste tant que l'app reste
+  // ouverte, pour ne pas redemander le deverrouillage a chaque session).
+  const [extraMinutesGranted, setExtraMinutesGranted] = useState(0);
   const [showGate, setShowGate] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
   const { totalAllowed, baseRemaining, expectedPin } = useTimeBudget(profil, reloadKey);
   const remainingSeconds = useLiveCountdown(baseRemaining);
+  const effectiveRemaining = baseRemaining != null ? remainingSeconds + extraMinutesGranted * 60 : null;
+  const effectiveTotal = totalAllowed != null ? totalAllowed + extraMinutesGranted * 60 : null;
 
   useEffect(() => {
     (async () => {
@@ -1145,7 +1196,9 @@ function WorldMapScreen({ route, navigation }) {
     })();
   }, []);
 
-  // Rafraîchit le niveau/avatar et le budget de temps à chaque retour sur cet écran.
+  // Rafraîchit le niveau/avatar et le budget de temps a chaque retour sur cet ecran.
+  // Le temps supplementaire accorde par un parent n'est PAS reinitialise ici :
+  // il doit rester valable pour le reste de la journee.
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
       const { data } = await supabase
@@ -1154,14 +1207,13 @@ function WorldMapScreen({ route, navigation }) {
         .eq('id', route.params.profil.id)
         .maybeSingle();
       if (data) setProfil(data);
-      setUnlockedExtra(false);
       setReloadKey((k) => k + 1);
     });
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
 
-  const limitReached = baseRemaining != null && remainingSeconds <= 0 && !unlockedExtra;
+  const limitReached = effectiveRemaining != null && effectiveRemaining <= 0;
 
   function handleGamePress(targetScreen) {
     if (!targetScreen) return;
@@ -1205,7 +1257,7 @@ function WorldMapScreen({ route, navigation }) {
       </View>
 
       {totalAllowed != null && (
-        <TimeGaugeBar remainingSeconds={remainingSeconds} totalSeconds={totalAllowed} />
+        <TimeGaugeBar remainingSeconds={effectiveRemaining} totalSeconds={effectiveTotal} />
       )}
 
       {limitReached && (
@@ -1250,9 +1302,9 @@ function WorldMapScreen({ route, navigation }) {
         visible={showGate}
         expectedPin={expectedPin}
         onCancel={() => setShowGate(false)}
-        onSuccess={() => {
+        onSuccess={(extraMinutes) => {
           setShowGate(false);
-          setUnlockedExtra(true);
+          setExtraMinutesGranted((m) => m + extraMinutes);
         }}
       />
     </View>
