@@ -55,6 +55,134 @@ const colors = {
 // qu'une seule teinte uniforme.
 const STONE_COLORS = ['#FFE1A8', '#B8E0D2', '#FFD3D3', '#D4E4FF', '#FCE8B4'];
 
+// Couleurs vives pour l'univers (bannières, bulles de dialogue)
+const VIVID = {
+  orange: '#FF8A3D',
+  orangeDark: '#E8792B',
+  sky: '#4FC3E8',
+  yellow: '#FFC93D',
+  pink: '#FF7EB3',
+  cream: '#FFF6EA',
+};
+
+// ============================================================
+// Personnages de La Forêt des Murmures — construits avec des formes
+// (pas d'illustrations disponibles, donc du "flat design" en Views)
+// ============================================================
+function Critter({ size = 90, bodyColor, faceColor, earType = 'triangle', earColor, showBeak, beakColor }) {
+  const s = size;
+  const earPiece = (side) => {
+    if (earType === 'round') {
+      return (
+        <View
+          style={{
+            position: 'absolute', top: -s * 0.06, [side]: s * 0.02,
+            width: s * 0.26, height: s * 0.3, borderRadius: s * 0.15, backgroundColor: earColor,
+          }}
+        />
+      );
+    }
+    if (earType === 'long') {
+      return (
+        <View
+          style={{
+            position: 'absolute', top: -s * 0.34, [side]: s * 0.14,
+            width: s * 0.15, height: s * 0.42, borderRadius: s * 0.08, backgroundColor: earColor,
+          }}
+        />
+      );
+    }
+    return (
+      <View
+        style={{
+          position: 'absolute', top: -s * 0.02, [side]: s * 0.06, width: 0, height: 0,
+          borderLeftWidth: s * 0.14, borderRightWidth: s * 0.14, borderBottomWidth: s * 0.24,
+          borderLeftColor: 'transparent', borderRightColor: 'transparent', borderBottomColor: earColor,
+        }}
+      />
+    );
+  };
+
+  return (
+    <View style={{ width: s, height: s * 1.15, alignItems: 'center' }}>
+      <View style={{ width: s, height: s * 0.9, alignItems: 'center' }}>
+        {earPiece('left')}
+        {earPiece('right')}
+        <View
+          style={{
+            width: s * 0.82, height: s * 0.74, borderRadius: s * 0.4,
+            backgroundColor: bodyColor, marginTop: s * 0.16,
+            alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <View style={{ flexDirection: 'row', gap: s * 0.14, marginBottom: s * 0.06 }}>
+            <View style={{ width: s * 0.17, height: s * 0.17, borderRadius: s * 0.09, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: s * 0.07, height: s * 0.07, borderRadius: s * 0.04, backgroundColor: '#2F2A22' }} />
+            </View>
+            <View style={{ width: s * 0.17, height: s * 0.17, borderRadius: s * 0.09, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: s * 0.07, height: s * 0.07, borderRadius: s * 0.04, backgroundColor: '#2F2A22' }} />
+            </View>
+          </View>
+          {showBeak ? (
+            <View
+              style={{
+                width: 0, height: 0, borderLeftWidth: s * 0.05, borderRightWidth: s * 0.05, borderTopWidth: s * 0.07,
+                borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: beakColor,
+              }}
+            />
+          ) : (
+            <View style={{ width: s * 0.34, height: s * 0.24, borderRadius: s * 0.14, backgroundColor: faceColor }} />
+          )}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function Noisette({ size }) {
+  return <Critter size={size} bodyColor={VIVID.orangeDark} faceColor={VIVID.cream} earType="triangle" earColor={VIVID.orangeDark} />;
+}
+function Maestro({ size }) {
+  return <Critter size={size} bodyColor="#8B6F47" faceColor={VIVID.yellow} earType="round" earColor="#8B6F47" showBeak beakColor={VIVID.yellow} />;
+}
+function Luma({ size }) {
+  return <Critter size={size} bodyColor="#F3E1C4" faceColor="#fff" earType="long" earColor="#F3E1C4" />;
+}
+
+function SpeechBubble({ text }) {
+  return (
+    <View style={styles.speechBubble}>
+      <Text style={styles.speechBubbleText}>{text}</Text>
+      <View style={styles.speechBubbleTail} />
+    </View>
+  );
+}
+
+function mapTipFor(profil) {
+  const niveau = profil.niveau_global ?? 0;
+  if (niveau === 0) return "Prêt pour ta première aventure ?";
+  if (niveau < 10) return "Continue comme ça, tu progresses bien !";
+  if (niveau < 50) return "Noisette est fier de toi !";
+  if (niveau < 200) return "Quelle belle progression dans la forêt !";
+  return "Tu es un vrai champion de la forêt !";
+}
+
+function CharacterRow({ Character, size, text, bounce }) {
+  return (
+    <View style={styles.characterRow}>
+      {bounce ? (
+        <View style={{ width: size, height: size * 1.15 }}>
+          <BouncingWrap size={size}><Character size={size} /></BouncingWrap>
+        </View>
+      ) : (
+        <Character size={size} />
+      )}
+      {text ? <SpeechBubble text={text} /> : null}
+    </View>
+  );
+}
+
+
 // ============================================================
 // Chaine d'avatar de jeu (100 echelons, un tous les 10 niveaux)
 // ============================================================
@@ -305,7 +433,14 @@ function AuthScreen() {
       style={styles.authContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Text style={styles.authTitle}>🌲 Kid Crack</Text>
+      <View style={styles.heroBanner}>
+        <View style={styles.heroDuo}>
+          <BouncingWrap><Noisette size={64} /></BouncingWrap>
+          <BouncingWrap><Maestro size={58} /></BouncingWrap>
+        </View>
+        <Text style={styles.authTitle}>🌲 Kid Crack</Text>
+        <SpeechBubble text="Bienvenue dans la Forêt des Murmures !" />
+      </View>
       <Text style={styles.authSubtitle}>Espace parent</Text>
 
       <TextInput
@@ -405,7 +540,10 @@ function ProfileSelectScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🌲 Qui joue aujourd'hui ?</Text>
+      <View style={styles.profileHero}>
+        <BouncingWrap><Noisette size={54} /></BouncingWrap>
+        <Text style={styles.title}>Qui joue aujourd'hui ?</Text>
+      </View>
 
       <FlatList
         data={profils}
@@ -597,6 +735,11 @@ function WorldMapScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.navigate('Recompenses', { profil })}>
           <Text style={{ fontSize: 26 }}>🎁</Text>
         </Pressable>
+      </View>
+
+      <View style={styles.guideRow}>
+        <Noisette size={44} />
+        <SpeechBubble text={mapTipFor(profil)} />
       </View>
 
       <FlatList
@@ -796,6 +939,10 @@ function PontDesLettresScreen({ route, navigation }) {
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
 
+      <View style={styles.gameCharacter}>
+        <BouncingWrap><Maestro size={48} /></BouncingWrap>
+      </View>
+
       <View style={styles.prompt}>
         {current.icon ? (
           <Pressable onPress={() => speak(current.sequence.join(''))}>
@@ -891,6 +1038,27 @@ function BouncingEmoji({ emoji, size }) {
   );
 }
 
+function BouncingWrap({ children, size }) {
+  const bounce = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounce, { toValue: -8, duration: 500, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.timing(bounce, { toValue: 0, duration: 500, easing: Easing.in(Easing.quad), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [bounce]);
+
+  return (
+    <Animated.View style={{ transform: [{ translateY: bounce }] }}>
+      {children}
+    </Animated.View>
+  );
+}
+
 function PopIn({ children, delay, style }) {
   const scale = useRef(new Animated.Value(0.7)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -918,7 +1086,8 @@ function SessionEndScreen({ profil, palier, summary, navigation }) {
 
   return (
     <ScrollView contentContainerStyle={styles.endScroll}>
-      <BouncingEmoji emoji="🌟" size={56} />
+      <BouncingWrap><Noisette size={72} /></BouncingWrap>
+      <Text style={{ fontSize: 32, marginBottom: 4 }}>🌟</Text>
       <Text style={styles.endTitle}>Bravo {profil.prenom} !</Text>
       {palier != null && (
         <Text style={styles.endText}>Tu as fini ta session au palier {palier} sur 3.</Text>
@@ -974,7 +1143,7 @@ function SessionEndScreen({ profil, palier, summary, navigation }) {
 // ============================================================
 // Moteur générique : question à choix (Sons Magiques + Pommes de Luma)
 // ============================================================
-function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt }) {
+function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character }) {
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -1117,6 +1286,12 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt })
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
 
+      {Character ? (
+        <View style={styles.gameCharacter}>
+          <BouncingWrap><Character size={48} /></BouncingWrap>
+        </View>
+      ) : null}
+
       <View style={styles.prompt}>
         {promptData.icon ? <Text style={styles.icon}>{promptData.icon}</Text> : null}
         {promptData.visual ? <Text style={styles.visualRow}>{promptData.visual}</Text> : null}
@@ -1232,6 +1407,7 @@ function SonsMagiquesScreen({ route, navigation }) {
       route={route}
       navigation={navigation}
       jeuCode="sons_magiques"
+      Character={Maestro}
       jeuTitre="🎵 Les Sons Magiques"
       buildPrompt={buildSonsPrompt}
     />
@@ -1293,6 +1469,7 @@ function PommesDeLumaScreen({ route, navigation }) {
       route={route}
       navigation={navigation}
       jeuCode="pommes_de_luma"
+      Character={Luma}
       jeuTitre="🍎 Les Pommes de Luma"
       buildPrompt={buildLumaPrompt}
     />
@@ -1570,4 +1747,23 @@ const styles = StyleSheet.create({
   ficheTitle: { fontSize: 18, fontWeight: '800', color: colors.mossDeep, marginBottom: 8 },
   ficheLine: { fontSize: 14, color: colors.ink, marginBottom: 4, textAlign: 'center' },
   ficheFait: { fontSize: 14, color: colors.mossDeep, fontWeight: '700', marginTop: 8, textAlign: 'center' },
+  heroBanner: {
+    alignItems: 'center', backgroundColor: VIVID.sky, borderRadius: 28,
+    paddingVertical: 20, paddingHorizontal: 16, marginBottom: 20,
+  },
+  heroDuo: { flexDirection: 'row', gap: 18, marginBottom: 10 },
+  profileHero: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 18 },
+  guideRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 18 },
+  gameCharacter: { alignItems: 'center', marginBottom: 4 },
+  speechBubble: {
+    backgroundColor: '#fff', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10,
+    maxWidth: 220, borderWidth: 2, borderColor: VIVID.orangeDark,
+  },
+  speechBubbleText: { color: colors.ink, fontWeight: '700', fontSize: 13, textAlign: 'center' },
+  speechBubbleTail: {
+    position: 'absolute', left: -8, top: '50%', marginTop: -6,
+    width: 0, height: 0, borderTopWidth: 6, borderBottomWidth: 6, borderRightWidth: 8,
+    borderTopColor: 'transparent', borderBottomColor: 'transparent', borderRightColor: VIVID.orangeDark,
+  },
+  characterRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
 });
