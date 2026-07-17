@@ -18,6 +18,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import * as Speech from 'expo-speech';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -303,6 +304,38 @@ function avatarLabelFor(niveauGlobal) {
 // enregistre la progression, avance le niveau global, verifie
 // un changement d'echelon d'avatar et une recompense parentale.
 // ============================================================
+// ============================================================
+// Controle parental : reglages et verification du temps de jeu
+// ============================================================
+async function getParametresParentaux(familleId) {
+  const { data } = await supabase
+    .from('parametres_parentaux')
+    .select('*')
+    .eq('famille_id', familleId)
+    .maybeSingle();
+  if (data) return data;
+
+  const { data: created } = await supabase
+    .from('parametres_parentaux')
+    .insert({ famille_id: familleId })
+    .select('*')
+    .single();
+  return created;
+}
+
+async function getTodayPlaySeconds(profilId) {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const { data } = await supabase
+    .from('sessions_jeu')
+    .select('duree_secondes')
+    .eq('profil_id', profilId)
+    .gte('debut', startOfDay.toISOString());
+
+  return (data ?? []).reduce((sum, row) => sum + (row.duree_secondes ?? 0), 0);
+}
+
 async function completeSession({ profil, miniJeuId, finalPalier, erreursTotal, dureeSecondes, totalRounds, startedAt }) {
   await supabase
     .from('progression')
@@ -578,6 +611,15 @@ function ProfileSelectScreen({ navigation }) {
         <Text style={styles.addText}>Ajouter un profil</Text>
       </Pressable>
 
+      {familleId && (
+        <Pressable
+          style={styles.settingsLink}
+          onPress={() => navigation.navigate('ReglagesParentaux', { familleId })}
+        >
+          <Text style={styles.settingsLinkText}>👪 Réglages parentaux</Text>
+        </Pressable>
+      )}
+
       <AddProfileModal
         visible={showAddModal}
         familleId={familleId}
@@ -588,6 +630,88 @@ function ProfileSelectScreen({ navigation }) {
         }}
       />
     </View>
+  );
+}
+
+function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState(null);
+  const [checkingBiometric, setCheckingBiometric] = useState(true);
+
+  useEffect(() => {
+    if (!visible) {
+      setPin('');
+      setError(null);
+      setCheckingBiometric(true);
+      return;
+    }
+    (async () => {
+      try {
+        const hasHardware = await LocalAuthentication.hasHardwareAsync();
+        const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+        if (hasHardware && isEnrolled) {
+          const result = await LocalAuthentication.authenticateAsync({
+            promptMessage: 'Confirme que tu es un parent',
+            cancelLabel: 'Utiliser le code',
+          });
+          if (result.success) {
+            onSuccess();
+            return;
+          }
+        }
+      } catch (e) {
+        // pas grave, on retombe sur le code
+      }
+      setCheckingBiometric(false);
+    })();
+  }, [visible]);
+
+  function checkPin() {
+    if (!expectedPin) {
+      setError("Aucun code parent n'est configuré. Réglez-le depuis les réglages parentaux.");
+      return;
+    }
+    if (pin === expectedPin) {
+      onSuccess();
+    } else {
+      setError('Code incorrect.');
+      setPin('');
+    }
+  }
+
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalCard}>
+          <Text style={styles.modalTitle}>👪 Validation parent</Text>
+          {checkingBiometric ? (
+            <ActivityIndicator size="large" color={colors.mossDeep} style={{ marginVertical: 12 }} />
+          ) : (
+            <>
+              <Text style={{ marginBottom: 12, color: colors.ink }}>
+                Empreinte non disponible ou annulée — entrez le code parent à 4 chiffres.
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="• • • •"
+                keyboardType="number-pad"
+                secureTextEntry
+                maxLength={4}
+                value={pin}
+                onChangeText={setPin}
+              />
+              {error && <Text style={{ color: colors.error, marginBottom: 8 }}>{error}</Text>}
+              <Pressable style={styles.button} onPress={checkPin}>
+                <Text style={styles.buttonText}>Valider</Text>
+              </Pressable>
+            </>
+          )}
+          <Pressable onPress={onCancel}>
+            <Text style={styles.cancelText}>Annuler</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
   );
 }
 
@@ -687,6 +811,21 @@ function WorldMapScreen({ route, navigation }) {
   const [profil, setProfil] = useState(route.params.profil);
   const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [minutesMaxJour, setMinutesMaxJour] = useState(null);
+  const [todaySeconds, setTodaySeconds] = useState(0);
+  const [unlockedExtra, setUnlockedExtra] = useState(false);
+  const [showGate, setShowGate] = useState(false);
+  const [expectedPin, setExpectedPin] = useState(null);
+
+  const refreshLimits = useCallback(async () => {
+    const [parametres, seconds] = await Promise.all([
+      getParametresParentaux(profil.famille_id),
+      getTodayPlaySeconds(profil.id),
+    ]);
+    setMinutesMaxJour(parametres?.minutes_max_jour ?? 30);
+    setExpectedPin(parametres?.code_validation ?? null);
+    setTodaySeconds(seconds);
+  }, [profil.famille_id, profil.id]);
 
   useEffect(() => {
     (async () => {
@@ -696,7 +835,7 @@ function WorldMapScreen({ route, navigation }) {
     })();
   }, []);
 
-  // Rafraîchit le niveau/avatar à chaque retour sur cet écran (après une session de jeu).
+  // Rafraîchit le niveau/avatar et le temps de jeu à chaque retour sur cet écran.
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
       const { data } = await supabase
@@ -705,10 +844,22 @@ function WorldMapScreen({ route, navigation }) {
         .eq('id', route.params.profil.id)
         .maybeSingle();
       if (data) setProfil(data);
+      refreshLimits();
     });
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
+
+  const limitReached = minutesMaxJour != null && todaySeconds >= minutesMaxJour * 60 && !unlockedExtra;
+
+  function handleGamePress(targetScreen) {
+    if (!targetScreen) return;
+    if (limitReached) {
+      setShowGate(true);
+      return;
+    }
+    navigation.navigate(targetScreen, { profil });
+  }
 
   if (loading) {
     return (
@@ -742,6 +893,39 @@ function WorldMapScreen({ route, navigation }) {
         <SpeechBubble text={mapTipFor(profil)} />
       </View>
 
+      {minutesMaxJour != null && (
+        <View style={styles.timeGaugeBox}>
+          <Text style={styles.timeGaugeText}>
+            {Math.floor(todaySeconds / 60)} / {minutesMaxJour} min aujourd'hui
+          </Text>
+          <View style={styles.gaugeTrack}>
+            <View
+              style={[
+                styles.gaugeFill,
+                {
+                  width: `${Math.min(100, (todaySeconds / (minutesMaxJour * 60)) * 100)}%`,
+                  backgroundColor: limitReached ? colors.error : colors.success,
+                },
+              ]}
+            />
+          </View>
+        </View>
+      )}
+
+      {limitReached && (
+        <View style={styles.blockedBanner}>
+          <Noisette size={40} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.blockedText}>
+              Tu as bien joué aujourd'hui ! Reviens demain pour continuer l'aventure.
+            </Text>
+            <Pressable onPress={() => setShowGate(true)}>
+              <Text style={styles.blockedLink}>Demander à un parent de débloquer</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+
       <FlatList
         data={miniJeux}
         keyExtractor={(g) => g.id}
@@ -750,9 +934,9 @@ function WorldMapScreen({ route, navigation }) {
           const targetScreen = GAME_SCREENS[item.code];
           return (
             <Pressable
-              style={styles.gameCard}
+              style={[styles.gameCard, limitReached && targetScreen && styles.gameCardLocked]}
               disabled={!targetScreen}
-              onPress={() => targetScreen && navigation.navigate(targetScreen, { profil })}
+              onPress={() => handleGamePress(targetScreen)}
             >
               <Text style={styles.gameIcon}>{GAME_ICONS[item.code] ?? '🎲'}</Text>
               <View style={{ flex: 1 }}>
@@ -760,8 +944,19 @@ function WorldMapScreen({ route, navigation }) {
                 <Text style={styles.gameCompetence}>{item.competence}</Text>
               </View>
               {!targetScreen && <Text style={styles.soon}>bientôt</Text>}
+              {limitReached && targetScreen && <Text style={{ fontSize: 18 }}>🔒</Text>}
             </Pressable>
           );
+        }}
+      />
+
+      <ParentGateModal
+        visible={showGate}
+        expectedPin={expectedPin}
+        onCancel={() => setShowGate(false)}
+        onSuccess={() => {
+          setShowGate(false);
+          setUnlockedExtra(true);
         }}
       />
     </View>
@@ -1592,6 +1787,106 @@ function RecompensesScreen({ route, navigation }) {
 }
 
 // ============================================================
+// Écran parent : réglages (temps de jeu quotidien, code PIN)
+// ============================================================
+const MINUTES_STEP = 15;
+const MINUTES_MIN = 15;
+const MINUTES_MAX = 180;
+
+function ReglagesParentauxScreen({ route, navigation }) {
+  const { familleId } = route.params;
+  const [loading, setLoading] = useState(true);
+  const [minutesMaxJour, setMinutesMaxJour] = useState(30);
+  const [pin, setPin] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const parametres = await getParametresParentaux(familleId);
+      setMinutesMaxJour(parametres?.minutes_max_jour ?? 30);
+      setPin(parametres?.code_validation ?? '');
+      setLoading(false);
+    })();
+  }, [familleId]);
+
+  async function handleSave() {
+    setSaving(true);
+    setSaved(false);
+    await supabase
+      .from('parametres_parentaux')
+      .update({
+        minutes_max_jour: minutesMaxJour,
+        code_validation: pin.trim() || null,
+      })
+      .eq('famille_id', familleId);
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  const fillRatio = Math.min(1, (minutesMaxJour - MINUTES_MIN) / (MINUTES_MAX - MINUTES_MIN));
+
+  return (
+    <View style={styles.container}>
+      <Pressable onPress={() => navigation.goBack()}>
+        <Text style={styles.back}>‹ Retour</Text>
+      </Pressable>
+      <Text style={styles.title}>👪 Réglages parentaux</Text>
+
+      <View style={styles.rewardForm}>
+        <Text style={styles.label}>Temps de jeu autorisé par jour</Text>
+        <View style={styles.gaugeRow}>
+          <Pressable
+            style={styles.gaugeButton}
+            onPress={() => setMinutesMaxJour((m) => Math.max(MINUTES_MIN, m - MINUTES_STEP))}
+          >
+            <Text style={styles.gaugeButtonText}>−</Text>
+          </Pressable>
+          <View style={styles.gaugeTrack}>
+            <View style={[styles.gaugeFill, { width: `${fillRatio * 100}%` }]} />
+          </View>
+          <Pressable
+            style={styles.gaugeButton}
+            onPress={() => setMinutesMaxJour((m) => Math.min(MINUTES_MAX, m + MINUTES_STEP))}
+          >
+            <Text style={styles.gaugeButtonText}>+</Text>
+          </Pressable>
+        </View>
+        <Text style={styles.gaugeValue}>{minutesMaxJour} minutes par jour</Text>
+
+        <Text style={[styles.label, { marginTop: 20 }]}>Code parent (4 chiffres)</Text>
+        <Text style={styles.helperText}>
+          Sert à valider une session supplémentaire quand le temps est écoulé, si l'empreinte
+          digitale n'est pas disponible sur ce téléphone.
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder="ex. 1234"
+          keyboardType="number-pad"
+          secureTextEntry
+          maxLength={4}
+          value={pin}
+          onChangeText={setPin}
+        />
+
+        <Pressable style={[styles.button, { opacity: saving ? 0.5 : 1 }]} onPress={handleSave} disabled={saving}>
+          <Text style={styles.buttonText}>{saving ? 'Enregistrement…' : saved ? '✓ Enregistré' : 'Enregistrer'}</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+// ============================================================
 // Navigation racine
 // ============================================================
 const Stack = createNativeStackNavigator();
@@ -1632,6 +1927,7 @@ export default function RootNavigator() {
             <Stack.Screen name="SonsMagiques" component={SonsMagiquesScreen} />
             <Stack.Screen name="PommesDeLuma" component={PommesDeLumaScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
+            <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
         )}
       </Stack.Navigator>
@@ -1766,4 +2062,19 @@ const styles = StyleSheet.create({
     borderTopColor: 'transparent', borderBottomColor: 'transparent', borderRightColor: VIVID.orangeDark,
   },
   characterRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  settingsLink: { alignItems: 'center', marginTop: 18 },
+  settingsLinkText: { color: colors.mossDeep, fontWeight: '700', opacity: 0.8 },
+  gaugeRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 },
+  gaugeButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
+  gaugeButtonText: { fontSize: 22, fontWeight: '800', color: colors.ink },
+  gaugeTrack: { flex: 1, height: 16, borderRadius: 8, backgroundColor: '#EEE', overflow: 'hidden' },
+  gaugeFill: { height: '100%', backgroundColor: colors.mossSoft, borderRadius: 8 },
+  gaugeValue: { textAlign: 'center', fontWeight: '700', color: colors.mossDeep, marginBottom: 8 },
+  helperText: { fontSize: 12, opacity: 0.6, color: colors.ink, marginBottom: 10 },
+  timeGaugeBox: { marginBottom: 14 },
+  timeGaugeText: { fontSize: 12, fontWeight: '700', color: colors.mossDeep, marginBottom: 4 },
+  blockedBanner: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#fff', borderRadius: 18, padding: 14, marginBottom: 14, borderWidth: 2, borderColor: colors.error },
+  blockedText: { color: colors.ink, fontWeight: '600', marginBottom: 6 },
+  blockedLink: { color: colors.blue, fontWeight: '800' },
+  gameCardLocked: { opacity: 0.5 },
 });
