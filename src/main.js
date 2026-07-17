@@ -336,6 +336,72 @@ async function getTodayPlaySeconds(profilId) {
   return (data ?? []).reduce((sum, row) => sum + (row.duree_secondes ?? 0), 0);
 }
 
+// Charge le budget de temps du jour pour un profil : temps deja joue + limite reglee.
+function useTimeBudget(profil, reloadKey) {
+  const [totalAllowed, setTotalAllowed] = useState(null);
+  const [baseRemaining, setBaseRemaining] = useState(null);
+  const [expectedPin, setExpectedPin] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const [parametres, seconds] = await Promise.all([
+        getParametresParentaux(profil.famille_id),
+        getTodayPlaySeconds(profil.id),
+      ]);
+      const total = (parametres?.minutes_max_jour ?? 30) * 60;
+      setTotalAllowed(total);
+      setBaseRemaining(Math.max(0, total - seconds));
+      setExpectedPin(parametres?.code_validation ?? null);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.famille_id, profil.id, reloadKey]);
+
+  return { totalAllowed, baseRemaining, expectedPin };
+}
+
+// Fait defiler un compte a rebours en direct, seconde par seconde, a partir d'une base.
+function useLiveCountdown(baseSeconds) {
+  const [seconds, setSeconds] = useState(baseSeconds ?? 0);
+
+  useEffect(() => {
+    setSeconds(baseSeconds ?? 0);
+  }, [baseSeconds]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSeconds((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return seconds;
+}
+
+function formatMinutesSeconds(totalSeconds) {
+  const safe = Math.max(0, Math.floor(totalSeconds ?? 0));
+  const m = Math.floor(safe / 60);
+  const s = safe % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function TimeGaugeBar({ remainingSeconds, totalSeconds }) {
+  const ratio = totalSeconds > 0 ? Math.max(0, Math.min(1, remainingSeconds / totalSeconds)) : 0;
+  const low = remainingSeconds <= 60;
+  return (
+    <View style={styles.liveGaugeBox}>
+      <View style={styles.gaugeTrack}>
+        <View
+          style={[
+            styles.gaugeFill,
+            { width: `${ratio * 100}%`, backgroundColor: low ? colors.error : colors.success },
+          ]}
+        />
+      </View>
+      <Text style={styles.liveGaugeText}>⏳ {formatMinutesSeconds(remainingSeconds)}</Text>
+    </View>
+  );
+}
+
 async function completeSession({ profil, miniJeuId, finalPalier, erreursTotal, dureeSecondes, totalRounds, startedAt }) {
   await supabase
     .from('progression')
@@ -811,21 +877,12 @@ function WorldMapScreen({ route, navigation }) {
   const [profil, setProfil] = useState(route.params.profil);
   const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [minutesMaxJour, setMinutesMaxJour] = useState(null);
-  const [todaySeconds, setTodaySeconds] = useState(0);
   const [unlockedExtra, setUnlockedExtra] = useState(false);
   const [showGate, setShowGate] = useState(false);
-  const [expectedPin, setExpectedPin] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const refreshLimits = useCallback(async () => {
-    const [parametres, seconds] = await Promise.all([
-      getParametresParentaux(profil.famille_id),
-      getTodayPlaySeconds(profil.id),
-    ]);
-    setMinutesMaxJour(parametres?.minutes_max_jour ?? 30);
-    setExpectedPin(parametres?.code_validation ?? null);
-    setTodaySeconds(seconds);
-  }, [profil.famille_id, profil.id]);
+  const { totalAllowed, baseRemaining, expectedPin } = useTimeBudget(profil, reloadKey);
+  const remainingSeconds = useLiveCountdown(baseRemaining);
 
   useEffect(() => {
     (async () => {
@@ -835,7 +892,7 @@ function WorldMapScreen({ route, navigation }) {
     })();
   }, []);
 
-  // Rafraîchit le niveau/avatar et le temps de jeu à chaque retour sur cet écran.
+  // Rafraîchit le niveau/avatar et le budget de temps à chaque retour sur cet écran.
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
       const { data } = await supabase
@@ -844,13 +901,14 @@ function WorldMapScreen({ route, navigation }) {
         .eq('id', route.params.profil.id)
         .maybeSingle();
       if (data) setProfil(data);
-      refreshLimits();
+      setUnlockedExtra(false);
+      setReloadKey((k) => k + 1);
     });
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
 
-  const limitReached = minutesMaxJour != null && todaySeconds >= minutesMaxJour * 60 && !unlockedExtra;
+  const limitReached = baseRemaining != null && remainingSeconds <= 0 && !unlockedExtra;
 
   function handleGamePress(targetScreen) {
     if (!targetScreen) return;
@@ -893,23 +951,8 @@ function WorldMapScreen({ route, navigation }) {
         <SpeechBubble text={mapTipFor(profil)} />
       </View>
 
-      {minutesMaxJour != null && (
-        <View style={styles.timeGaugeBox}>
-          <Text style={styles.timeGaugeText}>
-            {Math.floor(todaySeconds / 60)} / {minutesMaxJour} min aujourd'hui
-          </Text>
-          <View style={styles.gaugeTrack}>
-            <View
-              style={[
-                styles.gaugeFill,
-                {
-                  width: `${Math.min(100, (todaySeconds / (minutesMaxJour * 60)) * 100)}%`,
-                  backgroundColor: limitReached ? colors.error : colors.success,
-                },
-              ]}
-            />
-          </View>
-        </View>
+      {totalAllowed != null && (
+        <TimeGaugeBar remainingSeconds={remainingSeconds} totalSeconds={totalAllowed} />
       )}
 
       {limitReached && (
@@ -994,6 +1037,13 @@ function PontDesLettresScreen({ route, navigation }) {
   const errorsTotal = useRef(0);
   const lastItemId = useRef(null);
   const startedAt = useRef(Date.now());
+
+  const { totalAllowed, baseRemaining } = useTimeBudget(profil);
+  const remainingSeconds = useLiveCountdown(baseRemaining);
+  const timeUpRef = useRef(false);
+  useEffect(() => {
+    if (baseRemaining != null && remainingSeconds <= 0) timeUpRef.current = true;
+  }, [remainingSeconds, baseRemaining]);
 
   useEffect(() => {
     (async () => {
@@ -1090,7 +1140,7 @@ function PontDesLettresScreen({ route, navigation }) {
           if (errorsThisRound.current === 0) nextPalier = Math.min(3, palier + 1);
           else if (errorsThisRound.current >= 2) nextPalier = Math.max(1, palier - 1);
 
-          if (round >= TOTAL_ROUNDS) {
+          if (round >= TOTAL_ROUNDS || timeUpRef.current) {
             setPalier(nextPalier);
             await finishSession(nextPalier);
           } else {
@@ -1111,7 +1161,7 @@ function PontDesLettresScreen({ route, navigation }) {
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} palier={palier} summary={sessionSummary} navigation={navigation} />;
+    return <SessionEndScreen profil={profil} palier={palier} summary={sessionSummary} navigation={navigation} timeUp={timeUpRef.current} />;
   }
 
   if (loading || !current) {
@@ -1133,6 +1183,10 @@ function PontDesLettresScreen({ route, navigation }) {
         <Text style={styles.gameTitle}>🌉 Le Pont des Lettres</Text>
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
+
+      {totalAllowed != null && (
+        <TimeGaugeBar remainingSeconds={remainingSeconds} totalSeconds={totalAllowed} />
+      )}
 
       <View style={styles.gameCharacter}>
         <BouncingWrap><Maestro size={48} /></BouncingWrap>
@@ -1276,7 +1330,7 @@ function speak(text) {
   if (text) Speech.speak(String(text), { language: 'fr-FR', rate: 0.85 });
 }
 
-function SessionEndScreen({ profil, palier, summary, navigation }) {
+function SessionEndScreen({ profil, palier, summary, navigation, timeUp }) {
   const fiche = summary?.ficheAnimal;
 
   return (
@@ -1286,6 +1340,13 @@ function SessionEndScreen({ profil, palier, summary, navigation }) {
       <Text style={styles.endTitle}>Bravo {profil.prenom} !</Text>
       {palier != null && (
         <Text style={styles.endText}>Tu as fini ta session au palier {palier} sur 3.</Text>
+      )}
+      {timeUp && (
+        <View style={styles.timeUpBox}>
+          <Text style={styles.timeUpText}>
+            ⏳ Le temps de jeu du jour est terminé. À demain pour une nouvelle aventure !
+          </Text>
+        </View>
       )}
 
       {summary?.rankChanged && (
@@ -1354,6 +1415,13 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   const errorsTotal = useRef(0);
   const lastItemId = useRef(null);
   const startedAt = useRef(Date.now());
+
+  const { totalAllowed, baseRemaining } = useTimeBudget(profil);
+  const remainingSeconds = useLiveCountdown(baseRemaining);
+  const timeUpRef = useRef(false);
+  useEffect(() => {
+    if (baseRemaining != null && remainingSeconds <= 0) timeUpRef.current = true;
+  }, [remainingSeconds, baseRemaining]);
 
   useEffect(() => {
     (async () => {
@@ -1439,7 +1507,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         if (errorsThisRound.current === 0) nextPalier = Math.min(3, palier + 1);
         else if (errorsThisRound.current >= 2) nextPalier = Math.max(1, palier - 1);
 
-        if (round >= TOTAL_ROUNDS) {
+        if (round >= TOTAL_ROUNDS || timeUpRef.current) {
           setPalier(nextPalier);
           await finishSession(nextPalier);
         } else {
@@ -1460,7 +1528,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} palier={palier} summary={sessionSummary} navigation={navigation} />;
+    return <SessionEndScreen profil={profil} palier={palier} summary={sessionSummary} navigation={navigation} timeUp={timeUpRef.current} />;
   }
 
   if (loading || !promptData) {
@@ -1480,6 +1548,10 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         <Text style={styles.gameTitle}>{jeuTitre}</Text>
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
+
+      {totalAllowed != null && (
+        <TimeGaugeBar remainingSeconds={remainingSeconds} totalSeconds={totalAllowed} />
+      )}
 
       {Character ? (
         <View style={styles.gameCharacter}>
@@ -2077,4 +2149,8 @@ const styles = StyleSheet.create({
   blockedText: { color: colors.ink, fontWeight: '600', marginBottom: 6 },
   blockedLink: { color: colors.blue, fontWeight: '800' },
   gameCardLocked: { opacity: 0.5 },
+  liveGaugeBox: { marginBottom: 14 },
+  liveGaugeText: { fontSize: 13, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginTop: 4 },
+  timeUpBox: { backgroundColor: '#fff', borderRadius: 16, padding: 14, marginBottom: 14, borderWidth: 2, borderColor: colors.error },
+  timeUpText: { color: colors.ink, fontWeight: '700', textAlign: 'center' },
 });
