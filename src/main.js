@@ -428,11 +428,46 @@ function TimeGaugeBar({ remainingSeconds, totalSeconds }) {
   );
 }
 
-async function completeSession({ profil, miniJeuId, finalPalier, erreursTotal, dureeSecondes, totalRounds, startedAt }) {
+async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal }) {
+  const { data: existing } = await supabase
+    .from('progression')
+    .select('details')
+    .eq('profil_id', profil.id)
+    .eq('mini_jeu_id', miniJeuId)
+    .maybeSingle();
+
+  const oldStreak = existing?.details?.streak ?? 0;
+  let newStreak = 0;
+  let newRung = currentRung;
+
+  if (erreursTotal === 0) {
+    // Session parfaite : la remontee s'accelere a chaque reussite consecutive.
+    newStreak = oldStreak + 1;
+    const jump = Math.min(3, newStreak);
+    newRung = Math.min(MAX_CONTENT_RUNG, currentRung + jump);
+  } else if (erreursTotal >= 3) {
+    // Vraie difficulte rencontree : on redescend et on remet le compteur a zero.
+    newStreak = 0;
+    newRung = Math.max(1, currentRung - 1);
+  } else {
+    // Quelques erreurs, sans plus : on reste sur place, sans casser un futur enchainement.
+    newStreak = 0;
+    newRung = currentRung;
+  }
+
+  const direction = newRung > currentRung ? 'up' : newRung < currentRung ? 'down' : 'same';
+  return { newRung, newStreak, rungChanged: newRung !== currentRung, direction };
+}
+
+async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt }) {
+  const { newRung, newStreak, rungChanged } = await computeNextRung({
+    profil, miniJeuId, currentRung, erreursTotal,
+  });
+
   await supabase
     .from('progression')
     .upsert(
-      { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: finalPalier },
+      { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: newRung, details: { streak: newStreak } },
       { onConflict: 'profil_id,mini_jeu_id' }
     );
 
@@ -501,8 +536,51 @@ async function completeSession({ profil, miniJeuId, finalPalier, erreursTotal, d
     newRank,
     reward,
     ficheAnimal,
+    newRung,
+    rungChanged,
+    direction,
   };
 }
+
+// ============================================================
+// Echelle continue de difficulte : fusionne niveau scolaire + palier
+// en une seule suite de "crans", pour pouvoir depasser librement le
+// niveau scolaire assigne si l'enfant reussit tres bien.
+// ============================================================
+const GRADE_ORDER = ['ms', 'gs', 'cp', 'ce1', 'ce2', 'cm1', 'cm2', '6e'];
+
+// A augmenter au fur et a mesure qu'on ajoute du contenu pour les niveaux
+// superieurs. Pour l'instant, seul MS/GS/CP existe (3 niveaux x 3 paliers = 9).
+const MAX_CONTENT_RUNG = 9;
+
+function rungFromGradeAndPalier(niveau, palier) {
+  const idx = Math.max(0, GRADE_ORDER.indexOf(niveau));
+  return idx * 3 + palier;
+}
+
+function gradeAndPalierFromRung(rung) {
+  const clamped = Math.max(1, Math.min(rung, MAX_CONTENT_RUNG));
+  const idx = Math.floor((clamped - 1) / 3);
+  const palier = ((clamped - 1) % 3) + 1;
+  return { niveau: GRADE_ORDER[Math.min(idx, GRADE_ORDER.length - 1)], palier };
+}
+
+function rungLabel(rung) {
+  const { niveau, palier } = gradeAndPalierFromRung(rung);
+  const label = NIVEAU_LABELS[niveau] ?? niveau.toUpperCase();
+  return `${label} · palier ${palier}`;
+}
+
+const NIVEAU_LABELS = {
+  ms: 'Moyenne Section',
+  gs: 'Grande Section',
+  cp: 'CP',
+  ce1: 'CE1',
+  ce2: 'CE2',
+  cm1: 'CM1',
+  cm2: 'CM2',
+  '6e': '6e',
+};
 
 const NIVEAU_CHOICES = [
   { value: 'ms', label: 'Moyenne Section' },
@@ -1075,7 +1153,7 @@ function PontDesLettresScreen({ route, navigation }) {
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
-  const [palier, setPalier] = useState(1);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
   const [round, setRound] = useState(1);
   const [current, setCurrent] = useState(null);
   const [stepIndex, setStepIndex] = useState(0);
@@ -1124,27 +1202,6 @@ function PontDesLettresScreen({ route, navigation }) {
     };
   }, [current]);
 
-  useEffect(() => {
-    (async () => {
-      const { data: jeu } = await supabase
-        .from('mini_jeux')
-        .select('id')
-        .eq('code', 'pont_des_lettres')
-        .single();
-      if (!jeu) return;
-      setMiniJeuId(jeu.id);
-
-      const { data: prog } = await supabase
-        .from('progression')
-        .select('palier_actuel')
-        .eq('profil_id', profil.id)
-        .eq('mini_jeu_id', jeu.id)
-        .maybeSingle();
-
-      setPalier(prog?.palier_actuel ?? 1);
-    })();
-  }, [profil.id]);
-
   const loadRound = useCallback(async (jeuId, niveau, palierValue) => {
     setLoading(true);
     setFeedback(null);
@@ -1178,10 +1235,33 @@ function PontDesLettresScreen({ route, navigation }) {
     setLoading(false);
   }, []);
 
+  // Recupere le jeu et le cran de difficulte sauvegarde, puis lance la
+  // premiere manche avec ce cran precis (le cran reste fixe pendant toute
+  // la session : seule la fin de session peut le faire evoluer).
   useEffect(() => {
-    if (miniJeuId) loadRound(miniJeuId, profil.niveau_defaut, palier);
+    (async () => {
+      const { data: jeu } = await supabase
+        .from('mini_jeux')
+        .select('id')
+        .eq('code', 'pont_des_lettres')
+        .single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      const startRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      setRung(startRung);
+      const { niveau, palier: palierValue } = gradeAndPalierFromRung(startRung);
+      loadRound(jeu.id, niveau, palierValue);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [miniJeuId]);
+  }, [profil.id]);
 
   function speak(text) {
     Speech.speak(text, { language: 'fr-FR', rate: 0.85 });
@@ -1189,11 +1269,11 @@ function PontDesLettresScreen({ route, navigation }) {
 
   const [sessionSummary, setSessionSummary] = useState(null);
 
-  async function finishSession(finalPalier) {
+  async function finishSession() {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
     const summary = await completeSession({
-      profil, miniJeuId, finalPalier,
+      profil, miniJeuId, currentRung: rung,
       erreursTotal: errorsTotal.current,
       dureeSecondes: durationSeconds,
       totalRounds: TOTAL_ROUNDS,
@@ -1215,17 +1295,12 @@ function PontDesLettresScreen({ route, navigation }) {
       if (nextStep === current.sequence.length) {
         setFeedback('Bravo !');
         setTimeout(async () => {
-          let nextPalier = palier;
-          if (errorsThisRound.current === 0) nextPalier = Math.min(3, palier + 1);
-          else if (errorsThisRound.current >= 2) nextPalier = Math.max(1, palier - 1);
-
           if (round >= TOTAL_ROUNDS || timeUpRef.current) {
-            setPalier(nextPalier);
-            await finishSession(nextPalier);
+            await finishSession();
           } else {
-            setPalier(nextPalier);
             setRound((r) => r + 1);
-            loadRound(miniJeuId, profil.niveau_defaut, nextPalier);
+            const { niveau, palier } = gradeAndPalierFromRung(rung);
+            loadRound(miniJeuId, niveau, palier);
           }
         }, 500);
       } else {
@@ -1240,7 +1315,7 @@ function PontDesLettresScreen({ route, navigation }) {
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} palier={palier} summary={sessionSummary} navigation={navigation} timeUp={timeUpRef.current} />;
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} timeUp={timeUpRef.current} />;
   }
 
   if (loading || !current) {
@@ -1409,7 +1484,7 @@ function speak(text) {
   if (text) Speech.speak(String(text), { language: 'fr-FR', rate: 0.85 });
 }
 
-function SessionEndScreen({ profil, palier, summary, navigation, timeUp }) {
+function SessionEndScreen({ profil, summary, navigation, timeUp }) {
   const fiche = summary?.ficheAnimal;
 
   return (
@@ -1417,8 +1492,11 @@ function SessionEndScreen({ profil, palier, summary, navigation, timeUp }) {
       <BouncingWrap><Noisette size={72} /></BouncingWrap>
       <Text style={{ fontSize: 32, marginBottom: 4 }}>🌟</Text>
       <Text style={styles.endTitle}>Bravo {profil.prenom} !</Text>
-      {palier != null && (
-        <Text style={styles.endText}>Tu as fini ta session au palier {palier} sur 3.</Text>
+      {summary?.newRung != null && (
+        <Text style={styles.endText}>
+          Niveau atteint : {rungLabel(summary.newRung)}
+          {summary.direction === 'up' ? ' 🎉' : ''}
+        </Text>
       )}
       {timeUp && (
         <View style={styles.timeUpBox}>
@@ -1482,7 +1560,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
-  const [palier, setPalier] = useState(1);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
   const [round, setRound] = useState(1);
   const [promptData, setPromptData] = useState(null);
   const [optionsOrder, setOptionsOrder] = useState([]);
@@ -1529,27 +1607,6 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     };
   }, [promptData]);
 
-  useEffect(() => {
-    (async () => {
-      const { data: jeu } = await supabase
-        .from('mini_jeux')
-        .select('id')
-        .eq('code', jeuCode)
-        .single();
-      if (!jeu) return;
-      setMiniJeuId(jeu.id);
-
-      const { data: prog } = await supabase
-        .from('progression')
-        .select('palier_actuel')
-        .eq('profil_id', profil.id)
-        .eq('mini_jeu_id', jeu.id)
-        .maybeSingle();
-
-      setPalier(prog?.palier_actuel ?? 1);
-    })();
-  }, [profil.id]);
-
   const loadRound = useCallback(async (jeuId, niveau, palierValue) => {
     setLoading(true);
     setFeedback(null);
@@ -1578,20 +1635,42 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     setLoading(false);
   }, []);
 
+  // Recupere le jeu et le cran de difficulte sauvegarde, puis lance la
+  // premiere manche avec ce cran precis (fixe pour toute la session).
   useEffect(() => {
-    if (miniJeuId) loadRound(miniJeuId, profil.niveau_defaut, palier);
+    (async () => {
+      const { data: jeu } = await supabase
+        .from('mini_jeux')
+        .select('id')
+        .eq('code', jeuCode)
+        .single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      const startRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      setRung(startRung);
+      const { niveau, palier: palierValue } = gradeAndPalierFromRung(startRung);
+      loadRound(jeu.id, niveau, palierValue);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [miniJeuId]);
+  }, [profil.id]);
 
   function speak(text) {
     if (text) Speech.speak(String(text), { language: 'fr-FR', rate: 0.85 });
   }
 
-  async function finishSession(finalPalier) {
+  async function finishSession() {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
     const summary = await completeSession({
-      profil, miniJeuId, finalPalier,
+      profil, miniJeuId, currentRung: rung,
       erreursTotal: errorsTotal.current,
       dureeSecondes: durationSeconds,
       totalRounds: TOTAL_ROUNDS,
@@ -1609,17 +1688,12 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     if (isCorrect) {
       setFeedback('Bravo !');
       setTimeout(async () => {
-        let nextPalier = palier;
-        if (errorsThisRound.current === 0) nextPalier = Math.min(3, palier + 1);
-        else if (errorsThisRound.current >= 2) nextPalier = Math.max(1, palier - 1);
-
         if (round >= TOTAL_ROUNDS || timeUpRef.current) {
-          setPalier(nextPalier);
-          await finishSession(nextPalier);
+          await finishSession();
         } else {
-          setPalier(nextPalier);
           setRound((r) => r + 1);
-          loadRound(miniJeuId, profil.niveau_defaut, nextPalier);
+          const { niveau, palier } = gradeAndPalierFromRung(rung);
+          loadRound(miniJeuId, niveau, palier);
         }
       }, 700);
     } else {
@@ -1634,7 +1708,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} palier={palier} summary={sessionSummary} navigation={navigation} timeUp={timeUpRef.current} />;
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} timeUp={timeUpRef.current} />;
   }
 
   if (loading || !promptData) {
