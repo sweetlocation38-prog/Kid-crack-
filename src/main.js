@@ -428,23 +428,39 @@ function TimeGaugeBar({ remainingSeconds, totalSeconds }) {
   );
 }
 
-async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal }) {
+async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche }) {
   const { data: existing } = await supabase
     .from('progression')
-    .select('details')
+    .select('details, temps_reference_secondes')
     .eq('profil_id', profil.id)
     .eq('mini_jeu_id', miniJeuId)
     .maybeSingle();
 
   const oldStreak = existing?.details?.streak ?? 0;
+  const reference = existing?.temps_reference_secondes ?? null;
   let newStreak = 0;
   let newRung = currentRung;
+  let newReference = reference;
 
-  if (erreursTotal === 0) {
-    // Session parfaite : la remontee s'accelere a chaque reussite consecutive.
+  // Une reponse juste mais tres lente ne doit pas etre traitee comme une
+  // vraie maitrise : on compare au temps de reference de l'enfant sur ce jeu.
+  const tropLent = reference != null && tempsMoyenParManche != null && tempsMoyenParManche > reference * 1.5;
+
+  if (erreursTotal === 0 && !tropLent) {
+    // Session parfaite ET dans un temps raisonnable : la remontee s'accelere.
     newStreak = oldStreak + 1;
     const jump = Math.min(3, newStreak);
     newRung = Math.min(MAX_CONTENT_RUNG, currentRung + jump);
+    if (tempsMoyenParManche != null) {
+      // Le temps de reference se resserre doucement pour continuer a exiger de la fluidite.
+      newReference = reference == null
+        ? tempsMoyenParManche
+        : Math.round((reference * 2 + tempsMoyenParManche) / 3);
+    }
+  } else if (erreursTotal === 0 && tropLent) {
+    // Juste, mais trop lent : pas de recul, mais pas d'acceleration non plus.
+    newStreak = 0;
+    newRung = currentRung;
   } else if (erreursTotal >= 3) {
     // Vraie difficulte rencontree : on redescend et on remet le compteur a zero.
     newStreak = 0;
@@ -456,78 +472,128 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal })
   }
 
   const direction = newRung > currentRung ? 'up' : newRung < currentRung ? 'down' : 'same';
-  return { newRung, newStreak, rungChanged: newRung !== currentRung, direction };
+  return { newRung, newStreak, newReference, rungChanged: newRung !== currentRung, direction };
 }
 
-async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt }) {
-  const { newRung, newStreak, rungChanged } = await computeNextRung({
-    profil, miniJeuId, currentRung, erreursTotal,
-  });
+async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt, tempsMoyenParManche }) {
+  // Robustesse : quoi qu'il arrive (probleme reseau, ligne manquante...),
+  // on ne laisse JAMAIS l'enfant bloque sur l'ecran de jeu. Chaque etape
+  // est protegee individuellement pour que les suivantes puissent continuer.
+  let newRung = currentRung;
+  let newStreak = 0;
+  let newReference = null;
+  let rungChanged = false;
+  let direction = 'same';
+  try {
+    const result = await computeNextRung({
+      profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche,
+    });
+    newRung = result.newRung;
+    newStreak = result.newStreak;
+    newReference = result.newReference;
+    rungChanged = result.rungChanged;
+    direction = result.direction;
+  } catch (e) {
+    // On garde le cran actuel si le calcul echoue.
+  }
 
-  await supabase
-    .from('progression')
-    .upsert(
-      { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: newRung, details: { streak: newStreak } },
-      { onConflict: 'profil_id,mini_jeu_id' }
-    );
+  try {
+    await supabase
+      .from('progression')
+      .upsert(
+        {
+          profil_id: profil.id,
+          mini_jeu_id: miniJeuId,
+          palier_actuel: newRung,
+          details: { streak: newStreak },
+          temps_reference_secondes: newReference,
+        },
+        { onConflict: 'profil_id,mini_jeu_id' }
+      );
+  } catch (e) {
+    // Non bloquant : le cran ne sera pas sauvegarde cette fois, mais le jeu continue.
+  }
 
-  await supabase.from('sessions_jeu').insert({
-    profil_id: profil.id,
-    mini_jeu_id: miniJeuId,
-    debut: new Date(startedAt).toISOString(),
-    duree_secondes: dureeSecondes,
-    manches_jouees: totalRounds,
-    erreurs_total: erreursTotal,
-  });
+  try {
+    await supabase.from('sessions_jeu').insert({
+      profil_id: profil.id,
+      mini_jeu_id: miniJeuId,
+      debut: new Date(startedAt).toISOString(),
+      duree_secondes: dureeSecondes,
+      manches_jouees: totalRounds,
+      erreurs_total: erreursTotal,
+    });
+  } catch (e) {
+    // Non bloquant : la session continue meme si l'historique n'est pas enregistre.
+  }
 
-  await supabase.from('jours_actifs').insert({
-    profil_id: profil.id,
-    date: new Date().toISOString().slice(0, 10),
-  });
+  try {
+    await supabase.from('jours_actifs').insert({
+      profil_id: profil.id,
+      date: new Date().toISOString().slice(0, 10),
+    });
+  } catch (e) {
+    // Non bloquant.
+  }
 
-  const { data: profilRow } = await supabase
-    .from('profils_enfants')
-    .select('niveau_global')
-    .eq('id', profil.id)
-    .single();
+  let newNiveau = profil.niveau_global ?? 0;
+  let previousRank = avatarRankFor(newNiveau);
+  let newRank = previousRank;
+  try {
+    const { data: profilRow } = await supabase
+      .from('profils_enfants')
+      .select('niveau_global')
+      .eq('id', profil.id)
+      .maybeSingle();
 
-  const previousNiveau = profilRow?.niveau_global ?? 0;
-  const newNiveau = previousNiveau + 1;
-  const previousRank = avatarRankFor(previousNiveau);
-  const newRank = avatarRankFor(newNiveau);
+    const previousNiveau = profilRow?.niveau_global ?? profil.niveau_global ?? 0;
+    newNiveau = previousNiveau + 1;
+    previousRank = avatarRankFor(previousNiveau);
+    newRank = avatarRankFor(newNiveau);
 
-  await supabase
-    .from('profils_enfants')
-    .update({ niveau_global: newNiveau })
-    .eq('id', profil.id);
+    await supabase
+      .from('profils_enfants')
+      .update({ niveau_global: newNiveau })
+      .eq('id', profil.id);
+  } catch (e) {
+    // Non bloquant : l'avatar/niveau global ne progresse pas cette fois, mais le jeu continue.
+  }
 
   let reward = null;
-  const { data: rewardRow } = await supabase
-    .from('recompenses_parentales')
-    .select('*')
-    .eq('profil_id', profil.id)
-    .eq('niveau_declencheur', newNiveau)
-    .eq('statut', 'a_faire')
-    .maybeSingle();
-
-  if (rewardRow) {
-    reward = rewardRow;
-    await supabase
+  try {
+    const { data: rewardRow } = await supabase
       .from('recompenses_parentales')
-      .update({ statut: 'fait' })
-      .eq('id', rewardRow.id);
+      .select('*')
+      .eq('profil_id', profil.id)
+      .eq('niveau_declencheur', newNiveau)
+      .eq('statut', 'a_faire')
+      .maybeSingle();
+
+    if (rewardRow) {
+      reward = rewardRow;
+      await supabase
+        .from('recompenses_parentales')
+        .update({ statut: 'fait' })
+        .eq('id', rewardRow.id);
+    }
+  } catch (e) {
+    // Non bloquant.
   }
 
   let ficheAnimal = null;
   const rankChanged = newRank !== previousRank;
-  if (rankChanged) {
-    const code = AVATAR_CHAIN[newRank - 1].code;
-    const { data: fiche } = await supabase
-      .from('fiches_animaux')
-      .select('*')
-      .eq('code', code)
-      .maybeSingle();
-    ficheAnimal = fiche ?? null;
+  try {
+    if (rankChanged) {
+      const code = AVATAR_CHAIN[newRank - 1].code;
+      const { data: fiche } = await supabase
+        .from('fiches_animaux')
+        .select('*')
+        .eq('code', code)
+        .maybeSingle();
+      ficheAnimal = fiche ?? null;
+    }
+  } catch (e) {
+    // Non bloquant.
   }
 
   return {
@@ -1151,6 +1217,14 @@ function shuffle(arr) {
   return a;
 }
 
+// Pour la lecture a voix haute : les lettres/syllabes s'epellent sans espace
+// (CHAT), mais des mots ou des phrases entieres doivent etre separes par un
+// espace, sinon la lecture devient incomprehensible.
+function joinSequenceForSpeech(sequence, niveau) {
+  const modeMots = ['ce1', 'ce2', 'cm1', 'cm2', '6e'].includes(niveau);
+  return modeMots ? sequence.join(' ') : sequence.join('');
+}
+
 function PontDesLettresScreen({ route, navigation }) {
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
@@ -1166,7 +1240,7 @@ function PontDesLettresScreen({ route, navigation }) {
   const [sessionDone, setSessionDone] = useState(false);
   const errorsThisRound = useRef(0);
   const errorsTotal = useRef(0);
-  const lastItemId = useRef(null);
+  const shownIds = useRef(new Set());
   const startedAt = useRef(Date.now());
 
   // Ne lit automatiquement que lorsqu'il n'y a AUCUNE image pour deviner
@@ -1176,19 +1250,12 @@ function PontDesLettresScreen({ route, navigation }) {
     let cancelled = false;
     const isModelMode = !!current.options;
     const instruction = isModelMode ? 'Trouve la lettre.' : 'Écoute et assemble le mot.';
-    const parts = [instruction, current.sequence.join('')];
+    const speechNiveau = gradeAndPalierFromRung(rung).niveau;
+    const parts = [instruction, joinSequenceForSpeech(current.sequence, speechNiveau)];
     (async () => {
       for (const part of parts) {
         if (cancelled) return;
-        await new Promise((resolve) => {
-          Speech.speak(part, {
-            language: 'fr-FR',
-            rate: 0.85,
-            onDone: resolve,
-            onStopped: resolve,
-            onError: resolve,
-          });
-        });
+        await speakSmart(part);
       }
     })();
     return () => {
@@ -1214,13 +1281,19 @@ function PontDesLettresScreen({ route, navigation }) {
       .eq('actif', true)
       .limit(30);
 
-    const pool = (data ?? []).filter((r) => r.id !== lastItemId.current);
+    // Evite de repeter un element deja vu dans CETTE session ; si le stock
+    // de contenu est epuise, on autorise de nouveau les repetitions.
+    let pool = (data ?? []).filter((r) => !shownIds.current.has(r.id));
+    if (pool.length === 0) {
+      shownIds.current.clear();
+      pool = data ?? [];
+    }
     const pick = pool[Math.floor(Math.random() * pool.length)] ?? data?.[0];
     if (!pick) {
       setLoading(false);
       return;
     }
-    lastItemId.current = pick.id;
+    shownIds.current.add(pick.id);
     const donnees = pick.donnees;
     setCurrent(donnees);
 
@@ -1259,7 +1332,7 @@ function PontDesLettresScreen({ route, navigation }) {
   }, [profil.id]);
 
   function speak(text) {
-    Speech.speak(text, { language: 'fr-FR', rate: 0.85 });
+    speakSmart(text);
   }
 
   const [sessionSummary, setSessionSummary] = useState(null);
@@ -1273,6 +1346,7 @@ function PontDesLettresScreen({ route, navigation }) {
       dureeSecondes: durationSeconds,
       totalRounds: TOTAL_ROUNDS,
       startedAt: startedAt.current,
+      tempsMoyenParManche: Math.round(durationSeconds / TOTAL_ROUNDS),
     });
     setSessionSummary(summary);
     setSessionDone(true);
@@ -1340,24 +1414,16 @@ function PontDesLettresScreen({ route, navigation }) {
 
       <View style={styles.prompt}>
         {current.icon ? (
-          <Pressable onPress={() => speak(current.sequence.join(''))}>
+          <Pressable onPress={() => speak(joinSequenceForSpeech(current.sequence, gradeAndPalierFromRung(rung).niveau))}>
             <Text style={styles.icon}>{current.icon}</Text>
           </Pressable>
         ) : (
-          <Pressable style={styles.listenButton} onPress={() => speak(current.sequence.join(''))}>
+          <Pressable style={styles.listenButton} onPress={() => speak(joinSequenceForSpeech(current.sequence, gradeAndPalierFromRung(rung).niveau))}>
             <Text style={styles.listenText}>🎤 Écouter</Text>
           </Pressable>
         )}
 
-        {isModelMode ? (
-          current.showModel && (
-            <View style={styles.modelBox}>
-              <Text style={styles.modelText} numberOfLines={1} adjustsFontSizeToFit>
-                {current.sequence[0]}
-              </Text>
-            </View>
-          )
-        ) : (
+        {isModelMode ? null : (
           <View style={styles.slots}>
             {current.sequence.map((_, i) => (
               <View key={i} style={styles.slot}>
@@ -1472,8 +1538,45 @@ function PopIn({ children, delay, style }) {
   );
 }
 
+// Lit un texte a voix haute en le decoupant phrase par phrase (plus
+// intelligible pour les textes longs) et en ralentissant le debit quand
+// le texte est long. Renvoie une promesse resolue une fois la lecture finie,
+// pour pouvoir enchainer plusieurs textes proprement.
+function speakSmart(text) {
+  return new Promise((resolve) => {
+    const raw = String(text ?? '').trim();
+    if (!raw) {
+      resolve();
+      return;
+    }
+    const clauses = raw.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [raw];
+    const rate = raw.length > 50 ? 0.72 : 0.85;
+    let i = 0;
+    function next() {
+      if (i >= clauses.length) {
+        resolve();
+        return;
+      }
+      const clause = clauses[i].trim();
+      i += 1;
+      if (!clause) {
+        next();
+        return;
+      }
+      Speech.speak(clause, {
+        language: 'fr-FR',
+        rate,
+        onDone: next,
+        onStopped: next,
+        onError: next,
+      });
+    }
+    next();
+  });
+}
+
 function speak(text) {
-  if (text) Speech.speak(String(text), { language: 'fr-FR', rate: 0.85 });
+  if (text) speakSmart(text);
 }
 
 function SessionEndScreen({ profil, summary, navigation, timeUp }) {
@@ -1562,7 +1665,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   const [sessionSummary, setSessionSummary] = useState(null);
   const errorsThisRound = useRef(0);
   const errorsTotal = useRef(0);
-  const lastItemId = useRef(null);
+  const shownIds = useRef(new Set());
   const startedAt = useRef(Date.now());
 
   // Ne lit a voix haute AUTOMATIQUEMENT que lorsque c'est indispensable
@@ -1575,15 +1678,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     (async () => {
       for (const part of parts) {
         if (cancelled) return;
-        await new Promise((resolve) => {
-          Speech.speak(String(part), {
-            language: 'fr-FR',
-            rate: 0.85,
-            onDone: resolve,
-            onStopped: resolve,
-            onError: resolve,
-          });
-        });
+        await speakSmart(part);
       }
     })();
     return () => {
@@ -1607,13 +1702,19 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       .eq('actif', true)
       .limit(30);
 
-    const pool = (data ?? []).filter((r) => r.id !== lastItemId.current);
+    // Evite de repeter un element deja vu dans CETTE session ; si le stock
+    // de contenu est epuise, on autorise de nouveau les repetitions.
+    let pool = (data ?? []).filter((r) => !shownIds.current.has(r.id));
+    if (pool.length === 0) {
+      shownIds.current.clear();
+      pool = data ?? [];
+    }
     const pick = pool[Math.floor(Math.random() * pool.length)] ?? data?.[0];
     if (!pick) {
       setLoading(false);
       return;
     }
-    lastItemId.current = pick.id;
+    shownIds.current.add(pick.id);
     const prompt = buildPrompt(pick.donnees);
     setPromptData(prompt);
     setOptionsOrder(shuffle(prompt.options));
@@ -1648,7 +1749,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   }, [profil.id]);
 
   function speak(text) {
-    if (text) Speech.speak(String(text), { language: 'fr-FR', rate: 0.85 });
+    if (text) speakSmart(text);
   }
 
   async function finishSession() {
@@ -1660,6 +1761,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       dureeSecondes: durationSeconds,
       totalRounds: TOTAL_ROUNDS,
       startedAt: startedAt.current,
+      tempsMoyenParManche: Math.round(durationSeconds / TOTAL_ROUNDS),
     });
     setSessionSummary(summary);
     setSessionDone(true);
