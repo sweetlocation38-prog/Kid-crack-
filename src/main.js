@@ -551,7 +551,7 @@ const GRADE_ORDER = ['ms', 'gs', 'cp', 'ce1', 'ce2', 'cm1', 'cm2', '6e'];
 
 // A augmenter au fur et a mesure qu'on ajoute du contenu pour les niveaux
 // superieurs. Pour l'instant, seul MS/GS/CP existe (3 niveaux x 3 paliers = 9).
-const MAX_CONTENT_RUNG = 9;
+const MAX_CONTENT_RUNG = 12;
 
 function rungFromGradeAndPalier(niveau, palier) {
   const idx = Math.max(0, GRADE_ORDER.indexOf(niveau));
@@ -1742,6 +1742,11 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       <View style={styles.prompt}>
         {promptData.icon ? <Text style={styles.icon}>{promptData.icon}</Text> : null}
         {promptData.visual ? <Text style={styles.visualRow}>{promptData.visual}</Text> : null}
+        {promptData.texteAffiche ? (
+          <View style={styles.readingBox}>
+            <Text style={styles.readingText}>{promptData.texteAffiche}</Text>
+          </View>
+        ) : null}
         <Text style={styles.promptText}>{promptData.promptText}</Text>
         {promptData.speak ? (
           <Pressable style={styles.listenButton} onPress={() => speak(promptData.speak)}>
@@ -1843,6 +1848,14 @@ function buildSonsPrompt(d) {
         options: d.syllabes,
         correct: d.reponse,
       };
+    case 'comprehension':
+      return {
+        texteAffiche: d.texte,
+        promptText: d.question,
+        speak: `${d.texte} ${d.question}`,
+        options: d.options,
+        correct: d.bonne_reponse,
+      };
     default:
       return { promptText: '...', options: [], correct: null };
   }
@@ -1891,7 +1904,8 @@ function buildLumaPrompt(d) {
       };
     }
     case 'abstrait': {
-      const symbole = d.operation === 'addition' ? '+' : '−';
+      const symboles = { addition: '+', soustraction: '−', multiplication: '×', division: '÷' };
+      const symbole = symboles[d.operation] ?? '+';
       return {
         promptText: d.a + ' ' + symbole + ' ' + d.b + ' = ?',
         options: d.options,
@@ -2311,6 +2325,8 @@ const styles = StyleSheet.create({
   rewardText: { color: colors.ink, textAlign: 'center' },
   visualRow: { fontSize: 26, marginBottom: 10, textAlign: 'center' },
   promptText: { fontSize: 17, fontWeight: '700', color: colors.mossDeep, textAlign: 'center', marginBottom: 10 },
+  readingBox: { backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 2, borderColor: colors.sand },
+  readingText: { fontSize: 18, color: colors.ink, textAlign: 'center', lineHeight: 26 },
   optionButton: { minWidth: 70, height: 56, paddingHorizontal: 16, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)' },
   optionCorrect: { backgroundColor: colors.success, borderColor: colors.success },
   optionWrong: { backgroundColor: colors.error, borderColor: colors.error },
