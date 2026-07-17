@@ -1,3 +1,59 @@
+/**
+ * ============================================================================
+ * CAHIER DES CHARGES — PRINCIPES DIRECTEURS DU PARENT (a relire regulierement)
+ * ============================================================================
+ * Ce memo resume les exigences donnees au fil du developpement. Toute
+ * modification des jeux, du contenu ou du moteur d'adaptation doit rester
+ * fidele a ces principes. A relire avant d'ajouter un jeu ou du contenu.
+ *
+ * 1) NIVEAU PEDAGOGIQUE — s'inspirer des 5 meilleurs systemes educatifs
+ *    du monde (classements PIRLS / TIMSS) :
+ *    - Maths : methode de Singapour (approche concret -> image -> abstrait,
+ *      modele en barres, "faire 10", operations reciproques mult/div).
+ *    - Lecture : science de la lecture / conscience phonologique
+ *      (segmenter, fusionner, manipuler les sons), puis fluence et
+ *      comprehension a partir du CE1.
+ *    - Le contenu doit couvrir TOUTE la scolarite, sans s'arreter au
+ *      niveau scolaire reel de l'enfant : MS, GS, CP, CE1, CE2, CM1, CM2,
+ *      6e et au-dela si besoin. Un enfant qui reussit tres bien ne doit
+ *      jamais etre plafonne artificiellement par son niveau de classe.
+ *
+ * 2) PROGRESSION / ADAPTATION — doit etre rapide, juste, et honnete :
+ *    - Une seule echelle continue (niveau scolaire + palier fusionnes en
+ *      "crans"), pour pouvoir depasser librement le niveau assigne.
+ *    - La difficulte doit s'adapter TRES vite au niveau reel de l'enfant :
+ *      une reussite parfaite fait monter de plus en plus de crans d'affilee
+ *      (acceleration +1, +2, +3...), pour trouver le point de rupture en
+ *      quelques sessions (pas des dizaines).
+ *    - Le temps de reponse compte autant que la justesse : une bonne
+ *      reponse mais tres lente ne doit PAS etre traitee comme une vraie
+ *      maitrise (voir temps_reference_secondes dans la table progression).
+ *    - Ne JAMAIS interrompre un enfant en plein milieu d'une manche ou
+ *      d'une session, que ce soit pour la jauge de temps ou pour un
+ *      changement de niveau. Toute limite (temps de jeu, etc.) ne
+ *      s'applique qu'aux moments de transition (retour a la carte).
+ *
+ * 3) REPETITIVITE — a combattre en permanence :
+ *    - Le contenu (mots, sons, animaux, objets, images) doit etre riche
+ *      et varie : eviter de montrer toujours les memes elements. Grossir
+ *      regulierement les pools de contenu, surtout les plus petits.
+ *    - Dans une meme session, ne jamais repeter un element deja vu tant
+ *      que le stock disponible n'est pas epuise.
+ *    - Diversifier les MECANIQUES de jeu, pas seulement le contenu :
+ *      "choisis la bonne reponse parmi 3" ne doit pas etre l'unique
+ *      interaction de l'app. Chercher activement des mecaniques
+ *      differentes (memory, sequences a repeter, tri, puzzle, frise
+ *      chronologique, repares spatial, etc.) pour que jouer ne devienne
+ *      jamais lassant ou "reducteur".
+ *
+ * 4) VOIX — a utiliser avec parcimonie :
+ *    - Lecture automatique UNIQUEMENT quand c'est indispensable pour
+ *      comprendre la consigne (aucune image disponible, texte a lire).
+ *    - Partout ailleurs, la voix reste disponible sur simple demande
+ *      (bouton micro), jamais imposee a chaque manche.
+ * ============================================================================
+ */
+
 import 'react-native-url-polyfill/auto';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
