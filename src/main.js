@@ -1213,6 +1213,17 @@ const GAME_ICONS = {
   pommes_de_luma: '🍎',
   memoire_etoiles: '⭐',
   coffre_souvenirs: '🧰',
+  puzzle_moulin: '🧩',
+  tri_village: '🗂️',
+  empreintes_clairiere: '🐾',
+  jeu_intrus: '🔍',
+  cachettes_luma: '🗺️',
+  balance_prairie: '⚖️',
+  marche_village: '💰',
+  monde_capitales: '🌍',
+  frise_temps: '📜',
+  corps_humain: '🫀',
+  ronde_lucioles: '🎧',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
@@ -1340,7 +1351,7 @@ function WorldMapScreen({ route, navigation }) {
                 <Text style={styles.gameName}>{item.nom}</Text>
                 <Text style={styles.gameCompetence}>{item.competence}</Text>
               </View>
-              {!targetScreen && <Text style={styles.soon}>bientôt</Text>}
+              {!targetScreen && <Text style={styles.soon}>🔒 bientôt</Text>}
               {limitReached && targetScreen && <Text style={{ fontSize: 18 }}>🔒</Text>}
             </Pressable>
           );
