@@ -1235,6 +1235,9 @@ const GAME_SCREENS = {
   monde_capitales: 'MondeCapitales',
   jeu_intrus: 'JeuIntrus',
   empreintes_clairiere: 'EmpreintesClairiere',
+  balance_prairie: 'BalancePrairie',
+  marche_village: 'MarcheVillage',
+  cachettes_luma: 'CachettesLuma',
 };
 
 function WorldMapScreen({ route, navigation }) {
@@ -2317,6 +2320,86 @@ function EmpreintesClairiereScreen({ route, navigation }) {
   );
 }
 
+// ============================================================
+// La Balance de la Prairie — maths (equilibrer une balance)
+// ============================================================
+function buildEquilibrePrompt(d) {
+  return {
+    visual: `⚖️  ${d.gauche}   VS   ${d.droit_connu} + ?`,
+    promptText: "Combien faut-il ajouter a droite pour equilibrer la balance ?",
+    options: d.options,
+    correct: d.manque,
+  };
+}
+
+function BalancePrairieScreen({ route, navigation }) {
+  return (
+    <ChoiceGameScreen
+      route={route}
+      navigation={navigation}
+      jeuCode="balance_prairie"
+      Character={Luma}
+      jeuTitre="⚖️ La Balance de la Prairie"
+      buildPrompt={buildEquilibrePrompt}
+      maxRung={rungFromGradeAndPalier('ce2', 3)}
+    />
+  );
+}
+
+// ============================================================
+// Le Marché du Village — maths (rendre la monnaie)
+// ============================================================
+function buildMonnaiePrompt(d) {
+  return {
+    visual: `🛍️ Prix : ${d.prix}€     💶 Payé : ${d.paye}€`,
+    promptText: 'Combien de monnaie faut-il rendre ?',
+    options: d.options,
+    correct: d.rendu,
+  };
+}
+
+function MarcheVillageScreen({ route, navigation }) {
+  return (
+    <ChoiceGameScreen
+      route={route}
+      navigation={navigation}
+      jeuCode="marche_village"
+      Character={Noisette}
+      jeuTitre="💰 Le Marché du Village"
+      buildPrompt={buildMonnaiePrompt}
+      maxRung={rungFromGradeAndPalier('ce2', 3)}
+    />
+  );
+}
+
+// ============================================================
+// Les Cachettes de Luma — maths (reperage sur une grille)
+// ============================================================
+function buildGrillePrompt(d) {
+  return {
+    texteAffiche: d.grille,
+    promptText: d.question === 'colonne'
+      ? "À quelle colonne se trouve l'étoile (en partant de la gauche) ?"
+      : "À quelle ligne se trouve l'étoile (en partant du haut) ?",
+    options: d.options,
+    correct: d.reponse,
+  };
+}
+
+function CachettesLumaScreen({ route, navigation }) {
+  return (
+    <ChoiceGameScreen
+      route={route}
+      navigation={navigation}
+      jeuCode="cachettes_luma"
+      Character={Luma}
+      jeuTitre="🗺️ Les Cachettes de Luma"
+      buildPrompt={buildGrillePrompt}
+      maxRung={rungFromGradeAndPalier('ce2', 3)}
+    />
+  );
+}
+
 function PommesDeLumaScreen({ route, navigation }) {
   return (
     <ChoiceGameScreen
@@ -2962,6 +3045,9 @@ export default function RootNavigator() {
             <Stack.Screen name="MondeCapitales" component={MondeCapitalesScreen} />
             <Stack.Screen name="JeuIntrus" component={JeuIntrusScreen} />
             <Stack.Screen name="EmpreintesClairiere" component={EmpreintesClairiereScreen} />
+            <Stack.Screen name="BalancePrairie" component={BalancePrairieScreen} />
+            <Stack.Screen name="MarcheVillage" component={MarcheVillageScreen} />
+            <Stack.Screen name="CachettesLuma" component={CachettesLumaScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
