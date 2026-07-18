@@ -2235,6 +2235,8 @@ function buildGeoPrompt(d) {
       return {
         icon: d.drapeau,
         promptText: 'Quel est ce pays ?',
+        speak: 'Quel est ce pays ?',
+        mandatorySpeak: false,
         options: d.options,
         correct: d.reponse,
       };
@@ -2250,6 +2252,8 @@ function buildGeoPrompt(d) {
       return {
         icon: d.drapeau,
         promptText: 'Quelle est la capitale de ce pays ?',
+        speak: 'Quelle est la capitale de ce pays ?',
+        mandatorySpeak: false,
         options: d.options,
         correct: d.reponse,
       };
@@ -2278,6 +2282,8 @@ function MondeCapitalesScreen({ route, navigation }) {
 function buildIntrusPrompt(d) {
   return {
     promptText: "Trouve l'intrus !",
+    speak: "Trouve l'intrus, celui qui ne va pas avec les autres.",
+    mandatorySpeak: false,
     options: d.items,
     correct: d.intrus,
   };
@@ -2304,6 +2310,8 @@ function buildSuitePrompt(d) {
   return {
     visual: d.sequence.join('   ') + '   ❓',
     promptText: 'Que vient ensuite ?',
+    speak: 'Que vient ensuite dans cette suite ?',
+    mandatorySpeak: false,
     options: d.options,
     correct: d.suivant,
   };
@@ -2330,6 +2338,8 @@ function buildEquilibrePrompt(d) {
   return {
     visual: `⚖️  ${d.gauche}   VS   ${d.droit_connu} + ?`,
     promptText: "Combien faut-il ajouter a droite pour equilibrer la balance ?",
+    speak: `Combien faut-il ajouter pour équilibrer la balance ?`,
+    mandatorySpeak: false,
     options: d.options,
     correct: d.manque,
   };
@@ -2356,6 +2366,8 @@ function buildMonnaiePrompt(d) {
   return {
     visual: `🛍️ Prix : ${d.prix}€     💶 Payé : ${d.paye}€`,
     promptText: 'Combien de monnaie faut-il rendre ?',
+    speak: `Le prix est de ${d.prix} euros, on te donne ${d.paye} euros. Combien de monnaie faut-il rendre ?`,
+    mandatorySpeak: false,
     options: d.options,
     correct: d.rendu,
   };
@@ -2379,11 +2391,14 @@ function MarcheVillageScreen({ route, navigation }) {
 // Les Cachettes de Luma — maths (reperage sur une grille)
 // ============================================================
 function buildGrillePrompt(d) {
+  const question = d.question === 'colonne'
+    ? "À quelle colonne se trouve l'étoile (en partant de la gauche) ?"
+    : "À quelle ligne se trouve l'étoile (en partant du haut) ?";
   return {
     texteAffiche: d.grille,
-    promptText: d.question === 'colonne'
-      ? "À quelle colonne se trouve l'étoile (en partant de la gauche) ?"
-      : "À quelle ligne se trouve l'étoile (en partant du haut) ?",
+    promptText: question,
+    speak: question,
+    mandatorySpeak: false,
     options: d.options,
     correct: d.reponse,
   };
@@ -2560,6 +2575,12 @@ function TriVillageScreen({ route, navigation }) {
         <Text style={styles.promptText}>
           {selected === null ? 'Touche un objet, puis sa bonne case !' : 'Maintenant, touche la bonne case !'}
         </Text>
+        <Pressable
+          style={styles.listenButton}
+          onPress={() => speakSmart(selected === null ? 'Touche un objet, puis sa bonne case !' : 'Maintenant, touche la bonne case !')}
+        >
+          <Text style={styles.listenText}>🎤 Écouter</Text>
+        </Pressable>
       </View>
 
       <View style={styles.triPool}>
@@ -2706,6 +2727,12 @@ function PuzzleMoulinScreen({ route, navigation }) {
       <View style={styles.promptZone}>
         <Text style={{ fontSize: 48, opacity: Math.max(0.15, progress / totalPieces.current) }}>{reward}</Text>
         <Text style={styles.promptText}>Touche les pièces dans l'ordre, du numéro 1 au dernier !</Text>
+        <Pressable
+          style={styles.listenButton}
+          onPress={() => speakSmart("Touche les pièces dans l'ordre, du numéro 1 au dernier !")}
+        >
+          <Text style={styles.listenText}>🎤 Écouter</Text>
+        </Pressable>
       </View>
 
       <View style={styles.puzzleGrid}>
@@ -3070,6 +3097,12 @@ function CoffreSouvenirsScreen({ route, navigation }) {
         <Text style={styles.promptText}>
           {phase === 'watching' ? '👀 Regarde bien la séquence...' : '👆 À toi de la reproduire !'}
         </Text>
+        <Pressable
+          style={styles.listenButton}
+          onPress={() => speakSmart('Regarde bien les couleurs qui s\'allument, puis touche-les dans le même ordre.')}
+        >
+          <Text style={styles.listenText}>🎤 Écouter</Text>
+        </Pressable>
       </View>
 
       <View style={styles.simonGrid}>
