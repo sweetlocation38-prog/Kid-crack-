@@ -3442,7 +3442,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.cream, padding: 18, paddingTop: 48 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cream, padding: 24 },
   title: { fontSize: 20, fontWeight: '700', color: colors.mossDeep },
-  back: { color: colors.mossDeep, fontWeight: '600', marginBottom: 16, fontSize: 16 },
+  back: { color: colors.mossDeep, fontWeight: '800', marginBottom: 16, fontSize: 34, paddingVertical: 4, paddingRight: 12 },
 
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 22, padding: 14, marginBottom: 12, gap: 14 },
   avatarCircle: { width: 58, height: 58, borderRadius: 29, backgroundColor: colors.sand, alignItems: 'center', justifyContent: 'center' },
