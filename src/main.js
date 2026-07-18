@@ -70,11 +70,16 @@ import {
   ScrollView,
   Animated,
   Easing,
+  Alert,
+  Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import * as Speech from 'expo-speech';
 import * as LocalAuthentication from 'expo-local-authentication';
+import * as ImagePicker from 'expo-image-picker';
+import { Audio } from 'expo-av';
+import * as DocumentPicker from 'expo-document-picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -130,6 +135,135 @@ const VIVID = {
 // Icone moderne (pomme dessinee) pour remplacer l'emoji systeme,
 // plus net et coherent que l'emoji classique.
 // ============================================================
+// ============================================================
+// Photo de profil et memos vocaux — utilitaires partages
+// (upload vers Supabase Storage, choix galerie/appareil photo,
+// enregistrement audio).
+// ============================================================
+async function uploadFileToStorage(bucket, path, uri, contentType) {
+  try {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const { error } = await supabase.storage.from(bucket).upload(path, blob, {
+      contentType,
+      upsert: true,
+    });
+    if (error) {
+      console.warn('Erreur upload', error);
+      return null;
+    }
+    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+    return data?.publicUrl ?? null;
+  } catch (e) {
+    console.warn('Erreur upload', e);
+    return null;
+  }
+}
+
+async function pickImageFromLibrary() {
+  const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (!perm.granted) return null;
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.6,
+  });
+  if (result.canceled) return null;
+  return result.assets[0].uri;
+}
+
+async function pickImageFromCamera() {
+  const perm = await ImagePicker.requestCameraPermissionsAsync();
+  if (!perm.granted) return null;
+  const result = await ImagePicker.launchCameraAsync({
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.6,
+  });
+  if (result.canceled) return null;
+  return result.assets[0].uri;
+}
+
+// Ouvre le choix galerie / appareil photo, renvoie l'uri locale choisie (ou null).
+function choosePhotoSource() {
+  return new Promise((resolve) => {
+    Alert.alert(
+      'Photo de profil',
+      'Choisir la photo',
+      [
+        { text: '🖼️ Galerie', onPress: async () => resolve(await pickImageFromLibrary()) },
+        { text: '📷 Appareil photo', onPress: async () => resolve(await pickImageFromCamera()) },
+        { text: 'Annuler', style: 'cancel', onPress: () => resolve(null) },
+      ],
+      { cancelable: true, onDismiss: () => resolve(null) }
+    );
+  });
+}
+
+// ============================================================
+// Memos vocaux — enregistrement par le parent, lecture aleatoire
+// pendant les jeux (jamais automatique a chaque manche).
+// ============================================================
+async function fetchMemosConfig(familleId) {
+  if (!familleId) return { frequence: null, memos: {} };
+  const [{ data: params }, { data: memosData }] = await Promise.all([
+    supabase.from('parametres_parentaux').select('frequence_memos').eq('famille_id', familleId).maybeSingle(),
+    supabase.from('memos_vocaux').select('categorie, audio_url').eq('famille_id', familleId),
+  ]);
+  const memos = { bonne_reponse: [], mauvaise_reponse: [], encouragement_fin: [] };
+  (memosData ?? []).forEach((m) => {
+    if (memos[m.categorie]) memos[m.categorie].push(m.audio_url);
+  });
+  return { frequence: params?.frequence_memos ?? null, memos };
+}
+
+// Joue un memo au hasard pour la categorie donnee, avec une probabilite de
+// 1/frequence (donc en moyenne une fois toutes les "frequence" reponses,
+// jamais systematiquement). Ne bloque jamais le jeu si ca echoue.
+async function maybePlayMemo(memosConfig, categorie) {
+  if (!memosConfig || !memosConfig.frequence) return;
+  const pool = memosConfig.memos?.[categorie] ?? [];
+  if (pool.length === 0) return;
+  if (Math.random() >= 1 / memosConfig.frequence) return;
+  try {
+    const url = pool[Math.floor(Math.random() * pool.length)];
+    const { sound } = await Audio.Sound.createAsync({ uri: url });
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.didJustFinish) sound.unloadAsync();
+    });
+    await sound.playAsync();
+  } catch (e) {
+    // Non bloquant : un memo qui ne joue pas ne doit jamais casser le jeu.
+  }
+}
+
+// Laisse le parent choisir un fichier audio deja existant sur son telephone
+// (enregistre avec n'importe quelle appli), l'upload et cree la ligne en base.
+async function pickAndAddMemo(familleId, categorie) {
+  const result = await DocumentPicker.getDocumentAsync({ type: 'audio/*', copyToCacheDirectory: true });
+  if (result.canceled || !result.assets?.[0]) return false;
+  const file = result.assets[0];
+  const ext = (file.name?.split('.').pop() || 'm4a').toLowerCase();
+  const path = `${familleId}/${categorie}/${Date.now()}.${ext}`;
+  const url = await uploadFileToStorage('memos-vocaux', path, file.uri, file.mimeType || 'audio/mpeg');
+  if (!url) return false;
+  await supabase.from('memos_vocaux').insert({ famille_id: familleId, categorie, audio_url: url });
+  return true;
+}
+
+async function playPreview(url) {
+  try {
+    const { sound } = await Audio.Sound.createAsync({ uri: url });
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.didJustFinish) sound.unloadAsync();
+    });
+    await sound.playAsync();
+  } catch (e) {
+    // Non bloquant.
+  }
+}
+
 function ModernApple({ size = 28, color = '#E5533D' }) {
   const s = size;
   return (
@@ -903,6 +1037,16 @@ function ProfileSelectScreen({ navigation }) {
     return unsubscribe;
   }, [navigation, loadProfils]);
 
+  async function handleEditPhoto(profilId) {
+    const uri = await choosePhotoSource();
+    if (!uri) return;
+    const url = await uploadFileToStorage('profil-photos', `${profilId}.jpg`, uri, 'image/jpeg');
+    if (url) {
+      await supabase.from('profils_enfants').update({ photo_url: url }).eq('id', profilId);
+      loadProfils();
+    }
+  }
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -927,9 +1071,19 @@ function ProfileSelectScreen({ navigation }) {
             style={styles.card}
             onPress={() => navigation.navigate('WorldMap', { profil: item })}
           >
-            <View style={styles.avatarCircle}>
-              <Text style={styles.avatarEmoji}>{item.avatar_personnel ?? '🐾'}</Text>
-            </View>
+            <Pressable
+              style={styles.avatarCircle}
+              onPress={() => handleEditPhoto(item.id)}
+            >
+              {item.photo_url ? (
+                <Image source={{ uri: item.photo_url }} style={styles.avatarPhoto} />
+              ) : (
+                <Text style={styles.avatarEmoji}>{item.avatar_personnel ?? '🐾'}</Text>
+              )}
+              <View style={styles.avatarEditBadge}>
+                <Text style={{ fontSize: 10 }}>📷</Text>
+              </View>
+            </Pressable>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardName}>{item.prenom}</Text>
               <Text style={styles.cardSub}>
@@ -1131,20 +1285,41 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
   const [prenom, setPrenom] = useState('');
   const [niveau, setNiveau] = useState('gs');
   const [avatar, setAvatar] = useState(AVATAR_CHOICES[0]);
+  const [photoUri, setPhotoUri] = useState(null);
   const [saving, setSaving] = useState(false);
+
+  async function handleChoosePhoto() {
+    const uri = await choosePhotoSource();
+    if (uri) setPhotoUri(uri);
+  }
 
   async function handleCreate() {
     if (!familleId || !prenom.trim()) return;
     setSaving(true);
-    await supabase.from('profils_enfants').insert({
-      famille_id: familleId,
-      prenom: prenom.trim(),
-      niveau_defaut: niveau,
-      avatar_personnel: avatar,
-      niveau_global: 0,
-    });
+    const { data: inserted } = await supabase
+      .from('profils_enfants')
+      .insert({
+        famille_id: familleId,
+        prenom: prenom.trim(),
+        niveau_defaut: niveau,
+        avatar_personnel: avatar,
+        niveau_global: 0,
+      })
+      .select('id')
+      .single();
+
+    if (inserted && photoUri) {
+      const url = await uploadFileToStorage(
+        'profil-photos', `${inserted.id}.jpg`, photoUri, 'image/jpeg'
+      );
+      if (url) {
+        await supabase.from('profils_enfants').update({ photo_url: url }).eq('id', inserted.id);
+      }
+    }
+
     setSaving(false);
     setPrenom('');
+    setPhotoUri(null);
     onCreated();
   }
 
@@ -1153,6 +1328,17 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
       <View style={styles.modalBackdrop}>
         <View style={styles.modalCard}>
           <Text style={styles.modalTitle}>Nouveau profil</Text>
+
+          <Pressable style={styles.photoPickerCircle} onPress={handleChoosePhoto}>
+            {photoUri ? (
+              <Image source={{ uri: photoUri }} style={styles.photoPickerImage} />
+            ) : (
+              <Text style={{ fontSize: 28 }}>📷</Text>
+            )}
+          </Pressable>
+          <Text style={styles.photoPickerHint}>
+            {photoUri ? 'Toucher pour changer la photo' : 'Photo (facultatif)'}
+          </Text>
 
           <TextInput
             style={styles.input}
@@ -1420,6 +1606,12 @@ function PontDesLettresScreen({ route, navigation }) {
   const errorsTotal = useRef(0);
   const shownIds = useRef(new Set());
   const startedAt = useRef(Date.now());
+  const memosConfig = useRef(null);
+
+  useEffect(() => {
+    fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.famille_id]);
 
   // Ne lit automatiquement que lorsqu'il n'y a AUCUNE image pour deviner
   // le mot (sinon, la voix reste juste disponible en appuyant dessus).
@@ -1541,6 +1733,7 @@ function PontDesLettresScreen({ route, navigation }) {
 
       if (nextStep === current.sequence.length) {
         setFeedback('Bravo !');
+        maybePlayMemo(memosConfig.current, 'bonne_reponse');
         setTimeout(async () => {
           if (round >= TOTAL_ROUNDS) {
             await finishSession();
@@ -1557,6 +1750,7 @@ function PontDesLettresScreen({ route, navigation }) {
       errorsThisRound.current += 1;
       errorsTotal.current += 1;
       setFeedback('Essaie encore !');
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       setTimeout(() => setFeedback(null), 500);
     }
   }
@@ -1762,6 +1956,17 @@ function speak(text) {
 function SessionEndScreen({ profil, summary, navigation, timeUp }) {
   const fiche = summary?.ficheAnimal;
 
+  // Encouragement vocal uniquement si la session est une vraie reussite
+  // (le cran a monte), jamais systematique.
+  useEffect(() => {
+    if (summary?.direction === 'up') {
+      fetchMemosConfig(profil.famille_id).then((cfg) => {
+        maybePlayMemo(cfg, 'encouragement_fin');
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <ScrollView contentContainerStyle={styles.endScroll}>
       <BouncingWrap><Noisette size={72} /></BouncingWrap>
@@ -1847,6 +2052,12 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   const errorsTotal = useRef(0);
   const shownIds = useRef(new Set());
   const startedAt = useRef(Date.now());
+  const memosConfig = useRef(null);
+
+  useEffect(() => {
+    fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.famille_id]);
 
   // Ne lit a voix haute AUTOMATIQUEMENT que lorsque c'est indispensable
   // (aucune image ne permet de deviner la consigne autrement). Sinon,
@@ -1955,6 +2166,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
 
     if (isCorrect) {
       setFeedback('Bravo !');
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
       setTimeout(async () => {
         if (round >= TOTAL_ROUNDS) {
           await finishSession();
@@ -1968,6 +2180,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       errorsThisRound.current += 1;
       errorsTotal.current += 1;
       setFeedback('Essaie encore !');
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       setTimeout(() => {
         setFeedback(null);
         setAnswered(null);
@@ -3242,6 +3455,18 @@ const MINUTES_STEP = 5;
 const MINUTES_MIN = 5;
 const MINUTES_MAX = 120;
 
+const MEMO_CATEGORIES = [
+  { key: 'bonne_reponse', label: '✅ Bonne réponse' },
+  { key: 'mauvaise_reponse', label: '❌ Mauvaise réponse' },
+  { key: 'encouragement_fin', label: '🌟 Encouragement de fin de session réussie' },
+];
+const FREQUENCE_CHOICES = [
+  { value: null, label: 'Désactivé' },
+  { value: 5, label: 'Tous les 5' },
+  { value: 10, label: 'Tous les 10' },
+  { value: 20, label: 'Tous les 20' },
+];
+
 function ReglagesParentauxScreen({ route, navigation }) {
   const { familleId } = route.params;
   const [loading, setLoading] = useState(true);
@@ -3252,6 +3477,16 @@ function ReglagesParentauxScreen({ route, navigation }) {
   const [unlocked, setUnlocked] = useState(false);
   const [showGate, setShowGate] = useState(false);
   const [existingPin, setExistingPin] = useState(null);
+  const [frequenceMemos, setFrequenceMemos] = useState(null);
+  const [memos, setMemos] = useState({ bonne_reponse: [], mauvaise_reponse: [], encouragement_fin: [] });
+  const [addingMemo, setAddingMemo] = useState(null);
+
+  async function loadMemos() {
+    const { data } = await supabase.from('memos_vocaux').select('*').eq('famille_id', familleId);
+    const grouped = { bonne_reponse: [], mauvaise_reponse: [], encouragement_fin: [] };
+    (data ?? []).forEach((m) => { if (grouped[m.categorie]) grouped[m.categorie].push(m); });
+    setMemos(grouped);
+  }
 
   useEffect(() => {
     (async () => {
@@ -3259,6 +3494,8 @@ function ReglagesParentauxScreen({ route, navigation }) {
       setMinutesMaxJour(parametres?.minutes_max_jour ?? 30);
       setPin(parametres?.code_validation ?? '');
       setExistingPin(parametres?.code_validation ?? null);
+      setFrequenceMemos(parametres?.frequence_memos ?? null);
+      await loadMemos();
       setLoading(false);
       // Si un code parent existe deja, on protege l'acces. Sinon (tout premier
       // reglage), on laisse entrer directement pour permettre de le configurer.
@@ -3268,6 +3505,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
         setUnlocked(true);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familleId]);
 
   async function handleSave() {
@@ -3278,11 +3516,24 @@ function ReglagesParentauxScreen({ route, navigation }) {
       .update({
         minutes_max_jour: minutesMaxJour,
         code_validation: pin.trim() || null,
+        frequence_memos: frequenceMemos,
       })
       .eq('famille_id', familleId);
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  async function handleAddMemo(categorie) {
+    setAddingMemo(categorie);
+    await pickAndAddMemo(familleId, categorie);
+    await loadMemos();
+    setAddingMemo(null);
+  }
+
+  async function handleDeleteMemo(id) {
+    await supabase.from('memos_vocaux').delete().eq('id', id);
+    await loadMemos();
   }
 
   if (loading) {
@@ -3358,7 +3609,61 @@ function ReglagesParentauxScreen({ route, navigation }) {
           onChangeText={setPin}
         />
 
-        <Pressable style={[styles.button, { opacity: saving ? 0.5 : 1 }]} onPress={handleSave} disabled={saving}>
+        <Text style={[styles.label, { marginTop: 24 }]}>🎙️ Mémos vocaux</Text>
+        <Text style={styles.helperText}>
+          Attachez des fichiers audio déjà enregistrés (avec le dictaphone du téléphone,
+          par exemple) pour que la voix d'un proche encourage l'enfant pendant les jeux.
+          Ils ne remplacent jamais systématiquement les messages habituels.
+        </Text>
+
+        <Text style={[styles.label, { marginTop: 12 }]}>Fréquence de déclenchement</Text>
+        <View style={styles.row}>
+          {FREQUENCE_CHOICES.map((f) => (
+            <Pressable
+              key={String(f.value)}
+              style={[styles.chip, frequenceMemos === f.value && styles.chipSelected]}
+              onPress={() => setFrequenceMemos(f.value)}
+            >
+              <Text style={[styles.chipText, frequenceMemos === f.value && styles.chipTextSelected]}>
+                {f.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {MEMO_CATEGORIES.map((cat) => (
+          <View key={cat.key} style={styles.memoCategoryBox}>
+            <Text style={styles.memoCategoryTitle}>{cat.label}</Text>
+            {memos[cat.key].length === 0 ? (
+              <Text style={styles.memoEmptyText}>Aucun mémo pour l'instant.</Text>
+            ) : (
+              memos[cat.key].map((m) => (
+                <View key={m.id} style={styles.memoRow}>
+                  <Pressable style={styles.memoPlayButton} onPress={() => playPreview(m.audio_url)}>
+                    <Text style={{ fontSize: 14 }}>▶️</Text>
+                  </Pressable>
+                  <Text style={styles.memoRowText} numberOfLines={1}>
+                    Mémo du {new Date(m.created_at).toLocaleDateString('fr-FR')}
+                  </Text>
+                  <Pressable onPress={() => handleDeleteMemo(m.id)}>
+                    <Text style={{ color: colors.error, fontWeight: '700' }}>Suppr.</Text>
+                  </Pressable>
+                </View>
+              ))
+            )}
+            <Pressable
+              style={[styles.addMemoButton, { opacity: addingMemo === cat.key ? 0.6 : 1 }]}
+              onPress={() => handleAddMemo(cat.key)}
+              disabled={addingMemo === cat.key}
+            >
+              <Text style={styles.addMemoButtonText}>
+                {addingMemo === cat.key ? 'Ajout…' : '＋ Ajouter un fichier audio'}
+              </Text>
+            </Pressable>
+          </View>
+        ))}
+
+        <Pressable style={[styles.button, { opacity: saving ? 0.5 : 1, marginTop: 16 }]} onPress={handleSave} disabled={saving}>
           <Text style={styles.buttonText}>{saving ? 'Enregistrement…' : saved ? '✓ Enregistré' : 'Enregistrer'}</Text>
         </Pressable>
       </View>
@@ -3447,6 +3752,19 @@ const styles = StyleSheet.create({
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 22, padding: 14, marginBottom: 12, gap: 14 },
   avatarCircle: { width: 58, height: 58, borderRadius: 29, backgroundColor: colors.sand, alignItems: 'center', justifyContent: 'center' },
   avatarEmoji: { fontSize: 28 },
+  avatarPhoto: { width: 58, height: 58, borderRadius: 29 },
+  avatarEditBadge: {
+    position: 'absolute', bottom: -2, right: -2, backgroundColor: '#fff', borderRadius: 10,
+    width: 20, height: 20, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)',
+  },
+  photoPickerCircle: {
+    width: 84, height: 84, borderRadius: 42, backgroundColor: colors.sand,
+    alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginBottom: 6,
+    overflow: 'hidden', borderWidth: 2, borderColor: colors.mossSoft,
+  },
+  photoPickerImage: { width: 84, height: 84, borderRadius: 42 },
+  photoPickerHint: { textAlign: 'center', color: colors.ink, opacity: 0.6, fontSize: 12, marginBottom: 14 },
   cardName: { fontSize: 17, fontWeight: '700', color: colors.mossDeep },
   cardSub: { fontSize: 13, opacity: 0.6, marginTop: 2 },
   chevron: { fontSize: 20, color: colors.blue, fontWeight: '700' },
@@ -3609,6 +3927,23 @@ const styles = StyleSheet.create({
   gaugeTrack: { flex: 1, height: 16, borderRadius: 8, backgroundColor: '#EEE', overflow: 'hidden' },
   gaugeFill: { height: '100%', backgroundColor: colors.mossSoft, borderRadius: 8 },
   gaugeValue: { textAlign: 'center', fontWeight: '700', color: colors.mossDeep, marginBottom: 8 },
+  memoCategoryBox: {
+    backgroundColor: '#fff', borderRadius: 16, padding: 14, marginTop: 12,
+    borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)',
+  },
+  memoCategoryTitle: { fontWeight: '800', color: colors.mossDeep, marginBottom: 8 },
+  memoEmptyText: { color: colors.ink, opacity: 0.5, fontSize: 13, marginBottom: 8 },
+  memoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
+  memoPlayButton: {
+    width: 32, height: 32, borderRadius: 16, backgroundColor: colors.sand,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  memoRowText: { flex: 1, color: colors.ink, fontSize: 13 },
+  addMemoButton: {
+    borderWidth: 2, borderColor: colors.mossSoft, borderStyle: 'dashed', borderRadius: 12,
+    paddingVertical: 10, alignItems: 'center', marginTop: 4,
+  },
+  addMemoButtonText: { color: colors.mossDeep, fontWeight: '700' },
   helperText: { fontSize: 12, opacity: 0.6, color: colors.ink, marginBottom: 10 },
   timeGaugeBox: { marginBottom: 14 },
   timeGaugeText: { fontSize: 12, fontWeight: '700', color: colors.mossDeep, marginBottom: 4 },
