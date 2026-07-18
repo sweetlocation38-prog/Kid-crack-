@@ -1239,6 +1239,8 @@ const GAME_SCREENS = {
   marche_village: 'MarcheVillage',
   cachettes_luma: 'CachettesLuma',
   ronde_lucioles: 'RondeLucioles',
+  tri_village: 'TriVillage',
+  puzzle_moulin: 'PuzzleMoulin',
 };
 
 function WorldMapScreen({ route, navigation }) {
@@ -2428,6 +2430,309 @@ function RondeLuciolesScreen({ route, navigation }) {
   );
 }
 
+// ============================================================
+// Le Tri du Village — logique : classer des objets dans la bonne
+// categorie (toucher un objet, puis toucher sa case). Mecanique
+// differente : deux etapes de toucher plutot qu'un seul choix.
+// ============================================================
+function TriVillageScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const [loading, setLoading] = useState(true);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [categories, setCategories] = useState([]);
+  const [pool, setPool] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [placedCount, setPlacedCount] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const errorsTotal = useRef(0);
+  const startedAt = useRef(Date.now());
+  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase
+        .from('mini_jeux')
+        .select('id')
+        .eq('code', 'tri_village')
+        .single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      const startRung = Math.min(rawStart, gameMaxRung);
+      setRung(startRung);
+      const { niveau, palier } = gradeAndPalierFromRung(startRung);
+
+      const { data } = await supabase
+        .from('contenu_mini_jeu')
+        .select('id, donnees')
+        .eq('mini_jeu_id', jeu.id)
+        .eq('niveau', niveau)
+        .eq('palier', palier)
+        .eq('actif', true)
+        .limit(10);
+
+      const pick = (data ?? [])[Math.floor(Math.random() * (data?.length ?? 1))];
+      if (pick) {
+        setCategories(pick.donnees.categories);
+        setPool(shuffle(pick.donnees.items.map((it, i) => ({ ...it, key: i }))));
+        setTotalItems(pick.donnees.items.length);
+        speakSmart('Range chaque objet dans la bonne case !');
+      }
+      setLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  async function finishSession() {
+    if (!miniJeuId) return;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: totalItems,
+      startedAt: startedAt.current,
+      maxRung: gameMaxRung,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function onItemPress(index) {
+    setSelected(index === selected ? null : index);
+  }
+
+  function onCategoryPress(cat) {
+    if (selected === null) return;
+    const item = pool[selected];
+    if (item.cat === cat) {
+      const nextPool = pool.filter((_, i) => i !== selected);
+      setPool(nextPool);
+      setPlacedCount((c) => c + 1);
+      setSelected(null);
+      if (nextPool.length === 0) {
+        setTimeout(finishSession, 400);
+      }
+    } else {
+      errorsTotal.current += 1;
+      setSelected(null);
+    }
+  }
+
+  if (sessionDone) {
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+  }
+
+  if (loading || categories.length === 0) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>🗂️ Le Tri du Village</Text>
+        <Text style={styles.roundLabel}>{placedCount}/{totalItems}</Text>
+      </View>
+
+      <View style={styles.gameCharacter}>
+        <BouncingWrap><Noisette size={44} /></BouncingWrap>
+      </View>
+
+      <View style={styles.promptZone}>
+        <Text style={styles.promptText}>
+          {selected === null ? 'Touche un objet, puis sa bonne case !' : 'Maintenant, touche la bonne case !'}
+        </Text>
+      </View>
+
+      <View style={styles.triPool}>
+        {pool.map((item, i) => (
+          <Pressable
+            key={item.key}
+            style={[styles.triItem, selected === i && styles.triItemSelected]}
+            onPress={() => onItemPress(i)}
+          >
+            <Text style={styles.triItemText} numberOfLines={1} adjustsFontSizeToFit>
+              {item.val}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <View style={styles.triCategories}>
+        {categories.map((cat) => (
+          <Pressable key={cat} style={styles.triCategoryBox} onPress={() => onCategoryPress(cat)}>
+            <Text style={styles.triCategoryText}>{cat}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
+// ============================================================
+// Le Puzzle du Moulin — logique : toucher les pieces numerotees
+// dans l'ordre croissant pour reconstituer l'image. Mecanique
+// differente : ordre a respecter sur une grille.
+// ============================================================
+function targetPiecesForPalier(palier) {
+  if (palier === 1) return 6;
+  if (palier === 2) return 9;
+  return 12;
+}
+
+const PUZZLE_REWARDS = ['🦋', '🌈', '🎨', '🚀', '🏰', '🌻', '🦄', '🐉', '⛵', '🎪'];
+
+function PuzzleMoulinScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const [loading, setLoading] = useState(true);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [pieces, setPieces] = useState([]);
+  const [nextExpected, setNextExpected] = useState(1);
+  const [wrongFlash, setWrongFlash] = useState(null);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const [reward] = useState(() => PUZZLE_REWARDS[Math.floor(Math.random() * PUZZLE_REWARDS.length)]);
+  const errorsTotal = useRef(0);
+  const totalPieces = useRef(6);
+  const startedAt = useRef(Date.now());
+  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase
+        .from('mini_jeux')
+        .select('id')
+        .eq('code', 'puzzle_moulin')
+        .single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      const startRung = Math.min(rawStart, gameMaxRung);
+      setRung(startRung);
+      const { palier } = gradeAndPalierFromRung(startRung);
+      const n = targetPiecesForPalier(palier);
+      totalPieces.current = n;
+      setPieces(shuffle(Array.from({ length: n }, (_, i) => i + 1)));
+      speakSmart("Touche les pièces dans l'ordre, du numéro 1 au dernier !");
+      setLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  async function finishSession() {
+    if (!miniJeuId) return;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: totalPieces.current,
+      startedAt: startedAt.current,
+      maxRung: gameMaxRung,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function onPiecePress(num) {
+    if (num === nextExpected) {
+      const isLast = num === totalPieces.current;
+      setNextExpected(num + 1);
+      if (isLast) {
+        setTimeout(finishSession, 500);
+      }
+    } else {
+      errorsTotal.current += 1;
+      setWrongFlash(num);
+      setTimeout(() => setWrongFlash(null), 400);
+    }
+  }
+
+  if (sessionDone) {
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  const progress = Math.min(nextExpected - 1, totalPieces.current);
+
+  return (
+    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>🧩 Le Puzzle du Moulin</Text>
+        <Text style={styles.roundLabel}>{progress}/{totalPieces.current}</Text>
+      </View>
+
+      <View style={styles.gameCharacter}>
+        <BouncingWrap><Maestro size={44} /></BouncingWrap>
+      </View>
+
+      <View style={styles.promptZone}>
+        <Text style={{ fontSize: 48, opacity: Math.max(0.15, progress / totalPieces.current) }}>{reward}</Text>
+        <Text style={styles.promptText}>Touche les pièces dans l'ordre, du numéro 1 au dernier !</Text>
+      </View>
+
+      <View style={styles.puzzleGrid}>
+        {pieces.map((num) => {
+          const done = num < nextExpected;
+          return (
+            <Pressable
+              key={num}
+              style={[
+                styles.puzzlePiece,
+                done && styles.puzzlePieceDone,
+                wrongFlash === num && styles.puzzlePieceWrong,
+              ]}
+              disabled={done}
+              onPress={() => onPiecePress(num)}
+            >
+              <Text style={styles.puzzlePieceText}>{done ? '✓' : num}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </ScrollView>
+  );
+}
+
+
+
 function PommesDeLumaScreen({ route, navigation }) {
   return (
     <ChoiceGameScreen
@@ -3077,6 +3382,8 @@ export default function RootNavigator() {
             <Stack.Screen name="MarcheVillage" component={MarcheVillageScreen} />
             <Stack.Screen name="CachettesLuma" component={CachettesLumaScreen} />
             <Stack.Screen name="RondeLucioles" component={RondeLuciolesScreen} />
+            <Stack.Screen name="TriVillage" component={TriVillageScreen} />
+            <Stack.Screen name="PuzzleMoulin" component={PuzzleMoulinScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
@@ -3202,6 +3509,27 @@ const styles = StyleSheet.create({
   simonGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, justifyContent: 'center', marginTop: 10 },
   simonTile: { width: 120, height: 120, borderRadius: 24 },
   simonTileActive: { transform: [{ scale: 1.05 }], shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
+  triPool: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 20 },
+  triItem: {
+    width: 64, height: 64, borderRadius: 16, backgroundColor: '#fff',
+    alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
+  },
+  triItemSelected: { borderColor: colors.gold, borderWidth: 3, backgroundColor: colors.gold + '33' },
+  triItemText: { fontSize: 22, fontWeight: '700', color: colors.ink, paddingHorizontal: 4 },
+  triCategories: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center' },
+  triCategoryBox: {
+    minWidth: 120, paddingVertical: 20, paddingHorizontal: 14, borderRadius: 18,
+    backgroundColor: colors.mossSoft, alignItems: 'center', justifyContent: 'center',
+  },
+  triCategoryText: { fontSize: 15, fontWeight: '800', color: '#fff', textAlign: 'center' },
+  puzzleGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginTop: 10 },
+  puzzlePiece: {
+    width: 64, height: 64, borderRadius: 14, backgroundColor: colors.sand,
+    alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
+  },
+  puzzlePieceDone: { backgroundColor: colors.success, borderColor: colors.success },
+  puzzlePieceWrong: { backgroundColor: colors.error, borderColor: colors.error },
+  puzzlePieceText: { fontSize: 20, fontWeight: '800', color: '#fff' },
   optionButton: { minWidth: 76, height: 56, paddingHorizontal: 14, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexShrink: 1, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)' },
   optionCorrect: { backgroundColor: colors.success, borderColor: colors.success },
   optionWrong: { backgroundColor: colors.error, borderColor: colors.error },
