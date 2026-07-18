@@ -126,6 +126,53 @@ const VIVID = {
 // Personnages de La Forêt des Murmures — construits avec des formes
 // (pas d'illustrations disponibles, donc du "flat design" en Views)
 // ============================================================
+// ============================================================
+// Icone moderne (pomme dessinee) pour remplacer l'emoji systeme,
+// plus net et coherent que l'emoji classique.
+// ============================================================
+function ModernApple({ size = 28, color = '#E5533D' }) {
+  const s = size;
+  return (
+    <View style={{ width: s, height: s * 1.2 }}>
+      <View
+        style={{
+          position: 'absolute', top: 0, left: s * 0.46, width: s * 0.09, height: s * 0.22,
+          backgroundColor: '#7A5230', borderRadius: 2, transform: [{ rotate: '12deg' }],
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute', top: s * 0.02, left: s * 0.52, width: s * 0.3, height: s * 0.18,
+          backgroundColor: '#66BB6A', borderRadius: s * 0.14, transform: [{ rotate: '-20deg' }],
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute', top: s * 0.2, width: s * 0.92, height: s * 0.85,
+          borderRadius: s * 0.46, backgroundColor: color,
+        }}
+      >
+        <View
+          style={{
+            position: 'absolute', top: s * 0.14, left: s * 0.16, width: s * 0.22, height: s * 0.3,
+            borderRadius: s * 0.12, backgroundColor: 'rgba(255,255,255,0.35)',
+          }}
+        />
+      </View>
+    </View>
+  );
+}
+
+function ModernAppleRow({ count, color, size = 26 }) {
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 5 }}>
+      {Array.from({ length: Math.max(0, count) }).map((_, i) => (
+        <ModernApple key={i} size={size} color={color} />
+      ))}
+    </View>
+  );
+}
+
 function Critter({ size = 90, bodyColor, faceColor, earType = 'triangle', earColor, showBeak, beakColor }) {
   const s = size;
   const earPiece = (side) => {
@@ -1165,12 +1212,14 @@ const GAME_ICONS = {
   sons_magiques: '🎵',
   pommes_de_luma: '🍎',
   memoire_etoiles: '⭐',
+  coffre_souvenirs: '🧰',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
   sons_magiques: 'SonsMagiques',
   pommes_de_luma: 'PommesDeLuma',
   memoire_etoiles: 'MemoireEtoiles',
+  coffre_souvenirs: 'CoffreSouvenirs',
 };
 
 function WorldMapScreen({ route, navigation }) {
@@ -1506,7 +1555,7 @@ function PontDesLettresScreen({ route, navigation }) {
   const isModelMode = !!current.options;
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -1515,12 +1564,11 @@ function PontDesLettresScreen({ route, navigation }) {
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
 
-
       <View style={styles.gameCharacter}>
         <BouncingWrap><Maestro size={48} /></BouncingWrap>
       </View>
 
-      <View style={styles.prompt}>
+      <View style={styles.promptZone}>
         {current.icon ? (
           <Pressable onPress={() => speak(joinSequenceForSpeech(current.sequence, gradeAndPalierFromRung(rung).niveau))}>
             <Text style={styles.icon}>{current.icon}</Text>
@@ -1557,29 +1605,32 @@ function PontDesLettresScreen({ route, navigation }) {
         </PopIn>
       )}
 
-      <View style={styles.stonesWrap}>
-        {tokens.map((token, i) => {
-          const used = usedTokens.includes(token + '#' + i);
-          const bg = STONE_COLORS[i % STONE_COLORS.length];
-          return (
-            <Pressable
-              key={i}
-              disabled={used}
-              onPress={() => onTokenPress(token, i)}
-              style={[
-                styles.stone,
-                { backgroundColor: bg },
-                used && styles.stoneUsed,
-              ]}
-            >
-              <Text style={styles.stoneText} numberOfLines={1} adjustsFontSizeToFit>
-                {token}
-              </Text>
-            </Pressable>
-          );
-        })}
+      <View style={styles.answerZone}>
+        <Text style={styles.answerZoneLabel}>Assemble ici</Text>
+        <View style={styles.stonesWrap}>
+          {tokens.map((token, i) => {
+            const used = usedTokens.includes(token + '#' + i);
+            const bg = STONE_COLORS[i % STONE_COLORS.length];
+            return (
+              <Pressable
+                key={i}
+                disabled={used}
+                onPress={() => onTokenPress(token, i)}
+                style={[
+                  styles.stone,
+                  { backgroundColor: bg },
+                  used && styles.stoneUsed,
+                ]}
+              >
+                <Text style={styles.stoneText} numberOfLines={1} adjustsFontSizeToFit>
+                  {token}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -1915,7 +1966,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -1924,16 +1975,33 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
 
-
       {Character ? (
         <View style={styles.gameCharacter}>
           <BouncingWrap><Character size={48} /></BouncingWrap>
         </View>
       ) : null}
 
-      <View style={styles.prompt}>
+      <View style={styles.promptZone}>
         {promptData.icon ? <Text style={styles.icon}>{promptData.icon}</Text> : null}
         {promptData.visual ? <Text style={styles.visualRow}>{promptData.visual}</Text> : null}
+        {promptData.applesCount != null ? (
+          <View style={{ marginBottom: 10 }}>
+            <ModernAppleRow count={promptData.applesCount} color="#E5533D" size={30} />
+          </View>
+        ) : null}
+        {promptData.applesSplit ? (
+          <View style={{ flexDirection: 'row', gap: 18, justifyContent: 'center', marginBottom: 10 }}>
+            <ModernAppleRow count={promptData.applesSplit[0]} color="#E5533D" size={28} />
+            <ModernAppleRow count={promptData.applesSplit[1]} color="#7CB342" size={28} />
+          </View>
+        ) : null}
+        {promptData.applesCompare ? (
+          <View style={{ flexDirection: 'row', gap: 16, justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
+            <ModernAppleRow count={promptData.applesCompare[0]} color="#E5533D" size={26} />
+            <Text style={{ fontWeight: '800', color: colors.mossDeep }}>VS</Text>
+            <ModernAppleRow count={promptData.applesCompare[1]} color="#4FA8DB" size={26} />
+          </View>
+        ) : null}
         {promptData.texteAffiche ? (
           <View style={styles.readingBox}>
             <Text style={styles.readingText}>{promptData.texteAffiche}</Text>
@@ -1955,32 +2023,35 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         </PopIn>
       )}
 
-      <View style={styles.stonesWrap}>
-        {optionsOrder.map((option, i) => {
-          const isAnswered = answered !== null;
-          const isThisCorrect = String(option) === String(promptData.correct);
-          const isThisAnswer = isAnswered && String(option) === String(answered);
-          const bg = STONE_COLORS[i % STONE_COLORS.length];
-          return (
-            <Pressable
-              key={i}
-              disabled={isAnswered}
-              onPress={() => onOptionPress(option)}
-              style={[
-                styles.optionButton,
-                { backgroundColor: bg },
-                isAnswered && isThisCorrect && styles.optionCorrect,
-                isAnswered && isThisAnswer && !isThisCorrect && styles.optionWrong,
-              ]}
-            >
-              <Text style={styles.optionText} numberOfLines={1} adjustsFontSizeToFit>
-                {String(option)}
-              </Text>
-            </Pressable>
-          );
-        })}
+      <View style={styles.answerZone}>
+        <Text style={styles.answerZoneLabel}>Ta réponse</Text>
+        <View style={styles.stonesWrap}>
+          {optionsOrder.map((option, i) => {
+            const isAnswered = answered !== null;
+            const isThisCorrect = String(option) === String(promptData.correct);
+            const isThisAnswer = isAnswered && String(option) === String(answered);
+            const bg = STONE_COLORS[i % STONE_COLORS.length];
+            return (
+              <Pressable
+                key={i}
+                disabled={isAnswered}
+                onPress={() => onOptionPress(option)}
+                style={[
+                  styles.optionButton,
+                  { backgroundColor: bg },
+                  isAnswered && isThisCorrect && styles.optionCorrect,
+                  isAnswered && isThisAnswer && !isThisCorrect && styles.optionWrong,
+                ]}
+              >
+                <Text style={styles.optionText} numberOfLines={1} adjustsFontSizeToFit>
+                  {String(option)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -2080,7 +2151,7 @@ function buildLumaPrompt(d) {
   switch (d.etape) {
     case 'concret':
       return {
-        visual: '🍎'.repeat(d.cible),
+        applesCount: d.cible,
         promptText: 'Combien de pommes vois-tu ?',
         speak: 'Combien de pommes vois-tu ?',
         mandatorySpeak: false, // les pommes sont visibles a l'ecran
@@ -2089,7 +2160,7 @@ function buildLumaPrompt(d) {
       };
     case 'chiffre':
       return {
-        visual: '🍎'.repeat(d.cible),
+        applesCount: d.cible,
         promptText: 'Quel chiffre correspond à cette quantité ?',
         speak: 'Quel chiffre correspond à cette quantité ?',
         mandatorySpeak: false,
@@ -2100,7 +2171,7 @@ function buildLumaPrompt(d) {
       const a = d.decomposition[0];
       const b = d.decomposition[1];
       return {
-        visual: '🍎'.repeat(a) + '   ' + '🍏'.repeat(b),
+        applesSplit: [a, b],
         promptText: a + ' + ' + b + ' = ?',
         speak: `${a} plus ${b}, ça fait combien ?`,
         mandatorySpeak: false, // le calcul est deja affiche en chiffres
@@ -2121,7 +2192,7 @@ function buildLumaPrompt(d) {
     }
     case 'comparer':
       return {
-        visual: '🍎'.repeat(d.gauche) + '    VS    ' + '🍎'.repeat(d.droite),
+        applesCompare: [d.gauche, d.droite],
         promptText: 'Le groupe de gauche a-t-il plus, moins ou autant que celui de droite ?',
         speak: 'Le groupe de gauche a-t-il plus, moins ou autant que celui de droite ?',
         mandatorySpeak: false, // les groupes de pommes sont visibles
@@ -2279,7 +2350,7 @@ function MemoryScreen({ route, navigation }) {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -2287,7 +2358,6 @@ function MemoryScreen({ route, navigation }) {
         <Text style={styles.gameTitle}>⭐ Le Mémory des Étoiles</Text>
         <Text style={styles.roundLabel}>{matched.length}/{cards.length / 2}</Text>
       </View>
-
 
       <View style={styles.gameCharacter}>
         <BouncingWrap><Noisette size={44} /></BouncingWrap>
@@ -2310,7 +2380,184 @@ function MemoryScreen({ route, navigation }) {
           );
         })}
       </View>
-    </View>
+    </ScrollView>
+  );
+}
+
+// ============================================================
+// Le Coffre aux Souvenirs — mecanique differente : observer une
+// sequence de couleurs qui s'allument, puis la reproduire de
+// memoire. La sequence grandit a chaque reussite.
+// ============================================================
+const SIMON_COLORS = [
+  { name: 'Rouge', color: '#E5533D' },
+  { name: 'Bleu', color: '#4FA8DB' },
+  { name: 'Vert', color: '#7CB342' },
+  { name: 'Jaune', color: '#F5C518' },
+];
+
+function targetLengthForPalier(palier) {
+  if (palier === 1) return 4;
+  if (palier === 2) return 6;
+  return 8;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function CoffreSouvenirsScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const [loading, setLoading] = useState(true);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [sequence, setSequence] = useState([]);
+  const [phase, setPhase] = useState('watching'); // 'watching' | 'repeating'
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [userIndex, setUserIndex] = useState(0);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const errorsTotal = useRef(0);
+  const retries = useRef(0);
+  const startedAt = useRef(Date.now());
+  const targetLength = useRef(4);
+
+  async function playSequence(seq) {
+    setPhase('watching');
+    await speakSmart(seq.length === 1 ? 'Regarde bien.' : 'Regarde encore.');
+    await wait(300);
+    for (let i = 0; i < seq.length; i += 1) {
+      setActiveIndex(seq[i]);
+      await wait(550);
+      setActiveIndex(null);
+      await wait(250);
+    }
+    setUserIndex(0);
+    setPhase('repeating');
+  }
+
+  function startNewSequence(base) {
+    const next = [...base, Math.floor(Math.random() * SIMON_COLORS.length)];
+    setSequence(next);
+    playSequence(next);
+  }
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase
+        .from('mini_jeux')
+        .select('id')
+        .eq('code', 'coffre_souvenirs')
+        .single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      const startRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      setRung(startRung);
+      const { palier } = gradeAndPalierFromRung(startRung);
+      targetLength.current = targetLengthForPalier(palier);
+      setLoading(false);
+      startNewSequence([]);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  async function finishSession() {
+    if (!miniJeuId) return;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: targetLength.current,
+      startedAt: startedAt.current,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function onTilePress(colorIndex) {
+    if (phase !== 'repeating') return;
+    setActiveIndex(colorIndex);
+    setTimeout(() => setActiveIndex(null), 250);
+
+    if (colorIndex === sequence[userIndex]) {
+      const nextUserIndex = userIndex + 1;
+      if (nextUserIndex === sequence.length) {
+        if (sequence.length >= targetLength.current) {
+          setTimeout(finishSession, 500);
+        } else {
+          retries.current = 0;
+          setTimeout(() => startNewSequence(sequence), 700);
+        }
+      } else {
+        setUserIndex(nextUserIndex);
+      }
+    } else {
+      errorsTotal.current += 1;
+      retries.current += 1;
+      if (retries.current >= 3) {
+        setTimeout(finishSession, 500);
+      } else {
+        setTimeout(() => playSequence(sequence), 700);
+      }
+    }
+  }
+
+  if (sessionDone) {
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>🧰 Le Coffre aux Souvenirs</Text>
+        <Text style={styles.roundLabel}>{sequence.length}/{targetLength.current}</Text>
+      </View>
+
+      <View style={styles.gameCharacter}>
+        <BouncingWrap><Noisette size={44} /></BouncingWrap>
+      </View>
+
+      <View style={styles.promptZone}>
+        <Text style={styles.promptText}>
+          {phase === 'watching' ? '👀 Regarde bien la séquence...' : '👆 À toi de la reproduire !'}
+        </Text>
+      </View>
+
+      <View style={styles.simonGrid}>
+        {SIMON_COLORS.map((c, i) => (
+          <Pressable
+            key={c.name}
+            style={[
+              styles.simonTile,
+              { backgroundColor: c.color, opacity: activeIndex === i ? 1 : 0.55 },
+              activeIndex === i && styles.simonTileActive,
+            ]}
+            disabled={phase !== 'repeating'}
+            onPress={() => onTilePress(i)}
+          />
+        ))}
+      </View>
+    </ScrollView>
   );
 }
 
@@ -2598,6 +2845,7 @@ export default function RootNavigator() {
             <Stack.Screen name="SonsMagiques" component={SonsMagiquesScreen} />
             <Stack.Screen name="PommesDeLuma" component={PommesDeLumaScreen} />
             <Stack.Screen name="MemoireEtoiles" component={MemoryScreen} />
+            <Stack.Screen name="CoffreSouvenirs" component={CoffreSouvenirsScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
@@ -2663,6 +2911,16 @@ const styles = StyleSheet.create({
   gameTitle: { fontSize: 16, fontWeight: '700', color: colors.mossDeep },
   roundLabel: { fontSize: 13, opacity: 0.6, fontWeight: '600' },
   prompt: { alignItems: 'center', marginBottom: 24 },
+  gameScreenScroll: { flexGrow: 1, backgroundColor: colors.cream, padding: 18, paddingTop: 48, paddingBottom: 40 },
+  promptZone: { alignItems: 'center', marginBottom: 20 },
+  answerZone: {
+    backgroundColor: '#fff', borderRadius: 22, padding: 16, marginTop: 8,
+    borderWidth: 2, borderColor: 'rgba(0,0,0,0.06)',
+  },
+  answerZoneLabel: {
+    fontSize: 12, fontWeight: '800', color: colors.mossDeep, opacity: 0.6,
+    textAlign: 'center', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5,
+  },
   icon: { fontSize: 56, marginBottom: 8 },
   listenButton: { backgroundColor: '#fff', borderRadius: 999, paddingVertical: 10, paddingHorizontal: 18, marginBottom: 10 },
   listenText: { fontWeight: '700', color: colors.mossDeep },
@@ -2698,7 +2956,7 @@ const styles = StyleSheet.create({
   rewardBox: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 16, alignItems: 'center', borderWidth: 2, borderColor: colors.gold },
   rewardTitle: { fontWeight: '800', color: colors.mossDeep, marginBottom: 6 },
   rewardText: { color: colors.ink, textAlign: 'center' },
-  visualRow: { fontSize: 26, marginBottom: 10, textAlign: 'center' },
+  visualRow: { fontSize: 24, marginBottom: 10, textAlign: 'center', lineHeight: 34, paddingHorizontal: 4 },
   promptText: { fontSize: 17, fontWeight: '700', color: colors.mossDeep, textAlign: 'center', marginBottom: 10 },
   readingBox: { backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 2, borderColor: colors.sand },
   readingText: { fontSize: 18, color: colors.ink, textAlign: 'center', lineHeight: 26 },
@@ -2710,7 +2968,10 @@ const styles = StyleSheet.create({
   memoryCardFlipped: { backgroundColor: '#fff', borderWidth: 2, borderColor: colors.gold },
   memoryEmoji: { fontSize: 32 },
   memoryWord: { fontSize: 13, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', paddingHorizontal: 4 },
-  optionButton: { minWidth: 70, height: 56, paddingHorizontal: 16, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)' },
+  simonGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, justifyContent: 'center', marginTop: 10 },
+  simonTile: { width: 120, height: 120, borderRadius: 24 },
+  simonTileActive: { transform: [{ scale: 1.05 }], shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
+  optionButton: { minWidth: 76, height: 56, paddingHorizontal: 14, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexShrink: 1, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)' },
   optionCorrect: { backgroundColor: colors.success, borderColor: colors.success },
   optionWrong: { backgroundColor: colors.error, borderColor: colors.error },
   optionText: { fontSize: 17, fontWeight: '800', color: colors.ink },
