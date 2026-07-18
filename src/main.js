@@ -1233,6 +1233,8 @@ const GAME_SCREENS = {
   memoire_etoiles: 'MemoireEtoiles',
   coffre_souvenirs: 'CoffreSouvenirs',
   monde_capitales: 'MondeCapitales',
+  jeu_intrus: 'JeuIntrus',
+  empreintes_clairiere: 'EmpreintesClairiere',
 };
 
 function WorldMapScreen({ route, navigation }) {
@@ -2264,6 +2266,57 @@ function MondeCapitalesScreen({ route, navigation }) {
   );
 }
 
+// ============================================================
+// Le Jeu des Intrus — logique (reperer l'element qui ne va pas)
+// ============================================================
+function buildIntrusPrompt(d) {
+  return {
+    promptText: "Trouve l'intrus !",
+    options: d.items,
+    correct: d.intrus,
+  };
+}
+
+function JeuIntrusScreen({ route, navigation }) {
+  return (
+    <ChoiceGameScreen
+      route={route}
+      navigation={navigation}
+      jeuCode="jeu_intrus"
+      Character={Noisette}
+      jeuTitre="🔍 Le Jeu des Intrus"
+      buildPrompt={buildIntrusPrompt}
+      maxRung={rungFromGradeAndPalier('ce2', 3)}
+    />
+  );
+}
+
+// ============================================================
+// Les Empreintes de la Clairière — logique (suites a completer)
+// ============================================================
+function buildSuitePrompt(d) {
+  return {
+    visual: d.sequence.join('   ') + '   ❓',
+    promptText: 'Que vient ensuite ?',
+    options: d.options,
+    correct: d.suivant,
+  };
+}
+
+function EmpreintesClairiereScreen({ route, navigation }) {
+  return (
+    <ChoiceGameScreen
+      route={route}
+      navigation={navigation}
+      jeuCode="empreintes_clairiere"
+      Character={Luma}
+      jeuTitre="🐾 Les Empreintes de la Clairière"
+      buildPrompt={buildSuitePrompt}
+      maxRung={rungFromGradeAndPalier('ce2', 3)}
+    />
+  );
+}
+
 function PommesDeLumaScreen({ route, navigation }) {
   return (
     <ChoiceGameScreen
@@ -2907,6 +2960,8 @@ export default function RootNavigator() {
             <Stack.Screen name="MemoireEtoiles" component={MemoryScreen} />
             <Stack.Screen name="CoffreSouvenirs" component={CoffreSouvenirsScreen} />
             <Stack.Screen name="MondeCapitales" component={MondeCapitalesScreen} />
+            <Stack.Screen name="JeuIntrus" component={JeuIntrusScreen} />
+            <Stack.Screen name="EmpreintesClairiere" component={EmpreintesClairiereScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
