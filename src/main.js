@@ -531,7 +531,8 @@ function TimeGaugeBar({ remainingSeconds, totalSeconds }) {
   );
 }
 
-async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche }) {
+async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche, maxRung }) {
+  const effectiveMaxRung = maxRung ?? MAX_CONTENT_RUNG;
   const { data: existing } = await supabase
     .from('progression')
     .select('details, temps_reference_secondes')
@@ -553,7 +554,7 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
     // Session parfaite ET dans un temps raisonnable : la remontee s'accelere.
     newStreak = oldStreak + 1;
     const jump = Math.min(3, newStreak);
-    newRung = Math.min(MAX_CONTENT_RUNG, currentRung + jump);
+    newRung = Math.min(effectiveMaxRung, currentRung + jump);
     if (tempsMoyenParManche != null) {
       // Le temps de reference se resserre doucement pour continuer a exiger de la fluidite.
       newReference = reference == null
@@ -578,7 +579,7 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   return { newRung, newStreak, newReference, rungChanged: newRung !== currentRung, direction };
 }
 
-async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt, tempsMoyenParManche }) {
+async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt, tempsMoyenParManche, maxRung }) {
   // Robustesse : quoi qu'il arrive (probleme reseau, ligne manquante...),
   // on ne laisse JAMAIS l'enfant bloque sur l'ecran de jeu. Chaque etape
   // est protegee individuellement pour que les suivantes puissent continuer.
@@ -589,7 +590,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
   let direction = 'same';
   try {
     const result = await computeNextRung({
-      profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche,
+      profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche, maxRung,
     });
     newRung = result.newRung;
     newStreak = result.newStreak;
@@ -1231,6 +1232,7 @@ const GAME_SCREENS = {
   pommes_de_luma: 'PommesDeLuma',
   memoire_etoiles: 'MemoireEtoiles',
   coffre_souvenirs: 'CoffreSouvenirs',
+  monde_capitales: 'MondeCapitales',
 };
 
 function WorldMapScreen({ route, navigation }) {
@@ -1821,7 +1823,7 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
 // ============================================================
 // Moteur générique : question à choix (Sons Magiques + Pommes de Luma)
 // ============================================================
-function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character }) {
+function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung }) {
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -1910,7 +1912,8 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const startRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      const rawStartRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      const startRung = maxRung ? Math.min(rawStartRung, maxRung) : rawStartRung;
       setRung(startRung);
       const { niveau, palier: palierValue } = gradeAndPalierFromRung(startRung);
       loadRound(jeu.id, niveau, palierValue);
@@ -1926,7 +1929,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
     const summary = await completeSession({
-      profil, miniJeuId, currentRung: rung,
+      profil, miniJeuId, currentRung: rung, maxRung,
       erreursTotal: errorsTotal.current,
       dureeSecondes: durationSeconds,
       totalRounds: TOTAL_ROUNDS,
@@ -2213,6 +2216,52 @@ function buildLumaPrompt(d) {
     default:
       return { promptText: '...', options: [], correct: null };
   }
+}
+
+// ============================================================
+// Le Monde en Capitales — geographie (drapeaux, pays, capitales)
+// ============================================================
+function buildGeoPrompt(d) {
+  switch (d.etape) {
+    case 'drapeau_pays':
+      return {
+        icon: d.drapeau,
+        promptText: 'Quel est ce pays ?',
+        options: d.options,
+        correct: d.reponse,
+      };
+    case 'pays_capitale':
+      return {
+        promptText: `Quelle est la capitale de ${d.pays} ?`,
+        speak: `Quelle est la capitale de ${d.pays} ?`,
+        mandatorySpeak: false, // le nom du pays est deja ecrit a l'ecran
+        options: d.options,
+        correct: d.reponse,
+      };
+    case 'drapeau_capitale':
+      return {
+        icon: d.drapeau,
+        promptText: 'Quelle est la capitale de ce pays ?',
+        options: d.options,
+        correct: d.reponse,
+      };
+    default:
+      return { promptText: '...', options: [], correct: null };
+  }
+}
+
+function MondeCapitalesScreen({ route, navigation }) {
+  return (
+    <ChoiceGameScreen
+      route={route}
+      navigation={navigation}
+      jeuCode="monde_capitales"
+      Character={Noisette}
+      jeuTitre="🌍 Le Monde en Capitales"
+      buildPrompt={buildGeoPrompt}
+      maxRung={rungFromGradeAndPalier('ce2', 3)}
+    />
+  );
 }
 
 function PommesDeLumaScreen({ route, navigation }) {
@@ -2857,6 +2906,7 @@ export default function RootNavigator() {
             <Stack.Screen name="PommesDeLuma" component={PommesDeLumaScreen} />
             <Stack.Screen name="MemoireEtoiles" component={MemoryScreen} />
             <Stack.Screen name="CoffreSouvenirs" component={CoffreSouvenirsScreen} />
+            <Stack.Screen name="MondeCapitales" component={MondeCapitalesScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
