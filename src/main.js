@@ -1238,6 +1238,7 @@ const GAME_SCREENS = {
   balance_prairie: 'BalancePrairie',
   marche_village: 'MarcheVillage',
   cachettes_luma: 'CachettesLuma',
+  ronde_lucioles: 'RondeLucioles',
 };
 
 function WorldMapScreen({ route, navigation }) {
@@ -2400,6 +2401,33 @@ function CachettesLumaScreen({ route, navigation }) {
   );
 }
 
+// ============================================================
+// La Ronde des Lucioles — memoire/ecoute (associer un son a une image)
+// ============================================================
+function buildLuciolesPrompt(d) {
+  return {
+    promptText: 'Écoute bien et trouve la bonne image !',
+    speak: d.son,
+    mandatorySpeak: true, // aucune image ne represente le son avant de choisir
+    options: d.options,
+    correct: d.cible,
+  };
+}
+
+function RondeLuciolesScreen({ route, navigation }) {
+  return (
+    <ChoiceGameScreen
+      route={route}
+      navigation={navigation}
+      jeuCode="ronde_lucioles"
+      Character={Maestro}
+      jeuTitre="🎧 La Ronde des Lucioles"
+      buildPrompt={buildLuciolesPrompt}
+      maxRung={rungFromGradeAndPalier('ce2', 3)}
+    />
+  );
+}
+
 function PommesDeLumaScreen({ route, navigation }) {
   return (
     <ChoiceGameScreen
@@ -3048,6 +3076,7 @@ export default function RootNavigator() {
             <Stack.Screen name="BalancePrairie" component={BalancePrairieScreen} />
             <Stack.Screen name="MarcheVillage" component={MarcheVillageScreen} />
             <Stack.Screen name="CachettesLuma" component={CachettesLumaScreen} />
+            <Stack.Screen name="RondeLucioles" component={RondeLuciolesScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
