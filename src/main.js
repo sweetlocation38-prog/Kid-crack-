@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '19/07/2026 - Positions logiques des jeux sur la carte';
+const APP_BUILD_VERSION = '19/07/2026 - Carte agrandie, continents en icones seules';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1673,22 +1673,23 @@ function WorldMapScreen({ route, navigation }) {
         </View>
       )}
 
-      <View style={styles.worldMapBox}>
-        <Image source={WORLD_MAP_IMAGE} style={styles.worldMapImage} resizeMode="cover" />
-        {continentsAvecJeux.map((item) => {
-          const centerLeft = (item.zone.left + item.zone.width / 2) * 100;
-          const centerTop = (item.zone.top + item.zone.height / 2) * 100;
-          return (
-            <Pressable
-              key={item.competence}
-              style={[styles.continentPin, { left: `${centerLeft}%`, top: `${centerTop}%` }]}
-              onPress={() => handleContinentPress(item.competence)}
-            >
-              <Text style={styles.continentPinEmoji}>{item.emoji}</Text>
-              <Text style={styles.continentPinText} numberOfLines={2}>{item.nom}</Text>
-            </Pressable>
-          );
-        })}
+      <View style={styles.worldMapBleed}>
+        <View style={styles.worldMapBox}>
+          <Image source={WORLD_MAP_IMAGE} style={styles.worldMapImage} resizeMode="cover" />
+          {continentsAvecJeux.map((item) => {
+            const centerLeft = (item.zone.left + item.zone.width / 2) * 100;
+            const centerTop = (item.zone.top + item.zone.height / 2) * 100;
+            return (
+              <Pressable
+                key={item.competence}
+                style={[styles.continentPin, { left: `${centerLeft}%`, top: `${centerTop}%` }]}
+                onPress={() => handleContinentPress(item.competence)}
+              >
+                <Text style={styles.continentPinEmoji}>{item.emoji}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
       <Text style={styles.mapCredit}>Carte : macrovector / Freepik</Text>
 
@@ -4270,17 +4271,21 @@ const styles = StyleSheet.create({
     overflow: 'hidden', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
   },
   mapCredit: { fontSize: 10, color: colors.ink, opacity: 0.35, textAlign: 'center', marginBottom: 14 },
+  worldMapBleed: {
+    marginHorizontal: -18, marginBottom: 6,
+  },
   worldMapBox: {
-    width: '100%', aspectRatio: WORLD_MAP_ASPECT, borderRadius: 24, overflow: 'hidden',
-    marginBottom: 6, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
+    width: '100%', aspectRatio: WORLD_MAP_ASPECT, overflow: 'hidden',
   },
   worldMapImage: { width: '100%', height: '100%' },
   continentPin: {
-    position: 'absolute', width: 100, marginLeft: -50, alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 14, paddingVertical: 6, paddingHorizontal: 4,
+    position: 'absolute', width: 58, height: 58, marginLeft: -29, marginTop: -29,
+    alignItems: 'center', justifyContent: 'center', borderRadius: 29,
+    backgroundColor: 'rgba(255,255,255,0.92)',
     borderWidth: 2, borderColor: 'rgba(0,0,0,0.15)',
+    shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, elevation: 4,
   },
-  continentPinEmoji: { fontSize: 22 },
+  continentPinEmoji: { fontSize: 30 },
   continentPinText: { fontSize: 10, fontWeight: '800', color: colors.ink, textAlign: 'center' },
   paysMarker: {
     position: 'absolute', width: 76, alignItems: 'center', backgroundColor: '#fff',
