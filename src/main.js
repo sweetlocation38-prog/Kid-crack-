@@ -55,7 +55,7 @@
  */
 
 import 'react-native-url-polyfill/auto';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState, createContext } from 'react';
 import {
   View,
   Text,
@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '19/07/2026 - Textes harmonises (bouton retour trop gros corrige)';
+const APP_BUILD_VERSION = '19/07/2026 - Deblocage parental partage entre tous les ecrans (bug corrige)';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1570,13 +1570,30 @@ function continentFor(competence) {
   return CONTINENTS.find((c) => c.competence === competence) ?? CONTINENTS[0];
 }
 
+// Temps supplementaire accorde par un parent (via l'empreinte/le code) —
+// partage entre la carte principale et l'interieur des continents, pour
+// qu'un deblocage fait sur l'un ne soit jamais ignore par l'autre.
+const ExtraTimeContext = createContext({ extraMinutesGranted: 0, grantExtraMinutes: () => {} });
+
+function ExtraTimeProvider({ children }) {
+  const [extraMinutesGranted, setExtraMinutesGranted] = useState(0);
+  const grantExtraMinutes = useCallback((minutes) => {
+    setExtraMinutesGranted((m) => m + minutes);
+  }, []);
+  return (
+    <ExtraTimeContext.Provider value={{ extraMinutesGranted, grantExtraMinutes }}>
+      {children}
+    </ExtraTimeContext.Provider>
+  );
+}
+
 function WorldMapScreen({ route, navigation }) {
   const [profil, setProfil] = useState(route.params.profil);
   const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
-  // Minutes offertes en plus par un parent (persiste tant que l'app reste
-  // ouverte, pour ne pas redemander le deverrouillage a chaque session).
-  const [extraMinutesGranted, setExtraMinutesGranted] = useState(0);
+  // Minutes offertes en plus par un parent : partagees via le contexte pour
+  // rester valables sur tous les ecrans (carte comme continents).
+  const { extraMinutesGranted, grantExtraMinutes } = useContext(ExtraTimeContext);
   const [showGate, setShowGate] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -1699,7 +1716,7 @@ function WorldMapScreen({ route, navigation }) {
         onCancel={() => setShowGate(false)}
         onSuccess={(extraMinutes) => {
           setShowGate(false);
-          setExtraMinutesGranted((m) => m + extraMinutes);
+          grantExtraMinutes(extraMinutes);
         }}
       />
     </ScrollView>
@@ -1730,7 +1747,7 @@ function ContinentScreen({ route, navigation }) {
   const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showGate, setShowGate] = useState(false);
-  const [extraMinutesGranted, setExtraMinutesGranted] = useState(0);
+  const { extraMinutesGranted, grantExtraMinutes } = useContext(ExtraTimeContext);
 
   const { totalAllowed, baseRemaining, expectedPin } = useTimeBudget(profil);
   const remainingSeconds = useLiveCountdown(baseRemaining);
@@ -1838,7 +1855,7 @@ function ContinentScreen({ route, navigation }) {
         onCancel={() => setShowGate(false)}
         onSuccess={(extraMinutes) => {
           setShowGate(false);
-          setExtraMinutesGranted((m) => m + extraMinutes);
+          grantExtraMinutes(extraMinutes);
         }}
       />
     </ScrollView>
@@ -4165,6 +4182,7 @@ export default function RootNavigator() {
   }
 
   return (
+    <ExtraTimeProvider>
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!session ? (
@@ -4194,6 +4212,7 @@ export default function RootNavigator() {
         )}
       </Stack.Navigator>
     </NavigationContainer>
+    </ExtraTimeProvider>
   );
 }
 
