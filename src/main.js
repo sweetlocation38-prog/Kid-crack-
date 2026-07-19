@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '19/07/2026 - Carte agrandie, continents en icones seules';
+const APP_BUILD_VERSION = '19/07/2026 - Textes harmonises (bouton retour trop gros corrige)';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1634,7 +1634,7 @@ function WorldMapScreen({ route, navigation }) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Pressable onPress={() => navigation.goBack()}>
-        <Text style={styles.back}>‹ Changer de joueur</Text>
+        <Text style={styles.backLabel}>‹ Changer de joueur</Text>
       </Pressable>
 
       <View style={styles.mapHeader}>
@@ -3691,7 +3691,7 @@ function RecompensesScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Pressable onPress={() => navigation.goBack()}>
-        <Text style={styles.back}>‹ Retour</Text>
+        <Text style={styles.backLabel}>‹ Retour</Text>
       </Pressable>
       <Text style={styles.title}>🎁 Récompenses pour {profil.prenom}</Text>
 
@@ -3967,7 +3967,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Pressable onPress={() => navigation.goBack()}>
-        <Text style={styles.back}>‹ Retour</Text>
+        <Text style={styles.backLabel}>‹ Retour</Text>
       </Pressable>
       <Text style={styles.title}>👪 Réglages parentaux</Text>
 
@@ -4214,6 +4214,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cream, padding: 24 },
   title: { fontSize: 20, fontWeight: '700', color: colors.mossDeep },
   back: { color: colors.mossDeep, fontWeight: '800', marginBottom: 16, fontSize: 34, paddingVertical: 4, paddingRight: 12 },
+  backLabel: { color: colors.mossDeep, fontWeight: '700', marginBottom: 16, fontSize: 17, paddingVertical: 10, paddingRight: 12 },
 
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 22, padding: 14, marginBottom: 12, gap: 14 },
   avatarCircle: { width: 58, height: 58, borderRadius: 29, backgroundColor: colors.sand, alignItems: 'center', justifyContent: 'center' },
