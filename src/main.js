@@ -84,6 +84,10 @@ import * as DocumentPicker from 'expo-document-picker';
 
 const WORLD_MAP_IMAGE = require('../assets/world-map.jpg');
 const WORLD_MAP_ASPECT = 2200 / 1523;
+
+// A mettre a jour a chaque envoi de code, pour verifier depuis l'app
+// quelle version est vraiment installee sur le telephone.
+const APP_BUILD_VERSION = '19/07/2026 - Carte du monde reelle';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1117,6 +1121,8 @@ function ProfileSelectScreen({ navigation }) {
         <Text style={styles.addPlus}>＋</Text>
         <Text style={styles.addText}>Ajouter un profil</Text>
       </Pressable>
+
+      <Text style={styles.versionTag}>v. {APP_BUILD_VERSION}</Text>
 
       <AddProfileModal
         visible={showAddModal}
@@ -4416,6 +4422,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 4, elevation: 3,
   },
   parentButtonSmallText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  versionTag: { textAlign: 'center', fontSize: 11, color: colors.ink, opacity: 0.35, marginTop: 16 },
   profilManageBox: {
     backgroundColor: '#fff', borderRadius: 16, padding: 14, marginTop: 10,
     borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)',
