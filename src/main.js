@@ -1436,6 +1436,8 @@ const GAME_SCREENS = {
 const CONTINENTS = [
   {
     competence: 'lecture',
+    paysSlots: [{ top: '42%', left: '85%' }, { top: '81%', left: '26%' }, { top: '59%', left: '70%' }, { top: '20%', left: '11%' }, { top: '72%', left: '43%' }, { top: '36%', left: '70%' }, { top: '81%', left: '80%' }, { top: '72%', left: '60%' }, { top: '31%', left: '39%' }, { top: '61%', left: '11%' }, { top: '20%', left: '30%' }, { top: '17%', left: '48%' }, { top: '64%', left: '84%' }, { top: '41%', left: '53%' }, { top: '20%', left: '62%' }],
+    blobStyle: { borderTopLeftRadius: 120, borderTopRightRadius: 60, borderBottomLeftRadius: 40, borderBottomRightRadius: 140 }, rot: -3,
     nom: 'La Vallée des Mots',
     emoji: '🏞️',
     bg: '#E4F3DA',
@@ -1450,6 +1452,8 @@ const CONTINENTS = [
   },
   {
     competence: 'maths',
+    paysSlots: [{ top: '31%', left: '12%' }, { top: '49%', left: '64%' }, { top: '65%', left: '25%' }, { top: '17%', left: '15%' }, { top: '60%', left: '85%' }, { top: '51%', left: '10%' }, { top: '80%', left: '14%' }, { top: '49%', left: '43%' }, { top: '60%', left: '58%' }, { top: '70%', left: '76%' }, { top: '25%', left: '74%' }, { top: '67%', left: '43%' }, { top: '82%', left: '53%' }, { top: '13%', left: '63%' }, { top: '14%', left: '85%' }],
+    blobStyle: { borderTopLeftRadius: 20, borderTopRightRadius: 110, borderBottomLeftRadius: 130, borderBottomRightRadius: 30 }, rot: 2,
     nom: 'La Montagne des Nombres',
     emoji: '🏔️',
     bg: '#EAF3FA',
@@ -1463,6 +1467,8 @@ const CONTINENTS = [
   },
   {
     competence: 'logique',
+    paysSlots: [{ top: '19%', left: '12%' }, { top: '59%', left: '42%' }, { top: '70%', left: '48%' }, { top: '52%', left: '32%' }, { top: '52%', left: '57%' }, { top: '60%', left: '23%' }, { top: '15%', left: '82%' }, { top: '28%', left: '49%' }, { top: '39%', left: '82%' }, { top: '40%', left: '25%' }, { top: '56%', left: '85%' }, { top: '46%', left: '69%' }, { top: '37%', left: '10%' }, { top: '73%', left: '75%' }, { top: '80%', left: '62%' }],
+    blobStyle: { borderTopLeftRadius: 90, borderTopRightRadius: 20, borderBottomLeftRadius: 100, borderBottomRightRadius: 90 }, rot: -5,
     nom: 'Les Volcans de la Logique',
     emoji: '🌋',
     bg: '#FBE6DC',
@@ -1476,6 +1482,8 @@ const CONTINENTS = [
   },
   {
     competence: 'memoire',
+    paysSlots: [{ top: '18%', left: '24%' }, { top: '55%', left: '26%' }, { top: '44%', left: '79%' }, { top: '73%', left: '17%' }, { top: '37%', left: '25%' }, { top: '33%', left: '40%' }, { top: '12%', left: '72%' }, { top: '78%', left: '64%' }, { top: '53%', left: '10%' }, { top: '56%', left: '59%' }, { top: '61%', left: '85%' }, { top: '45%', left: '34%' }, { top: '22%', left: '82%' }, { top: '18%', left: '57%' }, { top: '75%', left: '50%' }],
+    blobStyle: { borderTopLeftRadius: 100, borderTopRightRadius: 100, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }, rot: 4,
     nom: 'La Banquise des Souvenirs',
     emoji: '❄️',
     bg: '#E3F6F9',
@@ -1489,6 +1497,8 @@ const CONTINENTS = [
   },
   {
     competence: 'geographie',
+    paysSlots: [{ top: '65%', left: '63%' }, { top: '70%', left: '12%' }, { top: '43%', left: '37%' }, { top: '80%', left: '44%' }, { top: '21%', left: '64%' }, { top: '40%', left: '64%' }, { top: '28%', left: '13%' }, { top: '53%', left: '57%' }, { top: '25%', left: '50%' }, { top: '80%', left: '23%' }, { top: '55%', left: '25%' }, { top: '15%', left: '24%' }, { top: '16%', left: '82%' }, { top: '77%', left: '77%' }, { top: '62%', left: '42%' }],
+    blobStyle: { borderTopLeftRadius: 110, borderTopRightRadius: 130, borderBottomLeftRadius: 110, borderBottomRightRadius: 90 }, rot: -2,
     nom: "L'Océan du Monde",
     emoji: '🌊',
     bg: '#DFF1FB',
@@ -1502,6 +1512,8 @@ const CONTINENTS = [
   },
   {
     competence: 'histoire',
+    paysSlots: [{ top: '59%', left: '60%' }, { top: '56%', left: '81%' }, { top: '65%', left: '20%' }, { top: '42%', left: '62%' }, { top: '78%', left: '71%' }, { top: '31%', left: '30%' }, { top: '24%', left: '73%' }, { top: '46%', left: '35%' }, { top: '30%', left: '84%' }, { top: '77%', left: '50%' }, { top: '41%', left: '78%' }, { top: '51%', left: '12%' }, { top: '58%', left: '40%' }, { top: '73%', left: '36%' }, { top: '71%', left: '84%' }],
+    blobStyle: { borderTopLeftRadius: 40, borderTopRightRadius: 140, borderBottomLeftRadius: 120, borderBottomRightRadius: 30 }, rot: 3,
     nom: 'La Savane du Temps',
     emoji: '🌾',
     bg: '#FCF1D8',
@@ -1515,6 +1527,8 @@ const CONTINENTS = [
   },
   {
     competence: 'sciences',
+    paysSlots: [{ top: '15%', left: '71%' }, { top: '41%', left: '40%' }, { top: '20%', left: '37%' }, { top: '33%', left: '15%' }, { top: '52%', left: '33%' }, { top: '66%', left: '21%' }, { top: '49%', left: '14%' }, { top: '57%', left: '67%' }, { top: '15%', left: '52%' }, { top: '74%', left: '60%' }, { top: '28%', left: '79%' }, { top: '68%', left: '77%' }, { top: '34%', left: '57%' }, { top: '81%', left: '83%' }, { top: '62%', left: '55%' }],
+    blobStyle: { borderTopLeftRadius: 130, borderTopRightRadius: 30, borderBottomLeftRadius: 30, borderBottomRightRadius: 120 }, rot: -4,
     nom: 'La Forêt Vivante',
     emoji: '🌳',
     bg: '#E6F3DE',
@@ -1727,12 +1741,43 @@ function ContinentScreen({ route, navigation }) {
         <Text style={styles.back}>‹</Text>
       </Pressable>
 
-      <View style={[styles.continentScene, { backgroundColor: continent.bgVif }]}>
+      <Text style={styles.continentPageTitle}>{continent.emoji} {continent.nom}</Text>
+
+      <View style={[styles.continentBlob, { backgroundColor: continent.bgVif, transform: [{ rotate: `${continent.rot}deg` }] }, continent.blobStyle]}>
         {continent.decor.map((d, i) => (
-          <DriftingDecor key={i} {...d} size={(d.size ?? 22) + 8} />
+          <DriftingDecor key={`decor-${i}`} {...d} size={(d.size ?? 22) + 6} />
         ))}
-        <Text style={styles.continentSceneEmoji}>{continent.emoji}</Text>
-        <Text style={styles.continentSceneTitle}>{continent.nom}</Text>
+        {continent.paysSlots.map((slot, i) => {
+          const item = miniJeux[i];
+          if (!item) {
+            return (
+              <View
+                key={`slot-${i}`}
+                style={[styles.paysVide, { top: slot.top, left: slot.left, transform: [{ rotate: `${-continent.rot}deg` }] }]}
+              />
+            );
+          }
+          const targetScreen = GAME_SCREENS[item.code];
+          return (
+            <Pressable
+              key={item.id}
+              style={[
+                styles.paysMarker,
+                { top: slot.top, left: slot.left, transform: [{ rotate: `${-continent.rot}deg` }] },
+                limitReached && targetScreen && styles.paysMarkerLocked,
+              ]}
+              disabled={!targetScreen}
+              onPress={() => handleGamePress(targetScreen)}
+            >
+              <Text style={styles.paysMarkerIcon}>{GAME_ICONS[item.code] ?? '🎲'}</Text>
+              <Text style={styles.paysMarkerText} numberOfLines={1} adjustsFontSizeToFit>
+                {item.nom}
+              </Text>
+              {!targetScreen && <Text style={styles.paysMarkerLock}>🔒</Text>}
+              {limitReached && targetScreen && <Text style={styles.paysMarkerLock}>🔒</Text>}
+            </Pressable>
+          );
+        })}
       </View>
 
       {limitReached && (
@@ -1748,27 +1793,6 @@ function ContinentScreen({ route, navigation }) {
           </View>
         </View>
       )}
-
-      <View style={{ gap: 12 }}>
-        {miniJeux.map((item) => {
-          const targetScreen = GAME_SCREENS[item.code];
-          return (
-            <Pressable
-              key={item.id}
-              style={[styles.gameCard, limitReached && targetScreen && styles.gameCardLocked]}
-              disabled={!targetScreen}
-              onPress={() => handleGamePress(targetScreen)}
-            >
-              <Text style={styles.gameIcon}>{GAME_ICONS[item.code] ?? '🎲'}</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.gameName}>{item.nom}</Text>
-              </View>
-              {!targetScreen && <Text style={styles.soon}>🔒 bientôt</Text>}
-              {limitReached && targetScreen && <Text style={{ fontSize: 18 }}>🔒</Text>}
-            </Pressable>
-          );
-        })}
-      </View>
 
       <ParentGateModal
         visible={showGate}
@@ -4043,12 +4067,27 @@ const styles = StyleSheet.create({
   continentEmoji: { fontSize: 44 },
   continentName: { fontSize: 18, fontWeight: '800', color: colors.ink },
   continentSub: { fontSize: 13, color: colors.ink, opacity: 0.6, marginTop: 2 },
-  continentScene: {
-    height: 170, borderRadius: 24, marginBottom: 16, overflow: 'hidden',
-    alignItems: 'center', justifyContent: 'center',
+  continentPageTitle: {
+    fontSize: 20, fontWeight: '800', color: colors.ink, textAlign: 'center', marginBottom: 14,
   },
-  continentSceneEmoji: { fontSize: 56 },
-  continentSceneTitle: { fontSize: 20, fontWeight: '800', color: colors.ink, marginTop: 6 },
+  continentBlob: {
+    height: 420, width: '96%', alignSelf: 'center', marginBottom: 18,
+    overflow: 'hidden', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
+  },
+  paysMarker: {
+    position: 'absolute', width: 92, alignItems: 'center', backgroundColor: '#fff',
+    borderRadius: 14, paddingVertical: 6, paddingHorizontal: 4,
+    borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', marginLeft: -46,
+  },
+  paysMarkerLocked: { opacity: 0.6 },
+  paysMarkerIcon: { fontSize: 20 },
+  paysMarkerText: { fontSize: 10, fontWeight: '800', color: colors.ink, textAlign: 'center' },
+  paysMarkerLock: { position: 'absolute', top: -6, right: -6, fontSize: 12 },
+  paysVide: {
+    position: 'absolute', width: 14, height: 14, borderRadius: 7, marginLeft: -7,
+    backgroundColor: 'rgba(255,255,255,0.5)', borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)',
+    borderStyle: 'dashed',
+  },
   gameCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 22, padding: 16, gap: 14 },
   gameIcon: { fontSize: 32 },
   gameName: { fontSize: 16, fontWeight: '700', color: colors.mossDeep },
