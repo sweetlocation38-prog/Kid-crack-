@@ -1429,6 +1429,109 @@ const GAME_SCREENS = {
   puzzle_moulin: 'PuzzleMoulin',
 };
 
+// ============================================================
+// Les 7 continents — un univers thematique par competence, pour
+// naviguer en 2 clics : continent, puis jeu (pays).
+// ============================================================
+const CONTINENTS = [
+  {
+    competence: 'lecture',
+    nom: 'La Vallée des Mots',
+    emoji: '🏞️',
+    bg: '#E4F3DA',
+    bgVif: '#BFE3A8',
+    decor: [
+      { emoji: '🐟', top: 90, left: '15%', duration: 3200 },
+      { emoji: '🐠', top: 110, left: '65%', duration: 3800, delay: 400 },
+      { emoji: '🐦', top: 30, left: '25%', duration: 4200, vertical: true },
+      { emoji: '🦋', top: 50, left: '75%', duration: 3600, vertical: true, delay: 600 },
+      { emoji: '🍃', top: 70, left: '45%', duration: 5000 },
+    ],
+  },
+  {
+    competence: 'maths',
+    nom: 'La Montagne des Nombres',
+    emoji: '🏔️',
+    bg: '#EAF3FA',
+    bgVif: '#BFDCEF',
+    decor: [
+      { emoji: '☁️', top: 40, left: '20%', duration: 6000 },
+      { emoji: '☁️', top: 70, left: '65%', duration: 7000, delay: 800 },
+      { emoji: '🦅', top: 55, left: '45%', duration: 4500, vertical: true },
+      { emoji: '🐐', top: 115, left: '30%', duration: 3800 },
+    ],
+  },
+  {
+    competence: 'logique',
+    nom: 'Les Volcans de la Logique',
+    emoji: '🌋',
+    bg: '#FBE6DC',
+    bgVif: '#F5B79A',
+    decor: [
+      { emoji: '🔥', top: 40, left: '50%', duration: 1400, vertical: true },
+      { emoji: '💎', top: 95, left: '20%', duration: 4200, vertical: true },
+      { emoji: '💎', top: 110, left: '75%', duration: 4600, vertical: true, delay: 500 },
+      { emoji: '🦎', top: 120, left: '40%', duration: 3600 },
+    ],
+  },
+  {
+    competence: 'memoire',
+    nom: 'La Banquise des Souvenirs',
+    emoji: '❄️',
+    bg: '#E3F6F9',
+    bgVif: '#AEE3EC',
+    decor: [
+      { emoji: '❄️', top: 30, left: '20%', duration: 4000, vertical: true },
+      { emoji: '❄️', top: 20, left: '60%', duration: 4600, vertical: true, delay: 500 },
+      { emoji: '🐧', top: 115, left: '35%', duration: 3800 },
+      { emoji: '⭐', top: 55, left: '80%', duration: 5200, vertical: true },
+    ],
+  },
+  {
+    competence: 'geographie',
+    nom: "L'Océan du Monde",
+    emoji: '🌊',
+    bg: '#DFF1FB',
+    bgVif: '#A6D9F2',
+    decor: [
+      { emoji: '⛵', top: 45, left: '55%', duration: 5000 },
+      { emoji: '🐬', top: 100, left: '20%', duration: 3400, vertical: true },
+      { emoji: '🐬', top: 110, left: '70%', duration: 3800, vertical: true, delay: 400 },
+      { emoji: '🗺️', top: 60, left: '15%', duration: 4400, vertical: true },
+    ],
+  },
+  {
+    competence: 'histoire',
+    nom: 'La Savane du Temps',
+    emoji: '🌾',
+    bg: '#FCF1D8',
+    bgVif: '#F5D889',
+    decor: [
+      { emoji: '☀️', top: 25, left: '75%', duration: 6000, vertical: true },
+      { emoji: '🦓', top: 115, left: '25%', duration: 4000 },
+      { emoji: '🦁', top: 120, left: '55%', duration: 4400 },
+      { emoji: '🌾', top: 100, left: '10%', duration: 3200 },
+    ],
+  },
+  {
+    competence: 'sciences',
+    nom: 'La Forêt Vivante',
+    emoji: '🌳',
+    bg: '#E6F3DE',
+    bgVif: '#B4DE9B',
+    decor: [
+      { emoji: '🦉', top: 40, left: '70%', duration: 4500, vertical: true },
+      { emoji: '🐛', top: 120, left: '30%', duration: 3600 },
+      { emoji: '🍄', top: 105, left: '55%', duration: 4000, vertical: true },
+      { emoji: '🐝', top: 60, left: '20%', duration: 2800 },
+    ],
+  },
+];
+
+function continentFor(competence) {
+  return CONTINENTS.find((c) => c.competence === competence) ?? CONTINENTS[0];
+}
+
 function WorldMapScreen({ route, navigation }) {
   const [profil, setProfil] = useState(route.params.profil);
   const [miniJeux, setMiniJeux] = useState([]);
@@ -1471,13 +1574,10 @@ function WorldMapScreen({ route, navigation }) {
 
   const limitReached = effectiveRemaining != null && effectiveRemaining <= 0;
 
-  function handleGamePress(targetScreen) {
-    if (!targetScreen) return;
-    if (limitReached) {
-      setShowGate(true);
-      return;
-    }
-    navigation.navigate(targetScreen, { profil });
+  function handleContinentPress(competence) {
+    // Se promener sur la carte est toujours libre : seule l'entree dans un
+    // jeu consomme du temps, et c'est verifie a l'interieur du continent.
+    navigation.navigate('Continent', { profil, competence });
   }
 
   if (loading) {
@@ -1487,6 +1587,11 @@ function WorldMapScreen({ route, navigation }) {
       </View>
     );
   }
+
+  const continentsAvecJeux = CONTINENTS.map((c) => ({
+    ...c,
+    jeux: miniJeux.filter((j) => j.competence === c.competence),
+  })).filter((c) => c.jeux.length > 0);
 
   return (
     <View style={styles.container}>
@@ -1531,24 +1636,27 @@ function WorldMapScreen({ route, navigation }) {
       )}
 
       <FlatList
-        data={miniJeux}
-        keyExtractor={(g) => g.id}
-        contentContainerStyle={{ gap: 12 }}
+        data={continentsAvecJeux}
+        keyExtractor={(c) => c.competence}
+        contentContainerStyle={{ gap: 14, paddingBottom: 12 }}
         renderItem={({ item }) => {
-          const targetScreen = GAME_SCREENS[item.code];
+          const nbJouables = item.jeux.filter((j) => GAME_SCREENS[j.code]).length;
           return (
             <Pressable
-              style={[styles.gameCard, limitReached && targetScreen && styles.gameCardLocked]}
-              disabled={!targetScreen}
-              onPress={() => handleGamePress(targetScreen)}
+              style={[styles.continentCard, { backgroundColor: item.bg }]}
+              onPress={() => handleContinentPress(item.competence)}
             >
-              <Text style={styles.gameIcon}>{GAME_ICONS[item.code] ?? '🎲'}</Text>
+              {item.decor.map((d, i) => (
+                <DriftingDecor key={i} {...d} />
+              ))}
+              <Text style={styles.continentEmoji}>{item.emoji}</Text>
               <View style={{ flex: 1 }}>
-                <Text style={styles.gameName}>{item.nom}</Text>
-                <Text style={styles.gameCompetence}>{item.competence}</Text>
+                <Text style={styles.continentName}>{item.nom}</Text>
+                <Text style={styles.continentSub}>
+                  {nbJouables} jeu{nbJouables > 1 ? 'x' : ''} à explorer
+                </Text>
               </View>
-              {!targetScreen && <Text style={styles.soon}>🔒 bientôt</Text>}
-              {limitReached && targetScreen && <Text style={{ fontSize: 18 }}>🔒</Text>}
+              <Text style={styles.chevron}>›</Text>
             </Pressable>
           );
         }}
@@ -1564,6 +1672,114 @@ function WorldMapScreen({ route, navigation }) {
         }}
       />
     </View>
+  );
+}
+
+// ============================================================
+// Écran : intérieur d'un continent — univers thematique anime,
+// avec les jeux (pays) de cette competence a explorer.
+// ============================================================
+function ContinentScreen({ route, navigation }) {
+  const { profil, competence } = route.params;
+  const continent = continentFor(competence);
+  const [miniJeux, setMiniJeux] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showGate, setShowGate] = useState(false);
+  const [extraMinutesGranted, setExtraMinutesGranted] = useState(0);
+
+  const { totalAllowed, baseRemaining, expectedPin } = useTimeBudget(profil);
+  const remainingSeconds = useLiveCountdown(baseRemaining);
+  const effectiveRemaining = baseRemaining != null ? remainingSeconds + extraMinutesGranted * 60 : null;
+  const limitReached = effectiveRemaining != null && effectiveRemaining <= 0;
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from('mini_jeux')
+        .select('*')
+        .eq('competence', competence)
+        .order('nom');
+      setMiniJeux(data ?? []);
+      setLoading(false);
+    })();
+  }, [competence]);
+
+  function handleGamePress(targetScreen) {
+    if (!targetScreen) return;
+    if (limitReached) {
+      setShowGate(true);
+      return;
+    }
+    navigation.navigate(targetScreen, { profil });
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: continent.bg }]}>
+      <Pressable onPress={() => navigation.goBack()}>
+        <Text style={styles.back}>‹</Text>
+      </Pressable>
+
+      <View style={[styles.continentScene, { backgroundColor: continent.bgVif }]}>
+        {continent.decor.map((d, i) => (
+          <DriftingDecor key={i} {...d} size={(d.size ?? 22) + 8} />
+        ))}
+        <Text style={styles.continentSceneEmoji}>{continent.emoji}</Text>
+        <Text style={styles.continentSceneTitle}>{continent.nom}</Text>
+      </View>
+
+      {limitReached && (
+        <View style={styles.blockedBanner}>
+          <Noisette size={40} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.blockedText}>
+              Tu as bien joué aujourd'hui ! Reviens demain pour continuer l'aventure.
+            </Text>
+            <Pressable onPress={() => setShowGate(true)}>
+              <Text style={styles.blockedLink}>Demander à un parent de débloquer</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+
+      <View style={{ gap: 12 }}>
+        {miniJeux.map((item) => {
+          const targetScreen = GAME_SCREENS[item.code];
+          return (
+            <Pressable
+              key={item.id}
+              style={[styles.gameCard, limitReached && targetScreen && styles.gameCardLocked]}
+              disabled={!targetScreen}
+              onPress={() => handleGamePress(targetScreen)}
+            >
+              <Text style={styles.gameIcon}>{GAME_ICONS[item.code] ?? '🎲'}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.gameName}>{item.nom}</Text>
+              </View>
+              {!targetScreen && <Text style={styles.soon}>🔒 bientôt</Text>}
+              {limitReached && targetScreen && <Text style={{ fontSize: 18 }}>🔒</Text>}
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <ParentGateModal
+        visible={showGate}
+        expectedPin={expectedPin}
+        onCancel={() => setShowGate(false)}
+        onSuccess={(extraMinutes) => {
+          setShowGate(false);
+          setExtraMinutesGranted((m) => m + extraMinutes);
+        }}
+      />
+    </ScrollView>
   );
 }
 
@@ -1891,6 +2107,35 @@ function BouncingWrap({ children, size }) {
     <Animated.View style={{ transform: [{ translateY: bounce }] }}>
       {children}
     </Animated.View>
+  );
+}
+
+// Fait deriver doucement un emoji d'un cote a l'autre (poisson qui nage,
+// oiseau qui vole, nuage qui flotte, flocon...), pour donner vie au decor
+// sans distraire de l'essentiel.
+function DriftingDecor({ emoji, size = 22, top, left, duration = 6000, delay = 0, vertical = false }) {
+  const anim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(anim, { toValue: 1, duration, delay, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(anim, { toValue: 0, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [anim, duration, delay]);
+
+  const translate = anim.interpolate({ inputRange: [0, 1], outputRange: [-18, 18] });
+  const transform = vertical ? [{ translateY: translate }] : [{ translateX: translate }];
+
+  return (
+    <Animated.Text
+      style={{ position: 'absolute', top, left, fontSize: size, transform }}
+    >
+      {emoji}
+    </Animated.Text>
   );
 }
 
@@ -3708,6 +3953,7 @@ export default function RootNavigator() {
           <>
             <Stack.Screen name="ProfileSelect" component={ProfileSelectScreen} />
             <Stack.Screen name="WorldMap" component={WorldMapScreen} />
+            <Stack.Screen name="Continent" component={ContinentScreen} />
             <Stack.Screen name="PontDesLettres" component={PontDesLettresScreen} />
             <Stack.Screen name="SonsMagiques" component={SonsMagiquesScreen} />
             <Stack.Screen name="PommesDeLuma" component={PommesDeLumaScreen} />
@@ -3790,6 +4036,19 @@ const styles = StyleSheet.create({
   mapHeader: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 26 },
   mapAvatar: { fontSize: 44 },
   mapSubtitle: { fontSize: 13, opacity: 0.6 },
+  continentCard: {
+    flexDirection: 'row', alignItems: 'center', borderRadius: 24, padding: 18, gap: 14,
+    overflow: 'hidden', height: 148, borderWidth: 2, borderColor: 'rgba(0,0,0,0.05)',
+  },
+  continentEmoji: { fontSize: 44 },
+  continentName: { fontSize: 18, fontWeight: '800', color: colors.ink },
+  continentSub: { fontSize: 13, color: colors.ink, opacity: 0.6, marginTop: 2 },
+  continentScene: {
+    height: 170, borderRadius: 24, marginBottom: 16, overflow: 'hidden',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  continentSceneEmoji: { fontSize: 56 },
+  continentSceneTitle: { fontSize: 20, fontWeight: '800', color: colors.ink, marginTop: 6 },
   gameCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 22, padding: 16, gap: 14 },
   gameIcon: { fontSize: 32 },
   gameName: { fontSize: 16, fontWeight: '700', color: colors.mossDeep },
