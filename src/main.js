@@ -72,6 +72,7 @@ import {
   Easing,
   Alert,
   Image,
+  useWindowDimensions,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
@@ -80,6 +81,9 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
 import * as DocumentPicker from 'expo-document-picker';
+
+const WORLD_MAP_IMAGE = require('../assets/world-map.jpg');
+const WORLD_MAP_ASPECT = 2200 / 1523;
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1436,6 +1440,7 @@ const GAME_SCREENS = {
 const CONTINENTS = [
   {
     competence: 'lecture',
+    zone: { left: 0.55, top: 0.03, width: 0.42, height: 0.57 },
     paysSlots: [{ top: '87%', left: '64%' }, { top: '10%', left: '88%' }, { top: '64%', left: '38%' }, { top: '63%', left: '85%' }, { top: '66%', left: '15%' }, { top: '13%', left: '63%' }, { top: '34%', left: '37%' }, { top: '85%', left: '11%' }, { top: '34%', left: '64%' }, { top: '38%', left: '14%' }, { top: '84%', left: '37%' }, { top: '39%', left: '85%' }, { top: '16%', left: '37%' }, { top: '60%', left: '60%' }, { top: '12%', left: '13%' }],
     blobStyle: { borderTopLeftRadius: 120, borderTopRightRadius: 60, borderBottomLeftRadius: 40, borderBottomRightRadius: 140 }, rot: -3,
     nom: 'La Vallée des Mots',
@@ -1452,6 +1457,7 @@ const CONTINENTS = [
   },
   {
     competence: 'maths',
+    zone: { left: 0.41, top: 0.08, width: 0.17, height: 0.26 },
     paysSlots: [{ top: '84%', left: '12%' }, { top: '34%', left: '37%' }, { top: '61%', left: '35%' }, { top: '64%', left: '12%' }, { top: '11%', left: '60%' }, { top: '38%', left: '86%' }, { top: '85%', left: '63%' }, { top: '35%', left: '15%' }, { top: '9%', left: '13%' }, { top: '9%', left: '88%' }, { top: '60%', left: '89%' }, { top: '91%', left: '89%' }, { top: '10%', left: '36%' }, { top: '39%', left: '62%' }, { top: '62%', left: '65%' }],
     blobStyle: { borderTopLeftRadius: 20, borderTopRightRadius: 110, borderBottomLeftRadius: 130, borderBottomRightRadius: 30 }, rot: 2,
     nom: 'La Montagne des Nombres',
@@ -1467,6 +1473,7 @@ const CONTINENTS = [
   },
   {
     competence: 'logique',
+    zone: { left: 0.2, top: 0.48, width: 0.22, height: 0.44 },
     paysSlots: [{ top: '65%', left: '61%' }, { top: '62%', left: '38%' }, { top: '60%', left: '90%' }, { top: '91%', left: '89%' }, { top: '38%', left: '87%' }, { top: '91%', left: '61%' }, { top: '34%', left: '35%' }, { top: '11%', left: '89%' }, { top: '36%', left: '11%' }, { top: '62%', left: '15%' }, { top: '85%', left: '39%' }, { top: '90%', left: '11%' }, { top: '14%', left: '36%' }, { top: '12%', left: '14%' }, { top: '38%', left: '61%' }],
     blobStyle: { borderTopLeftRadius: 90, borderTopRightRadius: 20, borderBottomLeftRadius: 100, borderBottomRightRadius: 90 }, rot: -5,
     nom: 'Les Volcans de la Logique',
@@ -1482,6 +1489,7 @@ const CONTINENTS = [
   },
   {
     competence: 'memoire',
+    zone: { left: 0.24, top: 0.02, width: 0.16, height: 0.2 },
     paysSlots: [{ top: '91%', left: '64%' }, { top: '36%', left: '62%' }, { top: '65%', left: '65%' }, { top: '11%', left: '11%' }, { top: '60%', left: '37%' }, { top: '88%', left: '11%' }, { top: '15%', left: '88%' }, { top: '62%', left: '13%' }, { top: '84%', left: '35%' }, { top: '91%', left: '85%' }, { top: '35%', left: '35%' }, { top: '36%', left: '15%' }, { top: '64%', left: '88%' }, { top: '14%', left: '35%' }, { top: '34%', left: '86%' }],
     blobStyle: { borderTopLeftRadius: 100, borderTopRightRadius: 100, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }, rot: 4,
     nom: 'La Banquise des Souvenirs',
@@ -1497,6 +1505,7 @@ const CONTINENTS = [
   },
   {
     competence: 'geographie',
+    zone: { left: 0.76, top: 0.58, width: 0.22, height: 0.32 },
     paysSlots: [{ top: '84%', left: '14%' }, { top: '11%', left: '38%' }, { top: '84%', left: '38%' }, { top: '62%', left: '89%' }, { top: '66%', left: '14%' }, { top: '34%', left: '88%' }, { top: '38%', left: '63%' }, { top: '64%', left: '63%' }, { top: '12%', left: '89%' }, { top: '64%', left: '37%' }, { top: '16%', left: '64%' }, { top: '87%', left: '61%' }, { top: '38%', left: '37%' }, { top: '15%', left: '15%' }, { top: '40%', left: '13%' }],
     blobStyle: { borderTopLeftRadius: 110, borderTopRightRadius: 130, borderBottomLeftRadius: 110, borderBottomRightRadius: 90 }, rot: -2,
     nom: "L'Océan du Monde",
@@ -1512,6 +1521,7 @@ const CONTINENTS = [
   },
   {
     competence: 'histoire',
+    zone: { left: 0.41, top: 0.3, width: 0.21, height: 0.52 },
     paysSlots: [{ top: '88%', left: '37%' }, { top: '34%', left: '90%' }, { top: '89%', left: '14%' }, { top: '88%', left: '88%' }, { top: '63%', left: '88%' }, { top: '14%', left: '39%' }, { top: '10%', left: '86%' }, { top: '40%', left: '60%' }, { top: '14%', left: '61%' }, { top: '12%', left: '11%' }, { top: '90%', left: '61%' }, { top: '65%', left: '62%' }, { top: '41%', left: '11%' }, { top: '35%', left: '37%' }, { top: '62%', left: '40%' }],
     blobStyle: { borderTopLeftRadius: 40, borderTopRightRadius: 140, borderBottomLeftRadius: 120, borderBottomRightRadius: 30 }, rot: 3,
     nom: 'La Savane du Temps',
@@ -1527,6 +1537,7 @@ const CONTINENTS = [
   },
   {
     competence: 'sciences',
+    zone: { left: 0.02, top: 0.06, width: 0.32, height: 0.44 },
     paysSlots: [{ top: '39%', left: '63%' }, { top: '90%', left: '37%' }, { top: '66%', left: '38%' }, { top: '35%', left: '14%' }, { top: '13%', left: '63%' }, { top: '15%', left: '15%' }, { top: '87%', left: '61%' }, { top: '65%', left: '13%' }, { top: '65%', left: '88%' }, { top: '85%', left: '12%' }, { top: '10%', left: '36%' }, { top: '12%', left: '85%' }, { top: '90%', left: '85%' }, { top: '36%', left: '39%' }, { top: '34%', left: '86%' }],
     blobStyle: { borderTopLeftRadius: 130, borderTopRightRadius: 30, borderBottomLeftRadius: 30, borderBottomRightRadius: 120 }, rot: -4,
     nom: 'La Forêt Vivante',
@@ -1608,7 +1619,7 @@ function WorldMapScreen({ route, navigation }) {
   })).filter((c) => c.jeux.length > 0);
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Pressable onPress={() => navigation.goBack()}>
         <Text style={styles.back}>‹ Changer de joueur</Text>
       </Pressable>
@@ -1649,32 +1660,24 @@ function WorldMapScreen({ route, navigation }) {
         </View>
       )}
 
-      <FlatList
-        data={continentsAvecJeux}
-        keyExtractor={(c) => c.competence}
-        contentContainerStyle={{ gap: 14, paddingBottom: 12 }}
-        renderItem={({ item }) => {
-          const nbJouables = item.jeux.filter((j) => GAME_SCREENS[j.code]).length;
+      <View style={styles.worldMapBox}>
+        <Image source={WORLD_MAP_IMAGE} style={styles.worldMapImage} resizeMode="cover" />
+        {continentsAvecJeux.map((item) => {
+          const centerLeft = (item.zone.left + item.zone.width / 2) * 100;
+          const centerTop = (item.zone.top + item.zone.height / 2) * 100;
           return (
             <Pressable
-              style={[styles.continentCard, { backgroundColor: item.bg }]}
+              key={item.competence}
+              style={[styles.continentPin, { left: `${centerLeft}%`, top: `${centerTop}%` }]}
               onPress={() => handleContinentPress(item.competence)}
             >
-              {item.decor.map((d, i) => (
-                <DriftingDecor key={i} {...d} />
-              ))}
-              <Text style={styles.continentEmoji}>{item.emoji}</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.continentName}>{item.nom}</Text>
-                <Text style={styles.continentSub}>
-                  {nbJouables} jeu{nbJouables > 1 ? 'x' : ''} à explorer
-                </Text>
-              </View>
-              <Text style={styles.chevron}>›</Text>
+              <Text style={styles.continentPinEmoji}>{item.emoji}</Text>
+              <Text style={styles.continentPinText} numberOfLines={2}>{item.nom}</Text>
             </Pressable>
           );
-        }}
-      />
+        })}
+      </View>
+      <Text style={styles.mapCredit}>Carte : macrovector / Freepik</Text>
 
       <ParentGateModal
         visible={showGate}
@@ -1685,7 +1688,7 @@ function WorldMapScreen({ route, navigation }) {
           setExtraMinutesGranted((m) => m + extraMinutes);
         }}
       />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -1693,9 +1696,23 @@ function WorldMapScreen({ route, navigation }) {
 // Écran : intérieur d'un continent — univers thematique anime,
 // avec les jeux (pays) de cette competence a explorer.
 // ============================================================
+// Calcule comment afficher un agrandissement (zoom) d'une zone precise
+// d'une image, pour donner l'impression de zoomer sur un continent.
+function computeZoomStyle(zone, containerWidth) {
+  const imageWidth = containerWidth / zone.width;
+  const imageHeight = imageWidth / WORLD_MAP_ASPECT;
+  const containerHeight = imageHeight * zone.height;
+  const imageLeft = -zone.left * imageWidth;
+  const imageTop = -zone.top * imageHeight;
+  return { containerHeight, imageWidth, imageHeight, imageLeft, imageTop };
+}
+
 function ContinentScreen({ route, navigation }) {
   const { profil, competence } = route.params;
   const continent = continentFor(competence);
+  const { width: screenWidth } = useWindowDimensions();
+  const containerWidth = screenWidth - 36;
+  const zoom = computeZoomStyle(continent.zone, containerWidth);
   const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showGate, setShowGate] = useState(false);
@@ -1743,7 +1760,17 @@ function ContinentScreen({ route, navigation }) {
 
       <Text style={styles.continentPageTitle}>{continent.emoji} {continent.nom}</Text>
 
-      <View style={[styles.continentBlob, { backgroundColor: continent.bgVif, transform: [{ rotate: `${continent.rot}deg` }] }, continent.blobStyle]}>
+      <View style={[styles.continentBlob, { width: containerWidth, height: zoom.containerHeight }]}>
+        <Image
+          source={WORLD_MAP_IMAGE}
+          style={{
+            position: 'absolute',
+            width: zoom.imageWidth,
+            height: zoom.imageHeight,
+            left: zoom.imageLeft,
+            top: zoom.imageTop,
+          }}
+        />
         {continent.decor.map((d, i) => (
           <DriftingDecor key={`decor-${i}`} {...d} size={(d.size ?? 22) + 6} />
         ))}
@@ -1751,10 +1778,7 @@ function ContinentScreen({ route, navigation }) {
           const item = miniJeux[i];
           if (!item) {
             return (
-              <View
-                key={`slot-${i}`}
-                style={[styles.paysVide, { top: slot.top, left: slot.left, transform: [{ rotate: `${-continent.rot}deg` }] }]}
-              />
+              <View key={`slot-${i}`} style={[styles.paysVide, { top: slot.top, left: slot.left }]} />
             );
           }
           const targetScreen = GAME_SCREENS[item.code];
@@ -1763,7 +1787,7 @@ function ContinentScreen({ route, navigation }) {
               key={item.id}
               style={[
                 styles.paysMarker,
-                { top: slot.top, left: slot.left, transform: [{ rotate: `${-continent.rot}deg` }] },
+                { top: slot.top, left: slot.left },
                 limitReached && targetScreen && styles.paysMarkerLocked,
               ]}
               disabled={!targetScreen}
@@ -1779,6 +1803,7 @@ function ContinentScreen({ route, navigation }) {
           );
         })}
       </View>
+      <Text style={styles.mapCredit}>Carte : macrovector / Freepik</Text>
 
       {limitReached && (
         <View style={styles.blockedBanner}>
@@ -4229,9 +4254,22 @@ const styles = StyleSheet.create({
     fontSize: 20, fontWeight: '800', color: colors.ink, textAlign: 'center', marginBottom: 14,
   },
   continentBlob: {
-    height: 420, width: '96%', alignSelf: 'center', marginBottom: 18,
+    alignSelf: 'center', marginBottom: 8, borderRadius: 24,
     overflow: 'hidden', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
   },
+  mapCredit: { fontSize: 10, color: colors.ink, opacity: 0.35, textAlign: 'center', marginBottom: 14 },
+  worldMapBox: {
+    width: '100%', aspectRatio: WORLD_MAP_ASPECT, borderRadius: 24, overflow: 'hidden',
+    marginBottom: 6, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
+  },
+  worldMapImage: { width: '100%', height: '100%' },
+  continentPin: {
+    position: 'absolute', width: 100, marginLeft: -50, alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 14, paddingVertical: 6, paddingHorizontal: 4,
+    borderWidth: 2, borderColor: 'rgba(0,0,0,0.15)',
+  },
+  continentPinEmoji: { fontSize: 22 },
+  continentPinText: { fontSize: 10, fontWeight: '800', color: colors.ink, textAlign: 'center' },
   paysMarker: {
     position: 'absolute', width: 76, alignItems: 'center', backgroundColor: '#fff',
     borderRadius: 12, paddingVertical: 4, paddingHorizontal: 2,
