@@ -1057,6 +1057,15 @@ function ProfileSelectScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {familleId && (
+        <Pressable
+          style={styles.parentButtonSmall}
+          onPress={() => navigation.navigate('ReglagesParentaux', { familleId })}
+        >
+          <Text style={styles.parentButtonSmallText}>P</Text>
+        </Pressable>
+      )}
+
       <View style={styles.profileHero}>
         <BouncingWrap><Noisette size={54} /></BouncingWrap>
         <Text style={styles.title}>Qui joue aujourd'hui ?</Text>
@@ -1104,15 +1113,6 @@ function ProfileSelectScreen({ navigation }) {
         <Text style={styles.addPlus}>＋</Text>
         <Text style={styles.addText}>Ajouter un profil</Text>
       </Pressable>
-
-      {familleId && (
-        <Pressable
-          style={styles.settingsButton}
-          onPress={() => navigation.navigate('ReglagesParentaux', { familleId })}
-        >
-          <Text style={styles.settingsButtonText}>👪 Réglages parentaux</Text>
-        </Pressable>
-      )}
 
       <AddProfileModal
         visible={showAddModal}
@@ -1436,7 +1436,7 @@ const GAME_SCREENS = {
 const CONTINENTS = [
   {
     competence: 'lecture',
-    paysSlots: [{ top: '42%', left: '85%' }, { top: '81%', left: '26%' }, { top: '59%', left: '70%' }, { top: '20%', left: '11%' }, { top: '72%', left: '43%' }, { top: '36%', left: '70%' }, { top: '81%', left: '80%' }, { top: '72%', left: '60%' }, { top: '31%', left: '39%' }, { top: '61%', left: '11%' }, { top: '20%', left: '30%' }, { top: '17%', left: '48%' }, { top: '64%', left: '84%' }, { top: '41%', left: '53%' }, { top: '20%', left: '62%' }],
+    paysSlots: [{ top: '87%', left: '64%' }, { top: '10%', left: '88%' }, { top: '64%', left: '38%' }, { top: '63%', left: '85%' }, { top: '66%', left: '15%' }, { top: '13%', left: '63%' }, { top: '34%', left: '37%' }, { top: '85%', left: '11%' }, { top: '34%', left: '64%' }, { top: '38%', left: '14%' }, { top: '84%', left: '37%' }, { top: '39%', left: '85%' }, { top: '16%', left: '37%' }, { top: '60%', left: '60%' }, { top: '12%', left: '13%' }],
     blobStyle: { borderTopLeftRadius: 120, borderTopRightRadius: 60, borderBottomLeftRadius: 40, borderBottomRightRadius: 140 }, rot: -3,
     nom: 'La Vallée des Mots',
     emoji: '🏞️',
@@ -1452,7 +1452,7 @@ const CONTINENTS = [
   },
   {
     competence: 'maths',
-    paysSlots: [{ top: '31%', left: '12%' }, { top: '49%', left: '64%' }, { top: '65%', left: '25%' }, { top: '17%', left: '15%' }, { top: '60%', left: '85%' }, { top: '51%', left: '10%' }, { top: '80%', left: '14%' }, { top: '49%', left: '43%' }, { top: '60%', left: '58%' }, { top: '70%', left: '76%' }, { top: '25%', left: '74%' }, { top: '67%', left: '43%' }, { top: '82%', left: '53%' }, { top: '13%', left: '63%' }, { top: '14%', left: '85%' }],
+    paysSlots: [{ top: '84%', left: '12%' }, { top: '34%', left: '37%' }, { top: '61%', left: '35%' }, { top: '64%', left: '12%' }, { top: '11%', left: '60%' }, { top: '38%', left: '86%' }, { top: '85%', left: '63%' }, { top: '35%', left: '15%' }, { top: '9%', left: '13%' }, { top: '9%', left: '88%' }, { top: '60%', left: '89%' }, { top: '91%', left: '89%' }, { top: '10%', left: '36%' }, { top: '39%', left: '62%' }, { top: '62%', left: '65%' }],
     blobStyle: { borderTopLeftRadius: 20, borderTopRightRadius: 110, borderBottomLeftRadius: 130, borderBottomRightRadius: 30 }, rot: 2,
     nom: 'La Montagne des Nombres',
     emoji: '🏔️',
@@ -1467,7 +1467,7 @@ const CONTINENTS = [
   },
   {
     competence: 'logique',
-    paysSlots: [{ top: '19%', left: '12%' }, { top: '59%', left: '42%' }, { top: '70%', left: '48%' }, { top: '52%', left: '32%' }, { top: '52%', left: '57%' }, { top: '60%', left: '23%' }, { top: '15%', left: '82%' }, { top: '28%', left: '49%' }, { top: '39%', left: '82%' }, { top: '40%', left: '25%' }, { top: '56%', left: '85%' }, { top: '46%', left: '69%' }, { top: '37%', left: '10%' }, { top: '73%', left: '75%' }, { top: '80%', left: '62%' }],
+    paysSlots: [{ top: '65%', left: '61%' }, { top: '62%', left: '38%' }, { top: '60%', left: '90%' }, { top: '91%', left: '89%' }, { top: '38%', left: '87%' }, { top: '91%', left: '61%' }, { top: '34%', left: '35%' }, { top: '11%', left: '89%' }, { top: '36%', left: '11%' }, { top: '62%', left: '15%' }, { top: '85%', left: '39%' }, { top: '90%', left: '11%' }, { top: '14%', left: '36%' }, { top: '12%', left: '14%' }, { top: '38%', left: '61%' }],
     blobStyle: { borderTopLeftRadius: 90, borderTopRightRadius: 20, borderBottomLeftRadius: 100, borderBottomRightRadius: 90 }, rot: -5,
     nom: 'Les Volcans de la Logique',
     emoji: '🌋',
@@ -1482,7 +1482,7 @@ const CONTINENTS = [
   },
   {
     competence: 'memoire',
-    paysSlots: [{ top: '18%', left: '24%' }, { top: '55%', left: '26%' }, { top: '44%', left: '79%' }, { top: '73%', left: '17%' }, { top: '37%', left: '25%' }, { top: '33%', left: '40%' }, { top: '12%', left: '72%' }, { top: '78%', left: '64%' }, { top: '53%', left: '10%' }, { top: '56%', left: '59%' }, { top: '61%', left: '85%' }, { top: '45%', left: '34%' }, { top: '22%', left: '82%' }, { top: '18%', left: '57%' }, { top: '75%', left: '50%' }],
+    paysSlots: [{ top: '91%', left: '64%' }, { top: '36%', left: '62%' }, { top: '65%', left: '65%' }, { top: '11%', left: '11%' }, { top: '60%', left: '37%' }, { top: '88%', left: '11%' }, { top: '15%', left: '88%' }, { top: '62%', left: '13%' }, { top: '84%', left: '35%' }, { top: '91%', left: '85%' }, { top: '35%', left: '35%' }, { top: '36%', left: '15%' }, { top: '64%', left: '88%' }, { top: '14%', left: '35%' }, { top: '34%', left: '86%' }],
     blobStyle: { borderTopLeftRadius: 100, borderTopRightRadius: 100, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }, rot: 4,
     nom: 'La Banquise des Souvenirs',
     emoji: '❄️',
@@ -1497,7 +1497,7 @@ const CONTINENTS = [
   },
   {
     competence: 'geographie',
-    paysSlots: [{ top: '65%', left: '63%' }, { top: '70%', left: '12%' }, { top: '43%', left: '37%' }, { top: '80%', left: '44%' }, { top: '21%', left: '64%' }, { top: '40%', left: '64%' }, { top: '28%', left: '13%' }, { top: '53%', left: '57%' }, { top: '25%', left: '50%' }, { top: '80%', left: '23%' }, { top: '55%', left: '25%' }, { top: '15%', left: '24%' }, { top: '16%', left: '82%' }, { top: '77%', left: '77%' }, { top: '62%', left: '42%' }],
+    paysSlots: [{ top: '84%', left: '14%' }, { top: '11%', left: '38%' }, { top: '84%', left: '38%' }, { top: '62%', left: '89%' }, { top: '66%', left: '14%' }, { top: '34%', left: '88%' }, { top: '38%', left: '63%' }, { top: '64%', left: '63%' }, { top: '12%', left: '89%' }, { top: '64%', left: '37%' }, { top: '16%', left: '64%' }, { top: '87%', left: '61%' }, { top: '38%', left: '37%' }, { top: '15%', left: '15%' }, { top: '40%', left: '13%' }],
     blobStyle: { borderTopLeftRadius: 110, borderTopRightRadius: 130, borderBottomLeftRadius: 110, borderBottomRightRadius: 90 }, rot: -2,
     nom: "L'Océan du Monde",
     emoji: '🌊',
@@ -1512,7 +1512,7 @@ const CONTINENTS = [
   },
   {
     competence: 'histoire',
-    paysSlots: [{ top: '59%', left: '60%' }, { top: '56%', left: '81%' }, { top: '65%', left: '20%' }, { top: '42%', left: '62%' }, { top: '78%', left: '71%' }, { top: '31%', left: '30%' }, { top: '24%', left: '73%' }, { top: '46%', left: '35%' }, { top: '30%', left: '84%' }, { top: '77%', left: '50%' }, { top: '41%', left: '78%' }, { top: '51%', left: '12%' }, { top: '58%', left: '40%' }, { top: '73%', left: '36%' }, { top: '71%', left: '84%' }],
+    paysSlots: [{ top: '88%', left: '37%' }, { top: '34%', left: '90%' }, { top: '89%', left: '14%' }, { top: '88%', left: '88%' }, { top: '63%', left: '88%' }, { top: '14%', left: '39%' }, { top: '10%', left: '86%' }, { top: '40%', left: '60%' }, { top: '14%', left: '61%' }, { top: '12%', left: '11%' }, { top: '90%', left: '61%' }, { top: '65%', left: '62%' }, { top: '41%', left: '11%' }, { top: '35%', left: '37%' }, { top: '62%', left: '40%' }],
     blobStyle: { borderTopLeftRadius: 40, borderTopRightRadius: 140, borderBottomLeftRadius: 120, borderBottomRightRadius: 30 }, rot: 3,
     nom: 'La Savane du Temps',
     emoji: '🌾',
@@ -1527,7 +1527,7 @@ const CONTINENTS = [
   },
   {
     competence: 'sciences',
-    paysSlots: [{ top: '15%', left: '71%' }, { top: '41%', left: '40%' }, { top: '20%', left: '37%' }, { top: '33%', left: '15%' }, { top: '52%', left: '33%' }, { top: '66%', left: '21%' }, { top: '49%', left: '14%' }, { top: '57%', left: '67%' }, { top: '15%', left: '52%' }, { top: '74%', left: '60%' }, { top: '28%', left: '79%' }, { top: '68%', left: '77%' }, { top: '34%', left: '57%' }, { top: '81%', left: '83%' }, { top: '62%', left: '55%' }],
+    paysSlots: [{ top: '39%', left: '63%' }, { top: '90%', left: '37%' }, { top: '66%', left: '38%' }, { top: '35%', left: '14%' }, { top: '13%', left: '63%' }, { top: '15%', left: '15%' }, { top: '87%', left: '61%' }, { top: '65%', left: '13%' }, { top: '65%', left: '88%' }, { top: '85%', left: '12%' }, { top: '10%', left: '36%' }, { top: '12%', left: '85%' }, { top: '90%', left: '85%' }, { top: '36%', left: '39%' }, { top: '34%', left: '86%' }],
     blobStyle: { borderTopLeftRadius: 130, borderTopRightRadius: 30, borderBottomLeftRadius: 30, borderBottomRightRadius: 120 }, rot: -4,
     nom: 'La Forêt Vivante',
     emoji: '🌳',
@@ -3749,12 +3749,25 @@ function ReglagesParentauxScreen({ route, navigation }) {
   const [frequenceMemos, setFrequenceMemos] = useState(null);
   const [memos, setMemos] = useState({ bonne_reponse: [], mauvaise_reponse: [], encouragement_fin: [] });
   const [addingMemo, setAddingMemo] = useState(null);
+  const [profils, setProfils] = useState([]);
+  const [editingProfilId, setEditingProfilId] = useState(null);
+  const [editPrenom, setEditPrenom] = useState('');
+  const [editNiveau, setEditNiveau] = useState('gs');
 
   async function loadMemos() {
     const { data } = await supabase.from('memos_vocaux').select('*').eq('famille_id', familleId);
     const grouped = { bonne_reponse: [], mauvaise_reponse: [], encouragement_fin: [] };
     (data ?? []).forEach((m) => { if (grouped[m.categorie]) grouped[m.categorie].push(m); });
     setMemos(grouped);
+  }
+
+  async function loadProfils() {
+    const { data } = await supabase
+      .from('profils_enfants')
+      .select('*')
+      .eq('famille_id', familleId)
+      .order('prenom');
+    setProfils(data ?? []);
   }
 
   useEffect(() => {
@@ -3765,6 +3778,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
       setExistingPin(parametres?.code_validation ?? null);
       setFrequenceMemos(parametres?.frequence_memos ?? null);
       await loadMemos();
+      await loadProfils();
       setLoading(false);
       // Si un code parent existe deja, on protege l'acces. Sinon (tout premier
       // reglage), on laisse entrer directement pour permettre de le configurer.
@@ -3776,6 +3790,83 @@ function ReglagesParentauxScreen({ route, navigation }) {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [familleId]);
+
+  function startEditProfil(p) {
+    setEditingProfilId(p.id);
+    setEditPrenom(p.prenom);
+    setEditNiveau(p.niveau_defaut);
+  }
+
+  async function saveEditProfil() {
+    if (!editPrenom.trim()) return;
+    await supabase
+      .from('profils_enfants')
+      .update({ prenom: editPrenom.trim(), niveau_defaut: editNiveau })
+      .eq('id', editingProfilId);
+    setEditingProfilId(null);
+    await loadProfils();
+  }
+
+  function adjustNiveauGlobal(profilId, delta) {
+    Alert.alert(
+      delta > 0 ? 'Avancer la progression' : 'Revenir en arrière',
+      delta > 0
+        ? `Faire avancer ce profil de ${delta} niveaux ?`
+        : `Faire reculer ce profil de ${Math.abs(delta)} niveaux ? Utile si le niveau a monté trop vite.`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Confirmer',
+          onPress: async () => {
+            const profil = profils.find((p) => p.id === profilId);
+            const nouveauNiveau = Math.max(0, (profil?.niveau_global ?? 0) + delta);
+            await supabase.from('profils_enfants').update({ niveau_global: nouveauNiveau }).eq('id', profilId);
+            await loadProfils();
+          },
+        },
+      ]
+    );
+  }
+
+  function resetProgressionJeux(profilId) {
+    Alert.alert(
+      'Réinitialiser les jeux',
+      "Tous les jeux de ce profil repartiront au niveau de départ (celui de sa classe). Le niveau global (avatar) n'est pas touché. Continuer ?",
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Réinitialiser',
+          style: 'destructive',
+          onPress: async () => {
+            await supabase.from('progression').delete().eq('profil_id', profilId);
+            Alert.alert('Fait', 'La progression de tous les jeux a été réinitialisée.');
+          },
+        },
+      ]
+    );
+  }
+
+  function deleteProfil(profilId, prenom) {
+    Alert.alert(
+      `Supprimer ${prenom} ?`,
+      'Toute sa progression, ses sessions et ses récompenses seront définitivement supprimées. Cette action est irréversible.',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: async () => {
+            await supabase.from('progression').delete().eq('profil_id', profilId);
+            await supabase.from('sessions_jeu').delete().eq('profil_id', profilId);
+            await supabase.from('jours_actifs').delete().eq('profil_id', profilId);
+            await supabase.from('recompenses_parentales').delete().eq('profil_id', profilId);
+            await supabase.from('profils_enfants').delete().eq('id', profilId);
+            await loadProfils();
+          },
+        },
+      ]
+    );
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -3836,11 +3927,78 @@ function ReglagesParentauxScreen({ route, navigation }) {
   const fillRatio = Math.min(1, (minutesMaxJour - MINUTES_MIN) / (MINUTES_MAX - MINUTES_MIN));
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Pressable onPress={() => navigation.goBack()}>
         <Text style={styles.back}>‹ Retour</Text>
       </Pressable>
       <Text style={styles.title}>👪 Réglages parentaux</Text>
+
+      <Text style={[styles.label, { marginTop: 4 }]}>👤 Gérer les profils</Text>
+      {profils.map((p) => (
+        <View key={p.id} style={styles.profilManageBox}>
+          {editingProfilId === p.id ? (
+            <>
+              <TextInput
+                style={styles.input}
+                placeholder="Prénom"
+                value={editPrenom}
+                onChangeText={setEditPrenom}
+              />
+              <View style={styles.row}>
+                {NIVEAU_CHOICES.map((n) => (
+                  <Pressable
+                    key={n.value}
+                    style={[styles.chip, editNiveau === n.value && styles.chipSelected]}
+                    onPress={() => setEditNiveau(n.value)}
+                  >
+                    <Text style={[styles.chipText, editNiveau === n.value && styles.chipTextSelected]}>
+                      {n.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <Pressable style={[styles.button, { flex: 1 }]} onPress={saveEditProfil}>
+                  <Text style={styles.buttonText}>Enregistrer</Text>
+                </Pressable>
+                <Pressable style={[styles.button, { flex: 1, backgroundColor: colors.sand }]} onPress={() => setEditingProfilId(null)}>
+                  <Text style={[styles.buttonText, { color: colors.ink }]}>Annuler</Text>
+                </Pressable>
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                {p.photo_url ? (
+                  <Image source={{ uri: p.photo_url }} style={styles.avatarPhoto} />
+                ) : (
+                  <Text style={{ fontSize: 32 }}>{p.avatar_personnel ?? '🐾'}</Text>
+                )}
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.profilManageName}>{p.prenom}</Text>
+                  <Text style={styles.memoEmptyText}>
+                    Niveau {p.niveau_global ?? 0} · {NIVEAU_CHOICES.find((n) => n.value === p.niveau_defaut)?.label ?? ''}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.profilManageActions}>
+                <Pressable style={styles.profilActionBtn} onPress={() => startEditProfil(p)}>
+                  <Text style={styles.profilActionText}>✏️ Modifier</Text>
+                </Pressable>
+                <Pressable style={styles.profilActionBtn} onPress={() => adjustNiveauGlobal(p.id, -5)}>
+                  <Text style={styles.profilActionText}>⬅️ Reculer</Text>
+                </Pressable>
+                <Pressable style={styles.profilActionBtn} onPress={() => resetProgressionJeux(p.id)}>
+                  <Text style={styles.profilActionText}>🔄 Réinit. jeux</Text>
+                </Pressable>
+                <Pressable style={styles.profilActionBtn} onPress={() => deleteProfil(p.id, p.prenom)}>
+                  <Text style={[styles.profilActionText, { color: colors.error }]}>🗑️ Suppr.</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
+        </View>
+      ))}
 
       <View style={styles.rewardForm}>
         <Text style={styles.label}>Temps de jeu autorisé par jour</Text>
@@ -3936,7 +4094,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
           <Text style={styles.buttonText}>{saving ? 'Enregistrement…' : saved ? '✓ Enregistré' : 'Enregistrer'}</Text>
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -4075,16 +4233,16 @@ const styles = StyleSheet.create({
     overflow: 'hidden', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
   },
   paysMarker: {
-    position: 'absolute', width: 92, alignItems: 'center', backgroundColor: '#fff',
-    borderRadius: 14, paddingVertical: 6, paddingHorizontal: 4,
-    borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', marginLeft: -46,
+    position: 'absolute', width: 76, alignItems: 'center', backgroundColor: '#fff',
+    borderRadius: 12, paddingVertical: 4, paddingHorizontal: 2,
+    borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', marginLeft: -38, marginTop: -24,
   },
   paysMarkerLocked: { opacity: 0.6 },
-  paysMarkerIcon: { fontSize: 20 },
-  paysMarkerText: { fontSize: 10, fontWeight: '800', color: colors.ink, textAlign: 'center' },
-  paysMarkerLock: { position: 'absolute', top: -6, right: -6, fontSize: 12 },
+  paysMarkerIcon: { fontSize: 17 },
+  paysMarkerText: { fontSize: 9, fontWeight: '800', color: colors.ink, textAlign: 'center' },
+  paysMarkerLock: { position: 'absolute', top: -6, right: -6, fontSize: 11 },
   paysVide: {
-    position: 'absolute', width: 14, height: 14, borderRadius: 7, marginLeft: -7,
+    position: 'absolute', width: 12, height: 12, borderRadius: 6, marginLeft: -6, marginTop: -6,
     backgroundColor: 'rgba(255,255,255,0.5)', borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)',
     borderStyle: 'dashed',
   },
@@ -4213,6 +4371,23 @@ const styles = StyleSheet.create({
     borderTopColor: 'transparent', borderBottomColor: 'transparent', borderRightColor: VIVID.orangeDark,
   },
   characterRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  parentButtonSmall: {
+    position: 'absolute', top: 48, right: 20, zIndex: 10,
+    width: 40, height: 40, borderRadius: 20, backgroundColor: colors.mossDeep,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 4, elevation: 3,
+  },
+  parentButtonSmallText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  profilManageBox: {
+    backgroundColor: '#fff', borderRadius: 16, padding: 14, marginTop: 10,
+    borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)',
+  },
+  profilManageName: { fontWeight: '800', color: colors.ink, fontSize: 15 },
+  profilManageActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  profilActionBtn: {
+    backgroundColor: colors.cream, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 10,
+  },
+  profilActionText: { fontSize: 12, fontWeight: '700', color: colors.mossDeep },
   settingsButton: {
     backgroundColor: colors.mossDeep, borderRadius: 999, paddingVertical: 14,
     alignItems: 'center', marginTop: 18,
