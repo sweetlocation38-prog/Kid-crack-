@@ -1447,7 +1447,8 @@ const CONTINENTS = [
   {
     competence: 'lecture',
     zone: { left: 0.55, top: 0.03, width: 0.42, height: 0.57 },
-    paysSlots: [{ top: '87%', left: '64%' }, { top: '10%', left: '88%' }, { top: '64%', left: '38%' }, { top: '63%', left: '85%' }, { top: '66%', left: '15%' }, { top: '13%', left: '63%' }, { top: '34%', left: '37%' }, { top: '85%', left: '11%' }, { top: '34%', left: '64%' }, { top: '38%', left: '14%' }, { top: '84%', left: '37%' }, { top: '39%', left: '85%' }, { top: '16%', left: '37%' }, { top: '60%', left: '60%' }, { top: '12%', left: '13%' }],
+    paysSlotsFor: { 'pont_des_lettres': { top: '50%', left: '68%' }, 'sons_magiques': { top: '72%', left: '55%' } },
+    paysVides: [{ top: '20%', left: '30%' }, { top: '45%', left: '40%' }, { top: '80%', left: '45%' }],
     blobStyle: { borderTopLeftRadius: 120, borderTopRightRadius: 60, borderBottomLeftRadius: 40, borderBottomRightRadius: 140 }, rot: -3,
     nom: 'La Vallée des Mots',
     emoji: '🏞️',
@@ -1464,7 +1465,8 @@ const CONTINENTS = [
   {
     competence: 'maths',
     zone: { left: 0.41, top: 0.08, width: 0.17, height: 0.26 },
-    paysSlots: [{ top: '84%', left: '12%' }, { top: '34%', left: '37%' }, { top: '61%', left: '35%' }, { top: '64%', left: '12%' }, { top: '11%', left: '60%' }, { top: '38%', left: '86%' }, { top: '85%', left: '63%' }, { top: '35%', left: '15%' }, { top: '9%', left: '13%' }, { top: '9%', left: '88%' }, { top: '60%', left: '89%' }, { top: '91%', left: '89%' }, { top: '10%', left: '36%' }, { top: '39%', left: '62%' }, { top: '62%', left: '65%' }],
+    paysSlotsFor: { 'pommes_de_luma': { top: '58%', left: '32%' }, 'balance_prairie': { top: '45%', left: '38%' }, 'marche_village': { top: '35%', left: '35%' }, 'cachettes_luma': { top: '15%', left: '30%' } },
+    paysVides: [{ top: '65%', left: '25%' }, { top: '75%', left: '55%' }],
     blobStyle: { borderTopLeftRadius: 20, borderTopRightRadius: 110, borderBottomLeftRadius: 130, borderBottomRightRadius: 30 }, rot: 2,
     nom: 'La Montagne des Nombres',
     emoji: '🏔️',
@@ -1480,7 +1482,8 @@ const CONTINENTS = [
   {
     competence: 'logique',
     zone: { left: 0.2, top: 0.48, width: 0.22, height: 0.44 },
-    paysSlots: [{ top: '65%', left: '61%' }, { top: '62%', left: '38%' }, { top: '60%', left: '90%' }, { top: '91%', left: '89%' }, { top: '38%', left: '87%' }, { top: '91%', left: '61%' }, { top: '34%', left: '35%' }, { top: '11%', left: '89%' }, { top: '36%', left: '11%' }, { top: '62%', left: '15%' }, { top: '85%', left: '39%' }, { top: '90%', left: '11%' }, { top: '14%', left: '36%' }, { top: '12%', left: '14%' }, { top: '38%', left: '61%' }],
+    paysSlotsFor: { 'jeu_intrus': { top: '75%', left: '40%' }, 'empreintes_clairiere': { top: '20%', left: '30%' }, 'puzzle_moulin': { top: '45%', left: '55%' }, 'tri_village': { top: '45%', left: '28%' } },
+    paysVides: [{ top: '60%', left: '20%' }, { top: '85%', left: '45%' }],
     blobStyle: { borderTopLeftRadius: 90, borderTopRightRadius: 20, borderBottomLeftRadius: 100, borderBottomRightRadius: 90 }, rot: -5,
     nom: 'Les Volcans de la Logique',
     emoji: '🌋',
@@ -1496,7 +1499,8 @@ const CONTINENTS = [
   {
     competence: 'memoire',
     zone: { left: 0.24, top: 0.02, width: 0.16, height: 0.2 },
-    paysSlots: [{ top: '91%', left: '64%' }, { top: '36%', left: '62%' }, { top: '65%', left: '65%' }, { top: '11%', left: '11%' }, { top: '60%', left: '37%' }, { top: '88%', left: '11%' }, { top: '15%', left: '88%' }, { top: '62%', left: '13%' }, { top: '84%', left: '35%' }, { top: '91%', left: '85%' }, { top: '35%', left: '35%' }, { top: '36%', left: '15%' }, { top: '64%', left: '88%' }, { top: '14%', left: '35%' }, { top: '34%', left: '86%' }],
+    paysSlotsFor: { 'memoire_etoiles': { top: '45%', left: '35%' }, 'coffre_souvenirs': { top: '30%', left: '55%' }, 'ronde_lucioles': { top: '65%', left: '50%' } },
+    paysVides: [{ top: '20%', left: '25%' }, { top: '75%', left: '30%' }],
     blobStyle: { borderTopLeftRadius: 100, borderTopRightRadius: 100, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }, rot: 4,
     nom: 'La Banquise des Souvenirs',
     emoji: '❄️',
@@ -1512,7 +1516,8 @@ const CONTINENTS = [
   {
     competence: 'geographie',
     zone: { left: 0.76, top: 0.58, width: 0.22, height: 0.32 },
-    paysSlots: [{ top: '84%', left: '14%' }, { top: '11%', left: '38%' }, { top: '84%', left: '38%' }, { top: '62%', left: '89%' }, { top: '66%', left: '14%' }, { top: '34%', left: '88%' }, { top: '38%', left: '63%' }, { top: '64%', left: '63%' }, { top: '12%', left: '89%' }, { top: '64%', left: '37%' }, { top: '16%', left: '64%' }, { top: '87%', left: '61%' }, { top: '38%', left: '37%' }, { top: '15%', left: '15%' }, { top: '40%', left: '13%' }],
+    paysSlotsFor: { 'monde_capitales': { top: '60%', left: '35%' } },
+    paysVides: [{ top: '25%', left: '20%' }, { top: '50%', left: '15%' }, { top: '80%', left: '75%' }],
     blobStyle: { borderTopLeftRadius: 110, borderTopRightRadius: 130, borderBottomLeftRadius: 110, borderBottomRightRadius: 90 }, rot: -2,
     nom: "L'Océan du Monde",
     emoji: '🌊',
@@ -1528,7 +1533,8 @@ const CONTINENTS = [
   {
     competence: 'histoire',
     zone: { left: 0.41, top: 0.3, width: 0.21, height: 0.52 },
-    paysSlots: [{ top: '88%', left: '37%' }, { top: '34%', left: '90%' }, { top: '89%', left: '14%' }, { top: '88%', left: '88%' }, { top: '63%', left: '88%' }, { top: '14%', left: '39%' }, { top: '10%', left: '86%' }, { top: '40%', left: '60%' }, { top: '14%', left: '61%' }, { top: '12%', left: '11%' }, { top: '90%', left: '61%' }, { top: '65%', left: '62%' }, { top: '41%', left: '11%' }, { top: '35%', left: '37%' }, { top: '62%', left: '40%' }],
+    paysSlotsFor: { 'frise_temps': { top: '15%', left: '60%' } },
+    paysVides: [{ top: '40%', left: '30%' }, { top: '55%', left: '55%' }, { top: '65%', left: '80%' }, { top: '30%', left: '65%' }],
     blobStyle: { borderTopLeftRadius: 40, borderTopRightRadius: 140, borderBottomLeftRadius: 120, borderBottomRightRadius: 30 }, rot: 3,
     nom: 'La Savane du Temps',
     emoji: '🌾',
@@ -1544,7 +1550,8 @@ const CONTINENTS = [
   {
     competence: 'sciences',
     zone: { left: 0.02, top: 0.06, width: 0.32, height: 0.44 },
-    paysSlots: [{ top: '39%', left: '63%' }, { top: '90%', left: '37%' }, { top: '66%', left: '38%' }, { top: '35%', left: '14%' }, { top: '13%', left: '63%' }, { top: '15%', left: '15%' }, { top: '87%', left: '61%' }, { top: '65%', left: '13%' }, { top: '65%', left: '88%' }, { top: '85%', left: '12%' }, { top: '10%', left: '36%' }, { top: '12%', left: '85%' }, { top: '90%', left: '85%' }, { top: '36%', left: '39%' }, { top: '34%', left: '86%' }],
+    paysSlotsFor: { 'corps_humain': { top: '55%', left: '45%' } },
+    paysVides: [{ top: '25%', left: '25%' }, { top: '65%', left: '20%' }, { top: '40%', left: '75%' }],
     blobStyle: { borderTopLeftRadius: 130, borderTopRightRadius: 30, borderBottomLeftRadius: 30, borderBottomRightRadius: 120 }, rot: -4,
     nom: 'La Forêt Vivante',
     emoji: '🌳',
@@ -1780,13 +1787,9 @@ function ContinentScreen({ route, navigation }) {
         {continent.decor.map((d, i) => (
           <DriftingDecor key={`decor-${i}`} {...d} size={(d.size ?? 22) + 6} />
         ))}
-        {continent.paysSlots.map((slot, i) => {
-          const item = miniJeux[i];
-          if (!item) {
-            return (
-              <View key={`slot-${i}`} style={[styles.paysVide, { top: slot.top, left: slot.left }]} />
-            );
-          }
+        {miniJeux.map((item) => {
+          const slot = continent.paysSlotsFor[item.code];
+          if (!slot) return null; // position pas encore definie pour ce jeu
           const targetScreen = GAME_SCREENS[item.code];
           return (
             <Pressable
@@ -1808,6 +1811,9 @@ function ContinentScreen({ route, navigation }) {
             </Pressable>
           );
         })}
+        {continent.paysVides.map((slot, i) => (
+          <View key={`vide-${i}`} style={[styles.paysVide, { top: slot.top, left: slot.left }]} />
+        ))}
       </View>
       <Text style={styles.mapCredit}>Carte : macrovector / Freepik</Text>
 
