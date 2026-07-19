@@ -1,0 +1,44 @@
+name: Build Android APK (gratuit, sans EAS)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Installer les dépendances du projet
+        run: npm install --legacy-peer-deps
+
+      - name: Générer le projet Android natif (expo prebuild)
+        run: npx expo prebuild --platform android --non-interactive
+
+      - name: Compiler l'APK (debug, installable directement)
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Mettre l'APK à disposition au téléchargement
+        uses: actions/upload-artifact@v4
+        with:
+          name: kid-crack-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
