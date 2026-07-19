@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '19/07/2026 - Deblocage parental partage entre tous les ecrans (bug corrige)';
+const APP_BUILD_VERSION = '19/07/2026 - Etiquettes continents, positions respacees, jauge de progression parentale';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1439,6 +1439,16 @@ const GAME_SCREENS = {
   puzzle_moulin: 'PuzzleMoulin',
 };
 
+// Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
+// jauge de 0 a 10 fidele a l'avancement reel de l'enfant sur CE jeu precis.
+const GAME_MAX_RUNG_15 = new Set([
+  'monde_capitales', 'jeu_intrus', 'empreintes_clairiere', 'balance_prairie',
+  'marche_village', 'cachettes_luma', 'ronde_lucioles', 'tri_village', 'puzzle_moulin',
+]);
+function maxRungForGame(code) {
+  return GAME_MAX_RUNG_15.has(code) ? rungFromGradeAndPalier('ce2', 3) : MAX_CONTENT_RUNG;
+}
+
 // ============================================================
 // Les 7 continents — un univers thematique par competence, pour
 // naviguer en 2 clics : continent, puis jeu (pays).
@@ -1446,9 +1456,10 @@ const GAME_SCREENS = {
 const CONTINENTS = [
   {
     competence: 'lecture',
+    labelCourt: 'Lecture',
     zone: { left: 0.55, top: 0.03, width: 0.42, height: 0.57 },
     paysSlotsFor: { 'pont_des_lettres': { top: '50%', left: '68%' }, 'sons_magiques': { top: '72%', left: '55%' } },
-    paysVides: [{ top: '20%', left: '30%' }, { top: '45%', left: '40%' }, { top: '80%', left: '45%' }],
+    paysVides: [{ top: '20%', left: '25%' }, { top: '45%', left: '35%' }, { top: '85%', left: '30%' }],
     blobStyle: { borderTopLeftRadius: 120, borderTopRightRadius: 60, borderBottomLeftRadius: 40, borderBottomRightRadius: 140 }, rot: -3,
     nom: 'La Vallée des Mots',
     emoji: '🏞️',
@@ -1464,9 +1475,10 @@ const CONTINENTS = [
   },
   {
     competence: 'maths',
+    labelCourt: 'Maths',
     zone: { left: 0.41, top: 0.08, width: 0.17, height: 0.26 },
-    paysSlotsFor: { 'pommes_de_luma': { top: '58%', left: '32%' }, 'balance_prairie': { top: '45%', left: '38%' }, 'marche_village': { top: '35%', left: '35%' }, 'cachettes_luma': { top: '15%', left: '30%' } },
-    paysVides: [{ top: '65%', left: '25%' }, { top: '75%', left: '55%' }],
+    paysSlotsFor: { 'pommes_de_luma': { top: '60%', left: '55%' }, 'balance_prairie': { top: '20%', left: '50%' }, 'marche_village': { top: '75%', left: '20%' }, 'cachettes_luma': { top: '15%', left: '15%' } },
+    paysVides: [{ top: '45%', left: '75%' }, { top: '85%', left: '55%' }],
     blobStyle: { borderTopLeftRadius: 20, borderTopRightRadius: 110, borderBottomLeftRadius: 130, borderBottomRightRadius: 30 }, rot: 2,
     nom: 'La Montagne des Nombres',
     emoji: '🏔️',
@@ -1481,9 +1493,10 @@ const CONTINENTS = [
   },
   {
     competence: 'logique',
+    labelCourt: 'Logique',
     zone: { left: 0.2, top: 0.48, width: 0.22, height: 0.44 },
-    paysSlotsFor: { 'jeu_intrus': { top: '75%', left: '40%' }, 'empreintes_clairiere': { top: '20%', left: '30%' }, 'puzzle_moulin': { top: '45%', left: '55%' }, 'tri_village': { top: '45%', left: '28%' } },
-    paysVides: [{ top: '60%', left: '20%' }, { top: '85%', left: '45%' }],
+    paysSlotsFor: { 'jeu_intrus': { top: '85%', left: '45%' }, 'empreintes_clairiere': { top: '10%', left: '25%' }, 'puzzle_moulin': { top: '35%', left: '70%' }, 'tri_village': { top: '45%', left: '15%' } },
+    paysVides: [{ top: '70%', left: '15%' }, { top: '20%', left: '50%' }],
     blobStyle: { borderTopLeftRadius: 90, borderTopRightRadius: 20, borderBottomLeftRadius: 100, borderBottomRightRadius: 90 }, rot: -5,
     nom: 'Les Volcans de la Logique',
     emoji: '🌋',
@@ -1498,6 +1511,7 @@ const CONTINENTS = [
   },
   {
     competence: 'memoire',
+    labelCourt: 'Mémoire',
     zone: { left: 0.24, top: 0.02, width: 0.16, height: 0.2 },
     paysSlotsFor: { 'memoire_etoiles': { top: '45%', left: '35%' }, 'coffre_souvenirs': { top: '30%', left: '55%' }, 'ronde_lucioles': { top: '65%', left: '50%' } },
     paysVides: [{ top: '20%', left: '25%' }, { top: '75%', left: '30%' }],
@@ -1515,6 +1529,7 @@ const CONTINENTS = [
   },
   {
     competence: 'geographie',
+    labelCourt: 'Géographie',
     zone: { left: 0.76, top: 0.58, width: 0.22, height: 0.32 },
     paysSlotsFor: { 'monde_capitales': { top: '60%', left: '35%' } },
     paysVides: [{ top: '25%', left: '20%' }, { top: '50%', left: '15%' }, { top: '80%', left: '75%' }],
@@ -1532,9 +1547,10 @@ const CONTINENTS = [
   },
   {
     competence: 'histoire',
+    labelCourt: 'Histoire',
     zone: { left: 0.41, top: 0.3, width: 0.21, height: 0.52 },
     paysSlotsFor: { 'frise_temps': { top: '15%', left: '60%' } },
-    paysVides: [{ top: '40%', left: '30%' }, { top: '55%', left: '55%' }, { top: '65%', left: '80%' }, { top: '30%', left: '65%' }],
+    paysVides: [{ top: '40%', left: '30%' }, { top: '55%', left: '55%' }, { top: '65%', left: '80%' }, { top: '35%', left: '80%' }],
     blobStyle: { borderTopLeftRadius: 40, borderTopRightRadius: 140, borderBottomLeftRadius: 120, borderBottomRightRadius: 30 }, rot: 3,
     nom: 'La Savane du Temps',
     emoji: '🌾',
@@ -1549,6 +1565,7 @@ const CONTINENTS = [
   },
   {
     competence: 'sciences',
+    labelCourt: 'Sciences',
     zone: { left: 0.02, top: 0.06, width: 0.32, height: 0.44 },
     paysSlotsFor: { 'corps_humain': { top: '55%', left: '45%' } },
     paysVides: [{ top: '25%', left: '25%' }, { top: '65%', left: '20%' }, { top: '40%', left: '75%' }],
@@ -1703,6 +1720,7 @@ function WorldMapScreen({ route, navigation }) {
                 onPress={() => handleContinentPress(item.competence)}
               >
                 <Text style={styles.continentPinEmoji}>{item.emoji}</Text>
+                <Text style={styles.continentPinLabel} numberOfLines={1}>{item.labelCourt}</Text>
               </Pressable>
             );
           })}
@@ -3808,6 +3826,8 @@ function ReglagesParentauxScreen({ route, navigation }) {
   const [editingProfilId, setEditingProfilId] = useState(null);
   const [editPrenom, setEditPrenom] = useState('');
   const [editNiveau, setEditNiveau] = useState('gs');
+  const [progressionOuverte, setProgressionOuverte] = useState(null);
+  const [progressionParProfil, setProgressionParProfil] = useState({});
 
   async function loadMemos() {
     const { data } = await supabase.from('memos_vocaux').select('*').eq('famille_id', familleId);
@@ -3899,6 +3919,32 @@ function ReglagesParentauxScreen({ route, navigation }) {
         },
       ]
     );
+  }
+
+  async function toggleProgression(profilId) {
+    if (progressionOuverte === profilId) {
+      setProgressionOuverte(null);
+      return;
+    }
+    setProgressionOuverte(profilId);
+    if (!progressionParProfil[profilId]) {
+      const [{ data: progRows }, { data: jeux }] = await Promise.all([
+        supabase.from('progression').select('mini_jeu_id, palier_actuel').eq('profil_id', profilId),
+        supabase.from('mini_jeux').select('id, code, nom').order('nom'),
+      ]);
+      const jeuxById = Object.fromEntries((jeux ?? []).map((j) => [j.id, j]));
+      const lignes = (progRows ?? [])
+        .map((r) => {
+          const jeu = jeuxById[r.mini_jeu_id];
+          if (!jeu) return null;
+          const max = maxRungForGame(jeu.code);
+          const note = Math.max(0, Math.min(10, Math.round((r.palier_actuel / max) * 10)));
+          return { code: jeu.code, nom: jeu.nom, icon: GAME_ICONS[jeu.code] ?? '🎲', note };
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.nom.localeCompare(b.nom));
+      setProgressionParProfil((prev) => ({ ...prev, [profilId]: lignes }));
+    }
   }
 
   function deleteProfil(profilId, prenom) {
@@ -4046,10 +4092,44 @@ function ReglagesParentauxScreen({ route, navigation }) {
                 <Pressable style={styles.profilActionBtn} onPress={() => resetProgressionJeux(p.id)}>
                   <Text style={styles.profilActionText}>🔄 Réinit. jeux</Text>
                 </Pressable>
+                <Pressable style={styles.profilActionBtn} onPress={() => toggleProgression(p.id)}>
+                  <Text style={styles.profilActionText}>
+                    {progressionOuverte === p.id ? '📊 Masquer' : '📊 Progression'}
+                  </Text>
+                </Pressable>
                 <Pressable style={styles.profilActionBtn} onPress={() => deleteProfil(p.id, p.prenom)}>
                   <Text style={[styles.profilActionText, { color: colors.error }]}>🗑️ Suppr.</Text>
                 </Pressable>
               </View>
+
+              {progressionOuverte === p.id && (
+                <View style={styles.progressionPanel}>
+                  {!progressionParProfil[p.id] ? (
+                    <ActivityIndicator color={colors.mossDeep} />
+                  ) : progressionParProfil[p.id].length === 0 ? (
+                    <Text style={styles.memoEmptyText}>Ce profil n'a encore joué à aucun jeu.</Text>
+                  ) : (
+                    progressionParProfil[p.id].map((ligne) => (
+                      <View key={ligne.code} style={styles.progressionRow}>
+                        <Text style={styles.progressionIcon}>{ligne.icon}</Text>
+                        <Text style={styles.progressionNom} numberOfLines={1}>{ligne.nom}</Text>
+                        <View style={styles.progressionGauge}>
+                          {Array.from({ length: 10 }).map((_, i) => (
+                            <View
+                              key={i}
+                              style={[
+                                styles.progressionSegment,
+                                i < ligne.note && styles.progressionSegmentFull,
+                              ]}
+                            />
+                          ))}
+                        </View>
+                        <Text style={styles.progressionNote}>{ligne.note}/10</Text>
+                      </View>
+                    ))
+                  )}
+                </View>
+              )}
             </>
           )}
         </View>
@@ -4299,13 +4379,14 @@ const styles = StyleSheet.create({
   },
   worldMapImage: { width: '100%', height: '100%' },
   continentPin: {
-    position: 'absolute', width: 58, height: 58, marginLeft: -29, marginTop: -29,
-    alignItems: 'center', justifyContent: 'center', borderRadius: 29,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    position: 'absolute', width: 78, marginLeft: -39, marginTop: -30,
+    alignItems: 'center', justifyContent: 'center', borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.95)', paddingVertical: 5, paddingHorizontal: 4,
     borderWidth: 2, borderColor: 'rgba(0,0,0,0.15)',
     shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, elevation: 4,
   },
-  continentPinEmoji: { fontSize: 30 },
+  continentPinEmoji: { fontSize: 24 },
+  continentPinLabel: { fontSize: 11, fontWeight: '800', color: colors.ink, textAlign: 'center', marginTop: 1 },
   continentPinText: { fontSize: 10, fontWeight: '800', color: colors.ink, textAlign: 'center' },
   paysMarker: {
     position: 'absolute', width: 76, alignItems: 'center', backgroundColor: '#fff',
@@ -4464,6 +4545,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cream, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 10,
   },
   profilActionText: { fontSize: 12, fontWeight: '700', color: colors.mossDeep },
+  progressionPanel: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,0.08)' },
+  progressionRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
+  progressionIcon: { fontSize: 16, width: 20 },
+  progressionNom: { fontSize: 12, color: colors.ink, width: 88 },
+  progressionGauge: { flexDirection: 'row', gap: 2, flex: 1 },
+  progressionSegment: { flex: 1, height: 10, borderRadius: 3, backgroundColor: colors.sand },
+  progressionSegmentFull: { backgroundColor: colors.mossSoft },
+  progressionNote: { fontSize: 11, fontWeight: '800', color: colors.mossDeep, width: 30, textAlign: 'right' },
   settingsButton: {
     backgroundColor: colors.mossDeep, borderRadius: 999, paddingVertical: 14,
     alignItems: 'center', marginTop: 18,
