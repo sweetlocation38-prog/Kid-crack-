@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '19/07/2026 - Temps de jeu reglable par enfant, defilement des reglages corrige';
+const APP_BUILD_VERSION = '19/07/2026 - v3 - Jauge de temps par enfant en haut de Gerer les profils';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
