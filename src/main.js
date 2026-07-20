@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '19/07/2026 - v3 - Jauge de temps par enfant en haut de Gerer les profils';
+const APP_BUILD_VERSION = '20/07/2026 - Frise du Temps + Corps Humain actives, 7 jeux etendus au CM2, empreinte sans schema, photo a 3 choix';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -194,6 +194,9 @@ async function pickImageFromCamera() {
 }
 
 // Ouvre le choix galerie / appareil photo, renvoie l'uri locale choisie (ou null).
+// Renvoie soit une uri de photo locale, soit le mot-cle special
+// '__AVATAR__' (l'appelant doit alors laisser choisir un avatar du jeu),
+// soit null si annule.
 function choosePhotoSource() {
   return new Promise((resolve) => {
     Alert.alert(
@@ -202,6 +205,7 @@ function choosePhotoSource() {
       [
         { text: '🖼️ Galerie', onPress: async () => resolve(await pickImageFromLibrary()) },
         { text: '📷 Appareil photo', onPress: async () => resolve(await pickImageFromCamera()) },
+        { text: '🎭 Avatar du jeu', onPress: () => resolve('__AVATAR__') },
         { text: 'Annuler', style: 'cancel', onPress: () => resolve(null) },
       ],
       { cancelable: true, onDismiss: () => resolve(null) }
@@ -906,6 +910,37 @@ const NIVEAU_CHOICES = [
 
 const AVATAR_CHOICES = ['🦓', '🐼', '🦒', '🐨', '🐯', '🐘', '🦔', '🦋', '🦜', '🐻', '🦘', '🐢'];
 
+// Petite fenetre pour choisir un avatar du jeu (utilisee a la creation
+// et pour changer la photo d'un profil existant).
+function AvatarPickerModal({ visible, onClose, onPick }) {
+  return (
+    <Modal visible={visible} animationType="fade" transparent>
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalCard}>
+          <Text style={styles.modalTitle}>Choisir un avatar</Text>
+          <View style={styles.avatarGrid}>
+            {AVATAR_CHOICES.map((a) => (
+              <Pressable
+                key={a}
+                style={styles.avatarTile}
+                onPress={() => {
+                  onPick(a);
+                  onClose();
+                }}
+              >
+                <Text style={{ fontSize: 22 }}>{a}</Text>
+              </Pressable>
+            ))}
+          </View>
+          <Pressable onPress={onClose}>
+            <Text style={styles.cancelText}>Annuler</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 // ============================================================
 // Écran : Auth (parent)
 // ============================================================
@@ -1009,6 +1044,7 @@ function ProfileSelectScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [familleId, setFamilleId] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [avatarPickerFor, setAvatarPickerFor] = useState(null);
 
   const loadProfils = useCallback(async () => {
     setLoading(true);
@@ -1050,13 +1086,25 @@ function ProfileSelectScreen({ navigation }) {
   }, [navigation, loadProfils]);
 
   async function handleEditPhoto(profilId) {
-    const uri = await choosePhotoSource();
-    if (!uri) return;
-    const url = await uploadFileToStorage('profil-photos', `${profilId}.jpg`, uri, 'image/jpeg');
+    const choix = await choosePhotoSource();
+    if (!choix) return;
+    if (choix === '__AVATAR__') {
+      setAvatarPickerFor(profilId);
+      return;
+    }
+    const url = await uploadFileToStorage('profil-photos', `${profilId}.jpg`, choix, 'image/jpeg');
     if (url) {
       await supabase.from('profils_enfants').update({ photo_url: url }).eq('id', profilId);
       loadProfils();
     }
+  }
+
+  async function handlePickAvatar(profilId, emoji) {
+    await supabase
+      .from('profils_enfants')
+      .update({ avatar_personnel: emoji, photo_url: null })
+      .eq('id', profilId);
+    loadProfils();
   }
 
   if (loading) {
@@ -1137,6 +1185,12 @@ function ProfileSelectScreen({ navigation }) {
           loadProfils();
         }}
       />
+
+      <AvatarPickerModal
+        visible={avatarPickerFor != null}
+        onClose={() => setAvatarPickerFor(null)}
+        onPick={(emoji) => handlePickAvatar(avatarPickerFor, emoji)}
+      />
     </View>
   );
 }
@@ -1178,6 +1232,7 @@ function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Confirme que tu es un parent',
         cancelLabel: 'Annuler',
+        disableDeviceFallback: true, // jamais le schema/code de deverrouillage du telephone
       });
       if (result.success) {
         setStep('temps');
@@ -1303,8 +1358,13 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
   const [saving, setSaving] = useState(false);
 
   async function handleChoosePhoto() {
-    const uri = await choosePhotoSource();
-    if (uri) setPhotoUri(uri);
+    const choix = await choosePhotoSource();
+    if (!choix) return;
+    if (choix === '__AVATAR__') {
+      setPhotoUri(null); // laisse la grille d'avatars juste en dessous decider
+      return;
+    }
+    setPhotoUri(choix);
   }
 
   async function handleCreate() {
@@ -1441,6 +1501,8 @@ const GAME_SCREENS = {
   ronde_lucioles: 'RondeLucioles',
   tri_village: 'TriVillage',
   puzzle_moulin: 'PuzzleMoulin',
+  frise_temps: 'FriseTemps',
+  corps_humain: 'CorpsHumain',
 };
 
 // Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
@@ -2830,7 +2892,7 @@ function MondeCapitalesScreen({ route, navigation }) {
       Character={Noisette}
       jeuTitre="🌍 Le Monde en Capitales"
       buildPrompt={buildGeoPrompt}
-      maxRung={rungFromGradeAndPalier('ce2', 3)}
+      maxRung={MAX_CONTENT_RUNG}
     />
   );
 }
@@ -2857,7 +2919,7 @@ function JeuIntrusScreen({ route, navigation }) {
       Character={Noisette}
       jeuTitre="🔍 Le Jeu des Intrus"
       buildPrompt={buildIntrusPrompt}
-      maxRung={rungFromGradeAndPalier('ce2', 3)}
+      maxRung={MAX_CONTENT_RUNG}
     />
   );
 }
@@ -2885,7 +2947,7 @@ function EmpreintesClairiereScreen({ route, navigation }) {
       Character={Luma}
       jeuTitre="🐾 Les Empreintes de la Clairière"
       buildPrompt={buildSuitePrompt}
-      maxRung={rungFromGradeAndPalier('ce2', 3)}
+      maxRung={MAX_CONTENT_RUNG}
     />
   );
 }
@@ -2913,7 +2975,7 @@ function BalancePrairieScreen({ route, navigation }) {
       Character={Luma}
       jeuTitre="⚖️ La Balance de la Prairie"
       buildPrompt={buildEquilibrePrompt}
-      maxRung={rungFromGradeAndPalier('ce2', 3)}
+      maxRung={MAX_CONTENT_RUNG}
     />
   );
 }
@@ -2941,7 +3003,7 @@ function MarcheVillageScreen({ route, navigation }) {
       Character={Noisette}
       jeuTitre="💰 Le Marché du Village"
       buildPrompt={buildMonnaiePrompt}
-      maxRung={rungFromGradeAndPalier('ce2', 3)}
+      maxRung={MAX_CONTENT_RUNG}
     />
   );
 }
@@ -2972,6 +3034,33 @@ function CachettesLumaScreen({ route, navigation }) {
       Character={Luma}
       jeuTitre="🗺️ Les Cachettes de Luma"
       buildPrompt={buildGrillePrompt}
+      maxRung={MAX_CONTENT_RUNG}
+    />
+  );
+}
+
+// ============================================================
+// Le Corps Humain — sciences (questions sur le corps humain)
+// ============================================================
+function buildCorpsHumainPrompt(d) {
+  return {
+    promptText: d.question,
+    speak: d.question,
+    mandatorySpeak: false,
+    options: d.options,
+    correct: d.reponse,
+  };
+}
+
+function CorpsHumainScreen({ route, navigation }) {
+  return (
+    <ChoiceGameScreen
+      route={route}
+      navigation={navigation}
+      jeuCode="corps_humain"
+      Character={Maestro}
+      jeuTitre="🫀 Le Corps Humain"
+      buildPrompt={buildCorpsHumainPrompt}
       maxRung={rungFromGradeAndPalier('ce2', 3)}
     />
   );
@@ -2999,7 +3088,7 @@ function RondeLuciolesScreen({ route, navigation }) {
       Character={Maestro}
       jeuTitre="🎧 La Ronde des Lucioles"
       buildPrompt={buildLuciolesPrompt}
-      maxRung={rungFromGradeAndPalier('ce2', 3)}
+      maxRung={MAX_CONTENT_RUNG}
     />
   );
 }
@@ -3317,6 +3406,161 @@ function PuzzleMoulinScreen({ route, navigation }) {
   );
 }
 
+// ============================================================
+// La Frise du Temps — histoire : toucher des evenements dans le
+// bon ordre chronologique. Nouvelle mecanique (basee sur de vraies
+// dates plutot que des numeros arbitraires).
+// ============================================================
+function FriseTempsScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const [loading, setLoading] = useState(true);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [evenements, setEvenements] = useState([]);
+  const [correctOrder, setCorrectOrder] = useState([]);
+  const [nextExpectedIndex, setNextExpectedIndex] = useState(0);
+  const [wrongFlash, setWrongFlash] = useState(null);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const errorsTotal = useRef(0);
+  const startedAt = useRef(Date.now());
+  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'frise_temps').single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      const startRung = Math.min(rawStart, gameMaxRung);
+      setRung(startRung);
+      const { niveau, palier } = gradeAndPalierFromRung(startRung);
+
+      const { data: rows } = await supabase
+        .from('contenu_mini_jeu')
+        .select('donnees')
+        .eq('mini_jeu_id', jeu.id)
+        .eq('niveau', niveau)
+        .eq('palier', palier)
+        .eq('actif', true);
+
+      const pool = rows ?? [];
+      const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
+      const evts = pick?.donnees?.evenements ?? [];
+      const sorted = [...evts].sort((a, b) => a.annee - b.annee).map((e) => e.nom);
+      setCorrectOrder(sorted);
+      setEvenements(shuffle(evts));
+      speakSmart("Touche les événements dans l'ordre, du plus ancien au plus récent !");
+      setLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  async function finishSession() {
+    if (!miniJeuId) return;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: evenements.length,
+      startedAt: startedAt.current,
+      maxRung: gameMaxRung,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function onEventPress(nom) {
+    if (nom === correctOrder[nextExpectedIndex]) {
+      const isLast = nextExpectedIndex === correctOrder.length - 1;
+      setNextExpectedIndex((i) => i + 1);
+      if (isLast) setTimeout(finishSession, 500);
+    } else {
+      errorsTotal.current += 1;
+      setWrongFlash(nom);
+      setTimeout(() => setWrongFlash(null), 400);
+    }
+  }
+
+  if (sessionDone) {
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+  }
+
+  if (loading || evenements.length === 0) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  const progress = Math.min(nextExpectedIndex, correctOrder.length);
+
+  return (
+    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>📜 La Frise du Temps</Text>
+        <Text style={styles.roundLabel}>{progress}/{correctOrder.length}</Text>
+      </View>
+
+      <View style={styles.gameCharacter}>
+        <BouncingWrap><Noisette size={44} /></BouncingWrap>
+      </View>
+
+      <View style={styles.promptZone}>
+        <Text style={styles.promptText}>Touche les événements du plus ancien au plus récent !</Text>
+        <Pressable
+          style={styles.listenButton}
+          onPress={() => speakSmart("Touche les événements dans l'ordre, du plus ancien au plus récent !")}
+        >
+          <Text style={styles.listenText}>🎤 Écouter</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.friseTrack}>
+        {Array.from({ length: correctOrder.length }).map((_, i) => (
+          <View key={i} style={[styles.friseDot, i < nextExpectedIndex && styles.friseDotDone]} />
+        ))}
+      </View>
+
+      <View style={styles.friseGrid}>
+        {evenements.map((evt) => {
+          const doneIndex = correctOrder.indexOf(evt.nom);
+          const done = doneIndex !== -1 && doneIndex < nextExpectedIndex;
+          return (
+            <Pressable
+              key={evt.nom}
+              style={[
+                styles.friseEvent,
+                done && styles.friseEventDone,
+                wrongFlash === evt.nom && styles.friseEventWrong,
+              ]}
+              disabled={done}
+              onPress={() => onEventPress(evt.nom)}
+            >
+              <Text style={styles.friseEventIcon}>{evt.icon}</Text>
+              <Text style={styles.friseEventText} numberOfLines={2} adjustsFontSizeToFit>
+                {evt.nom}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </ScrollView>
+  );
+}
 
 
 function PommesDeLumaScreen({ route, navigation }) {
@@ -4334,6 +4578,8 @@ export default function RootNavigator() {
             <Stack.Screen name="RondeLucioles" component={RondeLuciolesScreen} />
             <Stack.Screen name="TriVillage" component={TriVillageScreen} />
             <Stack.Screen name="PuzzleMoulin" component={PuzzleMoulinScreen} />
+            <Stack.Screen name="FriseTemps" component={FriseTempsScreen} />
+            <Stack.Screen name="CorpsHumain" component={CorpsHumainScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
@@ -4542,6 +4788,19 @@ const styles = StyleSheet.create({
   puzzlePieceDone: { backgroundColor: colors.success, borderColor: colors.success },
   puzzlePieceWrong: { backgroundColor: colors.error, borderColor: colors.error },
   puzzlePieceText: { fontSize: 20, fontWeight: '800', color: '#fff' },
+  friseTrack: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginVertical: 8 },
+  friseDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.sand },
+  friseDotDone: { backgroundColor: colors.mossSoft },
+  friseGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginTop: 10 },
+  friseEvent: {
+    width: 96, minHeight: 88, borderRadius: 16, backgroundColor: colors.mossDeep,
+    alignItems: 'center', justifyContent: 'center', padding: 8, gap: 4,
+    borderWidth: 3, borderColor: colors.mossDeep,
+  },
+  friseEventDone: { backgroundColor: colors.success, borderColor: colors.success },
+  friseEventWrong: { backgroundColor: colors.error, borderColor: colors.error },
+  friseEventIcon: { fontSize: 26 },
+  friseEventText: { fontSize: 11, fontWeight: '700', color: '#fff', textAlign: 'center' },
   optionButton: { minWidth: 76, height: 56, paddingHorizontal: 14, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexShrink: 1, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)' },
   optionCorrect: { backgroundColor: colors.success, borderColor: colors.success },
   optionWrong: { backgroundColor: colors.error, borderColor: colors.error },
