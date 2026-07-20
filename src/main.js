@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '19/07/2026 - Etiquettes continents, positions respacees, jauge de progression parentale';
+const APP_BUILD_VERSION = '19/07/2026 - Corrige le bouton Enregistrer trop eloigne de la jauge de temps (bug de sauvegarde)';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -3816,6 +3816,8 @@ function ReglagesParentauxScreen({ route, navigation }) {
   const [pin, setPin] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [savingMemos, setSavingMemos] = useState(false);
+  const [savedMemos, setSavedMemos] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [showGate, setShowGate] = useState(false);
   const [existingPin, setExistingPin] = useState(null);
@@ -3969,7 +3971,9 @@ function ReglagesParentauxScreen({ route, navigation }) {
     );
   }
 
-  async function handleSave() {
+  // Sauvegarde du temps de jeu et du code parent : bouton juste en dessous,
+  // pour ne jamais avoir a defiler jusqu'en bas de l'ecran pour l'enregistrer.
+  async function handleSaveTemps() {
     setSaving(true);
     setSaved(false);
     await supabase
@@ -3977,12 +3981,25 @@ function ReglagesParentauxScreen({ route, navigation }) {
       .update({
         minutes_max_jour: minutesMaxJour,
         code_validation: pin.trim() || null,
-        frequence_memos: frequenceMemos,
       })
       .eq('famille_id', familleId);
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  // Sauvegarde separee pour la frequence des memos vocaux (section eloignee
+  // du temps de jeu, autant lui laisser son propre bouton immediat).
+  async function handleSaveMemosFrequence() {
+    setSavingMemos(true);
+    setSavedMemos(false);
+    await supabase
+      .from('parametres_parentaux')
+      .update({ frequence_memos: frequenceMemos })
+      .eq('famille_id', familleId);
+    setSavingMemos(false);
+    setSavedMemos(true);
+    setTimeout(() => setSavedMemos(false), 2000);
   }
 
   async function handleAddMemo(categorie) {
@@ -4171,6 +4188,12 @@ function ReglagesParentauxScreen({ route, navigation }) {
           onChangeText={setPin}
         />
 
+        <Pressable style={[styles.button, { opacity: saving ? 0.5 : 1, marginTop: 8 }]} onPress={handleSaveTemps} disabled={saving}>
+          <Text style={styles.buttonText}>
+            {saving ? 'Enregistrement…' : saved ? '✓ Temps et code enregistrés' : 'Enregistrer le temps et le code'}
+          </Text>
+        </Pressable>
+
         <Text style={[styles.label, { marginTop: 24 }]}>🎙️ Mémos vocaux</Text>
         <Text style={styles.helperText}>
           Attachez des fichiers audio déjà enregistrés (avec le dictaphone du téléphone,
@@ -4192,6 +4215,15 @@ function ReglagesParentauxScreen({ route, navigation }) {
             </Pressable>
           ))}
         </View>
+        <Pressable
+          style={[styles.button, { opacity: savingMemos ? 0.5 : 1, backgroundColor: colors.sand, marginBottom: 8 }]}
+          onPress={handleSaveMemosFrequence}
+          disabled={savingMemos}
+        >
+          <Text style={[styles.buttonText, { color: colors.ink }]}>
+            {savingMemos ? 'Enregistrement…' : savedMemos ? '✓ Fréquence enregistrée' : 'Enregistrer la fréquence'}
+          </Text>
+        </Pressable>
 
         {MEMO_CATEGORIES.map((cat) => (
           <View key={cat.key} style={styles.memoCategoryBox}>
@@ -4224,10 +4256,6 @@ function ReglagesParentauxScreen({ route, navigation }) {
             </Pressable>
           </View>
         ))}
-
-        <Pressable style={[styles.button, { opacity: saving ? 0.5 : 1, marginTop: 16 }]} onPress={handleSave} disabled={saving}>
-          <Text style={styles.buttonText}>{saving ? 'Enregistrement…' : saved ? '✓ Enregistré' : 'Enregistrer'}</Text>
-        </Pressable>
       </View>
     </ScrollView>
   );
