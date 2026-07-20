@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '19/07/2026 - Corrige le bouton Enregistrer trop eloigne de la jauge de temps (bug de sauvegarde)';
+const APP_BUILD_VERSION = '19/07/2026 - Temps de jeu reglable par enfant, defilement des reglages corrige';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -590,11 +590,15 @@ function useTimeBudget(profil, reloadKey) {
 
   useEffect(() => {
     (async () => {
-      const [parametres, seconds] = await Promise.all([
+      // Le temps de jeu est propre a CHAQUE enfant (pas partage entre les
+      // profils) : on relit toujours la valeur la plus fraiche du profil.
+      const [parametres, profilFrais, seconds] = await Promise.all([
         getParametresParentaux(profil.famille_id),
+        supabase.from('profils_enfants').select('minutes_max_jour').eq('id', profil.id).maybeSingle(),
         getTodayPlaySeconds(profil.id),
       ]);
-      const total = (parametres?.minutes_max_jour ?? 30) * 60;
+      const minutes = profilFrais?.data?.minutes_max_jour ?? profil.minutes_max_jour ?? 30;
+      const total = minutes * 60;
       setTotalAllowed(total);
       setBaseRemaining(Math.max(0, total - seconds));
       setExpectedPin(parametres?.code_validation ?? null);
@@ -1666,7 +1670,7 @@ function WorldMapScreen({ route, navigation }) {
   })).filter((c) => c.jeux.length > 0);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Pressable onPress={() => navigation.goBack()}>
         <Text style={styles.backLabel}>‹ Changer de joueur</Text>
       </Pressable>
@@ -3812,7 +3816,6 @@ const FREQUENCE_CHOICES = [
 function ReglagesParentauxScreen({ route, navigation }) {
   const { familleId } = route.params;
   const [loading, setLoading] = useState(true);
-  const [minutesMaxJour, setMinutesMaxJour] = useState(30);
   const [pin, setPin] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -3850,7 +3853,6 @@ function ReglagesParentauxScreen({ route, navigation }) {
   useEffect(() => {
     (async () => {
       const parametres = await getParametresParentaux(familleId);
-      setMinutesMaxJour(parametres?.minutes_max_jour ?? 30);
       setPin(parametres?.code_validation ?? '');
       setExistingPin(parametres?.code_validation ?? null);
       setFrequenceMemos(parametres?.frequence_memos ?? null);
@@ -3978,14 +3980,21 @@ function ReglagesParentauxScreen({ route, navigation }) {
     setSaved(false);
     await supabase
       .from('parametres_parentaux')
-      .update({
-        minutes_max_jour: minutesMaxJour,
-        code_validation: pin.trim() || null,
-      })
+      .update({ code_validation: pin.trim() || null })
       .eq('famille_id', familleId);
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  // Change et sauvegarde immediatement le temps de jeu d'UN enfant precis
+  // (pas de bouton a chercher : chaque appui sur +/- enregistre tout de suite).
+  async function adjustProfilMinutes(profilId, delta) {
+    const profil = profils.find((p) => p.id === profilId);
+    const actuel = profil?.minutes_max_jour ?? 30;
+    const nouveau = Math.max(MINUTES_MIN, Math.min(MINUTES_MAX, actuel + delta));
+    setProfils((prev) => prev.map((p) => (p.id === profilId ? { ...p, minutes_max_jour: nouveau } : p)));
+    await supabase.from('profils_enfants').update({ minutes_max_jour: nouveau }).eq('id', profilId);
   }
 
   // Sauvegarde separee pour la frequence des memos vocaux (section eloignee
@@ -4042,10 +4051,8 @@ function ReglagesParentauxScreen({ route, navigation }) {
     );
   }
 
-  const fillRatio = Math.min(1, (minutesMaxJour - MINUTES_MIN) / (MINUTES_MAX - MINUTES_MIN));
-
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Pressable onPress={() => navigation.goBack()}>
         <Text style={styles.backLabel}>‹ Retour</Text>
       </Pressable>
@@ -4099,6 +4106,34 @@ function ReglagesParentauxScreen({ route, navigation }) {
                   </Text>
                 </View>
               </View>
+
+              <Text style={styles.memoEmptyText}>⏱️ Temps de jeu autorisé par jour</Text>
+              <View style={[styles.gaugeRow, { marginBottom: 10 }]}>
+                <Pressable
+                  style={styles.gaugeButton}
+                  onPress={() => adjustProfilMinutes(p.id, -MINUTES_STEP)}
+                >
+                  <Text style={styles.gaugeButtonText}>−</Text>
+                </Pressable>
+                <View style={styles.gaugeTrack}>
+                  <View
+                    style={[
+                      styles.gaugeFill,
+                      { width: `${Math.min(100, (((p.minutes_max_jour ?? 30) - MINUTES_MIN) / (MINUTES_MAX - MINUTES_MIN)) * 100)}%` },
+                    ]}
+                  />
+                </View>
+                <Pressable
+                  style={styles.gaugeButton}
+                  onPress={() => adjustProfilMinutes(p.id, MINUTES_STEP)}
+                >
+                  <Text style={styles.gaugeButtonText}>+</Text>
+                </Pressable>
+              </View>
+              <Text style={[styles.gaugeValue, { marginBottom: 10 }]}>
+                {p.minutes_max_jour ?? 30} minutes par jour
+              </Text>
+
               <View style={styles.profilManageActions}>
                 <Pressable style={styles.profilActionBtn} onPress={() => startEditProfil(p)}>
                   <Text style={styles.profilActionText}>✏️ Modifier</Text>
@@ -4153,27 +4188,12 @@ function ReglagesParentauxScreen({ route, navigation }) {
       ))}
 
       <View style={styles.rewardForm}>
-        <Text style={styles.label}>Temps de jeu autorisé par jour</Text>
-        <View style={styles.gaugeRow}>
-          <Pressable
-            style={styles.gaugeButton}
-            onPress={() => setMinutesMaxJour((m) => Math.max(MINUTES_MIN, m - MINUTES_STEP))}
-          >
-            <Text style={styles.gaugeButtonText}>−</Text>
-          </Pressable>
-          <View style={styles.gaugeTrack}>
-            <View style={[styles.gaugeFill, { width: `${fillRatio * 100}%` }]} />
-          </View>
-          <Pressable
-            style={styles.gaugeButton}
-            onPress={() => setMinutesMaxJour((m) => Math.min(MINUTES_MAX, m + MINUTES_STEP))}
-          >
-            <Text style={styles.gaugeButtonText}>+</Text>
-          </Pressable>
-        </View>
-        <Text style={styles.gaugeValue}>{minutesMaxJour} minutes par jour</Text>
+        <Text style={styles.helperText}>
+          Le temps de jeu se règle maintenant individuellement pour chaque enfant, juste au-dessus
+          dans "Gérer les profils".
+        </Text>
 
-        <Text style={[styles.label, { marginTop: 20 }]}>Code parent (4 chiffres)</Text>
+        <Text style={[styles.label, { marginTop: 8 }]}>Code parent (4 chiffres)</Text>
         <Text style={styles.helperText}>
           Sert à valider une session supplémentaire quand le temps est écoulé, si l'empreinte
           digitale n'est pas disponible sur ce téléphone.
@@ -4190,7 +4210,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
 
         <Pressable style={[styles.button, { opacity: saving ? 0.5 : 1, marginTop: 8 }]} onPress={handleSaveTemps} disabled={saving}>
           <Text style={styles.buttonText}>
-            {saving ? 'Enregistrement…' : saved ? '✓ Temps et code enregistrés' : 'Enregistrer le temps et le code'}
+            {saving ? 'Enregistrement…' : saved ? '✓ Code enregistré' : 'Enregistrer le code'}
           </Text>
         </Pressable>
 
@@ -4338,6 +4358,7 @@ const styles = StyleSheet.create({
   error: { color: '#EE4C4C', textAlign: 'center', marginBottom: 8, fontWeight: '600' },
 
   container: { flex: 1, backgroundColor: colors.cream, padding: 18, paddingTop: 48 },
+  scrollContainer: { flexGrow: 1, backgroundColor: colors.cream, padding: 18, paddingTop: 48, paddingBottom: 60 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cream, padding: 24 },
   title: { fontSize: 20, fontWeight: '700', color: colors.mossDeep },
   back: { color: colors.mossDeep, fontWeight: '800', marginBottom: 16, fontSize: 34, paddingVertical: 4, paddingRight: 12 },
