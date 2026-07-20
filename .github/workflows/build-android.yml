@@ -29,15 +29,20 @@ jobs:
       - name: Générer le projet Android natif (expo prebuild)
         run: npx expo prebuild --platform android --non-interactive
 
-      - name: Compiler l'APK (debug, installable directement)
+      - name: Autoriser un APK autonome sans cle de signature dediee
+        working-directory: android/app
+        run: |
+          sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/' build.gradle
+
+      - name: Compiler l'APK autonome (release, installable sans ordinateur connecte)
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleRelease --no-daemon
 
       - name: Mettre l'APK à disposition au téléchargement
         uses: actions/upload-artifact@v4
         with:
           name: kid-crack-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
           retention-days: 30
