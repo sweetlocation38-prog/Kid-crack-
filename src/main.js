@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '20/07/2026 - Frise du Temps + Corps Humain actives, 7 jeux etendus au CM2, empreinte sans schema, photo a 3 choix';
+const APP_BUILD_VERSION = '20/07/2026 - Garde-fou anti-reponses au hasard, voix, menu parental direct';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1195,7 +1195,7 @@ function ProfileSelectScreen({ navigation }) {
   );
 }
 
-function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
+function ParentGateModal({ visible, expectedPin, onSuccess, onCancel, skipTimeStep }) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(null);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
@@ -1235,7 +1235,8 @@ function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
         disableDeviceFallback: true, // jamais le schema/code de deverrouillage du telephone
       });
       if (result.success) {
-        setStep('temps');
+        if (skipTimeStep) onSuccess();
+        else setStep('temps');
       } else {
         setError("Empreinte non reconnue ou annulée. Réessaie, ou utilise le code.");
       }
@@ -1251,7 +1252,8 @@ function ParentGateModal({ visible, expectedPin, onSuccess, onCancel }) {
       return;
     }
     if (pin === expectedPin) {
-      setStep('temps');
+      if (skipTimeStep) onSuccess();
+      else setStep('temps');
     } else {
       setError('Code incorrect.');
       setPin('');
@@ -1963,9 +1965,26 @@ function shuffle(arr) {
 // Pour la lecture a voix haute : les lettres/syllabes s'epellent sans espace
 // (CHAT), mais des mots ou des phrases entieres doivent etre separes par un
 // espace, sinon la lecture devient incomprehensible.
+// Les synthese vocales generiques (Android/iOS) prononcent une lettre isolee
+// par son NOM alphabetique ("b" -> "bé") et non son SON phonetique ("beu"),
+// ce qui est trompeur pour l'apprentissage de la lecture. On remplace donc
+// les consonnes isolees par une orthographe approximative qui force la
+// bonne prononciation a l'oral, sans jamais toucher a ce qui est affiche.
+const PHONEME_SPEECH_MAP = {
+  b: 'beu', c: 'keu', d: 'deu', f: 'feu', g: 'gueu', j: 'jeu', k: 'keu',
+  l: 'leu', m: 'meu', n: 'neu', p: 'peu', q: 'keu', r: 'reu', s: 'seu',
+  t: 'teu', v: 'veu', w: 'oueu', x: 'kseu', z: 'zeu', y: 'i',
+};
+
+function speechFriendlyToken(token) {
+  const lower = String(token).toLowerCase();
+  return PHONEME_SPEECH_MAP[lower] ?? token;
+}
+
 function joinSequenceForSpeech(sequence, niveau) {
   const modeMots = ['ce1', 'ce2', 'cm1', 'cm2', '6e'].includes(niveau);
-  return modeMots ? sequence.join(' ') : sequence.join('');
+  if (modeMots) return sequence.join(' ');
+  return sequence.map(speechFriendlyToken).join('');
 }
 
 function PontDesLettresScreen({ route, navigation }) {
@@ -1986,6 +2005,13 @@ function PontDesLettresScreen({ route, navigation }) {
   const shownIds = useRef(new Set());
   const startedAt = useRef(Date.now());
   const memosConfig = useRef(null);
+  // Garde-fou contre les reponses au hasard : detecte les erreurs donnees
+  // trop vite pour avoir ete vraiment reflechies, plusieurs fois de suite.
+  const roundStartedAt = useRef(Date.now());
+  const recentRounds = useRef([]); // fenetre glissante des 4 dernieres manches
+  const attentionChosenOnce = useRef(false);
+  const [showSafetyCheck, setShowSafetyCheck] = useState(false);
+  const [forcedPause, setForcedPause] = useState(false);
 
   useEffect(() => {
     fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; });
@@ -2518,6 +2544,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     setPromptData(prompt);
     setOptionsOrder(shuffle(prompt.options));
     setLoading(false);
+    roundStartedAt.current = Date.now();
   }, []);
 
   // Recupere le jeu et le cran de difficulte sauvegarde, puis lance la
@@ -2568,11 +2595,13 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   }
 
   function onOptionPress(value) {
-    if (!promptData || answered !== null) return;
+    if (!promptData || answered !== null || showSafetyCheck || forcedPause) return;
     const isCorrect = String(value) === String(promptData.correct);
+    const secondesEcoulees = (Date.now() - roundStartedAt.current) / 1000;
     setAnswered(value);
 
     if (isCorrect) {
+      recentRounds.current = [...recentRounds.current, { wrong: false, fast: false }].slice(-4);
       setFeedback('Bravo !');
       maybePlayMemo(memosConfig.current, 'bonne_reponse');
       setTimeout(async () => {
@@ -2589,10 +2618,52 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       errorsTotal.current += 1;
       setFeedback('Essaie encore !');
       maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
-      setTimeout(() => {
-        setFeedback(null);
-        setAnswered(null);
-      }, 700);
+
+      // Fenetre glissante des 4 dernieres manches : on detecte le motif
+      // "beaucoup de reponses fausses ET tres rapides" plutot qu'une simple
+      // suite, pour tolerer une erreur isolee sans declencher a tort.
+      const estRapide = secondesEcoulees < 1.7;
+      recentRounds.current = [...recentRounds.current, { wrong: true, fast: estRapide }].slice(-4);
+      const fenetre = recentRounds.current;
+      const declenche = fenetre.length === 4 && fenetre.filter((r) => r.wrong && r.fast).length >= 3;
+
+      if (declenche) {
+        setTimeout(() => {
+          setFeedback(null);
+          setAnswered(null);
+          setShowSafetyCheck(true);
+          speakSmart('On dirait que tu réponds vite sans trop regarder. Est-ce que c\'est trop difficile ?');
+        }, 700);
+      } else {
+        setTimeout(() => {
+          setFeedback(null);
+          setAnswered(null);
+        }, 700);
+      }
+    }
+  }
+
+  async function handleSafetyResponse(tropDur) {
+    setShowSafetyCheck(false);
+    if (miniJeuId) {
+      await supabase.from('signalements_difficulte').insert({
+        profil_id: profil.id,
+        mini_jeu_id: miniJeuId,
+        trop_dur: tropDur,
+      });
+    }
+    if (tropDur) {
+      speakSmart("Pas de souci ! On va s'entraîner sur des choses un peu plus simples la prochaine fois.");
+      setTimeout(() => finishSession(), 2600);
+    } else {
+      recentRounds.current = [];
+      if (attentionChosenOnce.current) {
+        // Deja arrive une fois dans cette session malgre la promesse de faire
+        // attention : on force une petite pause avant de pouvoir retoucher.
+        setForcedPause(true);
+        setTimeout(() => setForcedPause(false), 4000);
+      }
+      attentionChosenOnce.current = true;
     }
   }
 
@@ -2608,6 +2679,32 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     );
   }
 
+  if (showSafetyCheck) {
+    return (
+      <View style={styles.safetyCheckScreen}>
+        <BouncingWrap><Noisette size={72} /></BouncingWrap>
+        <Text style={styles.safetyCheckTitle}>On dirait que tu réponds vite…</Text>
+        <Text style={styles.safetyCheckQuestion}>Est-ce que c'est trop difficile ?</Text>
+        <Pressable
+          style={styles.listenButton}
+          onPress={() => speakSmart("Est-ce que c'est trop difficile ?")}
+        >
+          <Text style={styles.listenText}>🎤 Réécouter</Text>
+        </Pressable>
+        <View style={styles.safetyCheckButtons}>
+          <Pressable style={styles.safetyCheckBtnHard} onPress={() => handleSafetyResponse(true)}>
+            <Text style={styles.safetyCheckEmoji}>😖</Text>
+            <Text style={styles.safetyCheckBtnText}>Oui, c'est trop dur</Text>
+          </Pressable>
+          <Pressable style={styles.safetyCheckBtnOk} onPress={() => handleSafetyResponse(false)}>
+            <Text style={styles.safetyCheckEmoji}>😊</Text>
+            <Text style={styles.safetyCheckBtnText}>Non, je vais faire attention</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.gameScreenScroll}>
       <View style={styles.topBar}>
@@ -2617,6 +2714,12 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         <Text style={styles.gameTitle}>{jeuTitre}</Text>
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
+
+      {forcedPause && (
+        <View style={styles.forcedPauseBanner}>
+          <Text style={styles.forcedPauseText}>🌿 Prends un instant pour bien regarder…</Text>
+        </View>
+      )}
 
       {Character ? (
         <View style={styles.gameCharacter}>
@@ -2725,7 +2828,7 @@ function buildSonsPrompt(d) {
       const correct = d.options.find((o) => o.toLowerCase() === String(d.son).toLowerCase()) ?? d.options[0];
       return {
         promptText: 'Quelle lettre fait ce son ?',
-        speak: d.son,
+        speak: speechFriendlyToken(d.son),
         mandatorySpeak: true, // aucune image : le son doit etre entendu
         options: d.options,
         correct,
@@ -2734,7 +2837,7 @@ function buildSonsPrompt(d) {
     case 'fusionner_syllabe':
       return {
         promptText: 'Quelle syllabe fait "' + d.son1 + '" + "' + d.son2 + '" ?',
-        speak: d.son1 + d.son2,
+        speak: speechFriendlyToken(d.son1) + speechFriendlyToken(d.son2),
         mandatorySpeak: true, // aucune image : le son doit etre entendu
         options: d.options,
         correct: d.resultat,
@@ -4285,6 +4388,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
         <ParentGateModal
           visible={showGate}
           expectedPin={existingPin}
+          skipTimeStep
           onCancel={() => navigation.goBack()}
           onSuccess={() => {
             setShowGate(false);
@@ -4606,6 +4710,28 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.cream, padding: 18, paddingTop: 48 },
   scrollContainer: { flexGrow: 1, backgroundColor: colors.cream, padding: 18, paddingTop: 48, paddingBottom: 60 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cream, padding: 24 },
+  safetyCheckScreen: {
+    flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cream, padding: 28,
+  },
+  safetyCheckTitle: { fontSize: 16, color: colors.ink, opacity: 0.7, textAlign: 'center', marginTop: 14 },
+  safetyCheckQuestion: {
+    fontSize: 22, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginTop: 6, marginBottom: 14,
+  },
+  safetyCheckButtons: { width: '100%', gap: 14, marginTop: 24 },
+  safetyCheckBtnHard: {
+    backgroundColor: '#FBE6DC', borderRadius: 20, paddingVertical: 18, alignItems: 'center',
+    borderWidth: 2, borderColor: '#F5B79A',
+  },
+  safetyCheckBtnOk: {
+    backgroundColor: colors.sand, borderRadius: 20, paddingVertical: 18, alignItems: 'center',
+    borderWidth: 2, borderColor: colors.mossSoft,
+  },
+  safetyCheckEmoji: { fontSize: 34, marginBottom: 6 },
+  safetyCheckBtnText: { fontSize: 16, fontWeight: '700', color: colors.ink, textAlign: 'center' },
+  forcedPauseBanner: {
+    backgroundColor: colors.sand, borderRadius: 14, padding: 12, marginBottom: 12, alignItems: 'center',
+  },
+  forcedPauseText: { color: colors.mossDeep, fontWeight: '700' },
   title: { fontSize: 20, fontWeight: '700', color: colors.mossDeep },
   back: { color: colors.mossDeep, fontWeight: '800', marginBottom: 16, fontSize: 34, paddingVertical: 4, paddingRight: 12 },
   backLabel: { color: colors.mossDeep, fontWeight: '700', marginBottom: 16, fontSize: 17, paddingVertical: 10, paddingRight: 12 },
