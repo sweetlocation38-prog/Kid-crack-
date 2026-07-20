@@ -29,12 +29,13 @@ jobs:
       - name: Générer le projet Android natif (expo prebuild)
         run: npx expo prebuild --platform android --non-interactive
 
-      - name: Autoriser un APK autonome sans cle de signature dediee
-        working-directory: android/app
+      - name: S'assurer que la version "release" utilise la clé de test (pas de vraie signature necessaire)
         run: |
-          sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/' build.gradle
+          sed -i 's/signingConfig signingConfigs.release/signingConfig signingConfigs.debug/' android/app/build.gradle
+          echo "--- Verification du fichier build.gradle ---"
+          grep -A 3 "buildTypes" android/app/build.gradle || true
 
-      - name: Compiler l'APK autonome (release, installable sans ordinateur connecte)
+      - name: Compiler l'APK complet (avec le code JavaScript embarque)
         working-directory: android
         run: |
           chmod +x gradlew
