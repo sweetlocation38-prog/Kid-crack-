@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '20/07/2026 - Corrige le crash critique de tous les jeux (variable mal placee), textes lisibles sur plusieurs lignes';
+const APP_BUILD_VERSION = '20/07/2026 - Corrige le plantage critique du moteur de jeu principal (variable manquante) + texte des jeux lisible sur plusieurs lignes';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
