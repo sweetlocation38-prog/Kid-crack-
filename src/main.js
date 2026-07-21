@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 1;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '21/07/2026 - En-tete compact, avatar/recompenses en fenetres, zones sentiers resserrees, jeux aux formes variees';
+const APP_BUILD_VERSION = '21/07/2026 - Format 9/16 sur la carte generale et les sentiers (zoom ajuste)';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1898,20 +1898,22 @@ function WorldMapScreen({ route, navigation }) {
 
       <View style={styles.campagneMapBleed}>
         <View style={styles.campagneMapBox}>
-          <Image source={CAMPAGNE_MAP_IMAGE} style={styles.campagneMapImage} resizeMode="cover" />
-          {continentsAvecJeux.map((item) => (
-            <Pressable
-              key={item.competence}
-              style={{
-                position: 'absolute',
-                left: `${item.zone.left * 100}%`,
-                top: `${item.zone.top * 100}%`,
-                width: `${item.zone.width * 100}%`,
-                height: `${item.zone.height * 100}%`,
-              }}
-              onPress={() => handleContinentPress(item.competence)}
-            />
-          ))}
+          <View style={styles.campagneMapInner}>
+            <Image source={CAMPAGNE_MAP_IMAGE} style={styles.campagneMapImage} resizeMode="cover" />
+            {continentsAvecJeux.map((item) => (
+              <Pressable
+                key={item.competence}
+                style={{
+                  position: 'absolute',
+                  left: `${item.zone.left * 100}%`,
+                  top: `${item.zone.top * 100}%`,
+                  width: `${item.zone.width * 100}%`,
+                  height: `${item.zone.height * 100}%`,
+                }}
+                onPress={() => handleContinentPress(item.competence)}
+              />
+            ))}
+          </View>
         </View>
       </View>
       <Text style={styles.mapCredit}>Carte : créée pour Kid Crack</Text>
@@ -1950,12 +1952,23 @@ function WorldMapScreen({ route, navigation }) {
 // ============================================================
 // Calcule comment agrandir une zone precise de l'image de la carte pour
 // donner l'impression de zoomer sur un sentier.
+// Recadre toujours en format 9/16 (portrait, comme l'ecran du telephone),
+// en gardant la hauteur de zone deja calee (sans risque de deborder sur le
+// sentier voisin) et en centrant la largeur sur le centre de la zone.
+// Recadre en 9/16 en gardant TOUTE la largeur de la zone (pour eviter un
+// zoom trop serre et flou), et en etendant la hauteur autour du centre de
+// la zone pour remplir le cadre - quitte a deborder un peu sur le sentier
+// voisin, sans jamais sortir des bords de l'image elle-meme.
 function computeZoomStyle(zone, containerWidth) {
+  const containerHeight = containerWidth * (16 / 9);
   const imageWidth = containerWidth / zone.width;
   const imageHeight = imageWidth / CAMPAGNE_MAP_ASPECT;
-  const containerHeight = imageHeight * zone.height;
+  const heightFractionNeeded = containerHeight / imageHeight;
+  const zoneCenterY = zone.top + zone.height / 2;
+  let cropTop = zoneCenterY - heightFractionNeeded / 2;
+  cropTop = Math.max(0, Math.min(cropTop, 1 - heightFractionNeeded));
   const imageLeft = -zone.left * imageWidth;
-  const imageTop = -zone.top * imageHeight;
+  const imageTop = -cropTop * imageHeight;
   return { containerHeight, imageWidth, imageHeight, imageLeft, imageTop };
 }
 
@@ -4962,7 +4975,11 @@ const styles = StyleSheet.create({
   },
   mapCredit: { fontSize: 10, color: colors.ink, opacity: 0.35, textAlign: 'center', marginBottom: 14 },
   campagneMapBleed: { marginHorizontal: -18, marginBottom: 6 },
-  campagneMapBox: { width: '100%', aspectRatio: CAMPAGNE_MAP_ASPECT, overflow: 'hidden' },
+  campagneMapBox: {
+    width: '100%', aspectRatio: 9 / 16, overflow: 'hidden',
+    backgroundColor: '#4A3728', alignItems: 'center', justifyContent: 'center',
+  },
+  campagneMapInner: { width: '100%', aspectRatio: CAMPAGNE_MAP_ASPECT },
   campagneMapImage: { width: '100%', height: '100%' },
   campagnePin: {
     position: 'absolute', width: 60, height: 60, marginLeft: -30, marginTop: -30,
