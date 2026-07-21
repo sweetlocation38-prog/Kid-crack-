@@ -82,12 +82,12 @@ import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
 import * as DocumentPicker from 'expo-document-picker';
 
-const WORLD_MAP_IMAGE = require('../assets/world-map.jpg');
-const WORLD_MAP_ASPECT = 2200 / 1523;
+const CAMPAGNE_MAP_IMAGE = require('../assets/carte-campagne.jpg');
+const CAMPAGNE_MAP_ASPECT = 1;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '20/07/2026 - Corrige le plantage critique du moteur de jeu principal (variable manquante) + texte des jeux lisible sur plusieurs lignes';
+const APP_BUILD_VERSION = '21/07/2026 - Nouvelle carte illustree Le Monde de la Campagne, zoom sur chaque sentier';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1524,6 +1524,7 @@ function maxRungForGame(code) {
 const CONTINENTS = [
   {
     competence: 'lecture',
+    zone: { left: 0.38, top: 0.74, width: 0.4, height: 0.26 },
     labelCourt: 'Lecture',
     paysSlotsFor: { 'pont_des_lettres': { top: '50%', left: '68%' }, 'sons_magiques': { top: '72%', left: '55%' } },
     paysVides: [{ top: '20%', left: '25%' }, { top: '45%', left: '35%' }, { top: '85%', left: '30%' }],
@@ -1542,6 +1543,7 @@ const CONTINENTS = [
   },
   {
     competence: 'maths',
+    zone: { left: 0.64, top: 0.08, width: 0.36, height: 0.36 },
     labelCourt: 'Maths',
     paysSlotsFor: { 'pommes_de_luma': { top: '60%', left: '55%' }, 'balance_prairie': { top: '20%', left: '50%' }, 'marche_village': { top: '75%', left: '20%' }, 'cachettes_luma': { top: '15%', left: '15%' } },
     paysVides: [{ top: '45%', left: '75%' }, { top: '85%', left: '55%' }],
@@ -1559,12 +1561,13 @@ const CONTINENTS = [
   },
   {
     competence: 'logique',
+    zone: { left: 0.0, top: 0.76, width: 0.4, height: 0.24 },
     labelCourt: 'Logique',
     paysSlotsFor: { 'jeu_intrus': { top: '85%', left: '45%' }, 'empreintes_clairiere': { top: '10%', left: '25%' }, 'puzzle_moulin': { top: '35%', left: '70%' }, 'tri_village': { top: '45%', left: '15%' } },
     paysVides: [{ top: '70%', left: '15%' }, { top: '20%', left: '50%' }],
     blobStyle: { borderTopLeftRadius: 90, borderTopRightRadius: 20, borderBottomLeftRadius: 100, borderBottomRightRadius: 90 }, rot: -5,
-    nom: 'La Grotte',
-    emoji: '🕳️',
+    nom: 'La Forêt',
+    emoji: '🌲',
     bg: '#DCD3E8',
     bgVif: '#A896C4',
     decor: [
@@ -1576,6 +1579,7 @@ const CONTINENTS = [
   },
   {
     competence: 'memoire',
+    zone: { left: 0.32, top: 0.0, width: 0.36, height: 0.38 },
     labelCourt: 'Mémoire',
     paysSlotsFor: { 'memoire_etoiles': { top: '45%', left: '35%' }, 'coffre_souvenirs': { top: '30%', left: '55%' }, 'ronde_lucioles': { top: '65%', left: '50%' } },
     paysVides: [{ top: '20%', left: '25%' }, { top: '75%', left: '30%' }],
@@ -1593,6 +1597,7 @@ const CONTINENTS = [
   },
   {
     competence: 'geographie',
+    zone: { left: 0.0, top: 0.08, width: 0.36, height: 0.36 },
     labelCourt: 'Géographie',
     paysSlotsFor: { 'monde_capitales': { top: '60%', left: '35%' } },
     paysVides: [{ top: '25%', left: '20%' }, { top: '50%', left: '15%' }, { top: '80%', left: '75%' }],
@@ -1610,6 +1615,7 @@ const CONTINENTS = [
   },
   {
     competence: 'histoire',
+    zone: { left: 0.64, top: 0.44, width: 0.36, height: 0.4 },
     labelCourt: 'Histoire',
     paysSlotsFor: { 'frise_temps': { top: '15%', left: '60%' } },
     paysVides: [{ top: '40%', left: '30%' }, { top: '55%', left: '55%' }, { top: '65%', left: '80%' }, { top: '35%', left: '80%' }],
@@ -1627,6 +1633,7 @@ const CONTINENTS = [
   },
   {
     competence: 'sciences',
+    zone: { left: 0.0, top: 0.42, width: 0.36, height: 0.38 },
     labelCourt: 'Sciences',
     paysSlotsFor: { 'corps_humain': { top: '55%', left: '45%' } },
     paysVides: [{ top: '25%', left: '25%' }, { top: '65%', left: '20%' }, { top: '40%', left: '75%' }],
@@ -1768,34 +1775,25 @@ function WorldMapScreen({ route, navigation }) {
         </View>
       )}
 
-      <View style={styles.clairiereScene}>
-        <BouncingWrap><Noisette size={64} /></BouncingWrap>
-        <Text style={styles.clairiereTitle}>La Clairière aux 7 Sentiers</Text>
-        <Text style={styles.clairiereSubtitle}>Choisis ton chemin !</Text>
+      <View style={styles.campagneMapBleed}>
+        <View style={styles.campagneMapBox}>
+          <Image source={CAMPAGNE_MAP_IMAGE} style={styles.campagneMapImage} resizeMode="cover" />
+          {continentsAvecJeux.map((item) => (
+            <Pressable
+              key={item.competence}
+              style={{
+                position: 'absolute',
+                left: `${item.zone.left * 100}%`,
+                top: `${item.zone.top * 100}%`,
+                width: `${item.zone.width * 100}%`,
+                height: `${item.zone.height * 100}%`,
+              }}
+              onPress={() => handleContinentPress(item.competence)}
+            />
+          ))}
+        </View>
       </View>
-
-      <View style={styles.trail}>
-        {continentsAvecJeux.map((item, i) => {
-          const isRight = i % 2 === 1;
-          return (
-            <View key={item.competence} style={styles.trailRow}>
-              {!isRight && <View style={{ flex: 1 }} />}
-              <View style={styles.trailDotConnector}>
-                <View style={styles.trailLine} />
-              </View>
-              <Pressable
-                style={[styles.trailStop, { backgroundColor: item.bgVif }]}
-                onPress={() => handleContinentPress(item.competence)}
-              >
-                <Text style={styles.trailStopEmoji}>{item.emoji}</Text>
-                <Text style={styles.trailStopLabel} numberOfLines={2}>{item.nom}</Text>
-                <Text style={styles.trailStopCompetence} numberOfLines={1}>{item.labelCourt}</Text>
-              </Pressable>
-              {isRight && <View style={{ flex: 1 }} />}
-            </View>
-          );
-        })}
-      </View>
+      <Text style={styles.mapCredit}>Carte : créée pour Kid Crack</Text>
 
       <ParentGateModal
         visible={showGate}
@@ -1814,11 +1812,23 @@ function WorldMapScreen({ route, navigation }) {
 // Écran : intérieur d'un sentier — univers thematique anime,
 // avec les jeux de cette competence a explorer.
 // ============================================================
+// Calcule comment agrandir une zone precise de l'image de la carte pour
+// donner l'impression de zoomer sur un sentier.
+function computeZoomStyle(zone, containerWidth) {
+  const imageWidth = containerWidth / zone.width;
+  const imageHeight = imageWidth / CAMPAGNE_MAP_ASPECT;
+  const containerHeight = imageHeight * zone.height;
+  const imageLeft = -zone.left * imageWidth;
+  const imageTop = -zone.top * imageHeight;
+  return { containerHeight, imageWidth, imageHeight, imageLeft, imageTop };
+}
+
 function SentierScreen({ route, navigation }) {
   const { profil, competence } = route.params;
   const continent = continentFor(competence);
   const { width: screenWidth } = useWindowDimensions();
   const containerWidth = screenWidth - 36;
+  const zoom = computeZoomStyle(continent.zone, containerWidth);
   const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showGate, setShowGate] = useState(false);
@@ -1866,13 +1876,17 @@ function SentierScreen({ route, navigation }) {
 
       <Text style={styles.continentPageTitle}>{continent.emoji} {continent.nom}</Text>
 
-      <View
-        style={[
-          styles.continentBlob,
-          { width: containerWidth, height: 380, backgroundColor: continent.bgVif, transform: [{ rotate: `${continent.rot}deg` }] },
-          continent.blobStyle,
-        ]}
-      >
+      <View style={[styles.continentBlob, { width: containerWidth, height: zoom.containerHeight }]}>
+        <Image
+          source={CAMPAGNE_MAP_IMAGE}
+          style={{
+            position: 'absolute',
+            width: zoom.imageWidth,
+            height: zoom.imageHeight,
+            left: zoom.imageLeft,
+            top: zoom.imageTop,
+          }}
+        />
         {continent.decor.map((d, i) => (
           <DriftingDecor key={`decor-${i}`} {...d} size={(d.size ?? 22) + 6} />
         ))}
@@ -1885,7 +1899,7 @@ function SentierScreen({ route, navigation }) {
               key={item.id}
               style={[
                 styles.paysMarker,
-                { top: slot.top, left: slot.left, transform: [{ rotate: `${-continent.rot}deg` }] },
+                { top: slot.top, left: slot.left },
                 limitReached && targetScreen && styles.paysMarkerLocked,
               ]}
               disabled={!targetScreen}
@@ -4780,24 +4794,16 @@ const styles = StyleSheet.create({
     alignSelf: 'center', marginBottom: 8, borderRadius: 24,
     overflow: 'hidden', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
   },
-  clairiereScene: {
-    alignItems: 'center', backgroundColor: '#EAF5DE', borderRadius: 24,
-    paddingVertical: 22, marginBottom: 10, borderWidth: 2, borderColor: 'rgba(0,0,0,0.06)',
+  mapCredit: { fontSize: 10, color: colors.ink, opacity: 0.35, textAlign: 'center', marginBottom: 14 },
+  campagneMapBleed: { marginHorizontal: -18, marginBottom: 6 },
+  campagneMapBox: { width: '100%', aspectRatio: CAMPAGNE_MAP_ASPECT, overflow: 'hidden' },
+  campagneMapImage: { width: '100%', height: '100%' },
+  campagnePin: {
+    position: 'absolute', width: 60, height: 60, marginLeft: -30, marginTop: -30,
+    alignItems: 'center', justifyContent: 'center', borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.001)',
   },
-  clairiereTitle: { fontSize: 18, fontWeight: '800', color: colors.mossDeep, marginTop: 10 },
-  clairiereSubtitle: { fontSize: 13, color: colors.ink, opacity: 0.6, marginTop: 2 },
-  trail: { paddingVertical: 6 },
-  trailRow: { flexDirection: 'row', alignItems: 'center', minHeight: 96 },
-  trailDotConnector: { width: 24, alignItems: 'center', alignSelf: 'stretch' },
-  trailLine: { width: 4, flex: 1, backgroundColor: colors.mossSoft, opacity: 0.4, borderRadius: 2 },
-  trailStop: {
-    width: 150, borderRadius: 22, alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8,
-    borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
-    shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 4, elevation: 3,
-  },
-  trailStopEmoji: { fontSize: 34 },
-  trailStopLabel: { fontSize: 15, fontWeight: '800', color: colors.ink, marginTop: 4, textAlign: 'center' },
-  trailStopCompetence: { fontSize: 11, color: colors.ink, opacity: 0.6, marginTop: 2, textAlign: 'center' },
+  campagnePinEmoji: { fontSize: 1, opacity: 0 },
   paysMarker: {
     position: 'absolute', width: 92, alignItems: 'center', backgroundColor: '#fff',
     borderRadius: 14, paddingVertical: 6, paddingHorizontal: 4,
