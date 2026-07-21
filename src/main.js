@@ -87,7 +87,7 @@ const WORLD_MAP_ASPECT = 2200 / 1523;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '20/07/2026 - Corrige TOUS les blocages vocaux (dont le Memory), nouvelle carte des 7 sentiers';
+const APP_BUILD_VERSION = '20/07/2026 - Corrige le crash critique de tous les jeux (variable mal placee), textes lisibles sur plusieurs lignes';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1788,7 +1788,7 @@ function WorldMapScreen({ route, navigation }) {
                 onPress={() => handleContinentPress(item.competence)}
               >
                 <Text style={styles.trailStopEmoji}>{item.emoji}</Text>
-                <Text style={styles.trailStopLabel} numberOfLines={1}>{item.nom}</Text>
+                <Text style={styles.trailStopLabel} numberOfLines={2}>{item.nom}</Text>
                 <Text style={styles.trailStopCompetence} numberOfLines={1}>{item.labelCourt}</Text>
               </Pressable>
               {isRight && <View style={{ flex: 1 }} />}
@@ -1892,7 +1892,7 @@ function SentierScreen({ route, navigation }) {
               onPress={() => handleGamePress(targetScreen)}
             >
               <Text style={styles.paysMarkerIcon}>{GAME_ICONS[item.code] ?? '🎲'}</Text>
-              <Text style={styles.paysMarkerText} numberOfLines={1} adjustsFontSizeToFit>
+              <Text style={styles.paysMarkerText} numberOfLines={3}>
                 {item.nom}
               </Text>
               {!targetScreen && <Text style={styles.paysMarkerLock}>🔒</Text>}
@@ -1991,11 +1991,6 @@ function PontDesLettresScreen({ route, navigation }) {
   const memosConfig = useRef(null);
   // Garde-fou contre les reponses au hasard : detecte les erreurs donnees
   // trop vite pour avoir ete vraiment reflechies, plusieurs fois de suite.
-  const roundStartedAt = useRef(Date.now());
-  const recentRounds = useRef([]); // fenetre glissante des 4 dernieres manches
-  const attentionChosenOnce = useRef(false);
-  const [showSafetyCheck, setShowSafetyCheck] = useState(false);
-  const [forcedPause, setForcedPause] = useState(false);
 
   useEffect(() => {
     fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; });
@@ -2475,6 +2470,12 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   const shownIds = useRef(new Set());
   const startedAt = useRef(Date.now());
   const memosConfig = useRef(null);
+  // Garde-fou contre les reponses au hasard.
+  const roundStartedAt = useRef(Date.now());
+  const recentRounds = useRef([]); // fenetre glissante des 4 dernieres manches
+  const attentionChosenOnce = useRef(false);
+  const [showSafetyCheck, setShowSafetyCheck] = useState(false);
+  const [forcedPause, setForcedPause] = useState(false);
 
   useEffect(() => {
     fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; });
@@ -4798,13 +4799,13 @@ const styles = StyleSheet.create({
   trailStopLabel: { fontSize: 15, fontWeight: '800', color: colors.ink, marginTop: 4, textAlign: 'center' },
   trailStopCompetence: { fontSize: 11, color: colors.ink, opacity: 0.6, marginTop: 2, textAlign: 'center' },
   paysMarker: {
-    position: 'absolute', width: 76, alignItems: 'center', backgroundColor: '#fff',
-    borderRadius: 12, paddingVertical: 4, paddingHorizontal: 2,
-    borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', marginLeft: -38, marginTop: -24,
+    position: 'absolute', width: 92, alignItems: 'center', backgroundColor: '#fff',
+    borderRadius: 14, paddingVertical: 6, paddingHorizontal: 4,
+    borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', marginLeft: -46, marginTop: -30,
   },
   paysMarkerLocked: { opacity: 0.6 },
-  paysMarkerIcon: { fontSize: 17 },
-  paysMarkerText: { fontSize: 9, fontWeight: '800', color: colors.ink, textAlign: 'center' },
+  paysMarkerIcon: { fontSize: 18 },
+  paysMarkerText: { fontSize: 11, fontWeight: '800', color: colors.ink, textAlign: 'center', lineHeight: 13 },
   paysMarkerLock: { position: 'absolute', top: -6, right: -6, fontSize: 11 },
   paysVide: {
     position: 'absolute', width: 12, height: 12, borderRadius: 6, marginLeft: -6, marginTop: -6,
