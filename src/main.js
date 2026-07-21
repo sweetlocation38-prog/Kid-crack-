@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 1;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '21/07/2026 - Nouvelle carte illustree Le Monde de la Campagne, zoom sur chaque sentier';
+const APP_BUILD_VERSION = '21/07/2026 - En-tete compact, avatar/recompenses en fenetres, zones sentiers resserrees, jeux aux formes variees';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -664,8 +664,23 @@ function gaugeColorFor(ratio) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-function TimeGaugeBar({ remainingSeconds, totalSeconds }) {
+function TimeGaugeBar({ remainingSeconds, totalSeconds, compact }) {
   const ratio = totalSeconds > 0 ? Math.max(0, Math.min(1, remainingSeconds / totalSeconds)) : 0;
+  if (compact) {
+    return (
+      <View style={styles.liveGaugeCompactRow}>
+        <View style={styles.gaugeTrackCompact}>
+          <View
+            style={[
+              styles.gaugeFill,
+              { width: `${ratio * 100}%`, backgroundColor: gaugeColorFor(ratio) },
+            ]}
+          />
+        </View>
+        <Text style={styles.liveGaugeTextCompact}>⏳ {formatMinutesSeconds(remainingSeconds)}</Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.liveGaugeBox}>
       <View style={styles.gaugeTrack}>
@@ -1524,7 +1539,7 @@ function maxRungForGame(code) {
 const CONTINENTS = [
   {
     competence: 'lecture',
-    zone: { left: 0.38, top: 0.74, width: 0.4, height: 0.26 },
+    zone: { left: 0.436, top: 0.7764, width: 0.288, height: 0.1872 },
     labelCourt: 'Lecture',
     paysSlotsFor: { 'pont_des_lettres': { top: '50%', left: '68%' }, 'sons_magiques': { top: '72%', left: '55%' } },
     paysVides: [{ top: '20%', left: '25%' }, { top: '45%', left: '35%' }, { top: '85%', left: '30%' }],
@@ -1543,7 +1558,7 @@ const CONTINENTS = [
   },
   {
     competence: 'maths',
-    zone: { left: 0.64, top: 0.08, width: 0.36, height: 0.36 },
+    zone: { left: 0.6904, top: 0.1304, width: 0.2592, height: 0.2592 },
     labelCourt: 'Maths',
     paysSlotsFor: { 'pommes_de_luma': { top: '60%', left: '55%' }, 'balance_prairie': { top: '20%', left: '50%' }, 'marche_village': { top: '75%', left: '20%' }, 'cachettes_luma': { top: '15%', left: '15%' } },
     paysVides: [{ top: '45%', left: '75%' }, { top: '85%', left: '55%' }],
@@ -1561,7 +1576,7 @@ const CONTINENTS = [
   },
   {
     competence: 'logique',
-    zone: { left: 0.0, top: 0.76, width: 0.4, height: 0.24 },
+    zone: { left: 0.056, top: 0.7936, width: 0.288, height: 0.1728 },
     labelCourt: 'Logique',
     paysSlotsFor: { 'jeu_intrus': { top: '85%', left: '45%' }, 'empreintes_clairiere': { top: '10%', left: '25%' }, 'puzzle_moulin': { top: '35%', left: '70%' }, 'tri_village': { top: '45%', left: '15%' } },
     paysVides: [{ top: '70%', left: '15%' }, { top: '20%', left: '50%' }],
@@ -1579,7 +1594,7 @@ const CONTINENTS = [
   },
   {
     competence: 'memoire',
-    zone: { left: 0.32, top: 0.0, width: 0.36, height: 0.38 },
+    zone: { left: 0.3704, top: 0.0532, width: 0.2592, height: 0.2736 },
     labelCourt: 'Mémoire',
     paysSlotsFor: { 'memoire_etoiles': { top: '45%', left: '35%' }, 'coffre_souvenirs': { top: '30%', left: '55%' }, 'ronde_lucioles': { top: '65%', left: '50%' } },
     paysVides: [{ top: '20%', left: '25%' }, { top: '75%', left: '30%' }],
@@ -1597,7 +1612,7 @@ const CONTINENTS = [
   },
   {
     competence: 'geographie',
-    zone: { left: 0.0, top: 0.08, width: 0.36, height: 0.36 },
+    zone: { left: 0.0504, top: 0.1304, width: 0.2592, height: 0.2592 },
     labelCourt: 'Géographie',
     paysSlotsFor: { 'monde_capitales': { top: '60%', left: '35%' } },
     paysVides: [{ top: '25%', left: '20%' }, { top: '50%', left: '15%' }, { top: '80%', left: '75%' }],
@@ -1615,7 +1630,7 @@ const CONTINENTS = [
   },
   {
     competence: 'histoire',
-    zone: { left: 0.64, top: 0.44, width: 0.36, height: 0.4 },
+    zone: { left: 0.6904, top: 0.496, width: 0.2592, height: 0.288 },
     labelCourt: 'Histoire',
     paysSlotsFor: { 'frise_temps': { top: '15%', left: '60%' } },
     paysVides: [{ top: '40%', left: '30%' }, { top: '55%', left: '55%' }, { top: '65%', left: '80%' }, { top: '35%', left: '80%' }],
@@ -1633,7 +1648,7 @@ const CONTINENTS = [
   },
   {
     competence: 'sciences',
-    zone: { left: 0.0, top: 0.42, width: 0.36, height: 0.38 },
+    zone: { left: 0.0504, top: 0.4732, width: 0.2592, height: 0.2736 },
     labelCourt: 'Sciences',
     paysSlotsFor: { 'corps_humain': { top: '55%', left: '45%' } },
     paysVides: [{ top: '25%', left: '25%' }, { top: '65%', left: '20%' }, { top: '40%', left: '75%' }],
@@ -1672,8 +1687,107 @@ function ExtraTimeProvider({ children }) {
   );
 }
 
+// Signal ponctuel (pas un etat React) pour prevenir la carte qu'une belle
+// performance vient d'avoir lieu, quel que soit le nombre d'ecrans traverses
+// pour y revenir (jeu -> sentier -> carte).
+let pendingCelebration = null;
+
+// Fenetre compacte : identite du profil (nom, niveau), ouverte en touchant
+// son avatar sur la carte.
+function AvatarInfoModal({ visible, profil, onClose, onOpenRecompenses }) {
+  if (!profil) return null;
+  return (
+    <Modal visible={visible} animationType="fade" transparent>
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalCard}>
+          {profil.photo_url ? (
+            <Image source={{ uri: profil.photo_url }} style={styles.avatarInfoPhoto} />
+          ) : (
+            <Text style={{ fontSize: 48, textAlign: 'center' }}>{profil.avatar_personnel ?? '🐾'}</Text>
+          )}
+          <Text style={[styles.modalTitle, { textAlign: 'center', marginTop: 8 }]}>{profil.prenom}</Text>
+          <Text style={{ textAlign: 'center', color: colors.ink, opacity: 0.7, marginBottom: 16 }}>
+            Niveau {profil.niveau_global ?? 0} · {avatarLabelFor(profil.niveau_global ?? 0)}
+          </Text>
+          <Pressable style={[styles.button, { backgroundColor: colors.sand, marginBottom: 10 }]} onPress={onOpenRecompenses}>
+            <Text style={[styles.buttonText, { color: colors.ink }]}>🎁 Voir mes récompenses</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={onClose}>
+            <Text style={styles.buttonText}>Fermer</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+// Fenetre compacte : la galerie des badges deja gagnes (coccinelle, papillon...),
+// chacun avec son petit fait amusant, reecoutable a la demande.
+function RecompensesEarnedModal({ visible, profil, onClose }) {
+  const [fiches, setFiches] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!visible || !profil) return;
+    (async () => {
+      setLoading(true);
+      const rank = avatarRankFor(profil.niveau_global ?? 0);
+      const codes = AVATAR_CHAIN.slice(0, rank).map((a) => a.code);
+      const { data } = await supabase.from('fiches_animaux').select('*').in('code', codes);
+      const parFiche = Object.fromEntries((data ?? []).map((f) => [f.code, f]));
+      const liste = AVATAR_CHAIN.slice(0, rank).map((a) => ({ ...a, fiche: parFiche[a.code] }));
+      setFiches(liste.reverse()); // le plus recent en premier
+      setLoading(false);
+    })();
+  }, [visible, profil]);
+
+  return (
+    <Modal visible={visible} animationType="fade" transparent>
+      <View style={styles.modalBackdrop}>
+        <View style={[styles.modalCard, { maxHeight: '80%' }]}>
+          <Text style={styles.modalTitle}>🎁 Tes récompenses</Text>
+          {loading ? (
+            <ActivityIndicator color={colors.mossDeep} />
+          ) : fiches.length === 0 ? (
+            <Text style={{ color: colors.ink, opacity: 0.6, marginBottom: 16 }}>
+              Pas encore de récompense, continue à jouer !
+            </Text>
+          ) : (
+            <ScrollView style={{ maxHeight: 380 }}>
+              {fiches.map((a) => (
+                <View key={a.code} style={styles.recompenseRow}>
+                  <Text style={{ fontSize: 30 }}>{a.emoji}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.recompenseNom}>{a.name}</Text>
+                    {a.fiche?.fait_amusant ? (
+                      <Text style={styles.recompenseFait} numberOfLines={3}>{a.fiche.fait_amusant}</Text>
+                    ) : null}
+                  </View>
+                  {a.fiche?.fait_amusant ? (
+                    <Pressable onPress={() => speakSmart(a.fiche.fait_amusant)}>
+                      <Text style={{ fontSize: 20 }}>🎤</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              ))}
+            </ScrollView>
+          )}
+          <Pressable style={[styles.button, { marginTop: 12 }]} onPress={onClose}>
+            <Text style={styles.buttonText}>Fermer</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+
+
 function WorldMapScreen({ route, navigation }) {
   const [profil, setProfil] = useState(route.params.profil);
+  const [celebration, setCelebration] = useState(null);
+  const [showAvatarInfo, setShowAvatarInfo] = useState(false);
+  const [showRecompensesModal, setShowRecompensesModal] = useState(false);
   const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
   // Minutes offertes en plus par un parent : partagees via le contexte pour
@@ -1707,6 +1821,16 @@ function WorldMapScreen({ route, navigation }) {
         .maybeSingle();
       if (data) setProfil(data);
       setReloadKey((k) => k + 1);
+
+      // Noisette ne felicite l'enfant QUE s'il vient de bien reussir - jamais
+      // affichee en permanence, et toujours avec l'audio (l'enfant ne lit pas).
+      if (pendingCelebration) {
+        const message = pendingCelebration;
+        pendingCelebration = null;
+        setCelebration(message);
+        speakSmart(message);
+        setTimeout(() => setCelebration(null), 5000);
+      }
     });
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1735,30 +1859,27 @@ function WorldMapScreen({ route, navigation }) {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <Pressable onPress={() => navigation.goBack()}>
-        <Text style={styles.backLabel}>‹ Changer de joueur</Text>
-      </Pressable>
-
-      <View style={styles.mapHeader}>
-        <BouncingEmoji emoji={profil.avatar_personnel ?? '🐾'} size={44} />
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{profil.prenom}</Text>
-          <Text style={styles.mapSubtitle}>
-            Niveau {profil.niveau_global ?? 0} · {avatarLabelFor(profil.niveau_global ?? 0)}
-          </Text>
-        </View>
-        <Pressable onPress={() => navigation.navigate('Recompenses', { profil })}>
-          <Text style={{ fontSize: 26 }}>🎁</Text>
+      <View style={styles.mapTopRow}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
         </Pressable>
+        <Pressable onPress={() => setShowAvatarInfo(true)}>
+          {profil.photo_url ? (
+            <Image source={{ uri: profil.photo_url }} style={styles.mapAvatarPhoto} />
+          ) : (
+            <Text style={{ fontSize: 34 }}>{profil.avatar_personnel ?? '🐾'}</Text>
+          )}
+        </Pressable>
+        {totalAllowed != null && (
+          <TimeGaugeBar remainingSeconds={effectiveRemaining} totalSeconds={effectiveTotal} compact />
+        )}
       </View>
 
-      <View style={styles.guideRow}>
-        <Noisette size={44} />
-        <SpeechBubble text={mapTipFor(profil)} />
-      </View>
-
-      {totalAllowed != null && (
-        <TimeGaugeBar remainingSeconds={effectiveRemaining} totalSeconds={effectiveTotal} />
+      {celebration && (
+        <PopIn style={styles.celebrationBanner}>
+          <BouncingWrap><Noisette size={44} /></BouncingWrap>
+          <Text style={styles.celebrationText}>{celebration}</Text>
+        </PopIn>
       )}
 
       {limitReached && (
@@ -1804,6 +1925,21 @@ function WorldMapScreen({ route, navigation }) {
           grantExtraMinutes(extraMinutes);
         }}
       />
+
+      <AvatarInfoModal
+        visible={showAvatarInfo}
+        profil={profil}
+        onOpenRecompenses={() => {
+          setShowAvatarInfo(false);
+          setShowRecompensesModal(true);
+        }}
+        onClose={() => setShowAvatarInfo(false)}
+      />
+      <RecompensesEarnedModal
+        visible={showRecompensesModal}
+        profil={profil}
+        onClose={() => setShowRecompensesModal(false)}
+      />
     </ScrollView>
   );
 }
@@ -1822,6 +1958,17 @@ function computeZoomStyle(zone, containerWidth) {
   const imageTop = -zone.top * imageHeight;
   return { containerHeight, imageWidth, imageHeight, imageLeft, imageTop };
 }
+
+// Quelques formes differentes pour les jeux poses sur la carte, afin
+// qu'ils ne soient jamais tous identiques - le fond reste toujours blanc
+// pour rester facilement reconnaissable.
+const MARKER_SHAPES = [
+  { borderRadius: 14 }, // arrondi classique
+  { borderRadius: 46 }, // tres arrondi, presque une bulle
+  { borderTopLeftRadius: 32, borderTopRightRadius: 8, borderBottomLeftRadius: 8, borderBottomRightRadius: 32 },
+  { borderTopLeftRadius: 8, borderTopRightRadius: 32, borderBottomLeftRadius: 32, borderBottomRightRadius: 8 },
+  { borderRadius: 6 }, // presque carre
+];
 
 function SentierScreen({ route, navigation }) {
   const { profil, competence } = route.params;
@@ -1890,15 +2037,17 @@ function SentierScreen({ route, navigation }) {
         {continent.decor.map((d, i) => (
           <DriftingDecor key={`decor-${i}`} {...d} size={(d.size ?? 22) + 6} />
         ))}
-        {miniJeux.map((item) => {
+        {miniJeux.map((item, index) => {
           const slot = continent.paysSlotsFor[item.code];
           if (!slot) return null; // position pas encore definie pour ce jeu
           const targetScreen = GAME_SCREENS[item.code];
+          const forme = MARKER_SHAPES[index % MARKER_SHAPES.length];
           return (
             <Pressable
               key={item.id}
               style={[
                 styles.paysMarker,
+                forme,
                 { top: slot.top, left: slot.left },
                 limitReached && targetScreen && styles.paysMarkerLocked,
               ]}
@@ -2394,6 +2543,9 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
       fetchMemosConfig(profil.famille_id).then((cfg) => {
         maybePlayMemo(cfg, 'encouragement_fin');
       });
+      // Previent la carte qu'il faudra feter ca au retour, meme si on
+      // traverse plusieurs ecrans avant d'y arriver.
+      pendingCelebration = `Bravo ${profil.prenom} ! Tu progresses très bien !`;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -4778,6 +4930,20 @@ const styles = StyleSheet.create({
   cancelText: { textAlign: 'center', marginTop: 14, opacity: 0.6, fontWeight: '600' },
 
   mapHeader: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 26 },
+  mapTopRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
+  mapAvatarPhoto: { width: 40, height: 40, borderRadius: 20 },
+  celebrationBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFF3D6',
+    borderRadius: 16, padding: 10, marginBottom: 10, borderWidth: 2, borderColor: '#F5D889',
+  },
+  celebrationText: { flex: 1, fontWeight: '700', color: colors.mossDeep },
+  avatarInfoPhoto: { width: 84, height: 84, borderRadius: 42, alignSelf: 'center' },
+  recompenseRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8,
+    borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)',
+  },
+  recompenseNom: { fontWeight: '800', color: colors.ink },
+  recompenseFait: { fontSize: 12, color: colors.ink, opacity: 0.7, marginTop: 2 },
   mapAvatar: { fontSize: 44 },
   mapSubtitle: { fontSize: 13, opacity: 0.6 },
   continentCard: {
@@ -5019,6 +5185,9 @@ const styles = StyleSheet.create({
   blockedLink: { color: colors.blue, fontWeight: '800' },
   gameCardLocked: { opacity: 0.5 },
   liveGaugeBox: { marginBottom: 14 },
+  liveGaugeCompactRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
+  gaugeTrackCompact: { flex: 1, height: 10, borderRadius: 5, backgroundColor: '#EEE', overflow: 'hidden' },
+  liveGaugeTextCompact: { fontSize: 11, fontWeight: '800', color: colors.mossDeep },
   liveGaugeText: { fontSize: 13, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginTop: 4 },
   timeUpBox: { backgroundColor: '#fff', borderRadius: 16, padding: 14, marginBottom: 14, borderWidth: 2, borderColor: colors.error },
   timeUpText: { color: colors.ink, fontWeight: '700', textAlign: 'center' },
