@@ -83,11 +83,11 @@ import { Audio } from 'expo-av';
 import * as DocumentPicker from 'expo-document-picker';
 
 const CAMPAGNE_MAP_IMAGE = require('../assets/carte-campagne.jpg');
-const CAMPAGNE_MAP_ASPECT = 1;
+const CAMPAGNE_MAP_ASPECT = 750 / 1693;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '21/07/2026 - Format 9/16 sur la carte generale et les sentiers (zoom ajuste)';
+const APP_BUILD_VERSION = '21/07/2026 - Bouton Avancer la progression (1 a 3 crans), nouvelle carte verticale';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1539,12 +1539,12 @@ function maxRungForGame(code) {
 const CONTINENTS = [
   {
     competence: 'lecture',
-    zone: { left: 0.436, top: 0.7764, width: 0.288, height: 0.1872 },
+    zone: { left: 0.5, top: 0.52, width: 0.5, height: 0.25 },
     labelCourt: 'Lecture',
-    paysSlotsFor: { 'pont_des_lettres': { top: '50%', left: '68%' }, 'sons_magiques': { top: '72%', left: '55%' } },
-    paysVides: [{ top: '20%', left: '25%' }, { top: '45%', left: '35%' }, { top: '85%', left: '30%' }],
+    paysSlotsFor: { 'pont_des_lettres': { top: '57%', left: '68%' }, 'sons_magiques': { top: '72%', left: '55%' } },
+    paysVides: [{ top: '36%', left: '25%' }, { top: '54%', left: '35%' }, { top: '82%', left: '30%' }],
     blobStyle: { borderTopLeftRadius: 120, borderTopRightRadius: 60, borderBottomLeftRadius: 40, borderBottomRightRadius: 140 }, rot: -3,
-    nom: 'La Clairière',
+    nom: 'La Clairière des Histoires',
     emoji: '🏞️',
     bg: '#E4F3DA',
     bgVif: '#BFE3A8',
@@ -1558,12 +1558,12 @@ const CONTINENTS = [
   },
   {
     competence: 'maths',
-    zone: { left: 0.6904, top: 0.1304, width: 0.2592, height: 0.2592 },
+    zone: { left: 0.5, top: 0.27, width: 0.5, height: 0.25 },
     labelCourt: 'Maths',
-    paysSlotsFor: { 'pommes_de_luma': { top: '60%', left: '55%' }, 'balance_prairie': { top: '20%', left: '50%' }, 'marche_village': { top: '75%', left: '20%' }, 'cachettes_luma': { top: '15%', left: '15%' } },
-    paysVides: [{ top: '45%', left: '75%' }, { top: '85%', left: '55%' }],
+    paysSlotsFor: { 'pommes_de_luma': { top: '64%', left: '55%' }, 'balance_prairie': { top: '36%', left: '50%' }, 'marche_village': { top: '74%', left: '20%' }, 'cachettes_luma': { top: '32%', left: '15%' } },
+    paysVides: [{ top: '54%', left: '75%' }, { top: '82%', left: '55%' }],
     blobStyle: { borderTopLeftRadius: 20, borderTopRightRadius: 110, borderBottomLeftRadius: 130, borderBottomRightRadius: 30 }, rot: 2,
-    nom: 'Le Bois',
+    nom: 'Le Bois des Nombres',
     emoji: '🌲',
     bg: '#E8DCC8',
     bgVif: '#C9A876',
@@ -1576,12 +1576,12 @@ const CONTINENTS = [
   },
   {
     competence: 'logique',
-    zone: { left: 0.056, top: 0.7936, width: 0.288, height: 0.1728 },
+    zone: { left: 0.0, top: 0.52, width: 0.5, height: 0.25 },
     labelCourt: 'Logique',
-    paysSlotsFor: { 'jeu_intrus': { top: '85%', left: '45%' }, 'empreintes_clairiere': { top: '10%', left: '25%' }, 'puzzle_moulin': { top: '35%', left: '70%' }, 'tri_village': { top: '45%', left: '15%' } },
-    paysVides: [{ top: '70%', left: '15%' }, { top: '20%', left: '50%' }],
+    paysSlotsFor: { 'jeu_intrus': { top: '82%', left: '45%' }, 'empreintes_clairiere': { top: '29%', left: '25%' }, 'puzzle_moulin': { top: '46%', left: '70%' }, 'tri_village': { top: '54%', left: '15%' } },
+    paysVides: [{ top: '71%', left: '15%' }, { top: '36%', left: '50%' }],
     blobStyle: { borderTopLeftRadius: 90, borderTopRightRadius: 20, borderBottomLeftRadius: 100, borderBottomRightRadius: 90 }, rot: -5,
-    nom: 'La Forêt',
+    nom: 'La Grotte des Énigmes',
     emoji: '🌲',
     bg: '#DCD3E8',
     bgVif: '#A896C4',
@@ -1594,12 +1594,12 @@ const CONTINENTS = [
   },
   {
     competence: 'memoire',
-    zone: { left: 0.3704, top: 0.0532, width: 0.2592, height: 0.2736 },
+    zone: { left: 0.5, top: 0.0, width: 0.5, height: 0.27 },
     labelCourt: 'Mémoire',
-    paysSlotsFor: { 'memoire_etoiles': { top: '45%', left: '35%' }, 'coffre_souvenirs': { top: '30%', left: '55%' }, 'ronde_lucioles': { top: '65%', left: '50%' } },
-    paysVides: [{ top: '20%', left: '25%' }, { top: '75%', left: '30%' }],
+    paysSlotsFor: { 'memoire_etoiles': { top: '54%', left: '35%' }, 'coffre_souvenirs': { top: '43%', left: '55%' }, 'ronde_lucioles': { top: '68%', left: '50%' } },
+    paysVides: [{ top: '36%', left: '25%' }, { top: '74%', left: '30%' }],
     blobStyle: { borderTopLeftRadius: 100, borderTopRightRadius: 100, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }, rot: 4,
-    nom: 'La Cabane',
+    nom: 'La Cabane aux Souvenirs',
     emoji: '🏡',
     bg: '#F5E1C8',
     bgVif: '#E0B888',
@@ -1612,12 +1612,12 @@ const CONTINENTS = [
   },
   {
     competence: 'geographie',
-    zone: { left: 0.0504, top: 0.1304, width: 0.2592, height: 0.2592 },
+    zone: { left: 0.0, top: 0.0, width: 0.5, height: 0.27 },
     labelCourt: 'Géographie',
-    paysSlotsFor: { 'monde_capitales': { top: '60%', left: '35%' } },
-    paysVides: [{ top: '25%', left: '20%' }, { top: '50%', left: '15%' }, { top: '80%', left: '75%' }],
+    paysSlotsFor: { 'monde_capitales': { top: '64%', left: '35%' } },
+    paysVides: [{ top: '40%', left: '20%' }, { top: '57%', left: '15%' }, { top: '78%', left: '75%' }],
     blobStyle: { borderTopLeftRadius: 110, borderTopRightRadius: 130, borderBottomLeftRadius: 110, borderBottomRightRadius: 90 }, rot: -2,
-    nom: 'La Rivière',
+    nom: 'La Rivière du Monde',
     emoji: '🌊',
     bg: '#DFF1FB',
     bgVif: '#A6D9F2',
@@ -1630,12 +1630,12 @@ const CONTINENTS = [
   },
   {
     competence: 'histoire',
-    zone: { left: 0.6904, top: 0.496, width: 0.2592, height: 0.288 },
+    zone: { left: 0.1, top: 0.77, width: 0.8, height: 0.23 },
     labelCourt: 'Histoire',
-    paysSlotsFor: { 'frise_temps': { top: '15%', left: '60%' } },
-    paysVides: [{ top: '40%', left: '30%' }, { top: '55%', left: '55%' }, { top: '65%', left: '80%' }, { top: '35%', left: '80%' }],
+    paysSlotsFor: { 'frise_temps': { top: '32%', left: '60%' } },
+    paysVides: [{ top: '50%', left: '30%' }, { top: '60%', left: '55%' }, { top: '68%', left: '80%' }, { top: '46%', left: '80%' }],
     blobStyle: { borderTopLeftRadius: 40, borderTopRightRadius: 140, borderBottomLeftRadius: 120, borderBottomRightRadius: 30 }, rot: 3,
-    nom: 'Le Vieux Chêne',
+    nom: 'Le Vieux Chêne du Temps',
     emoji: '🌳',
     bg: '#F0DFC0',
     bgVif: '#D4A868',
@@ -1648,12 +1648,12 @@ const CONTINENTS = [
   },
   {
     competence: 'sciences',
-    zone: { left: 0.0504, top: 0.4732, width: 0.2592, height: 0.2736 },
+    zone: { left: 0.0, top: 0.27, width: 0.5, height: 0.25 },
     labelCourt: 'Sciences',
-    paysSlotsFor: { 'corps_humain': { top: '55%', left: '45%' } },
-    paysVides: [{ top: '25%', left: '25%' }, { top: '65%', left: '20%' }, { top: '40%', left: '75%' }],
+    paysSlotsFor: { 'corps_humain': { top: '60%', left: '45%' } },
+    paysVides: [{ top: '40%', left: '25%' }, { top: '68%', left: '20%' }, { top: '50%', left: '75%' }],
     blobStyle: { borderTopLeftRadius: 130, borderTopRightRadius: 30, borderBottomLeftRadius: 30, borderBottomRightRadius: 120 }, rot: -4,
-    nom: 'Le Jardin',
+    nom: 'Le Jardin Vivant',
     emoji: '🌿',
     bg: '#E6F3DE',
     bgVif: '#B4DE9B',
@@ -4401,6 +4401,21 @@ function ReglagesParentauxScreen({ route, navigation }) {
     await loadProfils();
   }
 
+  // Laisse choisir de combien avancer (1 a 3 crans), au lieu d'une valeur
+  // fixe comme pour reculer.
+  function avancerProgression(profilId) {
+    Alert.alert(
+      'Avancer la progression',
+      'De combien de crans veux-tu faire avancer ce profil ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { text: '+1', onPress: () => adjustNiveauGlobal(profilId, 1) },
+        { text: '+2', onPress: () => adjustNiveauGlobal(profilId, 2) },
+        { text: '+3', onPress: () => adjustNiveauGlobal(profilId, 3) },
+      ]
+    );
+  }
+
   function adjustNiveauGlobal(profilId, delta) {
     Alert.alert(
       delta > 0 ? 'Avancer la progression' : 'Revenir en arrière',
@@ -4653,6 +4668,9 @@ function ReglagesParentauxScreen({ route, navigation }) {
               <View style={styles.profilManageActions}>
                 <Pressable style={styles.profilActionBtn} onPress={() => startEditProfil(p)}>
                   <Text style={styles.profilActionText}>✏️ Modifier</Text>
+                </Pressable>
+                <Pressable style={styles.profilActionBtn} onPress={() => avancerProgression(p.id)}>
+                  <Text style={styles.profilActionText}>▶️ Avancer</Text>
                 </Pressable>
                 <Pressable style={styles.profilActionBtn} onPress={() => adjustNiveauGlobal(p.id, -5)}>
                   <Text style={styles.profilActionText}>⬅️ Reculer</Text>
@@ -4974,12 +4992,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
   },
   mapCredit: { fontSize: 10, color: colors.ink, opacity: 0.35, textAlign: 'center', marginBottom: 14 },
-  campagneMapBleed: { marginHorizontal: -18, marginBottom: 6 },
-  campagneMapBox: {
-    width: '100%', aspectRatio: 9 / 16, overflow: 'hidden',
-    backgroundColor: '#4A3728', alignItems: 'center', justifyContent: 'center',
-  },
-  campagneMapInner: { width: '100%', aspectRatio: CAMPAGNE_MAP_ASPECT },
+  // La nouvelle carte est deja tres verticale (plus haute que 9/16), donc
+  // plus besoin de cadre artificiel : on l'affiche a sa taille naturelle,
+  // juste un peu retrecie pour laisser respirer la barre du haut.
+  campagneMapBleed: { marginHorizontal: -6, marginBottom: 6, alignItems: 'center' },
+  campagneMapBox: { width: '92%', aspectRatio: CAMPAGNE_MAP_ASPECT, overflow: 'hidden' },
+  campagneMapInner: { width: '100%', height: '100%' },
   campagneMapImage: { width: '100%', height: '100%' },
   campagnePin: {
     position: 'absolute', width: 60, height: 60, marginLeft: -30, marginTop: -30,
