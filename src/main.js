@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '21/07/2026 - Micro individuel etendu a tous les jeux avec du texte (Pont des Lettres, Tri du Village, Frise du Temps)';
+const APP_BUILD_VERSION = '21/07/2026 - Positions des jeux repositionnees selon les grilles fournies par lutilisateur';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1541,7 +1541,7 @@ const CONTINENTS = [
     competence: 'lecture',
     zone: { left: 0.5, top: 0.60, width: 0.5, height: 0.25 },
     labelCourt: 'Lecture',
-    paysSlotsFor: { 'pont_des_lettres': { top: '45%', left: '35%' }, 'sons_magiques': { top: '70%', left: '65%' } },
+    paysSlotsFor: { 'pont_des_lettres': { top: '63%', left: '17%' }, 'sons_magiques': { top: '63%', left: '50%' } },
     paysVides: [{ top: '30%', left: '65%' }, { top: '60%', left: '20%' }],
     blobStyle: { borderTopLeftRadius: 120, borderTopRightRadius: 60, borderBottomLeftRadius: 40, borderBottomRightRadius: 140 }, rot: -3,
     nom: 'La Clairière des Histoires',
@@ -1560,7 +1560,7 @@ const CONTINENTS = [
     competence: 'maths',
     zone: { left: 0.5, top: 0.30, width: 0.5, height: 0.30 },
     labelCourt: 'Maths',
-    paysSlotsFor: { 'pommes_de_luma': { top: '40%', left: '30%' }, 'balance_prairie': { top: '35%', left: '70%' }, 'marche_village': { top: '70%', left: '25%' }, 'cachettes_luma': { top: '75%', left: '70%' } },
+    paysSlotsFor: { 'pommes_de_luma': { top: '38%', left: '17%' }, 'balance_prairie': { top: '38%', left: '83%' }, 'marche_village': { top: '63%', left: '17%' }, 'cachettes_luma': { top: '63%', left: '83%' } },
     paysVides: [],
     blobStyle: { borderTopLeftRadius: 20, borderTopRightRadius: 110, borderBottomLeftRadius: 130, borderBottomRightRadius: 30 }, rot: 2,
     nom: 'Le Bois des Nombres',
@@ -1578,7 +1578,7 @@ const CONTINENTS = [
     competence: 'logique',
     zone: { left: 0.0, top: 0.60, width: 0.5, height: 0.25 },
     labelCourt: 'Logique',
-    paysSlotsFor: { 'jeu_intrus': { top: '75%', left: '75%' }, 'empreintes_clairiere': { top: '35%', left: '25%' }, 'puzzle_moulin': { top: '40%', left: '70%' }, 'tri_village': { top: '75%', left: '25%' } },
+    paysSlotsFor: { 'jeu_intrus': { top: '63%', left: '17%' }, 'empreintes_clairiere': { top: '63%', left: '83%' }, 'puzzle_moulin': { top: '88%', left: '17%' }, 'tri_village': { top: '88%', left: '50%' } },
     paysVides: [],
     blobStyle: { borderTopLeftRadius: 90, borderTopRightRadius: 20, borderBottomLeftRadius: 100, borderBottomRightRadius: 90 }, rot: -5,
     nom: 'La Grotte des Énigmes',
@@ -1596,7 +1596,7 @@ const CONTINENTS = [
     competence: 'memoire',
     zone: { left: 0.5, top: 0.0, width: 0.5, height: 0.30 },
     labelCourt: 'Mémoire',
-    paysSlotsFor: { 'memoire_etoiles': { top: '45%', left: '30%' }, 'coffre_souvenirs': { top: '45%', left: '70%' }, 'ronde_lucioles': { top: '80%', left: '50%' } },
+    paysSlotsFor: { 'memoire_etoiles': { top: '63%', left: '17%' }, 'coffre_souvenirs': { top: '63%', left: '83%' }, 'ronde_lucioles': { top: '88%', left: '17%' } },
     paysVides: [{ top: '70%', left: '20%' }],
     blobStyle: { borderTopLeftRadius: 100, borderTopRightRadius: 100, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }, rot: 4,
     nom: 'La Cabane aux Souvenirs',
@@ -1614,7 +1614,7 @@ const CONTINENTS = [
     competence: 'geographie',
     zone: { left: 0.0, top: 0.0, width: 0.5, height: 0.335 },
     labelCourt: 'Géographie',
-    paysSlotsFor: { 'monde_capitales': { top: '75%', left: '50%' } },
+    paysSlotsFor: { 'monde_capitales': { top: '63%', left: '17%' } },
     paysVides: [{ top: '40%', left: '25%' }, { top: '55%', left: '65%' }, { top: '30%', left: '70%' }],
     blobStyle: { borderTopLeftRadius: 110, borderTopRightRadius: 130, borderBottomLeftRadius: 110, borderBottomRightRadius: 90 }, rot: -2,
     nom: 'La Rivière du Monde',
@@ -1632,7 +1632,7 @@ const CONTINENTS = [
     competence: 'histoire',
     zone: { left: 0.12, top: 0.85, width: 0.66, height: 0.15 },
     labelCourt: 'Histoire',
-    paysSlotsFor: { 'frise_temps': { top: '55%', left: '50%' } },
+    paysSlotsFor: { 'frise_temps': { top: '63%', left: '17%' } },
     paysVides: [],
     blobStyle: { borderTopLeftRadius: 40, borderTopRightRadius: 140, borderBottomLeftRadius: 120, borderBottomRightRadius: 30 }, rot: 3,
     nom: 'Le Vieux Chêne du Temps',
@@ -1650,7 +1650,7 @@ const CONTINENTS = [
     competence: 'sciences',
     zone: { left: 0.0, top: 0.335, width: 0.5, height: 0.265 },
     labelCourt: 'Sciences',
-    paysSlotsFor: { 'corps_humain': { top: '55%', left: '50%' } },
+    paysSlotsFor: { 'corps_humain': { top: '63%', left: '17%' } },
     paysVides: [{ top: '35%', left: '25%' }, { top: '75%', left: '70%' }, { top: '30%', left: '70%' }],
     blobStyle: { borderTopLeftRadius: 130, borderTopRightRadius: 30, borderBottomLeftRadius: 30, borderBottomRightRadius: 120 }, rot: -4,
     nom: 'Le Jardin Vivant',
