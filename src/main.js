@@ -83,11 +83,11 @@ import { Audio } from 'expo-av';
 import * as DocumentPicker from 'expo-document-picker';
 
 const CAMPAGNE_MAP_IMAGE = require('../assets/carte-campagne.jpg');
-const CAMPAGNE_MAP_ASPECT = 750 / 1693;
+const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '21/07/2026 - Bouton Avancer la progression (1 a 3 crans), nouvelle carte verticale';
+const APP_BUILD_VERSION = '21/07/2026 - Micro individuel etendu a tous les jeux avec du texte (Pont des Lettres, Tri du Village, Frise du Temps)';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1539,10 +1539,10 @@ function maxRungForGame(code) {
 const CONTINENTS = [
   {
     competence: 'lecture',
-    zone: { left: 0.5, top: 0.52, width: 0.5, height: 0.25 },
+    zone: { left: 0.5, top: 0.60, width: 0.5, height: 0.25 },
     labelCourt: 'Lecture',
-    paysSlotsFor: { 'pont_des_lettres': { top: '57%', left: '68%' }, 'sons_magiques': { top: '72%', left: '55%' } },
-    paysVides: [{ top: '36%', left: '25%' }, { top: '54%', left: '35%' }, { top: '82%', left: '30%' }],
+    paysSlotsFor: { 'pont_des_lettres': { top: '45%', left: '35%' }, 'sons_magiques': { top: '70%', left: '65%' } },
+    paysVides: [{ top: '30%', left: '65%' }, { top: '60%', left: '20%' }],
     blobStyle: { borderTopLeftRadius: 120, borderTopRightRadius: 60, borderBottomLeftRadius: 40, borderBottomRightRadius: 140 }, rot: -3,
     nom: 'La Clairière des Histoires',
     emoji: '🏞️',
@@ -1558,10 +1558,10 @@ const CONTINENTS = [
   },
   {
     competence: 'maths',
-    zone: { left: 0.5, top: 0.27, width: 0.5, height: 0.25 },
+    zone: { left: 0.5, top: 0.30, width: 0.5, height: 0.30 },
     labelCourt: 'Maths',
-    paysSlotsFor: { 'pommes_de_luma': { top: '64%', left: '55%' }, 'balance_prairie': { top: '36%', left: '50%' }, 'marche_village': { top: '74%', left: '20%' }, 'cachettes_luma': { top: '32%', left: '15%' } },
-    paysVides: [{ top: '54%', left: '75%' }, { top: '82%', left: '55%' }],
+    paysSlotsFor: { 'pommes_de_luma': { top: '40%', left: '30%' }, 'balance_prairie': { top: '35%', left: '70%' }, 'marche_village': { top: '70%', left: '25%' }, 'cachettes_luma': { top: '75%', left: '70%' } },
+    paysVides: [],
     blobStyle: { borderTopLeftRadius: 20, borderTopRightRadius: 110, borderBottomLeftRadius: 130, borderBottomRightRadius: 30 }, rot: 2,
     nom: 'Le Bois des Nombres',
     emoji: '🌲',
@@ -1576,10 +1576,10 @@ const CONTINENTS = [
   },
   {
     competence: 'logique',
-    zone: { left: 0.0, top: 0.52, width: 0.5, height: 0.25 },
+    zone: { left: 0.0, top: 0.60, width: 0.5, height: 0.25 },
     labelCourt: 'Logique',
-    paysSlotsFor: { 'jeu_intrus': { top: '82%', left: '45%' }, 'empreintes_clairiere': { top: '29%', left: '25%' }, 'puzzle_moulin': { top: '46%', left: '70%' }, 'tri_village': { top: '54%', left: '15%' } },
-    paysVides: [{ top: '71%', left: '15%' }, { top: '36%', left: '50%' }],
+    paysSlotsFor: { 'jeu_intrus': { top: '75%', left: '75%' }, 'empreintes_clairiere': { top: '35%', left: '25%' }, 'puzzle_moulin': { top: '40%', left: '70%' }, 'tri_village': { top: '75%', left: '25%' } },
+    paysVides: [],
     blobStyle: { borderTopLeftRadius: 90, borderTopRightRadius: 20, borderBottomLeftRadius: 100, borderBottomRightRadius: 90 }, rot: -5,
     nom: 'La Grotte des Énigmes',
     emoji: '🌲',
@@ -1594,10 +1594,10 @@ const CONTINENTS = [
   },
   {
     competence: 'memoire',
-    zone: { left: 0.5, top: 0.0, width: 0.5, height: 0.27 },
+    zone: { left: 0.5, top: 0.0, width: 0.5, height: 0.30 },
     labelCourt: 'Mémoire',
-    paysSlotsFor: { 'memoire_etoiles': { top: '54%', left: '35%' }, 'coffre_souvenirs': { top: '43%', left: '55%' }, 'ronde_lucioles': { top: '68%', left: '50%' } },
-    paysVides: [{ top: '36%', left: '25%' }, { top: '74%', left: '30%' }],
+    paysSlotsFor: { 'memoire_etoiles': { top: '45%', left: '30%' }, 'coffre_souvenirs': { top: '45%', left: '70%' }, 'ronde_lucioles': { top: '80%', left: '50%' } },
+    paysVides: [{ top: '70%', left: '20%' }],
     blobStyle: { borderTopLeftRadius: 100, borderTopRightRadius: 100, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }, rot: 4,
     nom: 'La Cabane aux Souvenirs',
     emoji: '🏡',
@@ -1612,10 +1612,10 @@ const CONTINENTS = [
   },
   {
     competence: 'geographie',
-    zone: { left: 0.0, top: 0.0, width: 0.5, height: 0.27 },
+    zone: { left: 0.0, top: 0.0, width: 0.5, height: 0.335 },
     labelCourt: 'Géographie',
-    paysSlotsFor: { 'monde_capitales': { top: '64%', left: '35%' } },
-    paysVides: [{ top: '40%', left: '20%' }, { top: '57%', left: '15%' }, { top: '78%', left: '75%' }],
+    paysSlotsFor: { 'monde_capitales': { top: '75%', left: '50%' } },
+    paysVides: [{ top: '40%', left: '25%' }, { top: '55%', left: '65%' }, { top: '30%', left: '70%' }],
     blobStyle: { borderTopLeftRadius: 110, borderTopRightRadius: 130, borderBottomLeftRadius: 110, borderBottomRightRadius: 90 }, rot: -2,
     nom: 'La Rivière du Monde',
     emoji: '🌊',
@@ -1630,10 +1630,10 @@ const CONTINENTS = [
   },
   {
     competence: 'histoire',
-    zone: { left: 0.1, top: 0.77, width: 0.8, height: 0.23 },
+    zone: { left: 0.12, top: 0.85, width: 0.66, height: 0.15 },
     labelCourt: 'Histoire',
-    paysSlotsFor: { 'frise_temps': { top: '32%', left: '60%' } },
-    paysVides: [{ top: '50%', left: '30%' }, { top: '60%', left: '55%' }, { top: '68%', left: '80%' }, { top: '46%', left: '80%' }],
+    paysSlotsFor: { 'frise_temps': { top: '55%', left: '50%' } },
+    paysVides: [],
     blobStyle: { borderTopLeftRadius: 40, borderTopRightRadius: 140, borderBottomLeftRadius: 120, borderBottomRightRadius: 30 }, rot: 3,
     nom: 'Le Vieux Chêne du Temps',
     emoji: '🌳',
@@ -1648,10 +1648,10 @@ const CONTINENTS = [
   },
   {
     competence: 'sciences',
-    zone: { left: 0.0, top: 0.27, width: 0.5, height: 0.25 },
+    zone: { left: 0.0, top: 0.335, width: 0.5, height: 0.265 },
     labelCourt: 'Sciences',
-    paysSlotsFor: { 'corps_humain': { top: '60%', left: '45%' } },
-    paysVides: [{ top: '40%', left: '25%' }, { top: '68%', left: '20%' }, { top: '50%', left: '75%' }],
+    paysSlotsFor: { 'corps_humain': { top: '55%', left: '50%' } },
+    paysVides: [{ top: '35%', left: '25%' }, { top: '75%', left: '70%' }, { top: '30%', left: '70%' }],
     blobStyle: { borderTopLeftRadius: 130, borderTopRightRadius: 30, borderBottomLeftRadius: 30, borderBottomRightRadius: 120 }, rot: -4,
     nom: 'Le Jardin Vivant',
     emoji: '🌿',
@@ -1960,15 +1960,11 @@ function WorldMapScreen({ route, navigation }) {
 // la zone pour remplir le cadre - quitte a deborder un peu sur le sentier
 // voisin, sans jamais sortir des bords de l'image elle-meme.
 function computeZoomStyle(zone, containerWidth) {
-  const containerHeight = containerWidth * (16 / 9);
   const imageWidth = containerWidth / zone.width;
   const imageHeight = imageWidth / CAMPAGNE_MAP_ASPECT;
-  const heightFractionNeeded = containerHeight / imageHeight;
-  const zoneCenterY = zone.top + zone.height / 2;
-  let cropTop = zoneCenterY - heightFractionNeeded / 2;
-  cropTop = Math.max(0, Math.min(cropTop, 1 - heightFractionNeeded));
+  const containerHeight = imageHeight * zone.height;
   const imageLeft = -zone.left * imageWidth;
-  const imageTop = -cropTop * imageHeight;
+  const imageTop = -zone.top * imageHeight;
   return { containerHeight, imageWidth, imageHeight, imageLeft, imageTop };
 }
 
@@ -2400,6 +2396,15 @@ function PontDesLettresScreen({ route, navigation }) {
                 <Text style={styles.stoneText} numberOfLines={1} adjustsFontSizeToFit>
                   {token}
                 </Text>
+                {!used && (
+                  <Pressable
+                    style={styles.stoneListenBtn}
+                    onPress={() => speakSmart(token.length <= 2 ? speechFriendlyToken(token) : token)}
+                    hitSlop={8}
+                  >
+                    <Text style={{ fontSize: 11 }}>🎤</Text>
+                  </Pressable>
+                )}
               </Pressable>
             );
           })}
@@ -2957,9 +2962,16 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
                   isAnswered && isThisAnswer && !isThisCorrect && styles.optionWrong,
                 ]}
               >
-                <Text style={styles.optionText} numberOfLines={1} adjustsFontSizeToFit>
+                <Text style={styles.optionText} numberOfLines={2} adjustsFontSizeToFit>
                   {String(option)}
                 </Text>
+                <Pressable
+                  style={styles.optionListenBtn}
+                  onPress={() => speakSmart(String(option))}
+                  hitSlop={10}
+                >
+                  <Text style={{ fontSize: 15 }}>🎤</Text>
+                </Pressable>
               </Pressable>
             );
           })}
@@ -3520,6 +3532,13 @@ function TriVillageScreen({ route, navigation }) {
         {categories.map((cat) => (
           <Pressable key={cat} style={styles.triCategoryBox} onPress={() => onCategoryPress(cat)}>
             <Text style={styles.triCategoryText}>{cat}</Text>
+            <Pressable
+              style={styles.triCategoryListenBtn}
+              onPress={() => speakSmart(cat)}
+              hitSlop={8}
+            >
+              <Text style={{ fontSize: 12 }}>🎤</Text>
+            </Pressable>
           </Pressable>
         ))}
       </View>
@@ -3825,6 +3844,13 @@ function FriseTempsScreen({ route, navigation }) {
               <Text style={styles.friseEventText} numberOfLines={2} adjustsFontSizeToFit>
                 {evt.nom}
               </Text>
+              <Pressable
+                style={styles.friseEventListenBtn}
+                onPress={() => speakSmart(evt.nom)}
+                hitSlop={8}
+              >
+                <Text style={{ fontSize: 11 }}>🎤</Text>
+              </Pressable>
             </Pressable>
           );
         })}
@@ -5057,14 +5083,18 @@ const styles = StyleSheet.create({
   feedback: { textAlign: 'center', fontWeight: '800', fontSize: 16, marginBottom: 12 },
   feedbackSuccess: { color: colors.success },
   feedbackError: { color: colors.error },
-  stonesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
+  stonesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, justifyContent: 'center' },
   stone: {
-    minWidth: 52, height: 52, paddingHorizontal: 14, borderRadius: 16,
+    minWidth: 64, height: 64, paddingHorizontal: 16, borderRadius: 16,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
     borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
   },
   stoneUsed: { backgroundColor: colors.mossSoft, opacity: 0.45, borderColor: 'transparent' },
-  stoneText: { fontSize: 17, fontWeight: '800', color: colors.ink },
+  stoneText: { fontSize: 18, fontWeight: '800', color: colors.ink },
+  stoneListenBtn: {
+    position: 'absolute', top: 2, right: 2, width: 20, height: 20, borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.8)', alignItems: 'center', justifyContent: 'center',
+  },
   endEmoji: { fontSize: 48, marginBottom: 12 },
   endTitle: { fontSize: 22, fontWeight: '700', color: colors.mossDeep, marginBottom: 8 },
   endText: { fontSize: 15, opacity: 0.7, marginBottom: 24, textAlign: 'center' },
@@ -5102,6 +5132,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.mossSoft, alignItems: 'center', justifyContent: 'center',
   },
   triCategoryText: { fontSize: 15, fontWeight: '800', color: '#fff', textAlign: 'center' },
+  triCategoryListenBtn: {
+    position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: 11,
+    backgroundColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center',
+  },
   puzzleGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginTop: 10 },
   puzzlePiece: {
     width: 64, height: 64, borderRadius: 14, backgroundColor: colors.sand,
@@ -5123,10 +5157,21 @@ const styles = StyleSheet.create({
   friseEventWrong: { backgroundColor: colors.error, borderColor: colors.error },
   friseEventIcon: { fontSize: 26 },
   friseEventText: { fontSize: 11, fontWeight: '700', color: '#fff', textAlign: 'center' },
-  optionButton: { minWidth: 76, height: 56, paddingHorizontal: 14, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexShrink: 1, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)' },
+  friseEventListenBtn: {
+    position: 'absolute', top: 2, right: 2, width: 20, height: 20, borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.8)', alignItems: 'center', justifyContent: 'center',
+  },
+  optionButton: {
+    width: '46%', minHeight: 110, paddingHorizontal: 12, paddingVertical: 14, borderRadius: 20,
+    alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
+  },
+  optionListenBtn: {
+    position: 'absolute', top: 6, right: 6, width: 30, height: 30, borderRadius: 15,
+    backgroundColor: 'rgba(255,255,255,0.75)', alignItems: 'center', justifyContent: 'center',
+  },
   optionCorrect: { backgroundColor: colors.success, borderColor: colors.success },
   optionWrong: { backgroundColor: colors.error, borderColor: colors.error },
-  optionText: { fontSize: 17, fontWeight: '800', color: colors.ink },
+  optionText: { fontSize: 22, fontWeight: '800', color: colors.ink, textAlign: 'center' },
   rewardForm: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginTop: 16 },
   rewardRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 14, padding: 12, marginBottom: 8 },
   rewardRowTitle: { fontWeight: '700', color: colors.mossDeep },
