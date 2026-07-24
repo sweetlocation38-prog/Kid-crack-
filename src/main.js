@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '21/07/2026 - Positions des jeux repositionnees selon les grilles fournies par lutilisateur';
+const APP_BUILD_VERSION = '21/07/2026 - Etiquettes niveau sur les jeux, etoiles de serie parfaite, explication vocale de fin de session';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -715,6 +715,7 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   // vraie maitrise : on compare au temps de reference de l'enfant sur ce jeu.
   const tropLent = reference != null && tempsMoyenParManche != null && tempsMoyenParManche > reference * 1.5;
 
+  let raison;
   if (erreursTotal === 0 && !tropLent) {
     // Session parfaite ET dans un temps raisonnable : la remontee s'accelere.
     newStreak = oldStreak + 1;
@@ -726,22 +727,26 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
         ? tempsMoyenParManche
         : Math.round((reference * 2 + tempsMoyenParManche) / 3);
     }
+    raison = 'parfait_rapide';
   } else if (erreursTotal === 0 && tropLent) {
     // Juste, mais trop lent : pas de recul, mais pas d'acceleration non plus.
     newStreak = 0;
     newRung = currentRung;
+    raison = 'parfait_lent';
   } else if (erreursTotal >= 3) {
     // Vraie difficulte rencontree : on redescend et on remet le compteur a zero.
     newStreak = 0;
     newRung = Math.max(1, currentRung - 1);
+    raison = 'erreurs_beaucoup';
   } else {
     // Quelques erreurs, sans plus : on reste sur place, sans casser un futur enchainement.
     newStreak = 0;
     newRung = currentRung;
+    raison = 'erreurs_quelques';
   }
 
   const direction = newRung > currentRung ? 'up' : newRung < currentRung ? 'down' : 'same';
-  return { newRung, newStreak, newReference, rungChanged: newRung !== currentRung, direction };
+  return { newRung, newStreak, newReference, rungChanged: newRung !== currentRung, direction, raison };
 }
 
 async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt, tempsMoyenParManche, maxRung }) {
@@ -753,6 +758,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
   let newReference = null;
   let rungChanged = false;
   let direction = 'same';
+  let raison = 'erreurs_quelques';
   try {
     const result = await computeNextRung({
       profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche, maxRung,
@@ -762,6 +768,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
     newReference = result.newReference;
     rungChanged = result.rungChanged;
     direction = result.direction;
+    raison = result.raison;
   } catch (e) {
     // On garde le cran actuel si le calcul echoue.
   }
@@ -874,6 +881,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
     newRung,
     rungChanged,
     direction,
+    raison,
   };
 }
 
@@ -898,6 +906,17 @@ function gradeAndPalierFromRung(rung) {
   const idx = Math.floor((clamped - 1) / 3);
   const palier = ((clamped - 1) % 3) + 1;
   return { niveau: GRADE_ORDER[Math.min(idx, GRADE_ORDER.length - 1)], palier };
+}
+
+// Lettre de niveau scolaire (A=MS, B=GS, C=CP, D=CE1, E=CE2, F=CM1, G=CM2)
+// suivie du cran (1 a 3), pour un reperage visuel rapide sur la carte -
+// ex: "A-2" = Moyenne Section, cran 2.
+const NIVEAU_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+function letterCranFromRung(rung) {
+  const { niveau, palier } = gradeAndPalierFromRung(rung);
+  const idx = GRADE_ORDER.indexOf(niveau);
+  const letter = NIVEAU_LETTERS[idx] ?? '?';
+  return `${letter}-${palier}`;
 }
 
 function rungLabel(rung) {
@@ -1986,6 +2005,7 @@ function SentierScreen({ route, navigation }) {
   const containerWidth = screenWidth - 36;
   const zoom = computeZoomStyle(continent.zone, containerWidth);
   const [miniJeux, setMiniJeux] = useState([]);
+  const [niveauxParJeu, setNiveauxParJeu] = useState({}); // mini_jeu_id -> cran actuel
   const [loading, setLoading] = useState(true);
   const [showGate, setShowGate] = useState(false);
   const { extraMinutesGranted, grantExtraMinutes } = useContext(ExtraTimeContext);
@@ -2003,6 +2023,20 @@ function SentierScreen({ route, navigation }) {
         .eq('competence', competence)
         .order('nom');
       setMiniJeux(data ?? []);
+
+      // Recupere le cran actuel de l'enfant sur chacun de ces jeux, pour
+      // afficher une petite etiquette de niveau (ex: "A-2") sur la carte.
+      const ids = (data ?? []).map((j) => j.id);
+      if (ids.length > 0) {
+        const { data: progRows } = await supabase
+          .from('progression')
+          .select('mini_jeu_id, palier_actuel')
+          .eq('profil_id', profil.id)
+          .in('mini_jeu_id', ids);
+        const map = {};
+        (progRows ?? []).forEach((r) => { map[r.mini_jeu_id] = r.palier_actuel; });
+        setNiveauxParJeu(map);
+      }
       setLoading(false);
     })();
   }, [competence]);
@@ -2067,6 +2101,11 @@ function SentierScreen({ route, navigation }) {
               <Text style={styles.paysMarkerText} numberOfLines={3}>
                 {item.nom}
               </Text>
+              {niveauxParJeu[item.id] != null && (
+                <View style={styles.paysMarkerNiveauBadge}>
+                  <Text style={styles.paysMarkerNiveauText}>{letterCranFromRung(niveauxParJeu[item.id])}</Text>
+                </View>
+              )}
               {!targetScreen && <Text style={styles.paysMarkerLock}>🔒</Text>}
               {limitReached && targetScreen && <Text style={styles.paysMarkerLock}>🔒</Text>}
             </Pressable>
@@ -2305,6 +2344,7 @@ function PontDesLettresScreen({ route, navigation }) {
     } else {
       errorsThisRound.current += 1;
       errorsTotal.current += 1;
+      setPerfectStreak(0);
       setFeedback('Essaie encore !');
       maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       setTimeout(() => setFeedback(null), 500);
@@ -2554,9 +2594,18 @@ function speak(text) {
 function SessionEndScreen({ profil, summary, navigation, timeUp }) {
   const fiche = summary?.ficheAnimal;
 
-  // Encouragement vocal uniquement si la session est une vraie reussite
-  // (le cran a monte), jamais systematique.
+  // Explication parlee de la raison de la montee (ou non), puisque l'enfant
+  // ne sait pas lire - toujours un message adapte, jamais juste "Bravo".
   useEffect(() => {
+    const messages = {
+      parfait_rapide: `Bravo ${profil.prenom} ! Tu as tout bon et tu as été rapide, tu montes de niveau !`,
+      parfait_lent: `Bravo ${profil.prenom}, tu as tout bon ! Essaie d'être un peu plus rapide la prochaine fois pour monter de niveau.`,
+      erreurs_beaucoup: `Ce n'était pas facile cette fois, ${profil.prenom}. On redescend un peu pour s'entraîner, tu vas y arriver !`,
+      erreurs_quelques: `Pas mal du tout ${profil.prenom} ! Encore un petit effort et tu vas monter de niveau.`,
+    };
+    const message = summary?.raison ? messages[summary.raison] : null;
+    if (message) speakSmart(message);
+
     if (summary?.direction === 'up') {
       fetchMemosConfig(profil.famille_id).then((cfg) => {
         maybePlayMemo(cfg, 'encouragement_fin');
@@ -2578,6 +2627,22 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
           Niveau atteint : {rungLabel(summary.newRung)}
           {summary.direction === 'up' ? ' 🎉' : ''}
         </Text>
+      )}
+      {summary?.raison && (
+        <Pressable
+          style={styles.listenButton}
+          onPress={() => {
+            const messages = {
+              parfait_rapide: `Bravo ${profil.prenom} ! Tu as tout bon et tu as été rapide, tu montes de niveau !`,
+              parfait_lent: `Bravo ${profil.prenom}, tu as tout bon ! Essaie d'être un peu plus rapide la prochaine fois pour monter de niveau.`,
+              erreurs_beaucoup: `Ce n'était pas facile cette fois, ${profil.prenom}. On redescend un peu pour s'entraîner, tu vas y arriver !`,
+              erreurs_quelques: `Pas mal du tout ${profil.prenom} ! Encore un petit effort et tu vas monter de niveau.`,
+            };
+            speakSmart(messages[summary.raison]);
+          }}
+        >
+          <Text style={styles.listenText}>🎤 Réécouter</Text>
+        </Pressable>
       )}
       {timeUp && (
         <View style={styles.timeUpBox}>
@@ -2660,6 +2725,9 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   const attentionChosenOnce = useRef(false);
   const [showSafetyCheck, setShowSafetyCheck] = useState(false);
   const [forcedPause, setForcedPause] = useState(false);
+  // Petit repere visuel discret : nombre de bonnes reponses d'affilee sans
+  // erreur dans la session en cours (remis a zero a la moindre erreur).
+  const [perfectStreak, setPerfectStreak] = useState(0);
 
   useEffect(() => {
     fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; });
@@ -2775,6 +2843,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
 
     if (isCorrect) {
       recentRounds.current = [...recentRounds.current, { wrong: false, fast: false }].slice(-4);
+      setPerfectStreak((s) => s + 1);
       setFeedback('Bravo !');
       maybePlayMemo(memosConfig.current, 'bonne_reponse');
       setTimeout(async () => {
@@ -2887,6 +2956,14 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         <Text style={styles.gameTitle}>{jeuTitre}</Text>
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
+
+      {perfectStreak > 0 && (
+        <View style={styles.streakRow}>
+          {Array.from({ length: Math.min(perfectStreak, 5) }).map((_, i) => (
+            <Text key={i} style={styles.streakStar}>⭐</Text>
+          ))}
+        </View>
+      )}
 
       {forcedPause && (
         <View style={styles.forcedPauseBanner}>
@@ -4940,6 +5017,8 @@ const styles = StyleSheet.create({
   },
   safetyCheckEmoji: { fontSize: 34, marginBottom: 6 },
   safetyCheckBtnText: { fontSize: 16, fontWeight: '700', color: colors.ink, textAlign: 'center' },
+  streakRow: { flexDirection: 'row', justifyContent: 'center', gap: 4, marginBottom: 6 },
+  streakStar: { fontSize: 20 },
   forcedPauseBanner: {
     backgroundColor: colors.sand, borderRadius: 14, padding: 12, marginBottom: 12, alignItems: 'center',
   },
@@ -5040,6 +5119,12 @@ const styles = StyleSheet.create({
   paysMarkerIcon: { fontSize: 18 },
   paysMarkerText: { fontSize: 11, fontWeight: '800', color: colors.ink, textAlign: 'center', lineHeight: 13 },
   paysMarkerLock: { position: 'absolute', top: -6, right: -6, fontSize: 11 },
+  paysMarkerNiveauBadge: {
+    position: 'absolute', bottom: -8, left: '50%', marginLeft: -20,
+    backgroundColor: colors.mossDeep, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2,
+    borderWidth: 1.5, borderColor: '#fff',
+  },
+  paysMarkerNiveauText: { fontSize: 11, fontWeight: '800', color: '#fff' },
   paysVide: {
     position: 'absolute', width: 12, height: 12, borderRadius: 6, marginLeft: -6, marginTop: -6,
     backgroundColor: 'rgba(255,255,255,0.5)', borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)',
