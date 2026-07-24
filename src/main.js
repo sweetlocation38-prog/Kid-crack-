@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '21/07/2026 - Etiquettes niveau sur les jeux, etoiles de serie parfaite, explication vocale de fin de session';
+const APP_BUILD_VERSION = '21/07/2026 - Corrige le chevauchement de letiquette de niveau sur tous les jeux, ajoute des micros sur les jeux et les titres de sentiers';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -2064,7 +2064,16 @@ function SentierScreen({ route, navigation }) {
         <Text style={styles.back}>‹</Text>
       </Pressable>
 
-      <Text style={styles.continentPageTitle}>{continent.emoji} {continent.nom}</Text>
+      <View style={styles.continentTitleRow}>
+        <Text style={styles.continentPageTitle}>{continent.emoji} {continent.nom}</Text>
+        <Pressable
+          style={styles.continentTitleListenBtn}
+          onPress={() => speakSmart(continent.nom)}
+          hitSlop={8}
+        >
+          <Text style={{ fontSize: 11 }}>🎤</Text>
+        </Pressable>
+      </View>
 
       <View style={[styles.continentBlob, { width: containerWidth, height: zoom.containerHeight }]}>
         <Image
@@ -2097,15 +2106,24 @@ function SentierScreen({ route, navigation }) {
               disabled={!targetScreen}
               onPress={() => handleGamePress(targetScreen)}
             >
-              <Text style={styles.paysMarkerIcon}>{GAME_ICONS[item.code] ?? '🎲'}</Text>
+              <View style={styles.paysMarkerTopRow}>
+                <Text style={styles.paysMarkerIcon}>{GAME_ICONS[item.code] ?? '🎲'}</Text>
+                {niveauxParJeu[item.id] != null && (
+                  <View style={styles.paysMarkerNiveauBadge}>
+                    <Text style={styles.paysMarkerNiveauText}>{letterCranFromRung(niveauxParJeu[item.id])}</Text>
+                  </View>
+                )}
+              </View>
               <Text style={styles.paysMarkerText} numberOfLines={3}>
                 {item.nom}
               </Text>
-              {niveauxParJeu[item.id] != null && (
-                <View style={styles.paysMarkerNiveauBadge}>
-                  <Text style={styles.paysMarkerNiveauText}>{letterCranFromRung(niveauxParJeu[item.id])}</Text>
-                </View>
-              )}
+              <Pressable
+                style={styles.paysMarkerListenBtn}
+                onPress={() => speakSmart(item.nom)}
+                hitSlop={8}
+              >
+                <Text style={{ fontSize: 11 }}>🎤</Text>
+              </Pressable>
               {!targetScreen && <Text style={styles.paysMarkerLock}>🔒</Text>}
               {limitReached && targetScreen && <Text style={styles.paysMarkerLock}>🔒</Text>}
             </Pressable>
@@ -5090,7 +5108,14 @@ const styles = StyleSheet.create({
   continentName: { fontSize: 18, fontWeight: '800', color: colors.ink },
   continentSub: { fontSize: 13, color: colors.ink, opacity: 0.6, marginTop: 2 },
   continentPageTitle: {
-    fontSize: 20, fontWeight: '800', color: colors.ink, textAlign: 'center', marginBottom: 14,
+    fontSize: 20, fontWeight: '800', color: colors.ink, textAlign: 'center',
+  },
+  continentTitleRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 14,
+  },
+  continentTitleListenBtn: {
+    width: 26, height: 26, borderRadius: 13, backgroundColor: 'rgba(0,0,0,0.06)',
+    alignItems: 'center', justifyContent: 'center',
   },
   continentBlob: {
     alignSelf: 'center', marginBottom: 8, borderRadius: 24,
@@ -5111,20 +5136,24 @@ const styles = StyleSheet.create({
   },
   campagnePinEmoji: { fontSize: 1, opacity: 0 },
   paysMarker: {
-    position: 'absolute', width: 92, alignItems: 'center', backgroundColor: '#fff',
-    borderRadius: 14, paddingVertical: 6, paddingHorizontal: 4,
-    borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', marginLeft: -46, marginTop: -30,
+    position: 'absolute', width: 102, alignItems: 'center', backgroundColor: '#fff',
+    borderRadius: 14, paddingVertical: 6, paddingHorizontal: 6,
+    borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', marginLeft: -51, marginTop: -36,
   },
   paysMarkerLocked: { opacity: 0.6 },
+  paysMarkerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
   paysMarkerIcon: { fontSize: 18 },
-  paysMarkerText: { fontSize: 11, fontWeight: '800', color: colors.ink, textAlign: 'center', lineHeight: 13 },
+  paysMarkerText: { fontSize: 11, fontWeight: '800', color: colors.ink, textAlign: 'center', lineHeight: 13, marginTop: 2 },
   paysMarkerLock: { position: 'absolute', top: -6, right: -6, fontSize: 11 },
   paysMarkerNiveauBadge: {
-    position: 'absolute', bottom: -8, left: '50%', marginLeft: -20,
-    backgroundColor: colors.mossDeep, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2,
-    borderWidth: 1.5, borderColor: '#fff',
+    backgroundColor: colors.mossDeep, borderRadius: 8, paddingHorizontal: 5, paddingVertical: 1,
+    borderWidth: 1, borderColor: '#fff',
   },
-  paysMarkerNiveauText: { fontSize: 11, fontWeight: '800', color: '#fff' },
+  paysMarkerNiveauText: { fontSize: 8, fontWeight: '800', color: '#fff' },
+  paysMarkerListenBtn: {
+    marginTop: 3, width: 22, height: 22, borderRadius: 11,
+    backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center', justifyContent: 'center',
+  },
   paysVide: {
     position: 'absolute', width: 12, height: 12, borderRadius: 6, marginLeft: -6, marginTop: -6,
     backgroundColor: 'rgba(255,255,255,0.5)', borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)',
