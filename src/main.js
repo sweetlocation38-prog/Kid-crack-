@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '22/07/2026 - Enchainement automatique au niveau suivant en cas de reussite, sans repasser par la carte';
+const APP_BUILD_VERSION = '22/07/2026 - Corrige un plantage vocal du au prenom Jules contenant un emoji';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -2357,9 +2357,9 @@ function PontDesLettresScreen({ route, navigation }) {
     // niveau suivant, sans repasser par la carte - juste un mot de felicitation.
     if (summary.direction === 'up' && !limiteAtteinteIci) {
       const messages = [
-        `Bravo ${profil.prenom}, niveau suivant !`,
-        `Excellent ${profil.prenom}, on continue !`,
-        `Trop fort ${profil.prenom}, en avant pour la suite !`,
+        `Bravo ${speechFriendlyName(profil.prenom)}, niveau suivant !`,
+        `Excellent ${speechFriendlyName(profil.prenom)}, on continue !`,
+        `Trop fort ${speechFriendlyName(profil.prenom)}, en avant pour la suite !`,
       ];
       const msg = messages[Math.floor(Math.random() * messages.length)];
       setTransitioning(msg);
@@ -2643,6 +2643,16 @@ function maybeSpeakMidSessionEncouragement(round) {
   }
 }
 
+// Retire les emojis et symboles du prenom avant de le donner a la voix :
+// certains moteurs vocaux plantent ou bloquent en essayant de "prononcer"
+// un emoji, alors que ca ne pose aucun probleme a l'affichage.
+function speechFriendlyName(name) {
+  const cleaned = String(name ?? '')
+    .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\uFE0F]/gu, '')
+    .trim();
+  return cleaned || 'Champion';
+}
+
 function speakSmart(text) {
   return new Promise((resolve) => {
     const raw = String(text ?? '').trim();
@@ -2691,11 +2701,11 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
   // ne sait pas lire - toujours un message adapte, jamais juste "Bravo".
   useEffect(() => {
     const messages = {
-      parfait_rapide: `Bravo ${profil.prenom} ! Tu as tout bon et tu as été rapide, tu montes de niveau !`,
-      parfait_lent: `Bravo ${profil.prenom}, tu as tout bon ! Essaie d'être un peu plus rapide la prochaine fois pour monter de niveau.`,
-      erreurs_beaucoup: `Ce n'était pas facile cette fois, ${profil.prenom}. On redescend un peu pour s'entraîner, tu vas y arriver !`,
-      erreurs_quelques: `Pas mal du tout ${profil.prenom} ! Encore un petit effort et tu vas monter de niveau.`,
-      echec_protege: `Ce n'était pas facile cette fois, ${profil.prenom}, mais tu restes à ce niveau pour t'entraîner encore un peu. Tu vas y arriver !`,
+      parfait_rapide: `Bravo ${speechFriendlyName(profil.prenom)} ! Tu as tout bon et tu as été rapide, tu montes de niveau !`,
+      parfait_lent: `Bravo ${speechFriendlyName(profil.prenom)}, tu as tout bon ! Essaie d'être un peu plus rapide la prochaine fois pour monter de niveau.`,
+      erreurs_beaucoup: `Ce n'était pas facile cette fois, ${speechFriendlyName(profil.prenom)}. On redescend un peu pour s'entraîner, tu vas y arriver !`,
+      erreurs_quelques: `Pas mal du tout ${speechFriendlyName(profil.prenom)} ! Encore un petit effort et tu vas monter de niveau.`,
+      echec_protege: `Ce n'était pas facile cette fois, ${speechFriendlyName(profil.prenom)}, mais tu restes à ce niveau pour t'entraîner encore un peu. Tu vas y arriver !`,
     };
     const message = summary?.raison ? messages[summary.raison] : null;
     if (message) speakSmart(message);
@@ -2706,7 +2716,7 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
       });
       // Previent la carte qu'il faudra feter ca au retour, meme si on
       // traverse plusieurs ecrans avant d'y arriver.
-      pendingCelebration = `Bravo ${profil.prenom} ! Tu progresses très bien !`;
+      pendingCelebration = `Bravo ${speechFriendlyName(profil.prenom)} ! Tu progresses très bien !`;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -2727,11 +2737,11 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
           style={styles.listenButton}
           onPress={() => {
             const messages = {
-              parfait_rapide: `Bravo ${profil.prenom} ! Tu as tout bon et tu as été rapide, tu montes de niveau !`,
-              parfait_lent: `Bravo ${profil.prenom}, tu as tout bon ! Essaie d'être un peu plus rapide la prochaine fois pour monter de niveau.`,
-              erreurs_beaucoup: `Ce n'était pas facile cette fois, ${profil.prenom}. On redescend un peu pour s'entraîner, tu vas y arriver !`,
-              erreurs_quelques: `Pas mal du tout ${profil.prenom} ! Encore un petit effort et tu vas monter de niveau.`,
-      echec_protege: `Ce n'était pas facile cette fois, ${profil.prenom}, mais tu restes à ce niveau pour t'entraîner encore un peu. Tu vas y arriver !`,
+              parfait_rapide: `Bravo ${speechFriendlyName(profil.prenom)} ! Tu as tout bon et tu as été rapide, tu montes de niveau !`,
+              parfait_lent: `Bravo ${speechFriendlyName(profil.prenom)}, tu as tout bon ! Essaie d'être un peu plus rapide la prochaine fois pour monter de niveau.`,
+              erreurs_beaucoup: `Ce n'était pas facile cette fois, ${speechFriendlyName(profil.prenom)}. On redescend un peu pour s'entraîner, tu vas y arriver !`,
+              erreurs_quelques: `Pas mal du tout ${speechFriendlyName(profil.prenom)} ! Encore un petit effort et tu vas monter de niveau.`,
+      echec_protege: `Ce n'était pas facile cette fois, ${speechFriendlyName(profil.prenom)}, mais tu restes à ce niveau pour t'entraîner encore un peu. Tu vas y arriver !`,
             };
             speakSmart(messages[summary.raison]);
           }}
@@ -2940,9 +2950,9 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     // niveau suivant, sans repasser par la carte - juste un mot de felicitation.
     if (summary.direction === 'up' && !limiteAtteinteIci) {
       const messages = [
-        `Bravo ${profil.prenom}, niveau suivant !`,
-        `Excellent ${profil.prenom}, on continue !`,
-        `Trop fort ${profil.prenom}, en avant pour la suite !`,
+        `Bravo ${speechFriendlyName(profil.prenom)}, niveau suivant !`,
+        `Excellent ${speechFriendlyName(profil.prenom)}, on continue !`,
+        `Trop fort ${speechFriendlyName(profil.prenom)}, en avant pour la suite !`,
       ];
       const msg = messages[Math.floor(Math.random() * messages.length)];
       setTransitioning(msg);
