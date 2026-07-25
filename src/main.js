@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '25/07/2026 - Musique d ambiance sur la carte et les sentiers, coupee automatiquement quand la voix parle, silencieuse pendant les jeux';
+const APP_BUILD_VERSION = '23/07/2026 - Retire le critere de vitesse pour la montee de niveau (0 erreur suffit)';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -713,28 +713,24 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   let newReference = reference;
   let newEchecs = 0;
 
-  // Une reponse juste mais tres lente ne doit pas etre traitee comme une
-  // vraie maitrise : on compare au temps de reference de l'enfant sur ce jeu.
-  const tropLent = reference != null && tempsMoyenParManche != null && tempsMoyenParManche > reference * 1.5;
-
+  // La vitesse n'est plus un critere qui bloque la montee de niveau : plus
+  // le niveau grimpe, plus le contenu est difficile, donc plus il est normal
+  // de repondre plus lentement meme en etant juste. Seul le zero faute compte.
+  // Le temps de reference reste suivi (utile ailleurs), mais ne conditionne
+  // plus jamais la progression.
   let raison;
-  if (erreursTotal === 0 && !tropLent) {
-    // Session parfaite ET dans un temps raisonnable : la remontee s'accelere.
+  if (erreursTotal === 0) {
+    // Session parfaite : la remontee s'accelere, quel que soit le temps mis.
     newStreak = oldStreak + 1;
     const jump = Math.min(3, newStreak);
     newRung = Math.min(effectiveMaxRung, currentRung + jump);
     if (tempsMoyenParManche != null) {
-      // Le temps de reference se resserre doucement pour continuer a exiger de la fluidite.
+      // Le temps de reference continue d'etre suivi a titre informatif.
       newReference = reference == null
         ? tempsMoyenParManche
         : Math.round((reference * 2 + tempsMoyenParManche) / 3);
     }
     raison = 'parfait_rapide';
-  } else if (erreursTotal === 0 && tropLent) {
-    // Juste, mais trop lent : pas de recul, mais pas d'acceleration non plus.
-    newStreak = 0;
-    newRung = currentRung;
-    raison = 'parfait_lent';
   } else if (erreursTotal >= 3) {
     // Vraie difficulte rencontree : on laisse le temps de s'habituer au
     // niveau actuel plutot que de redescendre des le premier coup dur -
