@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '23/07/2026 - Le fond des jeux reprend la couleur du sentier d origine';
+const APP_BUILD_VERSION = '25/07/2026 - Musique d ambiance sur la carte et les sentiers, coupee automatiquement quand la voix parle, silencieuse pendant les jeux';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1856,6 +1856,7 @@ function WorldMapScreen({ route, navigation }) {
   // il doit rester valable pour le reste de la journee.
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
+      startBgMusic(); // ambiance douce sur la carte
       const { data } = await supabase
         .from('profils_enfants')
         .select('*')
@@ -2037,6 +2038,12 @@ function SentierScreen({ route, navigation }) {
   const remainingSeconds = useLiveCountdown(baseRemaining);
   const effectiveRemaining = baseRemaining != null ? remainingSeconds + extraMinutesGranted * 60 : null;
   const limitReached = effectiveRemaining != null && effectiveRemaining <= 0;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', startBgMusic); // ambiance douce sur le sentier
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation]);
 
   useEffect(() => {
     (async () => {
@@ -2224,6 +2231,8 @@ function joinSequenceForSpeech(sequence, niveau) {
 }
 
 function PontDesLettresScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -2708,6 +2717,58 @@ function speechFriendlyName(name) {
   return cleaned || 'Champion';
 }
 
+// ============================================================
+// Musique d'ambiance de fond : joue sur la carte et les sentiers, jamais
+// pendant les jeux (pour laisser la concentration), et se coupe
+// automatiquement des qu'une voix parle (micro ou consigne), pour reprendre
+// juste apres.
+// ============================================================
+const BG_MUSIC_TRACK = require('../assets/audio/sonican-sweet-children-music-loop-gentle-joy-290945.mp3');
+let bgMusicSound = null;
+let bgMusicShouldPlay = false; // etat voulu (carte/sentier=true, jeu=false)
+let bgMusicDucked = false; // temporairement coupee pour laisser parler la voix
+
+async function ensureBgMusicLoaded() {
+  if (bgMusicSound) return bgMusicSound;
+  try {
+    const { sound } = await Audio.Sound.createAsync(BG_MUSIC_TRACK, { isLooping: true, volume: 0.35 });
+    bgMusicSound = sound;
+    return sound;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function startBgMusic() {
+  bgMusicShouldPlay = true;
+  if (bgMusicDucked) return; // reprendra automatiquement a la fin de la voix en cours
+  const sound = await ensureBgMusicLoaded();
+  if (sound) {
+    try { await sound.playAsync(); } catch (e) {}
+  }
+}
+
+async function stopBgMusic() {
+  bgMusicShouldPlay = false;
+  if (bgMusicSound) {
+    try { await bgMusicSound.pauseAsync(); } catch (e) {}
+  }
+}
+
+async function duckBgMusicForSpeech() {
+  bgMusicDucked = true;
+  if (bgMusicSound) {
+    try { await bgMusicSound.pauseAsync(); } catch (e) {}
+  }
+}
+
+async function unduckBgMusicAfterSpeech() {
+  bgMusicDucked = false;
+  if (bgMusicShouldPlay && bgMusicSound) {
+    try { await bgMusicSound.playAsync(); } catch (e) {}
+  }
+}
+
 function speakSmart(text) {
   return new Promise((resolve) => {
     const raw = String(text ?? '').trim();
@@ -2719,11 +2780,13 @@ function speakSmart(text) {
     // nouvelle : deux appels vocaux qui se chevauchent peuvent bloquer le
     // moteur de synthese vocale sur certains telephones.
     Speech.stop();
+    duckBgMusicForSpeech();
     const clauses = raw.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [raw];
     const rate = raw.length > 50 ? 0.72 : 0.85;
     let i = 0;
     function next() {
       if (i >= clauses.length) {
+        unduckBgMusicAfterSpeech();
         resolve();
         return;
       }
@@ -2863,6 +2926,8 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
 // Moteur générique : question à choix (Sons Magiques + Pommes de Luma)
 // ============================================================
 function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -3672,6 +3737,8 @@ function RondeLuciolesScreen({ route, navigation }) {
 // differente : deux etapes de toucher plutot qu'un seul choix.
 // ============================================================
 function TriVillageScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -3850,6 +3917,8 @@ function targetPiecesForPalier(palier) {
 const PUZZLE_REWARDS = ['🦋', '🌈', '🎨', '🚀', '🏰', '🌻', '🦄', '🐉', '⛵', '🎪'];
 
 function PuzzleMoulinScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -3992,6 +4061,8 @@ function PuzzleMoulinScreen({ route, navigation }) {
 // dates plutot que des numeros arbitraires).
 // ============================================================
 function FriseTempsScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -4180,6 +4251,8 @@ function shuffleCards(paires) {
 }
 
 function MemoryScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -4353,6 +4426,8 @@ function wait(ms) {
 }
 
 function CoffreSouvenirsScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
