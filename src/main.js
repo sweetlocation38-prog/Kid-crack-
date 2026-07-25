@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '23/07/2026 - Retire le critere de vitesse pour la montee de niveau (0 erreur suffit)';
+const APP_BUILD_VERSION = '23/07/2026 - Corrige un plantage sur mauvaise reponse dans Pont des Lettres (variable manquante)';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -2423,7 +2423,6 @@ function PontDesLettresScreen({ route, navigation }) {
     } else {
       errorsThisRound.current += 1;
       errorsTotal.current += 1;
-      setPerfectStreak(0);
       setFeedback('Essaie encore !');
       maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       setTimeout(() => setFeedback(null), 500);
