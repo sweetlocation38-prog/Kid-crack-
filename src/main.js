@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '22/07/2026 - Corrige un plantage vocal du au prenom Jules contenant un emoji';
+const APP_BUILD_VERSION = '23/07/2026 - Zones de tap agrandies (reponses et lettres) pour les plus petits';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -2502,6 +2502,7 @@ function PontDesLettresScreen({ route, navigation }) {
                 key={i}
                 disabled={used}
                 onPress={() => onTokenPress(token, i)}
+                hitSlop={6}
                 style={[
                   styles.stone,
                   { backgroundColor: bg },
@@ -3185,6 +3186,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
                 key={i}
                 disabled={isAnswered}
                 onPress={() => onOptionPress(option)}
+                hitSlop={14}
                 style={[
                   styles.optionButton,
                   { backgroundColor: bg },
