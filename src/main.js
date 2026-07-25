@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '23/07/2026 - Corrige un plantage sur mauvaise reponse dans Pont des Lettres (variable manquante)';
+const APP_BUILD_VERSION = '23/07/2026 - Corrige la config audio manquante, ajoute le choix de la musique dambiance en reglages parentaux';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1852,7 +1852,10 @@ function WorldMapScreen({ route, navigation }) {
   // il doit rester valable pour le reste de la journee.
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      startBgMusic(); // ambiance douce sur la carte
+      // Charge la musique choisie par le parent (ou celle par defaut).
+      getParametresParentaux(route.params.profil.famille_id).then((p) => {
+        startBgMusic(p?.musique_ambiance);
+      });
       const { data } = await supabase
         .from('profils_enfants')
         .select('*')
@@ -2036,7 +2039,11 @@ function SentierScreen({ route, navigation }) {
   const limitReached = effectiveRemaining != null && effectiveRemaining <= 0;
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', startBgMusic); // ambiance douce sur le sentier
+    const unsubscribe = navigation.addListener('focus', () => {
+      getParametresParentaux(profil.famille_id).then((p) => {
+        startBgMusic(p?.musique_ambiance);
+      });
+    });
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
@@ -2718,26 +2725,51 @@ function speechFriendlyName(name) {
 // automatiquement des qu'une voix parle (micro ou consigne), pour reprendre
 // juste apres.
 // ============================================================
-const BG_MUSIC_TRACK = require('../assets/audio/sonican-sweet-children-music-loop-gentle-joy-290945.mp3');
+// Registre des musiques d'ambiance disponibles - pour en ajouter une nouvelle
+// plus tard, il suffit d'ajouter le fichier dans assets/audio/ et une ligne ici.
+const MUSIC_TRACKS = {
+  gentle_joy: { label: 'Douce et joyeuse', file: require('../assets/audio/sonican-sweet-children-music-loop-gentle-joy-290945.mp3') },
+  dreamy: { label: 'Magique et rêveuse', file: require('../assets/audio/sonican-magical-children-music-dreamy-loop-569776.mp3') },
+  jazzy: { label: 'Jazz enjoué', file: require('../assets/audio/sonican-children-jazz-fantasy-loop-536641.mp3') },
+};
+const DEFAULT_MUSIC_KEY = 'gentle_joy';
+
 let bgMusicSound = null;
+let bgMusicLoadedKey = null; // quelle piste est actuellement chargee
 let bgMusicShouldPlay = false; // etat voulu (carte/sentier=true, jeu=false)
 let bgMusicDucked = false; // temporairement coupee pour laisser parler la voix
 
-async function ensureBgMusicLoaded() {
-  if (bgMusicSound) return bgMusicSound;
+async function ensureBgMusicLoaded(musicKey) {
+  const key = MUSIC_TRACKS[musicKey] ? musicKey : DEFAULT_MUSIC_KEY;
+  if (bgMusicSound && bgMusicLoadedKey === key) return bgMusicSound;
+  // Le parent a change de musique, ou c'est le premier chargement : on
+  // decharge l'ancienne piste avant de charger la nouvelle.
+  if (bgMusicSound) {
+    try { await bgMusicSound.unloadAsync(); } catch (e) {}
+    bgMusicSound = null;
+  }
   try {
-    const { sound } = await Audio.Sound.createAsync(BG_MUSIC_TRACK, { isLooping: true, volume: 0.35 });
+    // Indispensable sur certains telephones pour que l'audio joue de facon
+    // fiable (notamment en mode silencieux/vibreur) - sans ca, la lecture
+    // peut echouer silencieusement selon la configuration de l'appareil.
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+    });
+    const { sound } = await Audio.Sound.createAsync(MUSIC_TRACKS[key].file, { isLooping: true, volume: 0.35 });
     bgMusicSound = sound;
+    bgMusicLoadedKey = key;
     return sound;
   } catch (e) {
     return null;
   }
 }
 
-async function startBgMusic() {
+async function startBgMusic(musicKey) {
   bgMusicShouldPlay = true;
   if (bgMusicDucked) return; // reprendra automatiquement a la fin de la voix en cours
-  const sound = await ensureBgMusicLoaded();
+  const sound = await ensureBgMusicLoaded(musicKey);
   if (sound) {
     try { await sound.playAsync(); } catch (e) {}
   }
@@ -4726,6 +4758,9 @@ function ReglagesParentauxScreen({ route, navigation }) {
   const [showGate, setShowGate] = useState(false);
   const [existingPin, setExistingPin] = useState(null);
   const [frequenceMemos, setFrequenceMemos] = useState(null);
+  const [musiqueAmbiance, setMusiqueAmbiance] = useState(DEFAULT_MUSIC_KEY);
+  const [savingMusique, setSavingMusique] = useState(false);
+  const [savedMusique, setSavedMusique] = useState(false);
   const [memos, setMemos] = useState({ bonne_reponse: [], mauvaise_reponse: [], encouragement_fin: [] });
   const [addingMemo, setAddingMemo] = useState(null);
   const [profils, setProfils] = useState([]);
@@ -4757,6 +4792,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
       setPin(parametres?.code_validation ?? '');
       setExistingPin(parametres?.code_validation ?? null);
       setFrequenceMemos(parametres?.frequence_memos ?? null);
+      setMusiqueAmbiance(parametres?.musique_ambiance ?? DEFAULT_MUSIC_KEY);
       await loadMemos();
       await loadProfils();
       setLoading(false);
@@ -4925,6 +4961,22 @@ function ReglagesParentauxScreen({ route, navigation }) {
     setSavingMemos(false);
     setSavedMemos(true);
     setTimeout(() => setSavedMemos(false), 2000);
+  }
+
+  // Change la musique tout de suite (pour un aperçu immediat) ET la
+  // sauvegarde en base pour qu'elle soit utilisee sur la carte a l'avenir.
+  async function handleChooseMusique(key) {
+    setMusiqueAmbiance(key);
+    setSavingMusique(true);
+    setSavedMusique(false);
+    await supabase
+      .from('parametres_parentaux')
+      .update({ musique_ambiance: key })
+      .eq('famille_id', familleId);
+    startBgMusic(key); // aperçu immediat si une musique est deja en cours
+    setSavingMusique(false);
+    setSavedMusique(true);
+    setTimeout(() => setSavedMusique(false), 2000);
   }
 
   async function handleAddMemo(categorie) {
@@ -5135,6 +5187,27 @@ function ReglagesParentauxScreen({ route, navigation }) {
         </Pressable>
 
         <Text style={[styles.label, { marginTop: 24 }]}>🎙️ Mémos vocaux</Text>
+        <Text style={[styles.label, { marginTop: 4 }]}>🎵 Musique d'ambiance</Text>
+        <Text style={styles.helperText}>
+          Joue doucement sur la carte et dans les sentiers, jamais pendant les jeux
+          (pour laisser l'enfant se concentrer).
+        </Text>
+        <View style={styles.row}>
+          {Object.entries(MUSIC_TRACKS).map(([key, track]) => (
+            <Pressable
+              key={key}
+              style={[styles.chip, musiqueAmbiance === key && styles.chipSelected]}
+              onPress={() => handleChooseMusique(key)}
+            >
+              <Text style={[styles.chipText, musiqueAmbiance === key && styles.chipTextSelected]}>
+                {track.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        {savingMusique && <Text style={styles.helperText}>Enregistrement…</Text>}
+        {savedMusique && <Text style={styles.helperText}>✓ Musique enregistrée</Text>}
+
         <Text style={styles.helperText}>
           Attachez des fichiers audio déjà enregistrés (avec le dictaphone du téléphone,
           par exemple) pour que la voix d'un proche encourage l'enfant pendant les jeux.
