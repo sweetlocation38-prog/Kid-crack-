@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '23/07/2026 - Effet de confettis sur bonne reponse, zones de tap agrandies';
+const APP_BUILD_VERSION = '23/07/2026 - Le fond des jeux reprend la couleur du sentier d origine';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1704,6 +1704,14 @@ function continentFor(competence) {
   return CONTINENTS.find((c) => c.competence === competence) ?? CONTINENTS[0];
 }
 
+// Retrouve la couleur de fond du sentier auquel appartient un jeu, pour
+// que l'interieur du jeu garde la meme ambiance que la carte plutot qu'un
+// fond neutre identique partout.
+function themeBgForGame(jeuCode) {
+  const continent = CONTINENTS.find((c) => Object.keys(c.paysSlotsFor).includes(jeuCode));
+  return continent?.bg ?? colors.cream;
+}
+
 // Temps supplementaire accorde par un parent (via l'empreinte/le code) —
 // partage entre la carte principale et l'interieur des continents, pour
 // qu'un deblocage fait sur l'un ne soit jamais ignore par l'autre.
@@ -2444,7 +2452,7 @@ function PontDesLettresScreen({ route, navigation }) {
   const isModelMode = !!current.options;
 
   return (
-    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('pont_des_lettres') }]}>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -3151,7 +3159,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame(jeuCode) }]}>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -3771,7 +3779,7 @@ function TriVillageScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('tri_village') }]}>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -3931,7 +3939,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
   const progress = Math.min(nextExpected - 1, totalPieces.current);
 
   return (
-    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('puzzle_moulin') }]}>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -4078,7 +4086,7 @@ function FriseTempsScreen({ route, navigation }) {
   const progress = Math.min(nextExpectedIndex, correctOrder.length);
 
   return (
-    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('frise_temps') }]}>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -4288,7 +4296,7 @@ function MemoryScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('memoire_etoiles') }]}>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -4462,7 +4470,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.gameScreenScroll}>
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('coffre_souvenirs') }]}>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
