@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '23/07/2026 - Zones de tap agrandies (reponses et lettres) pour les plus petits';
+const APP_BUILD_VERSION = '23/07/2026 - Effet de confettis sur bonne reponse, zones de tap agrandies';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -2236,6 +2236,7 @@ function PontDesLettresScreen({ route, navigation }) {
   // Garde-fou contre les reponses au hasard : detecte les erreurs donnees
   // trop vite pour avoir ete vraiment reflechies, plusieurs fois de suite.
   const [transitioning, setTransitioning] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
   const { extraMinutesGranted } = useContext(ExtraTimeContext);
   const { baseRemaining } = useTimeBudget(profil);
   const liveRemaining = useLiveCountdown(baseRemaining);
@@ -2391,6 +2392,8 @@ function PontDesLettresScreen({ route, navigation }) {
 
       if (nextStep === current.sequence.length) {
         setFeedback('Bravo !');
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 800);
         maybeSpeakMidSessionEncouragement(round);
         setTimeout(async () => {
           if (round >= TOTAL_ROUNDS) {
@@ -2452,6 +2455,7 @@ function PontDesLettresScreen({ route, navigation }) {
 
       <View style={styles.gameCharacter}>
         <BouncingWrap><Maestro size={48} /></BouncingWrap>
+        <ConfettiBurst trigger={showConfetti} />
       </View>
 
       <View style={styles.promptZone}>
@@ -2601,6 +2605,48 @@ function DriftingDecor({ emoji, size = 22, top, left, duration = 6000, delay = 0
     >
       {emoji}
     </Animated.Text>
+  );
+}
+
+// Petite explosion de confettis/etincelles a chaque bonne reponse, pour un
+// retour visuel plus marquant qu'un simple texte "Bravo !".
+function ConfettiBurst({ trigger }) {
+  const particles = useRef(
+    Array.from({ length: 10 }).map(() => ({
+      anim: new Animated.Value(0),
+      emoji: ['✨', '🎉', '⭐', '🌟'][Math.floor(Math.random() * 4)],
+      angle: Math.random() * Math.PI * 2,
+      distance: 50 + Math.random() * 55,
+    }))
+  ).current;
+
+  useEffect(() => {
+    if (!trigger) return;
+    particles.forEach((p) => {
+      p.anim.setValue(0);
+      Animated.timing(p.anim, { toValue: 1, duration: 750, useNativeDriver: true }).start();
+    });
+  }, [trigger]);
+
+  if (!trigger) return null;
+
+  return (
+    <View style={styles.confettiContainer} pointerEvents="none">
+      {particles.map((p, i) => {
+        const translateX = p.anim.interpolate({ inputRange: [0, 1], outputRange: [0, Math.cos(p.angle) * p.distance] });
+        const translateY = p.anim.interpolate({ inputRange: [0, 1], outputRange: [0, Math.sin(p.angle) * p.distance] });
+        const opacity = p.anim.interpolate({ inputRange: [0, 0.7, 1], outputRange: [1, 1, 0] });
+        const scale = p.anim.interpolate({ inputRange: [0, 0.3, 1], outputRange: [0, 1.4, 0.8] });
+        return (
+          <Animated.Text
+            key={i}
+            style={[styles.confettiParticle, { transform: [{ translateX }, { translateY }, { scale }], opacity }]}
+          >
+            {p.emoji}
+          </Animated.Text>
+        );
+      })}
+    </View>
   );
 }
 
@@ -2834,6 +2880,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   // Petit repere visuel discret : nombre de bonnes reponses d'affilee sans
   // erreur dans la session en cours (remis a zero a la moindre erreur).
   const [perfectStreak, setPerfectStreak] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
   // Enchainement automatique au niveau suivant en cas de reussite, sans
   // repasser par la carte - mais on verifie quand meme le temps restant
   // avant chaque enchainement pour ne jamais le contourner completement.
@@ -2987,6 +3034,8 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       recentRounds.current = [...recentRounds.current, { wrong: false, fast: false }].slice(-4);
       setPerfectStreak((s) => s + 1);
       setFeedback('Bravo !');
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 800);
       maybeSpeakMidSessionEncouragement(round);
       setTimeout(async () => {
         if (round >= TOTAL_ROUNDS) {
@@ -3128,6 +3177,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       {Character ? (
         <View style={styles.gameCharacter}>
           <BouncingWrap><Character size={48} /></BouncingWrap>
+          <ConfettiBurst trigger={showConfetti} />
         </View>
       ) : null}
 
@@ -5442,6 +5492,10 @@ const styles = StyleSheet.create({
   profileHero: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 18 },
   guideRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 18 },
   gameCharacter: { alignItems: 'center', marginBottom: 4 },
+  confettiContainer: {
+    position: 'absolute', top: '30%', left: '50%', width: 1, height: 1, zIndex: 50,
+  },
+  confettiParticle: { position: 'absolute', fontSize: 26, left: -13, top: -13 },
   speechBubble: {
     backgroundColor: '#fff', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10,
     maxWidth: 220, borderWidth: 2, borderColor: VIVID.orangeDark,
