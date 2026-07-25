@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '21/07/2026 - Corrige le chevauchement de letiquette de niveau sur tous les jeux, ajoute des micros sur les jeux et les titres de sentiers';
+const APP_BUILD_VERSION = '22/07/2026 - Enchainement automatique au niveau suivant en cas de reussite, sans repasser par la carte';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -700,16 +700,18 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   const effectiveMaxRung = maxRung ?? MAX_CONTENT_RUNG;
   const { data: existing } = await supabase
     .from('progression')
-    .select('details, temps_reference_secondes')
+    .select('details, temps_reference_secondes, echecs_consecutifs')
     .eq('profil_id', profil.id)
     .eq('mini_jeu_id', miniJeuId)
     .maybeSingle();
 
   const oldStreak = existing?.details?.streak ?? 0;
   const reference = existing?.temps_reference_secondes ?? null;
+  const oldEchecs = existing?.echecs_consecutifs ?? 0;
   let newStreak = 0;
   let newRung = currentRung;
   let newReference = reference;
+  let newEchecs = 0;
 
   // Une reponse juste mais tres lente ne doit pas etre traitee comme une
   // vraie maitrise : on compare au temps de reference de l'enfant sur ce jeu.
@@ -734,10 +736,20 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
     newRung = currentRung;
     raison = 'parfait_lent';
   } else if (erreursTotal >= 3) {
-    // Vraie difficulte rencontree : on redescend et on remet le compteur a zero.
+    // Vraie difficulte rencontree : on laisse le temps de s'habituer au
+    // niveau actuel plutot que de redescendre des le premier coup dur -
+    // il faut 3 sessions en echec d'affilee avant de reculer d'un cran.
     newStreak = 0;
-    newRung = Math.max(1, currentRung - 1);
-    raison = 'erreurs_beaucoup';
+    const echecsCumules = oldEchecs + 1;
+    if (echecsCumules >= 3) {
+      newRung = Math.max(1, currentRung - 1);
+      newEchecs = 0;
+      raison = 'erreurs_beaucoup';
+    } else {
+      newRung = currentRung;
+      newEchecs = echecsCumules;
+      raison = 'echec_protege';
+    }
   } else {
     // Quelques erreurs, sans plus : on reste sur place, sans casser un futur enchainement.
     newStreak = 0;
@@ -746,7 +758,7 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   }
 
   const direction = newRung > currentRung ? 'up' : newRung < currentRung ? 'down' : 'same';
-  return { newRung, newStreak, newReference, rungChanged: newRung !== currentRung, direction, raison };
+  return { newRung, newStreak, newReference, newEchecs, rungChanged: newRung !== currentRung, direction, raison };
 }
 
 async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt, tempsMoyenParManche, maxRung }) {
@@ -756,6 +768,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
   let newRung = currentRung;
   let newStreak = 0;
   let newReference = null;
+  let newEchecs = 0;
   let rungChanged = false;
   let direction = 'same';
   let raison = 'erreurs_quelques';
@@ -766,6 +779,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
     newRung = result.newRung;
     newStreak = result.newStreak;
     newReference = result.newReference;
+    newEchecs = result.newEchecs;
     rungChanged = result.rungChanged;
     direction = result.direction;
     raison = result.raison;
@@ -783,6 +797,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
           palier_actuel: newRung,
           details: { streak: newStreak },
           temps_reference_secondes: newReference,
+          echecs_consecutifs: newEchecs,
         },
         { onConflict: 'profil_id,mini_jeu_id' }
       );
@@ -2220,6 +2235,12 @@ function PontDesLettresScreen({ route, navigation }) {
   const memosConfig = useRef(null);
   // Garde-fou contre les reponses au hasard : detecte les erreurs donnees
   // trop vite pour avoir ete vraiment reflechies, plusieurs fois de suite.
+  const [transitioning, setTransitioning] = useState(null);
+  const { extraMinutesGranted } = useContext(ExtraTimeContext);
+  const { baseRemaining } = useTimeBudget(profil);
+  const liveRemaining = useLiveCountdown(baseRemaining);
+  const effectiveRemainingIci = baseRemaining != null ? liveRemaining + extraMinutesGranted * 60 : null;
+  const limiteAtteinteIci = effectiveRemainingIci != null && effectiveRemainingIci <= 0;
 
   useEffect(() => {
     fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; });
@@ -2331,6 +2352,30 @@ function PontDesLettresScreen({ route, navigation }) {
       startedAt: startedAt.current,
       tempsMoyenParManche: Math.round(durationSeconds / TOTAL_ROUNDS),
     });
+
+    // Reussite ET du temps de jeu restant : on enchaine directement sur le
+    // niveau suivant, sans repasser par la carte - juste un mot de felicitation.
+    if (summary.direction === 'up' && !limiteAtteinteIci) {
+      const messages = [
+        `Bravo ${profil.prenom}, niveau suivant !`,
+        `Excellent ${profil.prenom}, on continue !`,
+        `Trop fort ${profil.prenom}, en avant pour la suite !`,
+      ];
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+      setTransitioning(msg);
+      speakSmart(msg);
+      setTimeout(() => {
+        setTransitioning(null);
+        errorsTotal.current = 0;
+        startedAt.current = Date.now();
+        setRung(summary.newRung);
+        setRound(1);
+        const { niveau, palier } = gradeAndPalierFromRung(summary.newRung);
+        loadRound(miniJeuId, niveau, palier);
+      }, 2200);
+      return;
+    }
+
     setSessionSummary(summary);
     setSessionDone(true);
   }
@@ -2346,7 +2391,7 @@ function PontDesLettresScreen({ route, navigation }) {
 
       if (nextStep === current.sequence.length) {
         setFeedback('Bravo !');
-        maybePlayMemo(memosConfig.current, 'bonne_reponse');
+        maybeSpeakMidSessionEncouragement(round);
         setTimeout(async () => {
           if (round >= TOTAL_ROUNDS) {
             await finishSession();
@@ -2371,6 +2416,18 @@ function PontDesLettresScreen({ route, navigation }) {
 
   if (sessionDone) {
     return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+  }
+
+  if (transitioning) {
+    return (
+      <View style={styles.center}>
+        <BouncingWrap><Noisette size={80} /></BouncingWrap>
+        <Text style={{ fontSize: 22, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginTop: 16 }}>
+          {transitioning}
+        </Text>
+        <Text style={{ fontSize: 30, marginTop: 8 }}>🎉</Text>
+      </View>
+    );
   }
 
   if (loading || !current) {
@@ -2568,6 +2625,24 @@ function PopIn({ children, delay, style }) {
 // intelligible pour les textes longs) et en ralentissant le debit quand
 // le texte est long. Renvoie une promesse resolue une fois la lecture finie,
 // pour pouvoir enchainer plusieurs textes proprement.
+// Encouragement discret, une seule fois par session (a la 5e des 8 manches,
+// jamais a chaque bonne reponse), avec une formulation tiree au hasard pour
+// ne jamais dire toujours la meme phrase.
+const MIDSESSION_ENCOURAGEMENTS = [
+  'Continue comme ça, tu es sur la bonne voie !',
+  'Bravo, tu progresses bien !',
+  "C'est du très bon travail, continue !",
+  'Tu es en train de bien t\'en sortir !',
+  'Belle énergie, garde ce rythme !',
+  'Super, tu gères bien jusqu\'ici !',
+];
+function maybeSpeakMidSessionEncouragement(round) {
+  if (round === 5) {
+    const msg = MIDSESSION_ENCOURAGEMENTS[Math.floor(Math.random() * MIDSESSION_ENCOURAGEMENTS.length)];
+    speakSmart(msg);
+  }
+}
+
 function speakSmart(text) {
   return new Promise((resolve) => {
     const raw = String(text ?? '').trim();
@@ -2620,6 +2695,7 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
       parfait_lent: `Bravo ${profil.prenom}, tu as tout bon ! Essaie d'être un peu plus rapide la prochaine fois pour monter de niveau.`,
       erreurs_beaucoup: `Ce n'était pas facile cette fois, ${profil.prenom}. On redescend un peu pour s'entraîner, tu vas y arriver !`,
       erreurs_quelques: `Pas mal du tout ${profil.prenom} ! Encore un petit effort et tu vas monter de niveau.`,
+      echec_protege: `Ce n'était pas facile cette fois, ${profil.prenom}, mais tu restes à ce niveau pour t'entraîner encore un peu. Tu vas y arriver !`,
     };
     const message = summary?.raison ? messages[summary.raison] : null;
     if (message) speakSmart(message);
@@ -2655,6 +2731,7 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
               parfait_lent: `Bravo ${profil.prenom}, tu as tout bon ! Essaie d'être un peu plus rapide la prochaine fois pour monter de niveau.`,
               erreurs_beaucoup: `Ce n'était pas facile cette fois, ${profil.prenom}. On redescend un peu pour s'entraîner, tu vas y arriver !`,
               erreurs_quelques: `Pas mal du tout ${profil.prenom} ! Encore un petit effort et tu vas monter de niveau.`,
+      echec_protege: `Ce n'était pas facile cette fois, ${profil.prenom}, mais tu restes à ce niveau pour t'entraîner encore un peu. Tu vas y arriver !`,
             };
             speakSmart(messages[summary.raison]);
           }}
@@ -2746,6 +2823,15 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   // Petit repere visuel discret : nombre de bonnes reponses d'affilee sans
   // erreur dans la session en cours (remis a zero a la moindre erreur).
   const [perfectStreak, setPerfectStreak] = useState(0);
+  // Enchainement automatique au niveau suivant en cas de reussite, sans
+  // repasser par la carte - mais on verifie quand meme le temps restant
+  // avant chaque enchainement pour ne jamais le contourner completement.
+  const [transitioning, setTransitioning] = useState(null); // message a afficher, ou null
+  const { extraMinutesGranted } = useContext(ExtraTimeContext);
+  const { baseRemaining } = useTimeBudget(profil);
+  const liveRemaining = useLiveCountdown(baseRemaining);
+  const effectiveRemainingIci = baseRemaining != null ? liveRemaining + extraMinutesGranted * 60 : null;
+  const limiteAtteinteIci = effectiveRemainingIci != null && effectiveRemainingIci <= 0;
 
   useEffect(() => {
     fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; });
@@ -2849,6 +2935,33 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       startedAt: startedAt.current,
       tempsMoyenParManche: Math.round(durationSeconds / TOTAL_ROUNDS),
     });
+
+    // Reussite ET du temps de jeu restant : on enchaine directement sur le
+    // niveau suivant, sans repasser par la carte - juste un mot de felicitation.
+    if (summary.direction === 'up' && !limiteAtteinteIci) {
+      const messages = [
+        `Bravo ${profil.prenom}, niveau suivant !`,
+        `Excellent ${profil.prenom}, on continue !`,
+        `Trop fort ${profil.prenom}, en avant pour la suite !`,
+      ];
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+      setTransitioning(msg);
+      speakSmart(msg);
+      setTimeout(() => {
+        setTransitioning(null);
+        errorsTotal.current = 0;
+        recentRounds.current = [];
+        attentionChosenOnce.current = false;
+        setPerfectStreak(0);
+        startedAt.current = Date.now();
+        setRung(summary.newRung);
+        setRound(1);
+        const { niveau, palier } = gradeAndPalierFromRung(summary.newRung);
+        loadRound(miniJeuId, niveau, palier);
+      }, 2200);
+      return;
+    }
+
     setSessionSummary(summary);
     setSessionDone(true);
   }
@@ -2863,7 +2976,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       recentRounds.current = [...recentRounds.current, { wrong: false, fast: false }].slice(-4);
       setPerfectStreak((s) => s + 1);
       setFeedback('Bravo !');
-      maybePlayMemo(memosConfig.current, 'bonne_reponse');
+      maybeSpeakMidSessionEncouragement(round);
       setTimeout(async () => {
         if (round >= TOTAL_ROUNDS) {
           await finishSession();
@@ -2929,6 +3042,18 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
 
   if (sessionDone) {
     return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+  }
+
+  if (transitioning) {
+    return (
+      <View style={styles.center}>
+        <BouncingWrap><Noisette size={80} /></BouncingWrap>
+        <Text style={{ fontSize: 22, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginTop: 16 }}>
+          {transitioning}
+        </Text>
+        <Text style={{ fontSize: 30, marginTop: 8 }}>🎉</Text>
+      </View>
+    );
   }
 
   if (loading || !promptData) {
