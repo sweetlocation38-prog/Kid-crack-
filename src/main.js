@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '23/07/2026 - Bouton Continuer disponible aussi en cas dechec (recommence au meme niveau), pas seulement en cas de reussite';
+const APP_BUILD_VERSION = '24/07/2026 - Emojis de reponse agrandis, espace vertical resserre pour reduire le defilement';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -3380,6 +3380,10 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
             const isThisCorrect = String(option) === String(promptData.correct);
             const isThisAnswer = isAnswered && String(option) === String(answered);
             const bg = STONE_COLORS[i % STONE_COLORS.length];
+            // Un emoji seul (comme ❤️ ou 🫁) doit etre affiche bien plus
+            // grand qu'un mot ou une phrase, sinon il paraît minuscule dans
+            // un aussi grand bouton.
+            const estUnEmojiSeul = String(option).length <= 4;
             return (
               <Pressable
                 key={i}
@@ -3393,7 +3397,11 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
                   isAnswered && isThisAnswer && !isThisCorrect && styles.optionWrong,
                 ]}
               >
-                <Text style={styles.optionText} numberOfLines={2} adjustsFontSizeToFit>
+                <Text
+                  style={[styles.optionText, estUnEmojiSeul && styles.optionTextIcon]}
+                  numberOfLines={2}
+                  adjustsFontSizeToFit
+                >
                   {String(option)}
                 </Text>
                 <Pressable
@@ -5552,12 +5560,12 @@ const styles = StyleSheet.create({
   gameCompetence: { fontSize: 12, opacity: 0.6, textTransform: 'capitalize' },
   soon: { fontSize: 11, opacity: 0.5, fontStyle: 'italic' },
 
-  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   gameTitle: { fontSize: 16, fontWeight: '700', color: colors.mossDeep },
   roundLabel: { fontSize: 13, opacity: 0.6, fontWeight: '600' },
   prompt: { alignItems: 'center', marginBottom: 24 },
-  gameScreenScroll: { flexGrow: 1, backgroundColor: colors.cream, padding: 18, paddingTop: 48, paddingBottom: 40 },
-  promptZone: { alignItems: 'center', marginBottom: 20 },
+  gameScreenScroll: { flexGrow: 1, backgroundColor: colors.cream, padding: 18, paddingTop: 28, paddingBottom: 30 },
+  promptZone: { alignItems: 'center', marginBottom: 14 },
   answerZone: {
     backgroundColor: '#fff', borderRadius: 22, padding: 16, marginTop: 8,
     borderWidth: 2, borderColor: 'rgba(0,0,0,0.06)',
@@ -5663,7 +5671,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.8)', alignItems: 'center', justifyContent: 'center',
   },
   optionButton: {
-    width: '46%', minHeight: 110, paddingHorizontal: 12, paddingVertical: 14, borderRadius: 20,
+    width: '46%', minHeight: 96, paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20,
     alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
   },
   optionListenBtn: {
@@ -5673,6 +5681,7 @@ const styles = StyleSheet.create({
   optionCorrect: { backgroundColor: colors.success, borderColor: colors.success },
   optionWrong: { backgroundColor: colors.error, borderColor: colors.error },
   optionText: { fontSize: 22, fontWeight: '800', color: colors.ink, textAlign: 'center' },
+  optionTextIcon: { fontSize: 44 },
   rewardForm: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginTop: 16 },
   rewardRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 14, padding: 12, marginBottom: 8 },
   rewardRowTitle: { fontWeight: '700', color: colors.mossDeep },
