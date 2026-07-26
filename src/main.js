@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '23/07/2026 - Corrige la config audio manquante, ajoute le choix de la musique dambiance en reglages parentaux';
+const APP_BUILD_VERSION = '23/07/2026 - Bouton Continuer au lieu denchainement automatique, corrige lechec silencieux de mise a jour photo de profil';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1137,10 +1137,15 @@ function ProfileSelectScreen({ navigation }) {
       setAvatarPickerFor(profilId);
       return;
     }
-    const url = await uploadFileToStorage('profil-photos', `${profilId}.jpg`, choix, 'image/jpeg');
+    // On ajoute un suffixe different a chaque fois (au lieu d'un nom de
+    // fichier toujours identique) pour eviter tout souci de remplacement
+    // silencieux d'une photo par une autre.
+    const url = await uploadFileToStorage('profil-photos', `${profilId}-${Date.now()}.jpg`, choix, 'image/jpeg');
     if (url) {
       await supabase.from('profils_enfants').update({ photo_url: url }).eq('id', profilId);
-      loadProfils();
+      await loadProfils();
+    } else {
+      Alert.alert('Photo non enregistrée', "La photo n'a pas pu être envoyée. Vérifiez la connexion internet et réessayez.");
     }
   }
 
@@ -1431,10 +1436,12 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
 
     if (inserted && photoUri) {
       const url = await uploadFileToStorage(
-        'profil-photos', `${inserted.id}.jpg`, photoUri, 'image/jpeg'
+        'profil-photos', `${inserted.id}-${Date.now()}.jpg`, photoUri, 'image/jpeg'
       );
       if (url) {
         await supabase.from('profils_enfants').update({ photo_url: url }).eq('id', inserted.id);
+      } else {
+        Alert.alert('Photo non enregistrée', "Le profil est bien créé, mais la photo n'a pas pu être envoyée. Vous pourrez réessayer depuis l'écran des profils.");
       }
     }
 
@@ -2257,6 +2264,7 @@ function PontDesLettresScreen({ route, navigation }) {
   // trop vite pour avoir ete vraiment reflechies, plusieurs fois de suite.
   const [transitioning, setTransitioning] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const pendingNextRung = useRef(null);
   const { extraMinutesGranted } = useContext(ExtraTimeContext);
   const { baseRemaining } = useTimeBudget(profil);
   const liveRemaining = useLiveCountdown(baseRemaining);
@@ -2374,31 +2382,36 @@ function PontDesLettresScreen({ route, navigation }) {
       tempsMoyenParManche: Math.round(durationSeconds / TOTAL_ROUNDS),
     });
 
-    // Reussite ET du temps de jeu restant : on enchaine directement sur le
-    // niveau suivant, sans repasser par la carte - juste un mot de felicitation.
+    // Reussite ET du temps de jeu restant : on propose de continuer sur le
+    // niveau suivant sans repasser par la carte - mais c'est desormais
+    // l'enfant qui choisit, via un bouton "Continuer", plutot qu'un
+    // enchainement automatique impose.
     if (summary.direction === 'up' && !limiteAtteinteIci) {
       const messages = [
-        `Bravo ${speechFriendlyName(profil.prenom)}, niveau suivant !`,
-        `Excellent ${speechFriendlyName(profil.prenom)}, on continue !`,
-        `Trop fort ${speechFriendlyName(profil.prenom)}, en avant pour la suite !`,
+        `Bravo ${speechFriendlyName(profil.prenom)}, niveau suivant ! Touche le bouton pour continuer.`,
+        `Excellent ${speechFriendlyName(profil.prenom)} ! Touche continuer si tu veux jouer encore.`,
+        `Trop fort ${speechFriendlyName(profil.prenom)} ! Appuie sur continuer pour la suite.`,
       ];
       const msg = messages[Math.floor(Math.random() * messages.length)];
       setTransitioning(msg);
       speakSmart(msg);
-      setTimeout(() => {
-        setTransitioning(null);
-        errorsTotal.current = 0;
-        startedAt.current = Date.now();
-        setRung(summary.newRung);
-        setRound(1);
-        const { niveau, palier } = gradeAndPalierFromRung(summary.newRung);
-        loadRound(miniJeuId, niveau, palier);
-      }, 2200);
+      pendingNextRung.current = summary.newRung;
       return;
     }
 
     setSessionSummary(summary);
     setSessionDone(true);
+  }
+
+  function proceedToNextLevel() {
+    const newRung = pendingNextRung.current;
+    setTransitioning(null);
+    errorsTotal.current = 0;
+    startedAt.current = Date.now();
+    setRung(newRung);
+    setRound(1);
+    const { niveau, palier } = gradeAndPalierFromRung(newRung);
+    loadRound(miniJeuId, niveau, palier);
   }
 
   function onTokenPress(token, index) {
@@ -2448,6 +2461,12 @@ function PontDesLettresScreen({ route, navigation }) {
           {transitioning}
         </Text>
         <Text style={{ fontSize: 30, marginTop: 8 }}>🎉</Text>
+        <Pressable style={[styles.button, { marginTop: 24, paddingHorizontal: 32 }]} onPress={proceedToNextLevel}>
+          <Text style={styles.buttonText}>▶️ Continuer</Text>
+        </Pressable>
+        <Pressable style={{ marginTop: 14 }} onPress={() => navigation.goBack()}>
+          <Text style={{ color: colors.ink, opacity: 0.6, fontWeight: '600' }}>‹ Retour à la carte</Text>
+        </Pressable>
       </View>
     );
   }
@@ -2981,6 +3000,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   // erreur dans la session en cours (remis a zero a la moindre erreur).
   const [perfectStreak, setPerfectStreak] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
+  const pendingNextRung = useRef(null);
   // Enchainement automatique au niveau suivant en cas de reussite, sans
   // repasser par la carte - mais on verifie quand meme le temps restant
   // avant chaque enchainement pour ne jamais le contourner completement.
@@ -3094,34 +3114,39 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       tempsMoyenParManche: Math.round(durationSeconds / TOTAL_ROUNDS),
     });
 
-    // Reussite ET du temps de jeu restant : on enchaine directement sur le
-    // niveau suivant, sans repasser par la carte - juste un mot de felicitation.
+    // Reussite ET du temps de jeu restant : on propose de continuer sur le
+    // niveau suivant sans repasser par la carte - mais c'est desormais
+    // l'enfant qui choisit, via un bouton "Continuer", plutot qu'un
+    // enchainement automatique impose.
     if (summary.direction === 'up' && !limiteAtteinteIci) {
       const messages = [
-        `Bravo ${speechFriendlyName(profil.prenom)}, niveau suivant !`,
-        `Excellent ${speechFriendlyName(profil.prenom)}, on continue !`,
-        `Trop fort ${speechFriendlyName(profil.prenom)}, en avant pour la suite !`,
+        `Bravo ${speechFriendlyName(profil.prenom)}, niveau suivant ! Touche le bouton pour continuer.`,
+        `Excellent ${speechFriendlyName(profil.prenom)} ! Touche continuer si tu veux jouer encore.`,
+        `Trop fort ${speechFriendlyName(profil.prenom)} ! Appuie sur continuer pour la suite.`,
       ];
       const msg = messages[Math.floor(Math.random() * messages.length)];
       setTransitioning(msg);
       speakSmart(msg);
-      setTimeout(() => {
-        setTransitioning(null);
-        errorsTotal.current = 0;
-        recentRounds.current = [];
-        attentionChosenOnce.current = false;
-        setPerfectStreak(0);
-        startedAt.current = Date.now();
-        setRung(summary.newRung);
-        setRound(1);
-        const { niveau, palier } = gradeAndPalierFromRung(summary.newRung);
-        loadRound(miniJeuId, niveau, palier);
-      }, 2200);
+      pendingNextRung.current = summary.newRung;
       return;
     }
 
     setSessionSummary(summary);
     setSessionDone(true);
+  }
+
+  function proceedToNextLevel() {
+    const newRung = pendingNextRung.current;
+    setTransitioning(null);
+    errorsTotal.current = 0;
+    recentRounds.current = [];
+    attentionChosenOnce.current = false;
+    setPerfectStreak(0);
+    startedAt.current = Date.now();
+    setRung(newRung);
+    setRound(1);
+    const { niveau, palier } = gradeAndPalierFromRung(newRung);
+    loadRound(miniJeuId, niveau, palier);
   }
 
   function onOptionPress(value) {
@@ -3212,6 +3237,12 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
           {transitioning}
         </Text>
         <Text style={{ fontSize: 30, marginTop: 8 }}>🎉</Text>
+        <Pressable style={[styles.button, { marginTop: 24, paddingHorizontal: 32 }]} onPress={proceedToNextLevel}>
+          <Text style={styles.buttonText}>▶️ Continuer</Text>
+        </Pressable>
+        <Pressable style={{ marginTop: 14 }} onPress={() => navigation.goBack()}>
+          <Text style={{ color: colors.ink, opacity: 0.6, fontWeight: '600' }}>‹ Retour à la carte</Text>
+        </Pressable>
       </View>
     );
   }
