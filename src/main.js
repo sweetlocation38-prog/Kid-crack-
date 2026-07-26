@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '23/07/2026 - Bouton Continuer au lieu denchainement automatique, corrige lechec silencieux de mise a jour photo de profil';
+const APP_BUILD_VERSION = '23/07/2026 - Bouton Continuer disponible aussi en cas dechec (recommence au meme niveau), pas seulement en cas de reussite';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -2399,6 +2399,10 @@ function PontDesLettresScreen({ route, navigation }) {
       return;
     }
 
+    // Meme sans montee de niveau (echec ou stagnation), on garde la
+    // possibilite de reprendre directement au meme niveau sans repasser
+    // par la carte, tant qu'il reste du temps de jeu.
+    pendingNextRung.current = summary.newRung;
     setSessionSummary(summary);
     setSessionDone(true);
   }
@@ -2450,7 +2454,7 @@ function PontDesLettresScreen({ route, navigation }) {
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} onContinue={!limiteAtteinteIci ? proceedToNextLevel : undefined} />;
   }
 
   if (transitioning) {
@@ -2858,7 +2862,7 @@ function speak(text) {
   if (text) speakSmart(text);
 }
 
-function SessionEndScreen({ profil, summary, navigation, timeUp }) {
+function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
   const fiche = summary?.ficheAnimal;
 
   // Explication parlee de la raison de la montee (ou non), puisque l'enfant
@@ -2961,8 +2965,18 @@ function SessionEndScreen({ profil, summary, navigation, timeUp }) {
         </PopIn>
       )}
 
-      <Pressable style={styles.button} onPress={() => navigation.goBack()}>
-        <Text style={styles.buttonText}>Retour à la carte</Text>
+      {onContinue && (
+        <Pressable style={[styles.button, { marginBottom: 10 }]} onPress={onContinue}>
+          <Text style={styles.buttonText}>▶️ Continuer</Text>
+        </Pressable>
+      )}
+      <Pressable
+        style={onContinue ? [styles.button, { backgroundColor: colors.sand }] : styles.button}
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={onContinue ? [styles.buttonText, { color: colors.ink }] : styles.buttonText}>
+          Retour à la carte
+        </Text>
       </Pressable>
     </ScrollView>
   );
@@ -3131,6 +3145,10 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       return;
     }
 
+    // Meme sans montee de niveau (echec ou stagnation), on garde la
+    // possibilite de reprendre directement au meme niveau sans repasser
+    // par la carte, tant qu'il reste du temps de jeu.
+    pendingNextRung.current = summary.newRung;
     setSessionSummary(summary);
     setSessionDone(true);
   }
@@ -3226,7 +3244,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} onContinue={!limiteAtteinteIci ? proceedToNextLevel : undefined} />;
   }
 
   if (transitioning) {
