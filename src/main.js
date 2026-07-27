@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '24/07/2026 - Les Pommes de Luma comptent desormais des objets varies (pas toujours des pommes)';
+const APP_BUILD_VERSION = '25/07/2026 - Monde en Capitales : ecran de choix de theme (drapeaux, animaux, langues, monuments, iles, continents)';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -3006,7 +3006,7 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
 // ============================================================
 // Moteur générique : question à choix (Sons Magiques + Pommes de Luma)
 // ============================================================
-function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung }) {
+function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -3076,14 +3076,19 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     setAnswered(null);
     errorsThisRound.current = 0;
 
-    const { data } = await supabase
+    let query = supabase
       .from('contenu_mini_jeu')
       .select('id, donnees')
       .eq('mini_jeu_id', jeuId)
       .eq('niveau', niveau)
       .eq('palier', palierValue)
-      .eq('actif', true)
-      .limit(30);
+      .eq('actif', true);
+    // Filtre optionnel par theme/categorie (ex: continent, type de question)
+    // pour les jeux qui proposent un choix de thematique avant de jouer.
+    if (themeFilter) {
+      query = query.eq(`donnees->>${themeFilter.field}`, themeFilter.value);
+    }
+    const { data } = await query.limit(30);
 
     // Evite de repeter un element deja vu dans CETTE session ; si le stock
     // de contenu est epuise, on autorise de nouveau les repetitions.
@@ -3629,22 +3634,125 @@ function buildGeoPrompt(d) {
         options: d.options,
         correct: d.reponse,
       };
+    case 'animal_pays':
+      return {
+        icon: d.animal,
+        promptText: 'Quel pays a cet animal comme emblème ?',
+        speak: 'Quel pays a cet animal comme emblème ?',
+        mandatorySpeak: false,
+        options: d.options,
+        correct: d.reponse,
+      };
+    case 'langue_pays':
+      return {
+        promptText: `Quelle langue parle-t-on principalement en ${d.pays} ?`,
+        speak: `Quelle langue parle-t-on principalement en ${d.pays} ?`,
+        mandatorySpeak: false,
+        options: d.options,
+        correct: d.reponse,
+      };
+    case 'monument_pays':
+      return {
+        icon: d.monument,
+        promptText: 'Dans quel pays se trouve ce monument ?',
+        speak: 'Dans quel pays se trouve ce monument ?',
+        mandatorySpeak: false,
+        options: d.options,
+        correct: d.reponse,
+      };
     default:
       return { promptText: '...', options: [], correct: null };
   }
 }
 
+const MONDE_THEMES = [
+  { key: 'alea', label: '🌍 Mélange de tout', labelSpeak: 'Mélange de tout', filter: null, titre: '🌍 Le Monde en Capitales' },
+  { key: 'drapeau', label: '🏳️ Les drapeaux', labelSpeak: 'Les drapeaux', filter: { field: 'categorie', value: 'drapeau' }, titre: '🏳️ Les Drapeaux du Monde' },
+  { key: 'capitale', label: '🏛️ Les capitales', labelSpeak: 'Les capitales', filter: { field: 'categorie', value: 'capitale' }, titre: '🏛️ Les Capitales' },
+  { key: 'animal', label: '🦁 Les animaux emblèmes', labelSpeak: 'Les animaux emblèmes', filter: { field: 'categorie', value: 'animal' }, titre: '🦁 Les Animaux du Monde' },
+  { key: 'langue', label: '🗣️ Les langues', labelSpeak: 'Les langues', filter: { field: 'categorie', value: 'langue' }, titre: '🗣️ Les Langues du Monde' },
+  { key: 'monument', label: '🏗️ Les monuments', labelSpeak: 'Les monuments', filter: { field: 'categorie', value: 'monument' }, titre: '🏗️ Les Monuments du Monde' },
+  { key: 'ile', label: '🏝️ Les îles', labelSpeak: 'Les îles', filter: { field: 'categorie', value: 'ile' }, titre: '🏝️ Les Îles du Monde' },
+];
+const MONDE_CONTINENTS = [
+  { key: 'Europe', label: '🇪🇺 Europe', labelSpeak: 'Europe' },
+  { key: 'Afrique', label: '🌍 Afrique', labelSpeak: 'Afrique' },
+  { key: 'Asie', label: '🌏 Asie', labelSpeak: 'Asie' },
+  { key: 'Amerique', label: '🌎 Amérique', labelSpeak: 'Amérique' },
+  { key: 'Oceanie', label: '🏝️ Océanie', labelSpeak: 'Océanie' },
+];
+
 function MondeCapitalesScreen({ route, navigation }) {
+  const [choix, setChoix] = useState(null); // theme choisi, ou null = ecran de choix
+  const [showContinents, setShowContinents] = useState(false);
+
+  if (choix) {
+    return (
+      <ChoiceGameScreen
+        route={route}
+        navigation={navigation}
+        jeuCode="monde_capitales"
+        Character={Noisette}
+        jeuTitre={choix.titre}
+        buildPrompt={buildGeoPrompt}
+        maxRung={MAX_CONTENT_RUNG}
+        themeFilter={choix.filter}
+      />
+    );
+  }
+
   return (
-    <ChoiceGameScreen
-      route={route}
-      navigation={navigation}
-      jeuCode="monde_capitales"
-      Character={Noisette}
-      jeuTitre="🌍 Le Monde en Capitales"
-      buildPrompt={buildGeoPrompt}
-      maxRung={MAX_CONTENT_RUNG}
-    />
+    <ScrollView contentContainerStyle={[styles.container, { paddingTop: 40 }]}>
+      <Pressable onPress={() => navigation.goBack()}>
+        <Text style={styles.back}>‹</Text>
+      </Pressable>
+      <Text style={{ fontSize: 22, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginVertical: 16 }}>
+        🌍 Choisis un thème !
+      </Text>
+      <Pressable
+        style={styles.helperText}
+        onPress={() => speakSmart('Choisis un thème pour jouer : mélange de tout, drapeaux, capitales, animaux, langues, monuments, îles, ou par continent.')}
+      >
+        <Text style={{ textAlign: 'center', fontSize: 13, color: colors.ink, opacity: 0.6 }}>🎤 Touche pour entendre les choix</Text>
+      </Pressable>
+      {!showContinents ? (
+        <>
+          {MONDE_THEMES.map((t) => (
+            <Pressable
+              key={t.key}
+              style={[styles.button, { marginTop: 10 }]}
+              onPress={() => { speakSmart(t.labelSpeak); setChoix(t); }}
+            >
+              <Text style={styles.buttonText}>{t.label}</Text>
+            </Pressable>
+          ))}
+          <Pressable
+            style={[styles.button, { marginTop: 10, backgroundColor: colors.sand }]}
+            onPress={() => setShowContinents(true)}
+          >
+            <Text style={[styles.buttonText, { color: colors.ink }]}>🗺️ Par continent</Text>
+          </Pressable>
+        </>
+      ) : (
+        <>
+          {MONDE_CONTINENTS.map((c) => (
+            <Pressable
+              key={c.key}
+              style={[styles.button, { marginTop: 10 }]}
+              onPress={() => {
+                speakSmart(c.labelSpeak);
+                setChoix({ filter: { field: 'continent', value: c.key }, titre: `${c.label} - Le Monde en Capitales` });
+              }}
+            >
+              <Text style={styles.buttonText}>{c.label}</Text>
+            </Pressable>
+          ))}
+          <Pressable style={{ marginTop: 14, alignItems: 'center' }} onPress={() => setShowContinents(false)}>
+            <Text style={{ color: colors.ink, opacity: 0.6, fontWeight: '600' }}>‹ Retour aux thèmes</Text>
+          </Pressable>
+        </>
+      )}
+    </ScrollView>
   );
 }
 
