@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '24/07/2026 - Emojis de reponse agrandis, espace vertical resserre pour reduire le defilement';
+const APP_BUILD_VERSION = '24/07/2026 - Les Pommes de Luma comptent desormais des objets varies (pas toujours des pommes)';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -314,6 +314,27 @@ function ModernAppleRow({ count, color, size = 26 }) {
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 5 }}>
       {Array.from({ length: Math.max(0, count) }).map((_, i) => (
         <ModernApple key={i} size={size} color={color} />
+      ))}
+    </View>
+  );
+}
+
+// Reserve d'objets a compter, variee (fruits, animaux, jouets, objets du
+// quotidien) pour que ce ne soit pas toujours des pommes - tiree au hasard
+// a chaque manche plutot que stockee en base, pour couvrir tout le contenu
+// existant sans avoir a le retoucher.
+const OBJETS_A_COMPTER = ['🍎', '🍓', '🍌', '🍇', '🍊', '⭐', '🎈', '🐝', '🐞', '🦋', '🐣', '🌸', '🍄', '🐚', '🎲', '🧩', '🚗', '🎁', '🦆', '🐟'];
+function pickRandomObjet(seed) {
+  // Un "seed" simple base sur les valeurs de la manche pour garder le meme
+  // objet pendant toute la manche (pas de changement entre deux rendus).
+  const idx = Math.abs(seed) % OBJETS_A_COMPTER.length;
+  return OBJETS_A_COMPTER[idx];
+}
+function EmojiCountRow({ count, emoji, size = 30 }) {
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 5 }}>
+      {Array.from({ length: Math.max(0, count) }).map((_, i) => (
+        <Text key={i} style={{ fontSize: size }}>{emoji}</Text>
       ))}
     </View>
   );
@@ -3333,22 +3354,22 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       <View style={styles.promptZone}>
         {promptData.icon ? <Text style={styles.icon}>{promptData.icon}</Text> : null}
         {promptData.visual ? <Text style={styles.visualRow}>{promptData.visual}</Text> : null}
-        {promptData.applesCount != null ? (
+        {promptData.emojiCount != null ? (
           <View style={{ marginBottom: 10 }}>
-            <ModernAppleRow count={promptData.applesCount} color="#E5533D" size={30} />
+            <EmojiCountRow count={promptData.emojiCount} emoji={promptData.emojiIcon ?? '🍎'} size={30} />
           </View>
         ) : null}
-        {promptData.applesSplit ? (
+        {promptData.emojiSplit ? (
           <View style={{ flexDirection: 'row', gap: 18, justifyContent: 'center', marginBottom: 10 }}>
-            <ModernAppleRow count={promptData.applesSplit[0]} color="#E5533D" size={28} />
-            <ModernAppleRow count={promptData.applesSplit[1]} color="#7CB342" size={28} />
+            <EmojiCountRow count={promptData.emojiSplit[0]} emoji={promptData.emojiIcon ?? '🍎'} size={28} />
+            <EmojiCountRow count={promptData.emojiSplit[1]} emoji={promptData.emojiIcon ?? '🍎'} size={28} />
           </View>
         ) : null}
-        {promptData.applesCompare ? (
+        {promptData.emojiCompare ? (
           <View style={{ flexDirection: 'row', gap: 16, justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
-            <ModernAppleRow count={promptData.applesCompare[0]} color="#E5533D" size={26} />
+            <EmojiCountRow count={promptData.emojiCompare[0]} emoji={promptData.emojiIcon ?? '🍎'} size={26} />
             <Text style={{ fontWeight: '800', color: colors.mossDeep }}>VS</Text>
-            <ModernAppleRow count={promptData.applesCompare[1]} color="#4FA8DB" size={26} />
+            <EmojiCountRow count={promptData.emojiCompare[1]} emoji={promptData.emojiIcon ?? '🍎'} size={26} />
           </View>
         ) : null}
         {promptData.texteAffiche ? (
@@ -3513,19 +3534,25 @@ function SonsMagiquesScreen({ route, navigation }) {
 // Les Pommes de Luma
 // ============================================================
 function buildLumaPrompt(d) {
+  // Un objet different tire au hasard a chaque manche (pas toujours des
+  // pommes), pour varier ce qu'on demande de compter/comparer.
+  const objet = pickRandomObjet((d.cible ?? 0) + (d.decomposition ? d.decomposition[0] * 7 : 0) + Date.now() % 97);
+  const nomObjetPluriel = { '🍎': 'pommes', '🍓': 'fraises', '🍌': 'bananes', '🍇': 'grappes de raisin', '🍊': 'oranges', '⭐': 'étoiles', '🎈': 'ballons', '🐝': 'abeilles', '🐞': 'coccinelles', '🦋': 'papillons', '🐣': 'poussins', '🌸': 'fleurs', '🍄': 'champignons', '🐚': 'coquillages', '🎲': 'dés', '🧩': 'pièces de puzzle', '🚗': 'voitures', '🎁': 'cadeaux', '🦆': 'canards', '🐟': 'poissons' }[objet] ?? 'objets';
   switch (d.etape) {
     case 'concret':
       return {
-        applesCount: d.cible,
-        promptText: 'Combien de pommes vois-tu ?',
-        speak: 'Combien de pommes vois-tu ?',
-        mandatorySpeak: false, // les pommes sont visibles a l'ecran
+        emojiCount: d.cible,
+        emojiIcon: objet,
+        promptText: `Combien de ${nomObjetPluriel} vois-tu ?`,
+        speak: `Combien de ${nomObjetPluriel} vois-tu ?`,
+        mandatorySpeak: false, // les objets sont visibles a l'ecran
         options: d.options,
         correct: d.cible,
       };
     case 'chiffre':
       return {
-        applesCount: d.cible,
+        emojiCount: d.cible,
+        emojiIcon: objet,
         promptText: 'Quel chiffre correspond à cette quantité ?',
         speak: 'Quel chiffre correspond à cette quantité ?',
         mandatorySpeak: false,
@@ -3536,7 +3563,8 @@ function buildLumaPrompt(d) {
       const a = d.decomposition[0];
       const b = d.decomposition[1];
       return {
-        applesSplit: [a, b],
+        emojiSplit: [a, b],
+        emojiIcon: objet,
         promptText: a + ' + ' + b + ' = ?',
         speak: `${a} plus ${b}, ça fait combien ?`,
         mandatorySpeak: false, // le calcul est deja affiche en chiffres
@@ -3557,10 +3585,11 @@ function buildLumaPrompt(d) {
     }
     case 'comparer':
       return {
-        applesCompare: [d.gauche, d.droite],
+        emojiCompare: [d.gauche, d.droite],
+        emojiIcon: objet,
         promptText: 'Le groupe de gauche a-t-il plus, moins ou autant que celui de droite ?',
         speak: 'Le groupe de gauche a-t-il plus, moins ou autant que celui de droite ?',
-        mandatorySpeak: false, // les groupes de pommes sont visibles
+        mandatorySpeak: false, // les groupes sont visibles
         options: ['plus', 'moins', 'autant'],
         correct: d.reponse,
       };
