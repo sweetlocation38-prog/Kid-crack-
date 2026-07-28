@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '28/07/2026 - Corrige l ecran bloque sur les themes peu fournis, agrandit la carte d Europe';
+const APP_BUILD_VERSION = '28/07/2026 - Un seul bouton a la fin dune manche (Continuer ou Recommencer), jamais les deux ensemble';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -2489,9 +2489,6 @@ function PontDesLettresScreen({ route, navigation }) {
         <Pressable style={[styles.button, { marginTop: 24, paddingHorizontal: 32 }]} onPress={proceedToNextLevel}>
           <Text style={styles.buttonText}>▶️ Continuer</Text>
         </Pressable>
-        <Pressable style={{ marginTop: 14 }} onPress={() => navigation.goBack()}>
-          <Text style={{ color: colors.ink, opacity: 0.6, fontWeight: '600' }}>‹ Retour à la carte</Text>
-        </Pressable>
       </View>
     );
   }
@@ -2986,19 +2983,19 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
         </PopIn>
       )}
 
-      {onContinue && (
-        <Pressable style={[styles.button, { marginBottom: 10 }]} onPress={onContinue}>
-          <Text style={styles.buttonText}>▶️ Continuer</Text>
+      {onContinue ? (
+        <Pressable style={styles.button} onPress={onContinue}>
+          <Text style={styles.buttonText}>
+            {summary.direction === 'up' ? '▶️ Continuer' : '🔄 Recommencer'}
+          </Text>
+        </Pressable>
+      ) : (
+        <Pressable style={styles.button} onPress={() => navigation.goBack()}>
+          <Text style={styles.buttonText}>
+            Retour à la carte
+          </Text>
         </Pressable>
       )}
-      <Pressable
-        style={onContinue ? [styles.button, { backgroundColor: colors.sand }] : styles.button}
-        onPress={() => navigation.goBack()}
-      >
-        <Text style={onContinue ? [styles.buttonText, { color: colors.ink }] : styles.buttonText}>
-          Retour à la carte
-        </Text>
-      </Pressable>
     </ScrollView>
   );
 }
@@ -3393,9 +3390,6 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         <Text style={{ fontSize: 30, marginTop: 8 }}>🎉</Text>
         <Pressable style={[styles.button, { marginTop: 24, paddingHorizontal: 32 }]} onPress={proceedToNextLevel}>
           <Text style={styles.buttonText}>▶️ Continuer</Text>
-        </Pressable>
-        <Pressable style={{ marginTop: 14 }} onPress={() => navigation.goBack()}>
-          <Text style={{ color: colors.ink, opacity: 0.6, fontWeight: '600' }}>‹ Retour à la carte</Text>
         </Pressable>
       </View>
     );
