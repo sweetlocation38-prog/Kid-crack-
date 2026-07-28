@@ -80,6 +80,7 @@ import * as Speech from 'expo-speech';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import * as DocumentPicker from 'expo-document-picker';
 
 const CAMPAGNE_MAP_IMAGE = require('../assets/carte-campagne.jpg');
@@ -87,7 +88,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '28/07/2026 - Un seul bouton a la fin dune manche (Continuer ou Recommencer), plus jamais les deux ensemble';
+const APP_BUILD_VERSION = '28/07/2026 - Corrige debordement Pont des Lettres, carte Europe en paysage, tolerance de tap plus genereuse, retire Animal/Monument/Ile du choix';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -331,10 +332,18 @@ function pickRandomObjet(seed) {
   return OBJETS_A_COMPTER[idx];
 }
 function EmojiCountRow({ count, emoji, size = 30 }) {
+  // Plus il y a d'objets a afficher, plus ils doivent etre petits pour ne
+  // jamais deborder de l'ecran, meme dans un espace deja restreint (ex: les
+  // deux groupes d'une comparaison cote a cote).
+  const tailleAdaptee =
+    count > 20 ? Math.min(size, 14) :
+    count > 12 ? Math.min(size, 18) :
+    count > 6 ? Math.min(size, 22) :
+    size;
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 5 }}>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
       {Array.from({ length: Math.max(0, count) }).map((_, i) => (
-        <Text key={i} style={{ fontSize: size }}>{emoji}</Text>
+        <Text key={i} style={{ fontSize: tailleAdaptee }}>{emoji}</Text>
       ))}
     </View>
   );
@@ -3023,9 +3032,18 @@ const EUROPE_COUNTRY_COORDS = {
 function EuropeMapChallenge({ pays, onResult }) {
   const [tap, setTap] = useState(null);
   const [imgSize, setImgSize] = useState({ width: 1, height: 1 });
+  const [isLandscape, setIsLandscape] = useState(false);
 
   useEffect(() => {
     speakSmart(`Bravo ! Maintenant, touche l'endroit où se trouve ${pays} sur la carte.`);
+    // La carte est plus large que haute : passer temporairement en paysage
+    // donne beaucoup plus de place pour toucher precisement les petits pays.
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE)
+      .then(() => setIsLandscape(true))
+      .catch(() => setIsLandscape(false));
+    return () => {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+    };
   }, []);
 
   function handlePress(evt) {
@@ -3033,22 +3051,26 @@ function EuropeMapChallenge({ pays, onResult }) {
     const { locationX, locationY } = evt.nativeEvent;
     const px = locationX / imgSize.width;
     const py = locationY / imgSize.height;
-    let meilleur = null;
-    let meilleureDistance = Infinity;
-    for (const [nom, [cx, cy]] of Object.entries(EUROPE_COUNTRY_COORDS)) {
-      const d = Math.hypot(px - cx, py - cy);
-      if (d < meilleureDistance) { meilleureDistance = d; meilleur = nom; }
-    }
-    const correct = meilleur === pays;
+    const cible = EUROPE_COUNTRY_COORDS[pays];
+    // Tolerance generreuse autour du pays demande : on ne compare plus au
+    // pays le plus proche parmi tous (trop severe quand des petits pays
+    // sont serres les uns contre les autres), on verifie juste si le tap
+    // tombe raisonnablement pres de LA bonne reponse.
+    const distance = cible ? Math.hypot(px - cible[0], py - cible[1]) : Infinity;
+    const TOLERANCE = 0.10;
+    const correct = distance <= TOLERANCE;
     setTap({ px, py, correct });
     speakSmart(correct ? 'Bravo, bien joué !' : `Pas tout à fait, ${pays} était ici.`);
     setTimeout(() => onResult(correct), 1600);
   }
 
-  // Carte agrandie a la largeur de l'ecran (moins les marges) pour que les
-  // petits pays proches les uns des autres restent faciles a toucher.
-  const { width: screenWidth } = useWindowDimensions();
-  const mapWidth = Math.min(screenWidth - 32, 560);
+  // Carte agrandie au maximum de l'espace disponible (largeur ET hauteur,
+  // car en paysage c'est la hauteur qui devient la contrainte principale).
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const hauteurDisponible = screenHeight - 130; // marge pour le titre et les bords
+  const largeurMax = screenWidth - 16;
+  const largeurSelonHauteur = hauteurDisponible * (540 / 300);
+  const mapWidth = Math.max(200, Math.min(largeurMax, largeurSelonHauteur, 900));
   const mapHeight = mapWidth * (300 / 540);
 
   return (
@@ -3068,6 +3090,22 @@ function EuropeMapChallenge({ pays, onResult }) {
               borderWidth: 2, borderColor: 'white',
             }}
           />
+        )}
+        {tap && !tap.correct && EUROPE_COUNTRY_COORDS[pays] && (
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              left: EUROPE_COUNTRY_COORDS[pays][0] * mapWidth - 14,
+              top: EUROPE_COUNTRY_COORDS[pays][1] * mapHeight - 14,
+              width: 28, height: 28, borderRadius: 14,
+              backgroundColor: 'rgba(76,175,80,0.85)',
+              borderWidth: 2, borderColor: 'white',
+              alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 14 }}>✓</Text>
+          </View>
         )}
       </Pressable>
     </View>
@@ -3483,16 +3521,24 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
           </View>
         ) : null}
         {promptData.emojiSplit ? (
-          <View style={{ flexDirection: 'row', gap: 18, justifyContent: 'center', marginBottom: 10 }}>
-            <EmojiCountRow count={promptData.emojiSplit[0]} emoji={promptData.emojiIcon ?? '🍎'} size={28} />
-            <EmojiCountRow count={promptData.emojiSplit[1]} emoji={promptData.emojiIcon ?? '🍎'} size={28} />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 18, justifyContent: 'center', marginBottom: 10 }}>
+            <View style={{ maxWidth: '42%' }}>
+              <EmojiCountRow count={promptData.emojiSplit[0]} emoji={promptData.emojiIcon ?? '🍎'} size={26} />
+            </View>
+            <View style={{ maxWidth: '42%' }}>
+              <EmojiCountRow count={promptData.emojiSplit[1]} emoji={promptData.emojiIcon ?? '🍎'} size={26} />
+            </View>
           </View>
         ) : null}
         {promptData.emojiCompare ? (
-          <View style={{ flexDirection: 'row', gap: 16, justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
-            <EmojiCountRow count={promptData.emojiCompare[0]} emoji={promptData.emojiIcon ?? '🍎'} size={26} />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
+            <View style={{ maxWidth: '40%' }}>
+              <EmojiCountRow count={promptData.emojiCompare[0]} emoji={promptData.emojiIcon ?? '🍎'} size={22} />
+            </View>
             <Text style={{ fontWeight: '800', color: colors.mossDeep }}>VS</Text>
-            <EmojiCountRow count={promptData.emojiCompare[1]} emoji={promptData.emojiIcon ?? '🍎'} size={26} />
+            <View style={{ maxWidth: '40%' }}>
+              <EmojiCountRow count={promptData.emojiCompare[1]} emoji={promptData.emojiIcon ?? '🍎'} size={22} />
+            </View>
           </View>
         ) : null}
         {promptData.texteAffiche ? (
@@ -3787,10 +3833,7 @@ const MONDE_THEMES = [
   { key: 'alea', label: '🌍 Mélange de tout', labelSpeak: 'Mélange de tout', filter: null, titre: '🌍 Le Monde en Capitales' },
   { key: 'drapeau', label: '🏳️ Les drapeaux', labelSpeak: 'Les drapeaux', filter: { field: 'categorie', value: 'drapeau' }, titre: '🏳️ Les Drapeaux du Monde' },
   { key: 'capitale', label: '🏛️ Les capitales', labelSpeak: 'Les capitales', filter: { field: 'categorie', value: 'capitale' }, titre: '🏛️ Les Capitales' },
-  { key: 'animal', label: '🦁 Les animaux emblèmes', labelSpeak: 'Les animaux emblèmes', filter: { field: 'categorie', value: 'animal' }, titre: '🦁 Les Animaux du Monde' },
   { key: 'langue', label: '🗣️ Les langues', labelSpeak: 'Les langues', filter: { field: 'categorie', value: 'langue' }, titre: '🗣️ Les Langues du Monde' },
-  { key: 'monument', label: '🏗️ Les monuments', labelSpeak: 'Les monuments', filter: { field: 'categorie', value: 'monument' }, titre: '🏗️ Les Monuments du Monde' },
-  { key: 'ile', label: '🏝️ Les îles', labelSpeak: 'Les îles', filter: { field: 'categorie', value: 'ile' }, titre: '🏝️ Les Îles du Monde' },
 ];
 const MONDE_CONTINENTS = [
   { key: 'Europe', label: '🇪🇺 Europe', labelSpeak: 'Europe' },
@@ -5596,6 +5639,12 @@ export default function RootNavigator() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    // L'app reste en portrait partout par defaut ; seul l'ecran de la
+    // carte interactive passe temporairement en paysage (voir plus bas).
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setChecking(false);
@@ -5838,7 +5887,7 @@ const styles = StyleSheet.create({
     borderWidth: 3, borderColor: colors.gold, flexShrink: 0,
   },
   modelText: { fontSize: 26, fontWeight: '800', color: colors.mossDeep },
-  slots: { flexDirection: 'row', gap: 8, flexWrap: 'nowrap', justifyContent: 'center' },
+  slots: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'center' },
   slot: {
     minWidth: 42, height: 48, borderBottomWidth: 4, borderBottomColor: colors.mossSoft,
     alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8, flexShrink: 0,
@@ -5908,7 +5957,7 @@ const styles = StyleSheet.create({
   puzzlePieceDone: { backgroundColor: colors.success, borderColor: colors.success },
   puzzlePieceWrong: { backgroundColor: colors.error, borderColor: colors.error },
   puzzlePieceText: { fontSize: 20, fontWeight: '800', color: '#fff' },
-  friseTrack: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginVertical: 8 },
+  friseTrack: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6, marginVertical: 8 },
   friseDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.sand },
   friseDotDone: { backgroundColor: colors.mossSoft },
   friseGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginTop: 10 },
