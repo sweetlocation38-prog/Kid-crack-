@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '28/07/2026 - Monde en Capitales : defi bonus, retrouver le pays sur la carte d Europe apres une bonne reponse drapeau';
+const APP_BUILD_VERSION = '28/07/2026 - Corrige l ecran bloque sur les themes peu fournis, agrandit la carte d Europe';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -3048,18 +3048,24 @@ function EuropeMapChallenge({ pays, onResult }) {
     setTimeout(() => onResult(correct), 1600);
   }
 
+  // Carte agrandie a la largeur de l'ecran (moins les marges) pour que les
+  // petits pays proches les uns des autres restent faciles a toucher.
+  const { width: screenWidth } = useWindowDimensions();
+  const mapWidth = Math.min(screenWidth - 32, 560);
+  const mapHeight = mapWidth * (300 / 540);
+
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 12 }}>
       <Text style={{ fontSize: 18, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginBottom: 10 }}>
         Touche {pays} sur la carte !
       </Text>
       <Pressable onPress={handlePress} onLayout={(e) => setImgSize({ width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height })}>
-        <Image source={CARTE_EUROPE} style={{ width: 340, height: 340 * (300 / 540), borderRadius: 12 }} resizeMode="contain" />
+        <Image source={CARTE_EUROPE} style={{ width: mapWidth, height: mapHeight, borderRadius: 12 }} resizeMode="contain" />
         {tap && (
           <View
             pointerEvents="none"
             style={{
-              position: 'absolute', left: tap.px * 340 - 12, top: tap.py * (340 * (300/540)) - 12,
+              position: 'absolute', left: tap.px * mapWidth - 12, top: tap.py * mapHeight - 12,
               width: 24, height: 24, borderRadius: 12,
               backgroundColor: tap.correct ? 'rgba(76,175,80,0.85)' : 'rgba(229,83,61,0.85)',
               borderWidth: 2, borderColor: 'white',
@@ -3076,6 +3082,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
 
   const { profil } = route.params;
   const [loading, setLoading] = useState(true);
+  const [noContent, setNoContent] = useState(false);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
   const [round, setRound] = useState(1);
@@ -3140,32 +3147,44 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     setLoading(true);
     setFeedback(null);
     setAnswered(null);
+    setNoContent(false);
     errorsThisRound.current = 0;
 
-    let query = supabase
-      .from('contenu_mini_jeu')
-      .select('id, donnees')
-      .eq('mini_jeu_id', jeuId)
-      .eq('niveau', niveau)
-      .eq('palier', palierValue)
-      .eq('actif', true);
-    // Filtre optionnel par theme/categorie (ex: continent, type de question)
-    // pour les jeux qui proposent un choix de thematique avant de jouer.
-    if (themeFilter) {
-      query = query.eq(`donnees->>${themeFilter.field}`, themeFilter.value);
+    async function fetchWithFilter(withPalier) {
+      let query = supabase
+        .from('contenu_mini_jeu')
+        .select('id, donnees')
+        .eq('mini_jeu_id', jeuId)
+        .eq('niveau', niveau)
+        .eq('actif', true);
+      if (withPalier) query = query.eq('palier', palierValue);
+      if (themeFilter) {
+        query = query.eq(`donnees->>${themeFilter.field}`, themeFilter.value);
+      }
+      const { data } = await query.limit(30);
+      return data ?? [];
     }
-    const { data } = await query.limit(30);
+
+    // On cherche d'abord dans le palier exact ; si un theme choisi par
+    // l'enfant (ex: animaux, monuments) n'a pas encore assez de contenu a
+    // ce niveau precis, on elargit a tout le niveau plutot que de rester
+    // bloque sur un ecran vide.
+    let data = await fetchWithFilter(true);
+    if (data.length === 0) {
+      data = await fetchWithFilter(false);
+    }
 
     // Evite de repeter un element deja vu dans CETTE session ; si le stock
     // de contenu est epuise, on autorise de nouveau les repetitions.
-    let pool = (data ?? []).filter((r) => !shownIds.current.has(r.id));
+    let pool = data.filter((r) => !shownIds.current.has(r.id));
     if (pool.length === 0) {
       shownIds.current.clear();
-      pool = data ?? [];
+      pool = data;
     }
-    const pick = pool[Math.floor(Math.random() * pool.length)] ?? data?.[0];
+    const pick = pool[Math.floor(Math.random() * pool.length)] ?? data[0];
     if (!pick) {
       setLoading(false);
+      setNoContent(true);
       return;
     }
     shownIds.current.add(pick.id);
@@ -3377,6 +3396,20 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         </Pressable>
         <Pressable style={{ marginTop: 14 }} onPress={() => navigation.goBack()}>
           <Text style={{ color: colors.ink, opacity: 0.6, fontWeight: '600' }}>‹ Retour à la carte</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  if (noContent) {
+    return (
+      <View style={styles.center}>
+        <BouncingWrap><Noisette size={72} /></BouncingWrap>
+        <Text style={{ fontSize: 18, fontWeight: '700', color: colors.mossDeep, textAlign: 'center', marginTop: 16, paddingHorizontal: 24 }}>
+          Pas encore assez de questions pour ce thème à ce niveau !
+        </Text>
+        <Pressable style={[styles.button, { marginTop: 20 }]} onPress={() => navigation.goBack()}>
+          <Text style={styles.buttonText}>‹ Retour</Text>
         </Pressable>
       </View>
     );
