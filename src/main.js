@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '28/07/2026 - Un seul bouton a la fin dune manche (Continuer ou Recommencer), jamais les deux ensemble';
+const APP_BUILD_VERSION = '28/07/2026 - Un seul bouton a la fin dune manche (Continuer ou Recommencer), plus jamais les deux ensemble';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
