@@ -4,7 +4,7 @@
     "slug": "kid-crack",
     "owner": "titi38s-team",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "userInterfaceStyle": "light",
     "splash": {
       "backgroundColor": "#F7F1E1",
