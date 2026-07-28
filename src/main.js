@@ -87,7 +87,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '25/07/2026 - Monde en Capitales : ecran de choix de theme (drapeaux, animaux, langues, monuments, iles, continents)';
+const APP_BUILD_VERSION = '28/07/2026 - Monde en Capitales : defi bonus, retrouver le pays sur la carte d Europe apres une bonne reponse drapeau';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -3006,6 +3006,71 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
 // ============================================================
 // Moteur générique : question à choix (Sons Magiques + Pommes de Luma)
 // ============================================================
+// Carte de l'Europe (source Wikipedia, licence libre) decoupee pour le
+// defi "place le pays sur la carte" apres une bonne reponse sur un drapeau.
+const CARTE_EUROPE = require('../assets/carte-europe.jpg');
+const EUROPE_COUNTRY_COORDS = {
+  "France": [0.40, 0.48], "Espagne": [0.32, 0.62], "Italie": [0.43, 0.58],
+  "Allemagne": [0.45, 0.33], "Royaume-Uni": [0.36, 0.30], "Portugal": [0.29, 0.62],
+  "Belgique": [0.41, 0.36], "Pays-Bas": [0.42, 0.31], "Suisse": [0.42, 0.45],
+  "Autriche": [0.47, 0.42], "Pologne": [0.50, 0.29], "Suède": [0.49, 0.13],
+  "Norvège": [0.45, 0.10], "Danemark": [0.45, 0.24], "Finlande": [0.56, 0.08],
+  "Grèce": [0.51, 0.68], "Ukraine": [0.60, 0.36], "Roumanie": [0.55, 0.47],
+  "Hongrie": [0.51, 0.42], "République Tchèque": [0.47, 0.35], "Irlande": [0.30, 0.31],
+};
+
+// Defi bonus : apres avoir trouve le bon pays via son drapeau, l'enfant doit
+// le retrouver sur la carte. On cherche le pays le plus proche du point
+// touche plutot que d'exiger un contour exact (bien plus tolerant pour un
+// enfant qui vise a peu pres juste).
+function EuropeMapChallenge({ pays, onResult }) {
+  const [tap, setTap] = useState(null);
+  const [imgSize, setImgSize] = useState({ width: 1, height: 1 });
+
+  useEffect(() => {
+    speakSmart(`Bravo ! Maintenant, touche l'endroit où se trouve ${pays} sur la carte.`);
+  }, []);
+
+  function handlePress(evt) {
+    if (tap) return; // une seule tentative
+    const { locationX, locationY } = evt.nativeEvent;
+    const px = locationX / imgSize.width;
+    const py = locationY / imgSize.height;
+    let meilleur = null;
+    let meilleureDistance = Infinity;
+    for (const [nom, [cx, cy]] of Object.entries(EUROPE_COUNTRY_COORDS)) {
+      const d = Math.hypot(px - cx, py - cy);
+      if (d < meilleureDistance) { meilleureDistance = d; meilleur = nom; }
+    }
+    const correct = meilleur === pays;
+    setTap({ px, py, correct });
+    speakSmart(correct ? 'Bravo, bien joué !' : `Pas tout à fait, ${pays} était ici.`);
+    setTimeout(() => onResult(correct), 1600);
+  }
+
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 12 }}>
+      <Text style={{ fontSize: 18, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginBottom: 10 }}>
+        Touche {pays} sur la carte !
+      </Text>
+      <Pressable onPress={handlePress} onLayout={(e) => setImgSize({ width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height })}>
+        <Image source={CARTE_EUROPE} style={{ width: 340, height: 340 * (300 / 540), borderRadius: 12 }} resizeMode="contain" />
+        {tap && (
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute', left: tap.px * 340 - 12, top: tap.py * (340 * (300/540)) - 12,
+              width: 24, height: 24, borderRadius: 12,
+              backgroundColor: tap.correct ? 'rgba(76,175,80,0.85)' : 'rgba(229,83,61,0.85)',
+              borderWidth: 2, borderColor: 'white',
+            }}
+          />
+        )}
+      </Pressable>
+    </View>
+  );
+}
+
 function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
@@ -3035,6 +3100,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   // erreur dans la session en cours (remis a zero a la moindre erreur).
   const [perfectStreak, setPerfectStreak] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [mapChallenge, setMapChallenge] = useState(null); // pays a placer sur la carte, ou null
   const pendingNextRung = useRef(null);
   // Enchainement automatique au niveau suivant en cas de reussite, sans
   // repasser par la carte - mais on verifie quand meme le temps restant
@@ -3206,6 +3272,16 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 800);
       maybeSpeakMidSessionEncouragement(round);
+
+      // Bonus : si c'est un pays d'Europe dont on a les coordonnees sur la
+      // carte, on propose de le retrouver dessus avant de continuer.
+      const paysPourCarte = jeuCode === 'monde_capitales' && EUROPE_COUNTRY_COORDS[promptData.correct]
+        ? promptData.correct : null;
+      if (paysPourCarte) {
+        setTimeout(() => setMapChallenge(paysPourCarte), 900);
+        return;
+      }
+
       setTimeout(async () => {
         if (round >= TOTAL_ROUNDS) {
           await finishSession();
@@ -3245,6 +3321,17 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     }
   }
 
+  async function proceedAfterMapChallenge() {
+    setMapChallenge(null);
+    if (round >= TOTAL_ROUNDS) {
+      await finishSession();
+    } else {
+      setRound((r) => r + 1);
+      const { niveau, palier } = gradeAndPalierFromRung(rung);
+      loadRound(miniJeuId, niveau, palier);
+    }
+  }
+
   async function handleSafetyResponse(tropDur) {
     setShowSafetyCheck(false);
     if (miniJeuId) {
@@ -3271,6 +3358,10 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
 
   if (sessionDone) {
     return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} onContinue={!limiteAtteinteIci ? proceedToNextLevel : undefined} />;
+  }
+
+  if (mapChallenge) {
+    return <EuropeMapChallenge pays={mapChallenge} onResult={proceedAfterMapChallenge} />;
   }
 
   if (transitioning) {
