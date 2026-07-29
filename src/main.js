@@ -88,7 +88,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '29/07/2026 - Corrige bug bouton Recommencer, retire carte Europe, ajoute 35 vrais sons animaux dans La Ronde des Lucioles';
+const APP_BUILD_VERSION = '29/07/2026 - Corrige 12 confusions dans La Ronde des Lucioles, ajoute 38 vrais sons divers (vehicules, phenomenes naturels, objets)';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -2836,7 +2836,7 @@ async function stopBgMusic() {
 // Vrais bruits d'animaux enregistres (pas juste une devinette parlee) pour
 // La Ronde des Lucioles - un enfant qui ne sait pas lire reconnait bien mieux
 // un vrai son qu'une phrase decrivant ce son.
-const ANIMAL_SOUNDS = {
+const LUCIOLES_SOUNDS = {
   '🦍': require('../assets/audio/animaux/gorille.mp3'),
   '🐤': require('../assets/audio/animaux/poussin.mp3'),
   '🐥': require('../assets/audio/animaux/poussin.mp3'),
@@ -2876,6 +2876,49 @@ const ANIMAL_SOUNDS = {
   '🪰': require('../assets/audio/animaux/abeille.mp3'),
   '🦟': require('../assets/audio/animaux/moustique.mp3'),
   '🦗': require('../assets/audio/animaux/grillon.mp3'),
+  // Vehicules, engins et phenomenes naturels
+  '✈️': require('../assets/audio/divers/avion.mp3'),
+  '🚗': require('../assets/audio/divers/voiture.mp3'),
+  '🚂': require('../assets/audio/divers/train.mp3'),
+  '🚄': require('../assets/audio/divers/train.mp3'),
+  '🚆': require('../assets/audio/divers/train.mp3'),
+  '🚊': require('../assets/audio/divers/train.mp3'),
+  '🚁': require('../assets/audio/divers/helicoptere.mp3'),
+  '🚀': require('../assets/audio/divers/fusee.mp3'),
+  '🏍️': require('../assets/audio/divers/moto.mp3'),
+  '🏎️': require('../assets/audio/divers/voiture_course.mp3'),
+  '🚲': require('../assets/audio/divers/velo.mp3'),
+  '⛵': require('../assets/audio/divers/bateau_voile.mp3'),
+  '⛈️': require('../assets/audio/divers/orage.mp3'),
+  '⚡': require('../assets/audio/divers/eclair.mp3'),
+  '🌧️': require('../assets/audio/divers/pluie.mp3'),
+  '🌪️': require('../assets/audio/divers/tornade.mp3'),
+  '🌬️': require('../assets/audio/divers/vent.mp3'),
+  '🌊': require('../assets/audio/divers/vague.mp3'),
+  '🌋': require('../assets/audio/divers/volcan.mp3'),
+  '❄️': require('../assets/audio/divers/glace.mp3'),
+  '🍃': require('../assets/audio/divers/feuilles.mp3'),
+  '⏰': require('../assets/audio/divers/reveil.mp3'),
+  '🔥': require('../assets/audio/divers/feu.mp3'),
+  '🎈': require('../assets/audio/divers/ballon.mp3'),
+  '🧹': require('../assets/audio/divers/balai.mp3'),
+  '🎸': require('../assets/audio/divers/guitare.mp3'),
+  '🎐': require('../assets/audio/divers/carillon.mp3'),
+  '🥁': require('../assets/audio/divers/tambour.mp3'),
+  '🥤': require('../assets/audio/divers/boire_paille.mp3'),
+  '☕': require('../assets/audio/divers/bouilloire.mp3'),
+  '🍳': require('../assets/audio/divers/friture.mp3'),
+  '⛏️': require('../assets/audio/divers/pioche.mp3'),
+  '⛲': require('../assets/audio/divers/fontaine.mp3'),
+  '🔨': require('../assets/audio/divers/marteau.mp3'),
+  '🎺': require('../assets/audio/divers/trompette.mp3'),
+  '🚪': require('../assets/audio/divers/porte.mp3'),
+  '🔔': require('../assets/audio/divers/cloche.mp3'),
+  '💧': require('../assets/audio/divers/eau_goutte.mp3'),
+  '💦': require('../assets/audio/divers/eau_goutte.mp3'),
+  '⛸️': require('../assets/audio/divers/patin_glace.mp3'),
+  '🤫': require('../assets/audio/divers/chut.mp3'),
+  '🤧': require('../assets/audio/divers/eternuement.mp3'),
 };
 
 // Lecture ponctuelle d'un effet sonore (pas en boucle, contrairement a la
@@ -4159,7 +4202,7 @@ function buildLuciolesPrompt(d) {
     correct: d.cible,
     // Vrai bruit d'animal enregistre, si disponible pour cette reponse -
     // remplace alors la devinette parlee par le son reel, bien plus parlant.
-    soundEffect: ANIMAL_SOUNDS[d.cible] ?? null,
+    soundEffect: LUCIOLES_SOUNDS[d.cible] ?? null,
   };
 }
 
