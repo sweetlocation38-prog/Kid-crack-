@@ -88,7 +88,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '28/07/2026 - Corrige debordement Pont des Lettres, carte Europe en paysage, tolerance de tap plus genereuse, retire Animal/Monument/Ile du choix';
+const APP_BUILD_VERSION = '29/07/2026 - Corrige bug bouton Recommencer, retire carte Europe, ajoute 35 vrais sons animaux dans La Ronde des Lucioles';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -2440,6 +2440,7 @@ function PontDesLettresScreen({ route, navigation }) {
   function proceedToNextLevel() {
     const newRung = pendingNextRung.current;
     setTransitioning(null);
+    setSessionDone(false); // sinon l'ecran de fin reste bloque a l'affichage pour toujours
     errorsTotal.current = 0;
     startedAt.current = Date.now();
     setRung(newRung);
@@ -2832,6 +2833,63 @@ async function stopBgMusic() {
   }
 }
 
+// Vrais bruits d'animaux enregistres (pas juste une devinette parlee) pour
+// La Ronde des Lucioles - un enfant qui ne sait pas lire reconnait bien mieux
+// un vrai son qu'une phrase decrivant ce son.
+const ANIMAL_SOUNDS = {
+  '🦍': require('../assets/audio/animaux/gorille.mp3'),
+  '🐤': require('../assets/audio/animaux/poussin.mp3'),
+  '🐥': require('../assets/audio/animaux/poussin.mp3'),
+  '🦜': require('../assets/audio/animaux/perroquet.mp3'),
+  '🐒': require('../assets/audio/animaux/singe.mp3'),
+  '🦆': require('../assets/audio/animaux/canard.mp3'),
+  '🦉': require('../assets/audio/animaux/hibou.mp3'),
+  '🐦': require('../assets/audio/animaux/oiseau.mp3'),
+  '🐊': require('../assets/audio/animaux/crocodile.mp3'),
+  '🐍': require('../assets/audio/animaux/serpent.mp3'),
+  '🐘': require('../assets/audio/animaux/elephant.mp3'),
+  '🦌': require('../assets/audio/animaux/cerf.mp3'),
+  '🦊': require('../assets/audio/animaux/renard.mp3'),
+  '🐆': require('../assets/audio/animaux/leopard.mp3'),
+  '🐻': require('../assets/audio/animaux/ours.mp3'),
+  '🦁': require('../assets/audio/animaux/lion.mp3'),
+  '🐺': require('../assets/audio/animaux/loup.mp3'),
+  '🦇': require('../assets/audio/animaux/chauve_souris.mp3'),
+  '🐋': require('../assets/audio/animaux/baleine.mp3'),
+  '🐃': require('../assets/audio/animaux/buffle.mp3'),
+  '🐱': require('../assets/audio/animaux/chat.mp3'),
+  '🐈‍⬛': require('../assets/audio/animaux/chat.mp3'),
+  '🐴': require('../assets/audio/animaux/cheval.mp3'),
+  '🐶': require('../assets/audio/animaux/chien.mp3'),
+  '🐖': require('../assets/audio/animaux/cochon.mp3'),
+  '🐷': require('../assets/audio/animaux/cochon.mp3'),
+  '🐓': require('../assets/audio/animaux/coq.mp3'),
+  '🦃': require('../assets/audio/animaux/dinde.mp3'),
+  '🐰': require('../assets/audio/animaux/lapin.mp3'),
+  '🐑': require('../assets/audio/animaux/mouton.mp3'),
+  '🐔': require('../assets/audio/animaux/poule.mp3'),
+  '🐯': require('../assets/audio/animaux/tigre.mp3'),
+  '🐄': require('../assets/audio/animaux/vache.mp3'),
+  '🐮': require('../assets/audio/animaux/vache.mp3'),
+  '🐸': require('../assets/audio/animaux/grenouille.mp3'),
+  '🐝': require('../assets/audio/animaux/abeille.mp3'),
+  '🪰': require('../assets/audio/animaux/abeille.mp3'),
+  '🦟': require('../assets/audio/animaux/moustique.mp3'),
+  '🦗': require('../assets/audio/animaux/grillon.mp3'),
+};
+
+// Lecture ponctuelle d'un effet sonore (pas en boucle, contrairement a la
+// musique de fond) - se charge et se joue une seule fois.
+async function playSoundEffect(source) {
+  try {
+    const { sound } = await Audio.Sound.createAsync(source, { volume: 1.0 });
+    await sound.playAsync();
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.didJustFinish) sound.unloadAsync().catch(() => {});
+    });
+  } catch (e) {}
+}
+
 async function duckBgMusicForSpeech() {
   bgMusicDucked = true;
   if (bgMusicSound) {
@@ -3165,6 +3223,18 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   useEffect(() => {
     if (!promptData || !promptData.mandatorySpeak) return;
     let cancelled = false;
+    // Si un vrai bruit d'animal existe pour cette manche, on le joue a la
+    // place de la devinette parlee - bien plus parlant pour un enfant qui
+    // ne lit pas encore, et plus fidele que decrire le son avec des mots.
+    if (promptData.soundEffect) {
+      (async () => {
+        if (cancelled) return;
+        await speakSmart(promptData.promptText);
+        if (cancelled) return;
+        await playSoundEffect(promptData.soundEffect);
+      })();
+      return () => { cancelled = true; Speech.stop(); };
+    }
     const parts = [promptData.promptText, promptData.speak].filter(Boolean);
     (async () => {
       for (const part of parts) {
@@ -3302,6 +3372,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   function proceedToNextLevel() {
     const newRung = pendingNextRung.current;
     setTransitioning(null);
+    setSessionDone(false); // sinon l'ecran de fin reste bloque a l'affichage pour toujours
     errorsTotal.current = 0;
     recentRounds.current = [];
     attentionChosenOnce.current = false;
@@ -3326,15 +3397,6 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 800);
       maybeSpeakMidSessionEncouragement(round);
-
-      // Bonus : si c'est un pays d'Europe dont on a les coordonnees sur la
-      // carte, on propose de le retrouver dessus avant de continuer.
-      const paysPourCarte = jeuCode === 'monde_capitales' && EUROPE_COUNTRY_COORDS[promptData.correct]
-        ? promptData.correct : null;
-      if (paysPourCarte) {
-        setTimeout(() => setMapChallenge(paysPourCarte), 900);
-        return;
-      }
 
       setTimeout(async () => {
         if (round >= TOTAL_ROUNDS) {
@@ -3412,10 +3474,6 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
 
   if (sessionDone) {
     return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} onContinue={!limiteAtteinteIci ? proceedToNextLevel : undefined} />;
-  }
-
-  if (mapChallenge) {
-    return <EuropeMapChallenge pays={mapChallenge} onResult={proceedAfterMapChallenge} />;
   }
 
   if (transitioning) {
@@ -3548,7 +3606,10 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         ) : null}
         <Text style={styles.promptText}>{promptData.promptText}</Text>
         {promptData.speak ? (
-          <Pressable style={styles.listenButton} onPress={() => speak(promptData.speak)}>
+          <Pressable
+            style={styles.listenButton}
+            onPress={() => promptData.soundEffect ? playSoundEffect(promptData.soundEffect) : speak(promptData.speak)}
+          >
             <Text style={styles.listenText}>🎤 Écouter</Text>
           </Pressable>
         ) : null}
@@ -4096,6 +4157,9 @@ function buildLuciolesPrompt(d) {
     mandatorySpeak: true, // aucune image ne represente le son avant de choisir
     options: d.options,
     correct: d.cible,
+    // Vrai bruit d'animal enregistre, si disponible pour cette reponse -
+    // remplace alors la devinette parlee par le son reel, bien plus parlant.
+    soundEffect: ANIMAL_SOUNDS[d.cible] ?? null,
   };
 }
 
