@@ -88,7 +88,7 @@ const CAMPAGNE_MAP_ASPECT = 760 / 1690;
 
 // A mettre a jour a chaque envoi de code, pour verifier depuis l'app
 // quelle version est vraiment installee sur le telephone.
-const APP_BUILD_VERSION = '29/07/2026 - Corrige 12 confusions dans La Ronde des Lucioles, ajoute 38 vrais sons divers (vehicules, phenomenes naturels, objets)';
+const APP_BUILD_VERSION = '30/07/2026 - 14 correctifs : bouton P, ecran theme compact, surbrillance apres 3 erreurs, micro repositionne, anti-repetition renforce, texte adaptatif Monde Capitales, Memoire Etoiles sans erreurs, taille uniforme, Pommes de Luma gauche-droite, Cachettes de Luma 4 directions et avatars varies';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -1197,15 +1197,6 @@ function ProfileSelectScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {familleId && (
-        <Pressable
-          style={styles.parentButtonSmall}
-          onPress={() => navigation.navigate('ReglagesParentaux', { familleId })}
-        >
-          <Text style={styles.parentButtonSmallText}>P</Text>
-        </Pressable>
-      )}
-
       <View style={styles.profileHero}>
         <BouncingWrap><Noisette size={54} /></BouncingWrap>
         <Text style={styles.title}>Qui joue aujourd'hui ?</Text>
@@ -1248,6 +1239,15 @@ function ProfileSelectScreen({ navigation }) {
           </Text>
         }
       />
+
+      {familleId && (
+        <Pressable
+          style={styles.parentButtonInline}
+          onPress={() => navigation.navigate('ReglagesParentaux', { familleId })}
+        >
+          <Text style={styles.parentButtonSmallText}>P</Text>
+        </Pressable>
+      )}
 
       <Pressable style={styles.addCard} onPress={() => setShowAddModal(true)}>
         <Text style={styles.addPlus}>＋</Text>
@@ -3002,6 +3002,7 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
       erreurs_beaucoup: `Ce n'était pas facile cette fois, ${speechFriendlyName(profil.prenom)}. On redescend un peu pour s'entraîner, tu vas y arriver !`,
       erreurs_quelques: `Pas mal du tout ${speechFriendlyName(profil.prenom)} ! Encore un petit effort et tu vas monter de niveau.`,
       echec_protege: `Ce n'était pas facile cette fois, ${speechFriendlyName(profil.prenom)}, mais tu restes à ce niveau pour t'entraîner encore un peu. Tu vas y arriver !`,
+      encore_un_effort: `Bravo ${speechFriendlyName(profil.prenom)}, tu as trouvé toutes les paires ! Encore une réussite comme ça et tu montes de niveau !`,
     };
     const message = summary?.raison ? messages[summary.raison] : null;
     if (message) speakSmart(message);
@@ -3038,6 +3039,7 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
               erreurs_beaucoup: `Ce n'était pas facile cette fois, ${speechFriendlyName(profil.prenom)}. On redescend un peu pour s'entraîner, tu vas y arriver !`,
               erreurs_quelques: `Pas mal du tout ${speechFriendlyName(profil.prenom)} ! Encore un petit effort et tu vas monter de niveau.`,
       echec_protege: `Ce n'était pas facile cette fois, ${speechFriendlyName(profil.prenom)}, mais tu restes à ce niveau pour t'entraîner encore un peu. Tu vas y arriver !`,
+              encore_un_effort: `Bravo ${speechFriendlyName(profil.prenom)}, tu as trouvé toutes les paires ! Encore une réussite comme ça et tu montes de niveau !`,
             };
             speakSmart(messages[summary.raison]);
           }}
@@ -3213,7 +3215,7 @@ function EuropeMapChallenge({ pays, onResult }) {
   );
 }
 
-function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter }) {
+function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -3231,9 +3233,9 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   const errorsThisRound = useRef(0);
   const errorsTotal = useRef(0);
   const shownIds = useRef(new Set());
+  const shownAnswers = useRef(new Set());
   const startedAt = useRef(Date.now());
   const memosConfig = useRef(null);
-  // Garde-fou contre les reponses au hasard.
   const roundStartedAt = useRef(Date.now());
   const recentRounds = useRef([]); // fenetre glissante des 4 dernieres manches
   const attentionChosenOnce = useRef(false);
@@ -3309,7 +3311,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       if (themeFilter) {
         query = query.eq(`donnees->>${themeFilter.field}`, themeFilter.value);
       }
-      const { data } = await query.limit(30);
+      const { data } = await query.limit(60);
       return data ?? [];
     }
 
@@ -3322,11 +3324,23 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       data = await fetchWithFilter(false);
     }
 
-    // Evite de repeter un element deja vu dans CETTE session ; si le stock
-    // de contenu est epuise, on autorise de nouveau les repetitions.
-    let pool = data.filter((r) => !shownIds.current.has(r.id));
+    // Evite de repeter un element deja vu dans CETTE session (par ligne de
+    // contenu ET par reponse - deux lignes differentes en base peuvent
+    // donner exactement la meme question, ex: meme pays via drapeau et via
+    // capitale) ; si le stock est epuise, on autorise de nouveau les
+    // repetitions plutot que de rester bloque.
+    let pool = data
+      .filter((r) => !shownIds.current.has(r.id))
+      .filter((r) => {
+        const rep = buildPrompt(r.donnees)?.correct;
+        return rep === undefined || !shownAnswers.current.has(String(rep));
+      });
+    if (pool.length === 0) {
+      pool = data.filter((r) => !shownIds.current.has(r.id));
+    }
     if (pool.length === 0) {
       shownIds.current.clear();
+      shownAnswers.current.clear();
       pool = data;
     }
     const pick = pool[Math.floor(Math.random() * pool.length)] ?? data[0];
@@ -3337,6 +3351,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     }
     shownIds.current.add(pick.id);
     const prompt = buildPrompt(pick.donnees);
+    if (prompt?.correct !== undefined) shownAnswers.current.add(String(prompt.correct));
     setPromptData(prompt);
     setOptionsOrder(shuffle(prompt.options));
     setLoading(false);
@@ -3471,6 +3486,13 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
           setShowSafetyCheck(true);
           speakSmart('On dirait que tu réponds vite sans trop regarder. Est-ce que c\'est trop difficile ?');
         }, 700);
+      } else if (errorsThisRound.current >= 3) {
+        // La bonne reponse vient d'etre revelee en surbrillance : on laisse
+        // un peu plus de temps pour que l'enfant la voie avant de continuer.
+        setTimeout(() => {
+          setFeedback(null);
+          setAnswered(null);
+        }, 2200);
       } else {
         setTimeout(() => {
           setFeedback(null);
@@ -3582,6 +3604,14 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     );
   }
 
+  // Toutes les cases de reponse doivent avoir la meme taille de police par
+  // defaut ; seule une reponse qui depasse nettement les autres (2 caracteres
+  // ou plus de plus que la plus courte) est reduite, pour ne jamais avoir
+  // une case avec un texte visiblement plus petit que ses voisines sans
+  // raison.
+  const longueursOptions = optionsOrder.map((o) => String(o).length);
+  const longueurMin = longueursOptions.length ? Math.min(...longueursOptions) : 0;
+
   return (
     <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame(jeuCode) }]}>
       <View style={styles.topBar}>
@@ -3673,11 +3703,20 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
             const isAnswered = answered !== null;
             const isThisCorrect = String(option) === String(promptData.correct);
             const isThisAnswer = isAnswered && String(option) === String(answered);
+            // On ne revele la bonne reponse en surbrillance que si l'enfant
+            // l'a trouvee, ou apres 3 erreurs sur CETTE question - jamais
+            // immediatement a la premiere erreur, pour ne pas donner la
+            // reponse en meme temps que l'echec.
+            const revealCorrect = (isAnswered && isThisAnswer) || errorsThisRound.current >= 3;
             const bg = STONE_COLORS[i % STONE_COLORS.length];
             // Un emoji seul (comme ❤️ ou 🫁) doit etre affiche bien plus
             // grand qu'un mot ou une phrase, sinon il paraît minuscule dans
             // un aussi grand bouton.
             const estUnEmojiSeul = String(option).length <= 4;
+            // Ne reduit CETTE case que si elle depasse nettement les autres
+            // (2 caracteres ou plus) - sinon toutes les cases gardent la
+            // meme taille de police par defaut, pour un rendu uniforme.
+            const depasseLesAutres = String(option).length - longueurMin >= 2;
             return (
               <Pressable
                 key={i}
@@ -3687,19 +3726,24 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
                 style={[
                   styles.optionButton,
                   { backgroundColor: bg },
-                  isAnswered && isThisCorrect && styles.optionCorrect,
+                  isAnswered && isThisCorrect && revealCorrect && styles.optionCorrect,
                   isAnswered && isThisAnswer && !isThisCorrect && styles.optionWrong,
                 ]}
               >
                 <Text
-                  style={[styles.optionText, estUnEmojiSeul && styles.optionTextIcon]}
-                  numberOfLines={2}
+                  style={[
+                    styles.optionText,
+                    estUnEmojiSeul && styles.optionTextIcon,
+                    depasseLesAutres && { fontSize: 17 },
+                  ]}
+                  numberOfLines={singleLineOptions ? 1 : 2}
                   adjustsFontSizeToFit
+                  minimumFontScale={singleLineOptions ? 0.5 : 0.7}
                 >
                   {String(option)}
                 </Text>
                 <Pressable
-                  style={styles.optionListenBtn}
+                  style={[styles.optionListenBtn, estUnEmojiSeul && styles.optionListenBtnBas]}
                   onPress={() => speakSmart(String(option))}
                   hitSlop={10}
                 >
@@ -3856,16 +3900,27 @@ function buildLumaPrompt(d) {
         correct: d.resultat,
       };
     }
-    case 'comparer':
+    case 'comparer': {
+      // Varie aleatoirement le sens de la question (gauche vs droite, ou
+      // droite vs gauche) plutot que de toujours demander la meme chose -
+      // la reponse est recalculee selon le sens choisi.
+      const demandeDepuisGauche = Math.random() < 0.5;
+      const a = demandeDepuisGauche ? d.gauche : d.droite;
+      const b = demandeDepuisGauche ? d.droite : d.gauche;
+      const reponseCalculee = a > b ? 'plus' : a < b ? 'moins' : 'autant';
+      const cote1 = demandeDepuisGauche ? 'gauche' : 'droite';
+      const cote2 = demandeDepuisGauche ? 'droite' : 'gauche';
+      const question = `Le groupe de ${cote1} a-t-il plus, moins ou autant que celui de ${cote2} ?`;
       return {
         emojiCompare: [d.gauche, d.droite],
         emojiIcon: objet,
-        promptText: 'Le groupe de gauche a-t-il plus, moins ou autant que celui de droite ?',
-        speak: 'Le groupe de gauche a-t-il plus, moins ou autant que celui de droite ?',
+        promptText: question,
+        speak: question,
         mandatorySpeak: false, // les groupes sont visibles
         options: ['plus', 'moins', 'autant'],
-        correct: d.reponse,
+        correct: reponseCalculee,
       };
+    }
     default:
       return { promptText: '...', options: [], correct: null };
   }
@@ -3962,40 +4017,41 @@ function MondeCapitalesScreen({ route, navigation }) {
         buildPrompt={buildGeoPrompt}
         maxRung={MAX_CONTENT_RUNG}
         themeFilter={choix.filter}
+        singleLineOptions
       />
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { paddingTop: 40 }]}>
+    <ScrollView contentContainerStyle={[styles.container, { paddingTop: 24, paddingBottom: 24 }]}>
       <Pressable onPress={() => navigation.goBack()}>
         <Text style={styles.back}>‹</Text>
       </Pressable>
-      <Text style={{ fontSize: 22, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginVertical: 16 }}>
+      <Text style={{ fontSize: 20, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginVertical: 10 }}>
         🌍 Choisis un thème !
       </Text>
       <Pressable
         style={styles.helperText}
         onPress={() => speakSmart('Choisis un thème pour jouer : mélange de tout, drapeaux, capitales, animaux, langues, monuments, îles, ou par continent.')}
       >
-        <Text style={{ textAlign: 'center', fontSize: 13, color: colors.ink, opacity: 0.6 }}>🎤 Touche pour entendre les choix</Text>
+        <Text style={{ textAlign: 'center', fontSize: 12, color: colors.ink, opacity: 0.6, marginBottom: 4 }}>🎤 Touche pour entendre les choix</Text>
       </Pressable>
       {!showContinents ? (
         <>
           {MONDE_THEMES.map((t) => (
             <Pressable
               key={t.key}
-              style={[styles.button, { marginTop: 10 }]}
+              style={[styles.button, { marginTop: 8, paddingVertical: 10 }]}
               onPress={() => { speakSmart(t.labelSpeak); setChoix(t); }}
             >
-              <Text style={styles.buttonText}>{t.label}</Text>
+              <Text style={[styles.buttonText, { fontSize: 15 }]}>{t.label}</Text>
             </Pressable>
           ))}
           <Pressable
-            style={[styles.button, { marginTop: 10, backgroundColor: colors.sand }]}
+            style={[styles.button, { marginTop: 8, paddingVertical: 10, backgroundColor: colors.sand }]}
             onPress={() => setShowContinents(true)}
           >
-            <Text style={[styles.buttonText, { color: colors.ink }]}>🗺️ Par continent</Text>
+            <Text style={[styles.buttonText, { fontSize: 15, color: colors.ink }]}>🗺️ Par continent</Text>
           </Pressable>
         </>
       ) : (
@@ -4136,9 +4192,13 @@ function MarcheVillageScreen({ route, navigation }) {
 // Les Cachettes de Luma — maths (reperage sur une grille)
 // ============================================================
 function buildGrillePrompt(d) {
-  const question = d.question === 'colonne'
-    ? "À quelle colonne se trouve l'étoile (en partant de la gauche) ?"
-    : "À quelle ligne se trouve l'étoile (en partant du haut) ?";
+  const questions = {
+    colonne: "À quelle colonne se trouve l'étoile (en partant de la gauche) ?",
+    colonne_droite: "À quelle colonne se trouve l'étoile (en partant de la droite) ?",
+    ligne: "À quelle ligne se trouve l'étoile (en partant du haut) ?",
+    ligne_bas: "À quelle ligne se trouve l'étoile (en partant du bas) ?",
+  };
+  const question = questions[d.question] ?? questions.colonne;
   return {
     texteAffiche: d.grille,
     promptText: question,
@@ -4797,15 +4857,36 @@ function MemoryScreen({ route, navigation }) {
 
   async function finishSession() {
     if (!miniJeuId) return;
-    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
-    const summary = await completeSession({
-      profil, miniJeuId, currentRung: rung,
-      erreursTotal: errorsTotal.current,
-      dureeSecondes: durationSeconds,
-      totalRounds: 1,
-      startedAt: startedAt.current,
+    // Mecanique dediee a ce jeu : on ne compte JAMAIS les erreurs (se tromper
+    // en cherchant une paire fait partie du jeu). Seule la reussite complete
+    // de la grille compte ; apres 2 reussites d'affilee, on monte de niveau.
+    const { data: prog } = await supabase
+      .from('progression')
+      .select('details')
+      .eq('profil_id', profil.id)
+      .eq('mini_jeu_id', miniJeuId)
+      .maybeSingle();
+    const streakActuel = (prog?.details?.reussitesConsecutives ?? 0) + 1;
+    const niveauMax = MAX_CONTENT_RUNG;
+    let nouveauRung = rung;
+    let nouveauStreak = streakActuel;
+    if (streakActuel >= 2 && rung < niveauMax) {
+      nouveauRung = rung + 1;
+      nouveauStreak = 0;
+    }
+    await supabase.from('progression').upsert({
+      profil_id: profil.id,
+      mini_jeu_id: miniJeuId,
+      palier_actuel: nouveauRung,
+      details: { reussitesConsecutives: nouveauStreak },
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'profil_id,mini_jeu_id' });
+
+    setSessionSummary({
+      direction: nouveauRung > rung ? 'up' : 'stay',
+      newRung: nouveauRung,
+      raison: nouveauRung > rung ? 'parfait_rapide' : 'encore_un_effort',
     });
-    setSessionSummary(summary);
     setSessionDone(true);
   }
 
@@ -4845,8 +4926,40 @@ function MemoryScreen({ route, navigation }) {
     }
   }
 
+  async function proceedToNextRound() {
+    setSessionDone(false);
+    setMatched([]);
+    setFlipped([]);
+    setLoading(true);
+    const { niveau, palier } = gradeAndPalierFromRung(sessionSummary.newRung);
+    setRung(sessionSummary.newRung);
+    const { data } = await supabase
+      .from('contenu_mini_jeu')
+      .select('id, donnees')
+      .eq('mini_jeu_id', miniJeuId)
+      .eq('niveau', niveau)
+      .eq('palier', palier)
+      .eq('actif', true)
+      .limit(10);
+    const pick = (data ?? [])[Math.floor(Math.random() * (data?.length ?? 1))];
+    if (pick) {
+      setCards(shuffleCards(pick.donnees.paires));
+      speakSmart('Trouve les paires !');
+    }
+    startedAt.current = Date.now();
+    setLoading(false);
+  }
+
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} timeUp={false} />;
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        timeUp={false}
+        onContinue={proceedToNextRound}
+      />
+    );
   }
 
   if (loading || cards.length === 0) {
@@ -6089,6 +6202,10 @@ const styles = StyleSheet.create({
     position: 'absolute', top: 6, right: 6, width: 30, height: 30, borderRadius: 15,
     backgroundColor: 'rgba(255,255,255,0.75)', alignItems: 'center', justifyContent: 'center',
   },
+  // Pour les grands emoji seuls (qui remplissent tout le centre de la case),
+  // le micro en haut a droite chevauche souvent le dessin - on le decale
+  // en bas a droite, ou l'emoji laisse generalement plus de place.
+  optionListenBtnBas: { top: undefined, bottom: 6 },
   optionCorrect: { backgroundColor: colors.success, borderColor: colors.success },
   optionWrong: { backgroundColor: colors.error, borderColor: colors.error },
   optionText: { fontSize: 22, fontWeight: '800', color: colors.ink, textAlign: 'center' },
@@ -6129,6 +6246,12 @@ const styles = StyleSheet.create({
   characterRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   parentButtonSmall: {
     position: 'absolute', top: 48, right: 20, zIndex: 10,
+    width: 40, height: 40, borderRadius: 20, backgroundColor: colors.mossDeep,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 4, elevation: 3,
+  },
+  parentButtonInline: {
+    alignSelf: 'center', marginTop: 16,
     width: 40, height: 40, borderRadius: 20, backgroundColor: colors.mossDeep,
     alignItems: 'center', justifyContent: 'center',
     shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 4, elevation: 3,
