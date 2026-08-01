@@ -1100,6 +1100,16 @@ const NIVEAU_CHOICES = [
 
 const AVATAR_CHOICES = ['🦓', '🐼', '🦒', '🐨', '🐯', '🐘', '🦔', '🦋', '🦜', '🐻', '🦘', '🐢'];
 
+// Pool des avatars de securite (distincts des animaux ci-dessus et de la
+// chaine de progression AVATAR_CHAIN) : formes et objets colores simples,
+// utilises uniquement pour la verification d'identite au lancement de
+// l'app. 30 au total.
+const SECURITY_AVATARS = [
+  '⭐', '🌙', '☀️', '🌈', '☂️', '🎈', '🎁', '🎀', '🔑', '🎲',
+  '🧩', '🎯', '🚀', '⚽', '🏀', '🎾', '🎨', '🎵', '🔔', '🧸',
+  '🪁', '🍭', '🍬', '🍩', '🎪', '🎡', '🎠', '🧃', '🧊', '🚂',
+];
+
 // Petite fenetre pour choisir un avatar du jeu (utilisee a la creation
 // et pour changer la photo d'un profil existant).
 function AvatarPickerModal({ visible, onClose, onPick }) {
@@ -1229,6 +1239,156 @@ function AuthScreen() {
 // ============================================================
 // Écran : Sélection de profil ("Qui joue ?")
 // ============================================================
+// ============================================================
+// Ecran : verification de l'avatar de securite (juste apres avoir
+// touche un profil, avant d'entrer dans la carte). Objectif : eviter
+// qu'un enfant tombe par erreur sur le profil d'un frere/soeur, ou
+// reprenne seul l'app pendant une pause imposee. Entierement vocal.
+// ============================================================
+function SecurityAvatarCheckScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const [checking, setChecking] = useState(true);
+  const [lockedUntil, setLockedUntil] = useState(null);
+  const [attempt, setAttempt] = useState(1); // essai en cours : 1, 2 ou 3
+  const [choices, setChoices] = useState([]);
+  const [showGate, setShowGate] = useState(false);
+  const [expectedPin, setExpectedPin] = useState(null);
+  const remainingLockSeconds = useLiveCountdown(
+    lockedUntil ? Math.max(0, Math.round((new Date(lockedUntil) - Date.now()) / 1000)) : 0
+  );
+
+  function buildChoices() {
+    const decoys = shuffle(SECURITY_AVATARS.filter((a) => a !== profil.avatar_securite)).slice(0, 9);
+    return shuffle([profil.avatar_securite, ...decoys]);
+  }
+
+  useEffect(() => {
+    (async () => {
+      const { data: fresh } = await supabase
+        .from('profils_enfants')
+        .select('verif_locked_until')
+        .eq('id', profil.id)
+        .maybeSingle();
+      const until = fresh?.verif_locked_until;
+      if (until && new Date(until) > new Date()) {
+        setLockedUntil(until);
+      } else {
+        setChoices(buildChoices());
+        speakSmart(`${speechFriendlyName(profil.prenom)}, retrouve ton avatar secret !`);
+      }
+      setChecking(false);
+      getParametresParentaux(profil.famille_id).then((p) => setExpectedPin(p?.code_validation ?? null));
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function lockProfile() {
+    const until = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    await supabase.from('profils_enfants').update({ verif_locked_until: until }).eq('id', profil.id);
+    setLockedUntil(until);
+    speakSmart("C'est bloqué pour un petit moment. Va voir un adulte si tu as besoin d'aide.");
+  }
+
+  function onPick(emoji) {
+    if (emoji === profil.avatar_securite) {
+      speakSmart("Bravo, c'est bien toi !");
+      navigation.replace('WorldMap', { profil });
+      return;
+    }
+    if (attempt >= 3) {
+      lockProfile();
+      return;
+    }
+    const nextAttempt = attempt + 1;
+    setAttempt(nextAttempt);
+    setChoices(buildChoices());
+    if (nextAttempt === 3) {
+      speakSmart("Attention, c'est ta dernière chance !");
+    } else {
+      speakSmart("Ce n'est pas celui-là, essaie encore.");
+    }
+  }
+
+  if (checking) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  if (lockedUntil) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ fontSize: 40, marginBottom: 12 }}>🔒</Text>
+        <Text style={{ fontSize: 18, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', paddingHorizontal: 24 }}>
+          Profil bloqué pour l'instant
+        </Text>
+        {remainingLockSeconds > 0 ? (
+          <Text style={{ marginTop: 8, color: colors.ink, opacity: 0.7 }}>
+            Réessaie dans {formatMinutesSeconds(remainingLockSeconds)}
+          </Text>
+        ) : (
+          <Pressable
+            style={[styles.button, { marginTop: 16 }]}
+            onPress={async () => {
+              setLockedUntil(null);
+              setAttempt(1);
+              setChoices(buildChoices());
+            }}
+          >
+            <Text style={styles.buttonText}>Réessayer</Text>
+          </Pressable>
+        )}
+        <Pressable style={{ marginTop: 20 }} onPress={() => setShowGate(true)}>
+          <Text style={{ color: colors.ink, opacity: 0.6, fontWeight: '600' }}>👪 Je suis un parent</Text>
+        </Pressable>
+        <Pressable style={{ marginTop: 14 }} onPress={() => navigation.goBack()}>
+          <Text style={{ color: colors.ink, opacity: 0.5 }}>‹ Retour aux profils</Text>
+        </Pressable>
+
+        <ParentGateModal
+          visible={showGate}
+          expectedPin={expectedPin}
+          skipTimeStep
+          onCancel={() => setShowGate(false)}
+          onSuccess={async () => {
+            await supabase.from('profils_enfants').update({ verif_locked_until: null }).eq('id', profil.id);
+            setShowGate(false);
+            setLockedUntil(null);
+            setAttempt(1);
+            setChoices(buildChoices());
+          }}
+        />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.center}>
+      <BouncingWrap><Luma size={64} /></BouncingWrap>
+      <Text style={{ fontSize: 18, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginTop: 12, paddingHorizontal: 24 }}>
+        Retrouve ton avatar secret !
+      </Text>
+      <Pressable
+        style={[styles.listenButton, { marginTop: 10 }]}
+        onPress={() => speakSmart(`${speechFriendlyName(profil.prenom)}, retrouve ton avatar secret !`)}
+      >
+        <Text style={styles.listenText}>🎤 Réécouter</Text>
+      </Pressable>
+
+      <View style={[styles.avatarGrid, { marginTop: 20, paddingHorizontal: 16 }]}>
+        {choices.map((a, i) => (
+          <Pressable key={i} style={styles.avatarTile} onPress={() => onPick(a)}>
+            <Text style={{ fontSize: 26 }}>{a}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+
 function ProfileSelectScreen({ navigation }) {
   const [profils, setProfils] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1324,7 +1484,10 @@ function ProfileSelectScreen({ navigation }) {
         renderItem={({ item }) => (
           <Pressable
             style={styles.card}
-            onPress={() => navigation.navigate('WorldMap', { profil: item })}
+            onPress={() => navigation.navigate(
+              item.avatar_securite ? 'SecurityAvatarCheck' : 'WorldMap',
+              { profil: item }
+            )}
           >
             <Pressable
               style={styles.avatarCircle}
@@ -1553,6 +1716,11 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
   const [avatar, setAvatar] = useState(AVATAR_CHOICES[0]);
   const [photoUri, setPhotoUri] = useState(null);
   const [saving, setSaving] = useState(false);
+  // 10 avatars de securite tires au hasard, proposes une seule fois a la
+  // creation du profil - l'enfant choisit celui qu'il reconnaitra a chaque
+  // lancement de l'app.
+  const [securityChoices] = useState(() => shuffle(SECURITY_AVATARS).slice(0, 10));
+  const [securityAvatar, setSecurityAvatar] = useState(null);
 
   async function handleChoosePhoto() {
     const choix = await choosePhotoSource();
@@ -1565,7 +1733,7 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
   }
 
   async function handleCreate() {
-    if (!familleId || !prenom.trim()) return;
+    if (!familleId || !prenom.trim() || !securityAvatar) return;
     setSaving(true);
     const { data: inserted } = await supabase
       .from('profils_enfants')
@@ -1574,6 +1742,7 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
         prenom: prenom.trim(),
         niveau_defaut: niveau,
         avatar_personnel: avatar,
+        avatar_securite: securityAvatar,
         niveau_global: 0,
       })
       .select('id')
@@ -1593,6 +1762,7 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
     setSaving(false);
     setPrenom('');
     setPhotoUri(null);
+    setSecurityAvatar(null);
     onCreated();
   }
 
@@ -1648,10 +1818,26 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
             ))}
           </View>
 
+          <Text style={styles.label}>Avatar secret (pour se reconnaître à chaque lancement)</Text>
+          <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.6, marginBottom: 8 }}>
+            L'enfant devra le retrouver à chaque ouverture de l'app.
+          </Text>
+          <View style={styles.avatarGrid}>
+            {securityChoices.map((a) => (
+              <Pressable
+                key={a}
+                style={[styles.avatarTile, securityAvatar === a && styles.avatarTileSelected]}
+                onPress={() => setSecurityAvatar(a)}
+              >
+                <Text style={{ fontSize: 22 }}>{a}</Text>
+              </Pressable>
+            ))}
+          </View>
+
           <Pressable
-            style={[styles.button, { opacity: saving || !prenom.trim() ? 0.5 : 1 }]}
+            style={[styles.button, { opacity: saving || !prenom.trim() || !securityAvatar ? 0.5 : 1 }]}
             onPress={handleCreate}
-            disabled={saving || !prenom.trim()}
+            disabled={saving || !prenom.trim() || !securityAvatar}
           >
             <Text style={styles.buttonText}>{saving ? 'Création…' : 'Créer le profil'}</Text>
           </Pressable>
@@ -6604,6 +6790,7 @@ export default function RootNavigator() {
         ) : (
           <>
             <Stack.Screen name="ProfileSelect" component={ProfileSelectScreen} />
+            <Stack.Screen name="SecurityAvatarCheck" component={SecurityAvatarCheckScreen} />
             <Stack.Screen name="WorldMap" component={WorldMapScreen} />
             <Stack.Screen name="Continent" component={SentierScreen} />
             <Stack.Screen name="PontDesLettres" component={PontDesLettresScreen} />
