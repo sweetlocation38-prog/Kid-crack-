@@ -3052,6 +3052,17 @@ async function unduckBgMusicAfterSpeech() {
   }
 }
 
+// A utiliser pour tout bouton "couper le son" declenche par l'enfant en
+// dehors du flux normal de speakSmart : sur certains telephones, le
+// callback onStopped de la synthese vocale ne se declenche pas de facon
+// fiable apres un Speech.stop() manuel, ce qui laissait la musique
+// d'ambiance bloquee "en sourdine" pour le reste de la session. On force
+// donc explicitement la reprise plutot que de compter sur ce callback.
+function stopSpeechAndUnduck() {
+  Speech.stop();
+  unduckBgMusicAfterSpeech();
+}
+
 function speakSmart(text) {
   return new Promise((resolve) => {
     const raw = String(text ?? '').trim();
@@ -3184,7 +3195,7 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
           <Text style={styles.rankUpAvatar}>
             {fiche?.nom_affiche || AVATAR_CHAIN[summary.newRank - 1].name}
           </Text>
-          <Pressable style={styles.listenButton} onPress={() => Speech.stop()}>
+          <Pressable style={styles.listenButton} onPress={stopSpeechAndUnduck}>
             <Text style={styles.listenText}>🔇 Couper le son</Text>
           </Pressable>
         </PopIn>
@@ -4338,6 +4349,7 @@ function CachettesLumaScreen({ route, navigation }) {
 // petite decouverte avant de commencer a jouer pour de vrai.
 // ============================================================
 function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, maxRung, onDone }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
   const [checkpoints, setCheckpoints] = useState(null);
   const [step, setStep] = useState(0);
   const [promptData, setPromptData] = useState(null);
