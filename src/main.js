@@ -892,7 +892,7 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   return { newRung, newStreak, newReference, newEchecs, rungChanged: newRung !== currentRung, direction, raison };
 }
 
-async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt, tempsMoyenParManche, maxRung }) {
+async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt, tempsMoyenParManche, maxRung, precomputedRung }) {
   // Robustesse : quoi qu'il arrive (probleme reseau, ligne manquante...),
   // on ne laisse JAMAIS l'enfant bloque sur l'ecran de jeu. Chaque etape
   // est protegee individuellement pour que les suivantes puissent continuer.
@@ -903,19 +903,29 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
   let rungChanged = false;
   let direction = 'same';
   let raison = 'erreurs_quelques';
-  try {
-    const result = await computeNextRung({
-      profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche, maxRung,
-    });
-    newRung = result.newRung;
-    newStreak = result.newStreak;
-    newReference = result.newReference;
-    newEchecs = result.newEchecs;
-    rungChanged = result.rungChanged;
-    direction = result.direction;
-    raison = result.raison;
-  } catch (e) {
-    // On garde le cran actuel si le calcul echoue.
+  if (precomputedRung) {
+    // Certains jeux (ex: Les Cachettes de Luma) ont leur propre regle de
+    // progression et ont deja calcule le nouveau cran eux-memes : on saute
+    // le calcul standard base sur computeNextRung.
+    newRung = precomputedRung.newRung;
+    rungChanged = newRung !== currentRung;
+    direction = precomputedRung.direction ?? 'same';
+    raison = precomputedRung.raison ?? 'erreurs_quelques';
+  } else {
+    try {
+      const result = await computeNextRung({
+        profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche, maxRung,
+      });
+      newRung = result.newRung;
+      newStreak = result.newStreak;
+      newReference = result.newReference;
+      newEchecs = result.newEchecs;
+      rungChanged = result.rungChanged;
+      direction = result.direction;
+      raison = result.raison;
+    } catch (e) {
+      // On garde le cran actuel si le calcul echoue.
+    }
   }
 
   try {
@@ -4307,36 +4317,331 @@ function MarcheVillageScreen({ route, navigation }) {
 
 // ============================================================
 // Les Cachettes de Luma — maths (reperage sur une grille)
+// Ecran autonome (pas le moteur ChoiceGameScreen partage) car la regle
+// de progression est differente des autres jeux : ici, 2 reussites
+// d'affilee font monter le cran IMMEDIATEMENT (pas besoin d'attendre
+// la fin des 20 manches), pour une sensation tres reactive au niveau
+// reel de l'enfant. 3 erreurs d'affilee font redescendre d'un cran.
+// La grille grandit d'une case a chaque annee scolaire (etoile unique
+// en MS/GS, etoiles colorees en CP/CE1, symboles varies en CE2).
 // ============================================================
-function buildGrillePrompt(d) {
+function buildCachettesQuestion(d) {
+  if (d.etape === 'grille_couleur') {
+    const labels = {
+      ou_est_couleur_colonne: `À quelle colonne se trouve l'étoile ${d.cible} ?`,
+      ou_est_couleur_ligne: `À quelle ligne se trouve l'étoile ${d.cible} ?`,
+      couleur_en_colonne: `Quelle couleur est à la colonne ${d.cible} ?`,
+      couleur_en_ligne: `Quelle couleur est à la ligne ${d.cible} ?`,
+    };
+    const txt = labels[d.question] ?? labels.ou_est_couleur_colonne;
+    return { promptText: txt, speak: txt, options: d.options, correct: d.reponse };
+  }
+  if (d.etape === 'grille_symbole') {
+    let txt;
+    if (d.question === 'symbole_ligne_colonne') {
+      txt = `Quel symbole est à la fois à la ligne ${d.cible.ligne} et à la colonne ${d.cible.colonne} ?`;
+    } else {
+      const sens = d.cible?.sens === 'haut' ? 'plus haut' : 'plus à gauche';
+      txt = `Regarde bien : quel symbole est ${sens} que l'autre ?`;
+    }
+    return { promptText: txt, speak: txt, options: d.options, correct: d.reponse };
+  }
+  // Ancien format (MS/GS) : etoile unique, direction de comptage variee.
   const questions = {
     colonne: "À quelle colonne se trouve l'étoile (en partant de la gauche) ?",
     colonne_droite: "À quelle colonne se trouve l'étoile (en partant de la droite) ?",
     ligne: "À quelle ligne se trouve l'étoile (en partant du haut) ?",
     ligne_bas: "À quelle ligne se trouve l'étoile (en partant du bas) ?",
   };
-  const question = questions[d.question] ?? questions.colonne;
-  return {
-    texteAffiche: d.grille,
-    promptText: question,
-    speak: question,
-    mandatorySpeak: false,
-    options: d.options,
-    correct: d.reponse,
-  };
+  const txt = questions[d.question] ?? questions.colonne;
+  return { promptText: txt, speak: txt, options: d.options, correct: d.reponse };
 }
 
-function CachettesLumaScreen({ route, navigation }) {
+const CACHETTES_COULEURS_HEX = { rouge: '#E5533D', bleu: '#3D7FE5', vert: '#3DAE5C' };
+
+function CachettesGridVisual({ d }) {
+  const { width } = useWindowDimensions();
+  if (d.etape === 'grille') {
+    // Ancien format : grille texte (emoji ASCII) a parser.
+    const lignes = d.grille.split('\n').map((l) => Array.from(l));
+    const taille = lignes.length;
+    const cell = Math.min(40, Math.floor((width - 64) / taille));
+    return (
+      <View style={{ alignSelf: 'center' }}>
+        {lignes.map((row, ri) => (
+          <View key={ri} style={{ flexDirection: 'row' }}>
+            {row.map((ch, ci) => (
+              <View key={ci} style={[styles.cachettesCell, { width: cell, height: cell }]}>
+                {ch === '⭐' ? <Text style={{ fontSize: cell * 0.55 }}>⭐</Text> : null}
+              </View>
+            ))}
+          </View>
+        ))}
+      </View>
+    );
+  }
+
+  const taille = d.taille ?? 5;
+  const marqueurs = d.marqueurs ?? [];
+  const cell = Math.min(48, Math.floor((width - 64) / taille));
   return (
-    <CalibratedChoiceGame
-      route={route}
-      navigation={navigation}
-      jeuCode="cachettes_luma"
-      Character={Luma}
-      jeuTitre="🗺️ Les Cachettes de Luma"
-      buildPrompt={buildGrillePrompt}
-      maxRung={MAX_CONTENT_RUNG}
-    />
+    <View style={{ alignSelf: 'center' }}>
+      {Array.from({ length: taille }).map((_, ri) => (
+        <View key={ri} style={{ flexDirection: 'row' }}>
+          {Array.from({ length: taille }).map((_, ci) => {
+            const r = ri + 1, c = ci + 1;
+            const m = marqueurs.find((mk) => mk.ligne === r && mk.colonne === c);
+            const bg = m && d.etape === 'grille_couleur' ? CACHETTES_COULEURS_HEX[m.couleur] : null;
+            return (
+              <View key={ci} style={[styles.cachettesCell, { width: cell, height: cell }, bg ? { backgroundColor: bg } : null]}>
+                {m && d.etape === 'grille_symbole' ? <Text style={{ fontSize: cell * 0.5 }}>{m.symbole}</Text> : null}
+              </View>
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+const CACHETTES_TOTAL_ROUNDS = 20;
+
+function CachettesLumaScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
+  const { profil } = route.params;
+  const cachettesMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const [loading, setLoading] = useState(true);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [round, setRound] = useState(1);
+  const [promptData, setPromptData] = useState(null); // { d, ...question }
+  const [optionsOrder, setOptionsOrder] = useState([]);
+  const [answered, setAnswered] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const startRungRef = useRef(rung);
+  const successStreak = useRef(0);
+  const wrongStreak = useRef(0);
+  const errorsTotal = useRef(0);
+  const shownIds = useRef(new Set());
+  const startedAt = useRef(Date.now());
+  const roundStartedAt = useRef(Date.now());
+
+  const loadRound = useCallback(async (jeuId, currentRung) => {
+    setLoading(true);
+    setAnswered(null);
+    setFeedback(null);
+    const { niveau, palier } = gradeAndPalierFromRung(currentRung);
+
+    async function fetchFor(withPalier) {
+      let query = supabase
+        .from('contenu_mini_jeu')
+        .select('id, donnees')
+        .eq('mini_jeu_id', jeuId)
+        .eq('niveau', niveau)
+        .eq('actif', true);
+      if (withPalier) query = query.eq('palier', palier);
+      const { data } = await query.limit(60);
+      return data ?? [];
+    }
+    let data = await fetchFor(true);
+    if (data.length === 0) data = await fetchFor(false);
+
+    let pool = data.filter((r) => !shownIds.current.has(r.id));
+    if (pool.length === 0) {
+      shownIds.current.clear();
+      pool = data;
+    }
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    if (!pick) {
+      setLoading(false);
+      setPromptData(null);
+      return;
+    }
+    shownIds.current.add(pick.id);
+    const q = buildCachettesQuestion(pick.donnees);
+    setPromptData({ d: pick.donnees, ...q });
+    setOptionsOrder(shuffle(q.options));
+    setLoading(false);
+    roundStartedAt.current = Date.now();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'cachettes_luma').single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+      const startRung = Math.min(cachettesMaxRung, prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1));
+      startRungRef.current = startRung;
+      setRung(startRung);
+      loadRound(jeu.id, startRung);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  useEffect(() => {
+    if (!promptData?.speak) return;
+    speakSmart(promptData.speak);
+  }, [promptData]);
+
+  async function finishSession(finalRung) {
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const direction = finalRung > startRungRef.current ? 'up' : finalRung < startRungRef.current ? 'down' : 'same';
+    const raison = direction === 'up'
+      ? (errorsTotal.current === 0 ? 'parfait_rapide' : 'parfait_lent')
+      : direction === 'down'
+        ? 'erreurs_beaucoup'
+        : 'erreurs_quelques';
+
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: startRungRef.current, maxRung: cachettesMaxRung,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: CACHETTES_TOTAL_ROUNDS,
+      startedAt: startedAt.current,
+      tempsMoyenParManche: Math.round(durationSeconds / CACHETTES_TOTAL_ROUNDS),
+      precomputedRung: { newRung: finalRung, direction, raison },
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function onOptionPress(value) {
+    if (!promptData || answered !== null) return;
+    const isCorrect = String(value) === String(promptData.correct);
+    setAnswered(value);
+
+    let nextRung = rung;
+    if (isCorrect) {
+      setFeedback('Bravo !');
+      wrongStreak.current = 0;
+      successStreak.current += 1;
+      if (successStreak.current >= 2) {
+        nextRung = Math.min(cachettesMaxRung, rung + 1);
+        successStreak.current = 0;
+      }
+    } else {
+      setFeedback('On regarde bien...');
+      errorsTotal.current += 1;
+      successStreak.current = 0;
+      wrongStreak.current += 1;
+      if (wrongStreak.current >= 3) {
+        nextRung = Math.max(1, rung - 1);
+        wrongStreak.current = 0;
+      }
+    }
+
+    setTimeout(async () => {
+      setFeedback(null);
+      if (nextRung !== rung) setRung(nextRung);
+      if (round >= CACHETTES_TOTAL_ROUNDS) {
+        await finishSession(nextRung);
+      } else {
+        setRound((r) => r + 1);
+        loadRound(miniJeuId, nextRung);
+      }
+    }, 900);
+  }
+
+  if (sessionDone) {
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={() => {
+          setSessionDone(false);
+          errorsTotal.current = 0;
+          startRungRef.current = rung;
+          startedAt.current = Date.now();
+          setRound(1);
+          loadRound(miniJeuId, rung);
+        }}
+      />
+    );
+  }
+
+  if (loading || !promptData) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  const isColorAnswer = promptData.d.etape === 'grille_couleur' && CACHETTES_COULEURS_HEX[promptData.options[0]] != null;
+
+  return (
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('cachettes_luma') }]}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>🗺️ Les Cachettes de Luma</Text>
+        <Text style={styles.roundLabel}>{round}/{CACHETTES_TOTAL_ROUNDS}</Text>
+      </View>
+
+      <View style={styles.gameCharacter}>
+        <BouncingWrap><Luma size={48} /></BouncingWrap>
+      </View>
+
+      <CachettesGridVisual d={promptData.d} />
+
+      <View style={styles.promptZone}>
+        <Text style={styles.promptText}>{promptData.promptText}</Text>
+        <Pressable style={styles.listenButton} onPress={() => speakSmart(promptData.speak)}>
+          <Text style={styles.listenText}>🎤 Écouter</Text>
+        </Pressable>
+      </View>
+
+      {feedback && (
+        <PopIn key={feedback + round}>
+          <Text style={[styles.feedback, feedback === 'Bravo !' ? styles.feedbackSuccess : styles.feedbackError]}>
+            {feedback}
+          </Text>
+        </PopIn>
+      )}
+
+      <View style={styles.answerZone}>
+        <Text style={styles.answerZoneLabel}>Ta réponse</Text>
+        <View style={styles.stonesWrap}>
+          {optionsOrder.map((option, i) => {
+            const isAnswered = answered !== null;
+            const isThisAnswer = isAnswered && String(option) === String(answered);
+            const isThisCorrect = String(option) === String(promptData.correct);
+            const bg = isColorAnswer ? CACHETTES_COULEURS_HEX[option] : STONE_COLORS[i % STONE_COLORS.length];
+            return (
+              <Pressable
+                key={i}
+                disabled={isAnswered}
+                onPress={() => onOptionPress(option)}
+                hitSlop={14}
+                style={[
+                  styles.optionButton,
+                  { backgroundColor: bg },
+                  isAnswered && isThisCorrect && styles.optionCorrect,
+                  isAnswered && isThisAnswer && !isThisCorrect && styles.optionWrong,
+                ]}
+              >
+                {!isColorAnswer && (
+                  <Text style={[styles.optionText, String(option).length <= 4 && styles.optionTextIcon]}>
+                    {String(option)}
+                  </Text>
+                )}
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -6423,6 +6728,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)',
   },
   recompensePhoto: { width: 44, height: 44, borderRadius: 10 },
+  cachettesCell: {
+    borderWidth: 1, borderColor: 'rgba(0,0,0,0.12)', backgroundColor: '#fff',
+    alignItems: 'center', justifyContent: 'center',
+  },
   recompenseNom: { fontWeight: '800', color: colors.ink },
   recompenseFait: { fontSize: 12, color: colors.ink, opacity: 0.7, marginTop: 2 },
   mapAvatar: { fontSize: 44 },
