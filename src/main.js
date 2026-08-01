@@ -4588,12 +4588,6 @@ const MONDE_CONTINENTS = [
 function MondeCapitalesScreen({ route, navigation }) {
   const [choix, setChoix] = useState(null); // theme choisi, ou null = ecran de choix
   const [showContinents, setShowContinents] = useState(false);
-  const [showZones, setShowZones] = useState(false);
-  const [zoneChoisie, setZoneChoisie] = useState(null);
-
-  if (zoneChoisie) {
-    return <EuropeZoneChallenge zone={zoneChoisie} onBack={() => setZoneChoisie(null)} />;
-  }
 
   if (choix) {
     return (
@@ -4613,7 +4607,7 @@ function MondeCapitalesScreen({ route, navigation }) {
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingTop: 24, paddingBottom: 24 }]}>
-      <Pressable onPress={() => (showZones ? setShowZones(false) : navigation.goBack())}>
+      <Pressable onPress={() => navigation.goBack()}>
         <Text style={styles.back}>‹</Text>
       </Pressable>
       <Text style={{ fontSize: 20, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginVertical: 10 }}>
@@ -4625,22 +4619,7 @@ function MondeCapitalesScreen({ route, navigation }) {
       >
         <Text style={{ textAlign: 'center', fontSize: 12, color: colors.ink, opacity: 0.6, marginBottom: 4 }}>🎤 Touche pour entendre les choix</Text>
       </Pressable>
-      {showZones ? (
-        <>
-          {EUROPE_ZONES.map((z) => (
-            <Pressable
-              key={z.key}
-              style={[styles.button, { marginTop: 10 }]}
-              onPress={() => { speakSmart(z.nomSpeak); setZoneChoisie(z); }}
-            >
-              <Text style={styles.buttonText}>🗺️ {z.nom}</Text>
-            </Pressable>
-          ))}
-          <Pressable style={{ marginTop: 14, alignItems: 'center' }} onPress={() => setShowZones(false)}>
-            <Text style={{ color: colors.ink, opacity: 0.6, fontWeight: '600' }}>‹ Retour aux thèmes</Text>
-          </Pressable>
-        </>
-      ) : !showContinents ? (
+      {!showContinents ? (
         <>
           {MONDE_THEMES.map((t) => (
             <Pressable
@@ -4656,12 +4635,6 @@ function MondeCapitalesScreen({ route, navigation }) {
             onPress={() => setShowContinents(true)}
           >
             <Text style={[styles.buttonText, { fontSize: 15, color: colors.ink }]}>🗺️ Par continent</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.button, { marginTop: 8, paddingVertical: 10, backgroundColor: colors.sand }]}
-            onPress={() => setShowZones(true)}
-          >
-            <Text style={[styles.buttonText, { fontSize: 15, color: colors.ink }]}>🧭 Zones d'Europe (carte)</Text>
           </Pressable>
         </>
       ) : (
