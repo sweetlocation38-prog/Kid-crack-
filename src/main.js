@@ -3488,7 +3488,213 @@ const EUROPE_COUNTRY_COORDS = {
   "Norvège": [0.45, 0.10], "Danemark": [0.45, 0.24], "Finlande": [0.56, 0.08],
   "Grèce": [0.51, 0.68], "Ukraine": [0.60, 0.36], "Roumanie": [0.55, 0.47],
   "Hongrie": [0.51, 0.42], "République Tchèque": [0.47, 0.35], "Irlande": [0.30, 0.31],
+  // Ajoutes pour les zones regionales (Variante 2) - positions estimees,
+  // A VALIDER visuellement sur la vraie carte avant mise en prod (meme
+  // lecon que la premiere version de la carte Europe, retiree pour
+  // imprecision).
+  "Luxembourg": [0.42, 0.38], "Estonie": [0.57, 0.20], "Lettonie": [0.56, 0.23],
+  "Lituanie": [0.54, 0.26], "Slovénie": [0.47, 0.48], "Croatie": [0.49, 0.52],
+  "Bosnie-Herzégovine": [0.50, 0.55], "Serbie": [0.53, 0.53], "Monténégro": [0.51, 0.58],
+  "Albanie": [0.51, 0.62], "Macédoine du Nord": [0.53, 0.63], "Bulgarie": [0.55, 0.60],
 };
+
+const EUROPE_FLAGS = {
+  "France": "🇫🇷", "Espagne": "🇪🇸", "Italie": "🇮🇹", "Allemagne": "🇩🇪",
+  "Royaume-Uni": "🇬🇧", "Portugal": "🇵🇹", "Belgique": "🇧🇪", "Pays-Bas": "🇳🇱",
+  "Suisse": "🇨🇭", "Autriche": "🇦🇹", "Pologne": "🇵🇱", "Suède": "🇸🇪",
+  "Norvège": "🇳🇴", "Danemark": "🇩🇰", "Finlande": "🇫🇮", "Grèce": "🇬🇷",
+  "Ukraine": "🇺🇦", "Roumanie": "🇷🇴", "Hongrie": "🇭🇺", "République Tchèque": "🇨🇿",
+  "Irlande": "🇮🇪", "Luxembourg": "🇱🇺", "Estonie": "🇪🇪", "Lettonie": "🇱🇻",
+  "Lituanie": "🇱🇹", "Slovénie": "🇸🇮", "Croatie": "🇭🇷", "Bosnie-Herzégovine": "🇧🇦",
+  "Serbie": "🇷🇸", "Monténégro": "🇲🇪", "Albanie": "🇦🇱", "Macédoine du Nord": "🇲🇰",
+  "Bulgarie": "🇧🇬",
+};
+
+// Zones regionales validees pour la Variante 2 (tap approximatif sur la
+// zone, puis zoom, puis pays presentes un par un avec collection de
+// drapeaux). "Europe latine elargie" n'est pas incluse : ses pays sont
+// trop eparpilles geographiquement pour qu'un seul tap de zone ait un
+// sens (a repenser separement si besoin).
+const EUROPE_ZONES = [
+  { key: 'benelux', nom: 'le Benelux', nomSpeak: 'Retrouve les pays du Benelux !', centre: [0.415, 0.34], rayon: 0.09, pays: ['Belgique', 'Pays-Bas', 'Luxembourg'] },
+  { key: 'scandinaves', nom: 'les pays scandinaves', nomSpeak: 'Retrouve les pays scandinaves !', centre: [0.49, 0.11], rayon: 0.13, pays: ['Suède', 'Norvège', 'Danemark', 'Finlande'] },
+  { key: 'baltes', nom: 'les pays baltes', nomSpeak: 'Retrouve les pays baltes !', centre: [0.556, 0.23], rayon: 0.09, pays: ['Estonie', 'Lettonie', 'Lituanie'] },
+  { key: 'iberique', nom: 'la péninsule ibérique', nomSpeak: 'Retrouve les pays de la péninsule ibérique !', centre: [0.305, 0.62], rayon: 0.10, pays: ['Espagne', 'Portugal'] },
+  { key: 'iles_britanniques', nom: 'les îles britanniques', nomSpeak: 'Retrouve les îles britanniques !', centre: [0.33, 0.305], rayon: 0.09, pays: ['Royaume-Uni', 'Irlande'] },
+  { key: 'balkans', nom: 'les Balkans', nomSpeak: 'Retrouve les pays des Balkans !', centre: [0.52, 0.57], rayon: 0.15, pays: ['Croatie', 'Bosnie-Herzégovine', 'Serbie', 'Monténégro', 'Albanie', 'Macédoine du Nord', 'Bulgarie'] },
+];
+
+// ============================================================
+// Variante 2 : tap sur une zone regionale, zoom, puis chaque pays de la
+// zone est presente un par un (touche-le sur la carte). Chaque pays
+// trouve affiche son drapeau directement sur la carte -> collection
+// visuelle qui se construit au fil du jeu.
+// ============================================================
+function EuropeZoneChallenge({ zone, onBack }) {
+  const [phase, setPhase] = useState('zone'); // 'zone' -> 'pays'
+  const [zoneTap, setZoneTap] = useState(null);
+  const [found, setFound] = useState([]); // [{ pays, x, y }]
+  const [tap, setTap] = useState(null);
+  const [imgSize, setImgSize] = useState({ width: 1, height: 1 });
+
+  useEffect(() => {
+    speakSmart(zone.nomSpeak + ' Touche la zone sur la carte.');
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE).catch(() => {});
+    return () => {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+    };
+  }, []);
+
+  const remaining = zone.pays.filter((p) => !found.some((f) => f.pays === p));
+  const currentPays = remaining[0];
+  const done = phase === 'pays' && remaining.length === 0;
+
+  useEffect(() => {
+    if (phase === 'pays' && currentPays) {
+      speakSmart(`Touche ${currentPays}.`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, currentPays]);
+
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const hauteurDisponible = screenHeight - 120;
+  const largeurMax = screenWidth - 16;
+  const largeurSelonHauteur = hauteurDisponible * (540 / 300);
+  const mapWidth = Math.max(200, Math.min(largeurMax, largeurSelonHauteur, 900));
+  const mapHeight = mapWidth * (300 / 540);
+
+  const zoomScale = 2.3;
+  const innerWidth = mapWidth * zoomScale;
+  const innerHeight = mapHeight * zoomScale;
+  const offsetLeft = -zone.centre[0] * innerWidth + mapWidth / 2;
+  const offsetTop = -zone.centre[1] * innerHeight + mapHeight / 2;
+
+  function handleZoneTap(evt) {
+    if (zoneTap) return;
+    const { locationX, locationY } = evt.nativeEvent;
+    const px = locationX / imgSize.width;
+    const py = locationY / imgSize.height;
+    const d = Math.hypot(px - zone.centre[0], py - zone.centre[1]);
+    const ok = d <= zone.rayon;
+    setZoneTap({ px, py, ok });
+    if (ok) {
+      speakSmart('Bravo ! On zoome...');
+      setTimeout(() => setPhase('pays'), 1300);
+    } else {
+      speakSmart('Pas tout à fait, essaie encore.');
+      setTimeout(() => setZoneTap(null), 900);
+    }
+  }
+
+  function handleCountryTap(evt) {
+    if (tap || !currentPays) return;
+    const { locationX, locationY } = evt.nativeEvent;
+    // Coordonnees relatives au contenu agrandi (innerWidth/innerHeight).
+    const innerX = locationX - offsetLeft;
+    const innerY = locationY - offsetTop;
+    const px = innerX / innerWidth;
+    const py = innerY / innerHeight;
+    const cible = EUROPE_COUNTRY_COORDS[currentPays];
+    const d = cible ? Math.hypot(px - cible[0], py - cible[1]) : Infinity;
+    const ok = d <= 0.11;
+    setTap({ px, py, ok });
+    if (ok) {
+      speakSmart(`Bravo, voici ${currentPays} !`);
+      setTimeout(() => {
+        setFound((f) => [...f, { pays: currentPays, x: cible[0], y: cible[1] }]);
+        setTap(null);
+      }, 1300);
+    } else {
+      speakSmart('Pas tout à fait, essaie encore.');
+      setTimeout(() => setTap(null), 900);
+    }
+  }
+
+  if (done) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <Text style={{ fontSize: 22, fontWeight: '800', color: colors.mossDeep, textAlign: 'center' }}>
+          Bravo ! Tu as trouvé tous les pays de {zone.nom} !
+        </Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 18, gap: 12 }}>
+          {found.map((f) => (
+            <Text key={f.pays} style={{ fontSize: 32 }}>{EUROPE_FLAGS[f.pays] ?? '🏳️'}</Text>
+          ))}
+        </View>
+        <Pressable style={[styles.button, { marginTop: 24 }]} onPress={onBack}>
+          <Text style={styles.buttonText}>‹ Retour aux zones</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 8 }}>
+      <Text style={{ fontSize: 16, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginBottom: 6 }}>
+        {phase === 'zone' ? `Touche la zone : ${zone.nom}` : `Touche : ${currentPays} ${EUROPE_FLAGS[currentPays] ?? ''}`}
+      </Text>
+
+      {phase === 'zone' ? (
+        <Pressable
+          onPress={handleZoneTap}
+          onLayout={(e) => setImgSize({ width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height })}
+        >
+          <Image source={CARTE_EUROPE} style={{ width: mapWidth, height: mapHeight, borderRadius: 12 }} resizeMode="contain" />
+          {zoneTap && (
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute', left: zoneTap.px * mapWidth - 18, top: zoneTap.py * mapHeight - 18,
+                width: 36, height: 36, borderRadius: 18,
+                backgroundColor: zoneTap.ok ? 'rgba(76,175,80,0.75)' : 'rgba(229,83,61,0.75)',
+                borderWidth: 2, borderColor: 'white',
+              }}
+            />
+          )}
+        </Pressable>
+      ) : (
+        <View style={{ width: mapWidth, height: mapHeight, overflow: 'hidden', borderRadius: 12 }}>
+          <Pressable
+            onPress={handleCountryTap}
+            style={{ position: 'absolute', left: offsetLeft, top: offsetTop, width: innerWidth, height: innerHeight }}
+          >
+            <Image source={CARTE_EUROPE} style={{ width: innerWidth, height: innerHeight }} resizeMode="contain" />
+            {found.map((f) => (
+              <View
+                key={f.pays}
+                pointerEvents="none"
+                style={{ position: 'absolute', left: f.x * innerWidth - 16, top: f.y * innerHeight - 16, alignItems: 'center' }}
+              >
+                <Text style={{ fontSize: 26 }}>{EUROPE_FLAGS[f.pays] ?? '🏳️'}</Text>
+              </View>
+            ))}
+            {tap && (
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute', left: tap.px * innerWidth - 14, top: tap.py * innerHeight - 14,
+                  width: 28, height: 28, borderRadius: 14,
+                  backgroundColor: tap.ok ? 'rgba(76,175,80,0.75)' : 'rgba(229,83,61,0.75)',
+                  borderWidth: 2, borderColor: 'white',
+                }}
+              />
+            )}
+          </Pressable>
+        </View>
+      )}
+
+      {phase === 'pays' && (
+        <Text style={{ marginTop: 8, color: colors.ink, opacity: 0.6 }}>
+          {found.length}/{zone.pays.length} trouvés
+        </Text>
+      )}
+      <Pressable style={{ marginTop: 10 }} onPress={onBack}>
+        <Text style={{ color: colors.ink, opacity: 0.5 }}>‹ Abandonner et revenir aux zones</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 
 // Defi bonus : apres avoir trouve le bon pays via son drapeau, l'enfant doit
 // le retrouver sur la carte. On cherche le pays le plus proche du point
@@ -4369,6 +4575,12 @@ const MONDE_CONTINENTS = [
 function MondeCapitalesScreen({ route, navigation }) {
   const [choix, setChoix] = useState(null); // theme choisi, ou null = ecran de choix
   const [showContinents, setShowContinents] = useState(false);
+  const [showZones, setShowZones] = useState(false);
+  const [zoneChoisie, setZoneChoisie] = useState(null);
+
+  if (zoneChoisie) {
+    return <EuropeZoneChallenge zone={zoneChoisie} onBack={() => setZoneChoisie(null)} />;
+  }
 
   if (choix) {
     return (
@@ -4388,7 +4600,7 @@ function MondeCapitalesScreen({ route, navigation }) {
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingTop: 24, paddingBottom: 24 }]}>
-      <Pressable onPress={() => navigation.goBack()}>
+      <Pressable onPress={() => (showZones ? setShowZones(false) : navigation.goBack())}>
         <Text style={styles.back}>‹</Text>
       </Pressable>
       <Text style={{ fontSize: 20, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginVertical: 10 }}>
@@ -4400,7 +4612,22 @@ function MondeCapitalesScreen({ route, navigation }) {
       >
         <Text style={{ textAlign: 'center', fontSize: 12, color: colors.ink, opacity: 0.6, marginBottom: 4 }}>🎤 Touche pour entendre les choix</Text>
       </Pressable>
-      {!showContinents ? (
+      {showZones ? (
+        <>
+          {EUROPE_ZONES.map((z) => (
+            <Pressable
+              key={z.key}
+              style={[styles.button, { marginTop: 10 }]}
+              onPress={() => { speakSmart(z.nomSpeak); setZoneChoisie(z); }}
+            >
+              <Text style={styles.buttonText}>🗺️ {z.nom}</Text>
+            </Pressable>
+          ))}
+          <Pressable style={{ marginTop: 14, alignItems: 'center' }} onPress={() => setShowZones(false)}>
+            <Text style={{ color: colors.ink, opacity: 0.6, fontWeight: '600' }}>‹ Retour aux thèmes</Text>
+          </Pressable>
+        </>
+      ) : !showContinents ? (
         <>
           {MONDE_THEMES.map((t) => (
             <Pressable
@@ -4416,6 +4643,12 @@ function MondeCapitalesScreen({ route, navigation }) {
             onPress={() => setShowContinents(true)}
           >
             <Text style={[styles.buttonText, { fontSize: 15, color: colors.ink }]}>🗺️ Par continent</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.button, { marginTop: 8, paddingVertical: 10, backgroundColor: colors.sand }]}
+            onPress={() => setShowZones(true)}
+          >
+            <Text style={[styles.buttonText, { fontSize: 15, color: colors.ink }]}>🧭 Zones d'Europe (carte)</Text>
           </Pressable>
         </>
       ) : (
