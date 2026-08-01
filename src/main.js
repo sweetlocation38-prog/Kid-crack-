@@ -1389,6 +1389,57 @@ function SecurityAvatarCheckScreen({ route, navigation }) {
 }
 
 
+// ============================================================
+// Ecran : configuration de l'avatar de securite pour un profil qui
+// n'en a pas encore (cree avant l'ajout de cette fonctionnalite).
+// Propose une seule fois, la premiere fois que ce profil est touche ;
+// une fois choisi, on enchaine directement sur la carte (pas besoin de
+// revalider tout de suite, l'enfant vient de le choisir lui-meme).
+// ============================================================
+function SecurityAvatarSetupScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const [choices] = useState(() => shuffle(SECURITY_AVATARS).slice(0, 10));
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    speakSmart(`${speechFriendlyName(profil.prenom)}, choisis ton avatar secret ! Tu devras le retrouver à chaque fois que tu ouvres l'application.`);
+  }, []);
+
+  async function onPick(emoji) {
+    if (saving) return;
+    setSaving(true);
+    await supabase.from('profils_enfants').update({ avatar_securite: emoji }).eq('id', profil.id);
+    navigation.replace('WorldMap', { profil: { ...profil, avatar_securite: emoji } });
+  }
+
+  return (
+    <View style={styles.center}>
+      <BouncingWrap><Luma size={64} /></BouncingWrap>
+      <Text style={{ fontSize: 18, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginTop: 12, paddingHorizontal: 24 }}>
+        Choisis ton avatar secret !
+      </Text>
+      <Text style={{ fontSize: 13, color: colors.ink, opacity: 0.6, textAlign: 'center', marginTop: 4, paddingHorizontal: 32 }}>
+        Tu devras le retrouver à chaque fois que tu ouvres l'application.
+      </Text>
+      <Pressable
+        style={[styles.listenButton, { marginTop: 10 }]}
+        onPress={() => speakSmart(`${speechFriendlyName(profil.prenom)}, choisis ton avatar secret !`)}
+      >
+        <Text style={styles.listenText}>🎤 Réécouter</Text>
+      </Pressable>
+
+      <View style={[styles.avatarGrid, { marginTop: 20, paddingHorizontal: 16, opacity: saving ? 0.5 : 1 }]}>
+        {choices.map((a) => (
+          <Pressable key={a} style={styles.avatarTile} onPress={() => onPick(a)} disabled={saving}>
+            <Text style={{ fontSize: 26 }}>{a}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+
 function ProfileSelectScreen({ navigation }) {
   const [profils, setProfils] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1485,7 +1536,7 @@ function ProfileSelectScreen({ navigation }) {
           <Pressable
             style={styles.card}
             onPress={() => navigation.navigate(
-              item.avatar_securite ? 'SecurityAvatarCheck' : 'WorldMap',
+              item.avatar_securite ? 'SecurityAvatarCheck' : 'SecurityAvatarSetup',
               { profil: item }
             )}
           >
@@ -6791,6 +6842,7 @@ export default function RootNavigator() {
           <>
             <Stack.Screen name="ProfileSelect" component={ProfileSelectScreen} />
             <Stack.Screen name="SecurityAvatarCheck" component={SecurityAvatarCheckScreen} />
+            <Stack.Screen name="SecurityAvatarSetup" component={SecurityAvatarSetupScreen} />
             <Stack.Screen name="WorldMap" component={WorldMapScreen} />
             <Stack.Screen name="Continent" component={SentierScreen} />
             <Stack.Screen name="PontDesLettres" component={PontDesLettresScreen} />
