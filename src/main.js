@@ -4549,6 +4549,7 @@ function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPromp
   // test de niveau ; 'play' : le jeu demarre normalement.
   const [phase, setPhase] = useState('checking');
   const [forcedStartRung, setForcedStartRung] = useState(null);
+  const miniJeuIdRef = useRef(null);
 
   useEffect(() => {
     setPhase('checking');
@@ -4556,6 +4557,7 @@ function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPromp
     (async () => {
       const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', jeuCode).single();
       if (!jeu) { setPhase('play'); return; }
+      miniJeuIdRef.current = jeu.id;
       const { data: prog } = await supabase
         .from('progression')
         .select('palier_actuel')
@@ -4584,7 +4586,28 @@ function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPromp
         Character={Character}
         buildPrompt={buildPrompt}
         maxRung={effectiveMaxRung}
-        onDone={(startRung) => {
+        onDone={async (startRung) => {
+          // Sauvegarde immediate : si l'enfant quitte avant la fin de la
+          // toute premiere session (les 20 manches), le calibrage ne doit
+          // pas se redeclencher au prochain lancement.
+          if (miniJeuIdRef.current) {
+            try {
+              await supabase.from('progression').upsert(
+                {
+                  profil_id: profil.id,
+                  mini_jeu_id: miniJeuIdRef.current,
+                  palier_actuel: startRung,
+                  details: { streak: 0 },
+                  temps_reference_secondes: null,
+                  echecs_consecutifs: 0,
+                },
+                { onConflict: 'profil_id,mini_jeu_id' }
+              );
+            } catch (e) {
+              // Non bloquant : le jeu demarre quand meme au bon niveau
+              // pour cette session, meme si la sauvegarde a echoue.
+            }
+          }
           setForcedStartRung(startRung);
           setPhase('play');
         }}
