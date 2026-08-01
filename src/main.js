@@ -570,6 +570,111 @@ const AVATAR_CHAIN = [
   { code: 'lion', name: 'Lion', emoji: '🦁' },
 ];
 
+// Table de correspondance code -> photo reelle (assets locaux, requires
+// statiques necessaires pour que Metro embarque bien chaque image).
+const AVATAR_IMAGES = {
+  fourmi: require('../assets/images/avatars/fourmi.webp'),
+  coccinelle: require('../assets/images/avatars/coccinelle.webp'),
+  papillon: require('../assets/images/avatars/papillon.webp'),
+  abeille: require('../assets/images/avatars/abeille.webp'),
+  escargot: require('../assets/images/avatars/escargot.webp'),
+  ver_luisant: require('../assets/images/avatars/ver_luisant.webp'),
+  sauterelle: require('../assets/images/avatars/sauterelle.webp'),
+  libellule: require('../assets/images/avatars/libellule.webp'),
+  scarabee: require('../assets/images/avatars/scarabee.webp'),
+  grillon: require('../assets/images/avatars/grillon.webp'),
+  souris: require('../assets/images/avatars/souris.webp'),
+  mulot: require('../assets/images/avatars/mulot.webp'),
+  musaraigne: require('../assets/images/avatars/musaraigne.webp'),
+  grenouille: require('../assets/images/avatars/grenouille.webp'),
+  crapaud: require('../assets/images/avatars/crapaud.webp'),
+  lezard: require('../assets/images/avatars/lezard.webp'),
+  tetard: require('../assets/images/avatars/tetard.webp'),
+  campagnol: require('../assets/images/avatars/campagnol.webp'),
+  chenille: require('../assets/images/avatars/chenille.webp'),
+  criquet: require('../assets/images/avatars/criquet.webp'),
+  herisson: require('../assets/images/avatars/herisson.webp'),
+  taupe: require('../assets/images/avatars/taupe.webp'),
+  ecureuil: require('../assets/images/avatars/ecureuil.webp'),
+  tamia: require('../assets/images/avatars/tamia.webp'),
+  chauve_souris: require('../assets/images/avatars/chauve_souris.webp'),
+  belette: require('../assets/images/avatars/belette.webp'),
+  furet: require('../assets/images/avatars/furet.webp'),
+  putois: require('../assets/images/avatars/putois.webp'),
+  rat_des_champs: require('../assets/images/avatars/rat_des_champs.webp'),
+  loir: require('../assets/images/avatars/loir.webp'),
+  geai: require('../assets/images/avatars/geai.webp'),
+  pie: require('../assets/images/avatars/pie.webp'),
+  corbeau: require('../assets/images/avatars/corbeau.webp'),
+  faucon_crecerelle: require('../assets/images/avatars/faucon_crecerelle.webp'),
+  chouette: require('../assets/images/avatars/chouette.webp'),
+  heron: require('../assets/images/avatars/heron.webp'),
+  cigogne: require('../assets/images/avatars/cigogne.webp'),
+  pelican: require('../assets/images/avatars/pelican.webp'),
+  perruche: require('../assets/images/avatars/perruche.webp'),
+  toucan: require('../assets/images/avatars/toucan.webp'),
+  martre: require('../assets/images/avatars/martre.webp'),
+  fouine: require('../assets/images/avatars/fouine.webp'),
+  mangouste: require('../assets/images/avatars/mangouste.webp'),
+  suricate: require('../assets/images/avatars/suricate.webp'),
+  blaireau: require('../assets/images/avatars/blaireau.webp'),
+  genette: require('../assets/images/avatars/genette.webp'),
+  chacal: require('../assets/images/avatars/chacal.webp'),
+  ragondin: require('../assets/images/avatars/ragondin.webp'),
+  loutre: require('../assets/images/avatars/loutre.webp'),
+  ocelot: require('../assets/images/avatars/ocelot.webp'),
+  gazelle: require('../assets/images/avatars/gazelle.webp'),
+  impala: require('../assets/images/avatars/impala.webp'),
+  antilope: require('../assets/images/avatars/antilope.webp'),
+  springbok: require('../assets/images/avatars/springbok.webp'),
+  zebre: require('../assets/images/avatars/zebre.webp'),
+  gnou: require('../assets/images/avatars/gnou.webp'),
+  autruche: require('../assets/images/avatars/autruche.webp'),
+  phacochere: require('../assets/images/avatars/phacochere.webp'),
+  sanglier: require('../assets/images/avatars/sanglier.webp'),
+  chevre_de_montagne: require('../assets/images/avatars/chevre_de_montagne.webp'),
+  lievre: require('../assets/images/avatars/lievre.webp'),
+  renard_des_neiges: require('../assets/images/avatars/renard_des_neiges.webp'),
+  coyote: require('../assets/images/avatars/coyote.webp'),
+  lynx: require('../assets/images/avatars/lynx.webp'),
+  caracal: require('../assets/images/avatars/caracal.webp'),
+  chat_sauvage: require('../assets/images/avatars/chat_sauvage.webp'),
+  guepard: require('../assets/images/avatars/guepard.webp'),
+  loup: require('../assets/images/avatars/loup.webp'),
+  puma: require('../assets/images/avatars/puma.webp'),
+  panthere: require('../assets/images/avatars/panthere.webp'),
+  cerf: require('../assets/images/avatars/cerf.webp'),
+  elan: require('../assets/images/avatars/elan.webp'),
+  wapiti: require('../assets/images/avatars/wapiti.webp'),
+  bison: require('../assets/images/avatars/bison.webp'),
+  buffle_d_afrique: require('../assets/images/avatars/buffle_d_afrique.webp'),
+  hippopotame: require('../assets/images/avatars/hippopotame.webp'),
+  chameau: require('../assets/images/avatars/chameau.webp'),
+  yack: require('../assets/images/avatars/yack.webp'),
+  girafe: require('../assets/images/avatars/girafe.webp'),
+  rhinoceros_noir: require('../assets/images/avatars/rhinoceros_noir.webp'),
+  ours_brun: require('../assets/images/avatars/ours_brun.webp'),
+  ours_noir: require('../assets/images/avatars/ours_noir.webp'),
+  gorille: require('../assets/images/avatars/gorille.webp'),
+  chimpanze: require('../assets/images/avatars/chimpanze.webp'),
+  jaguar: require('../assets/images/avatars/jaguar.webp'),
+  leopard: require('../assets/images/avatars/leopard.webp'),
+  tigre_du_bengale: require('../assets/images/avatars/tigre_du_bengale.webp'),
+  crocodile_du_nil: require('../assets/images/avatars/crocodile_du_nil.webp'),
+  python: require('../assets/images/avatars/python.webp'),
+  aigle_royal: require('../assets/images/avatars/aigle_royal.webp'),
+  ours_polaire: require('../assets/images/avatars/ours_polaire.webp'),
+  rhinoceros_blanc: require('../assets/images/avatars/rhinoceros_blanc.webp'),
+  gorille_des_montagnes: require('../assets/images/avatars/gorille_des_montagnes.webp'),
+  elephant_de_foret: require('../assets/images/avatars/elephant_de_foret.webp'),
+  elephant_de_savane: require('../assets/images/avatars/elephant_de_savane.webp'),
+  panthere_des_neiges: require('../assets/images/avatars/panthere_des_neiges.webp'),
+  tigre_de_siberie: require('../assets/images/avatars/tigre_de_siberie.webp'),
+  grizzly_geant: require('../assets/images/avatars/grizzly_geant.webp'),
+  lionne: require('../assets/images/avatars/lionne.webp'),
+  lion: require('../assets/images/avatars/lion.webp'),
+};
+
 function avatarRankFor(niveauGlobal) {
   return Math.min(100, Math.max(1, Math.floor((niveauGlobal ?? 0) / 10) + 1));
 }
@@ -1831,7 +1936,7 @@ function RecompensesEarnedModal({ visible, profil, onClose }) {
             <ScrollView style={{ maxHeight: 380 }}>
               {fiches.map((a) => (
                 <View key={a.code} style={styles.recompenseRow}>
-                  <Text style={{ fontSize: 30 }}>{a.emoji}</Text>
+                  <Image source={AVATAR_IMAGES[a.code]} style={styles.recompensePhoto} resizeMode="cover" />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.recompenseNom}>{a.name}</Text>
                     {a.fiche?.fait_amusant ? (
@@ -3005,7 +3110,20 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
       encore_un_effort: `Bravo ${speechFriendlyName(profil.prenom)}, tu as trouvé toutes les paires ! Encore une réussite comme ça et tu montes de niveau !`,
     };
     const message = summary?.raison ? messages[summary.raison] : null;
-    if (message) speakSmart(message);
+
+    // Enchaine : d'abord le message d'encouragement, puis, si un nouvel
+    // avatar vient d'etre debloque, son nom et sa petite histoire en
+    // autoplay complet (aucune action requise de l'enfant).
+    (async () => {
+      if (message) await speakSmart(message);
+      if (summary?.rankChanged && fiche) {
+        const displayName = fiche.nom_affiche || AVATAR_CHAIN[summary.newRank - 1].name;
+        const histoire = [fiche.habitat, fiche.alimentation, fiche.fait_amusant]
+          .filter(Boolean)
+          .join('. ');
+        await speakSmart(histoire ? `${displayName}. ${histoire}` : displayName);
+      }
+    })();
 
     if (summary?.direction === 'up') {
       fetchMemosConfig(profil.famille_id).then((cfg) => {
@@ -3058,30 +3176,16 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
       {summary?.rankChanged && (
         <PopIn delay={150} style={styles.rankUpBox}>
           <Text style={styles.rankUpTitle}>Nouvel avatar débloqué !</Text>
-          <BouncingEmoji emoji={AVATAR_CHAIN[summary.newRank - 1].emoji} size={44} />
-          <Text style={styles.rankUpAvatar}>{AVATAR_CHAIN[summary.newRank - 1].name}</Text>
-        </PopIn>
-      )}
-
-      {fiche && (
-        <PopIn delay={350} style={styles.ficheBox}>
-          <Text style={styles.ficheTitle}>{fiche.nom_affiche}</Text>
-          {fiche.epoque ? <Text style={styles.ficheLine}>🕰️ {fiche.epoque}</Text> : null}
-          {fiche.habitat ? <Text style={styles.ficheLine}>🏡 {fiche.habitat}</Text> : null}
-          {fiche.alimentation ? <Text style={styles.ficheLine}>🍽️ {fiche.alimentation}</Text> : null}
-          {fiche.esperance_de_vie ? <Text style={styles.ficheLine}>⏳ {fiche.esperance_de_vie}</Text> : null}
-          {fiche.fait_amusant ? <Text style={styles.ficheFait}>✨ {fiche.fait_amusant}</Text> : null}
-          <Pressable
-            style={styles.listenButton}
-            onPress={() =>
-              speak(
-                [fiche.nom_affiche, fiche.habitat, fiche.alimentation, fiche.fait_amusant]
-                  .filter(Boolean)
-                  .join('. ')
-              )
-            }
-          >
-            <Text style={styles.listenText}>🎤 Écouter</Text>
+          <Image
+            source={AVATAR_IMAGES[AVATAR_CHAIN[summary.newRank - 1].code]}
+            style={styles.rankUpPhoto}
+            resizeMode="cover"
+          />
+          <Text style={styles.rankUpAvatar}>
+            {fiche?.nom_affiche || AVATAR_CHAIN[summary.newRank - 1].name}
+          </Text>
+          <Pressable style={styles.listenButton} onPress={() => Speech.stop()}>
+            <Text style={styles.listenText}>🔇 Couper le son</Text>
           </Pressable>
         </PopIn>
       )}
@@ -6015,6 +6119,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8,
     borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)',
   },
+  recompensePhoto: { width: 44, height: 44, borderRadius: 10 },
   recompenseNom: { fontWeight: '800', color: colors.ink },
   recompenseFait: { fontSize: 12, color: colors.ink, opacity: 0.7, marginTop: 2 },
   mapAvatar: { fontSize: 44 },
@@ -6133,7 +6238,8 @@ const styles = StyleSheet.create({
   endText: { fontSize: 15, opacity: 0.7, marginBottom: 24, textAlign: 'center' },
   rankUpBox: { backgroundColor: colors.gold, borderRadius: 18, padding: 16, marginBottom: 16, alignItems: 'center' },
   rankUpTitle: { fontWeight: '800', color: colors.ink, marginBottom: 6 },
-  rankUpAvatar: { fontSize: 22, fontWeight: '700', color: colors.ink },
+  rankUpPhoto: { width: 200, height: 200, borderRadius: 24, marginBottom: 10, borderWidth: 3, borderColor: '#fff' },
+  rankUpAvatar: { fontSize: 20, fontWeight: '700', color: colors.ink, marginBottom: 8 },
   rewardBox: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 16, alignItems: 'center', borderWidth: 2, borderColor: colors.gold },
   rewardTitle: { fontWeight: '800', color: colors.mossDeep, marginBottom: 6 },
   rewardText: { color: colors.ink, textAlign: 'center' },
