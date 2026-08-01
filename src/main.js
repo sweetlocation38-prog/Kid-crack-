@@ -3953,7 +3953,7 @@ function buildSonsPrompt(d) {
 
 function SonsMagiquesScreen({ route, navigation }) {
   return (
-    <ChoiceGameScreen
+    <CalibratedChoiceGame
       route={route}
       navigation={navigation}
       jeuCode="sons_magiques"
@@ -4125,7 +4125,7 @@ function MondeCapitalesScreen({ route, navigation }) {
 
   if (choix) {
     return (
-      <ChoiceGameScreen
+      <CalibratedChoiceGame
         route={route}
         navigation={navigation}
         jeuCode="monde_capitales"
@@ -4209,7 +4209,7 @@ function buildIntrusPrompt(d) {
 
 function JeuIntrusScreen({ route, navigation }) {
   return (
-    <ChoiceGameScreen
+    <CalibratedChoiceGame
       route={route}
       navigation={navigation}
       jeuCode="jeu_intrus"
@@ -4237,7 +4237,7 @@ function buildSuitePrompt(d) {
 
 function EmpreintesClairiereScreen({ route, navigation }) {
   return (
-    <ChoiceGameScreen
+    <CalibratedChoiceGame
       route={route}
       navigation={navigation}
       jeuCode="empreintes_clairiere"
@@ -4265,7 +4265,7 @@ function buildEquilibrePrompt(d) {
 
 function BalancePrairieScreen({ route, navigation }) {
   return (
-    <ChoiceGameScreen
+    <CalibratedChoiceGame
       route={route}
       navigation={navigation}
       jeuCode="balance_prairie"
@@ -4293,7 +4293,7 @@ function buildMonnaiePrompt(d) {
 
 function MarcheVillageScreen({ route, navigation }) {
   return (
-    <ChoiceGameScreen
+    <CalibratedChoiceGame
       route={route}
       navigation={navigation}
       jeuCode="marche_village"
@@ -4328,7 +4328,7 @@ function buildGrillePrompt(d) {
 
 function CachettesLumaScreen({ route, navigation }) {
   return (
-    <ChoiceGameScreen
+    <CalibratedChoiceGame
       route={route}
       navigation={navigation}
       jeuCode="cachettes_luma"
@@ -4532,21 +4532,18 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
 }
 
 // ============================================================
-// Le Corps Humain — sciences (questions sur le corps humain)
 // ============================================================
-function buildCorpsHumainPrompt(d) {
-  return {
-    promptText: d.question,
-    speak: d.question,
-    mandatorySpeak: false,
-    options: d.options,
-    correct: d.reponse,
-  };
-}
-
-function CorpsHumainScreen({ route, navigation }) {
+// Enveloppe generique : ajoute le test de calibrage initial (voir
+// CalibrationTest ci-dessus) autour de n'importe quel jeu base sur
+// ChoiceGameScreen, sans dupliquer la logique de verification de
+// progression dans chaque ecran de jeu. Le calibrage ne se declenche
+// qu'une seule fois, au tout premier lancement (aucune ligne dans
+// "progression" pour ce profil sur ce jeu) ; ensuite, comportement
+// inchange.
+// ============================================================
+function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions }) {
   const { profil } = route.params;
-  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const effectiveMaxRung = maxRung ?? MAX_CONTENT_RUNG;
   // 'checking' : on verifie s'il existe deja une progression pour ce
   // profil sur ce jeu ; 'calibration' : premiere fois, on propose le
   // test de niveau ; 'play' : le jeu demarre normalement.
@@ -4554,8 +4551,10 @@ function CorpsHumainScreen({ route, navigation }) {
   const [forcedStartRung, setForcedStartRung] = useState(null);
 
   useEffect(() => {
+    setPhase('checking');
+    setForcedStartRung(null);
     (async () => {
-      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'corps_humain').single();
+      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', jeuCode).single();
       if (!jeu) { setPhase('play'); return; }
       const { data: prog } = await supabase
         .from('progression')
@@ -4566,7 +4565,7 @@ function CorpsHumainScreen({ route, navigation }) {
       setPhase(prog ? 'play' : 'calibration');
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profil.id]);
+  }, [profil.id, jeuCode]);
 
   if (phase === 'checking') {
     return (
@@ -4580,11 +4579,11 @@ function CorpsHumainScreen({ route, navigation }) {
     return (
       <CalibrationTest
         profil={profil}
-        jeuCode="corps_humain"
-        jeuTitre="🫀 Le Corps Humain"
-        Character={Maestro}
-        buildPrompt={buildCorpsHumainPrompt}
-        maxRung={gameMaxRung}
+        jeuCode={jeuCode}
+        jeuTitre={jeuTitre}
+        Character={Character}
+        buildPrompt={buildPrompt}
+        maxRung={effectiveMaxRung}
         onDone={(startRung) => {
           setForcedStartRung(startRung);
           setPhase('play');
@@ -4597,12 +4596,40 @@ function CorpsHumainScreen({ route, navigation }) {
     <ChoiceGameScreen
       route={route}
       navigation={navigation}
+      jeuCode={jeuCode}
+      Character={Character}
+      jeuTitre={jeuTitre}
+      buildPrompt={buildPrompt}
+      maxRung={maxRung}
+      themeFilter={themeFilter}
+      singleLineOptions={singleLineOptions}
+      forcedStartRung={forcedStartRung}
+    />
+  );
+}
+
+// Le Corps Humain — sciences (questions sur le corps humain)
+// ============================================================
+function buildCorpsHumainPrompt(d) {
+  return {
+    promptText: d.question,
+    speak: d.question,
+    mandatorySpeak: false,
+    options: d.options,
+    correct: d.reponse,
+  };
+}
+
+function CorpsHumainScreen({ route, navigation }) {
+  return (
+    <CalibratedChoiceGame
+      route={route}
+      navigation={navigation}
       jeuCode="corps_humain"
       Character={Maestro}
       jeuTitre="🫀 Le Corps Humain"
       buildPrompt={buildCorpsHumainPrompt}
-      maxRung={gameMaxRung}
-      forcedStartRung={forcedStartRung}
+      maxRung={rungFromGradeAndPalier('ce2', 3)}
     />
   );
 }
@@ -4625,7 +4652,7 @@ function buildLuciolesPrompt(d) {
 
 function RondeLuciolesScreen({ route, navigation }) {
   return (
-    <ChoiceGameScreen
+    <CalibratedChoiceGame
       route={route}
       navigation={navigation}
       jeuCode="ronde_lucioles"
@@ -5129,7 +5156,7 @@ function FriseTempsScreen({ route, navigation }) {
 
 function PommesDeLumaScreen({ route, navigation }) {
   return (
-    <ChoiceGameScreen
+    <CalibratedChoiceGame
       route={route}
       navigation={navigation}
       jeuCode="pommes_de_luma"
