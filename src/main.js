@@ -3556,6 +3556,13 @@ function EuropeZoneChallenge({ zone, onBack }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, currentPays]);
 
+  useEffect(() => {
+    if (done) {
+      speakSmart(`Bravo ! Tu as trouvé tous les pays de ${zone.nom} !`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done]);
+
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const hauteurDisponible = screenHeight - 120;
   const largeurMax = screenWidth - 16;
@@ -3633,6 +3640,12 @@ function EuropeZoneChallenge({ zone, onBack }) {
       <Text style={{ fontSize: 16, fontWeight: '800', color: colors.mossDeep, textAlign: 'center', marginBottom: 6 }}>
         {phase === 'zone' ? `Touche la zone : ${zone.nom}` : `Touche : ${currentPays} ${EUROPE_FLAGS[currentPays] ?? ''}`}
       </Text>
+      <Pressable
+        style={[styles.listenButton, { marginBottom: 8 }]}
+        onPress={() => speakSmart(phase === 'zone' ? zone.nomSpeak : `Touche ${currentPays}.`)}
+      >
+        <Text style={styles.listenText}>🎤 Écouter</Text>
+      </Pressable>
 
       {phase === 'zone' ? (
         <Pressable
