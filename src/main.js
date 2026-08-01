@@ -3319,7 +3319,7 @@ function EuropeMapChallenge({ pays, onResult }) {
   );
 }
 
-function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions }) {
+function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions, forcedStartRung }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -3481,7 +3481,9 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const rawStartRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      // Priorite : progression deja sauvegardee > resultat d'un calibrage
+      // initial (si fourni par l'ecran appelant) > niveau scolaire par defaut.
+      const rawStartRung = prog?.palier_actuel ?? forcedStartRung ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
       const startRung = maxRung ? Math.min(rawStartRung, maxRung) : rawStartRung;
       setRung(startRung);
       const { niveau, palier: palierValue } = gradeAndPalierFromRung(startRung);
@@ -4328,6 +4330,196 @@ function CachettesLumaScreen({ route, navigation }) {
 }
 
 // ============================================================
+// Test de calibrage initial : au tout premier lancement d'un jeu
+// (aucune progression sauvegardee pour ce profil sur ce jeu), propose
+// 4 questions couvrant facile a tres difficile pour choisir un point
+// de depart plus juste que le seul niveau scolaire par defaut. Ce
+// n'est jamais note ni presente comme un echec possible - juste une
+// petite decouverte avant de commencer a jouer pour de vrai.
+// ============================================================
+function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, maxRung, onDone }) {
+  const [checkpoints, setCheckpoints] = useState(null);
+  const [step, setStep] = useState(0);
+  const [promptData, setPromptData] = useState(null);
+  const [optionsOrder, setOptionsOrder] = useState([]);
+  const [answered, setAnswered] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const miniJeuIdRef = useRef(null);
+  const correctCount = useRef(0);
+  const askedCount = useRef(0);
+
+  const loadCheckpoint = useCallback(async (jeuId, rungs, index) => {
+    if (index >= rungs.length) {
+      const base = rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      const total = askedCount.current;
+      const ratio = total > 0 ? correctCount.current / total : 0;
+      let bonus = 0;
+      if (ratio > 0.75) bonus = 2;
+      else if (ratio > 0.25) bonus = 1;
+      onDone(Math.min(maxRung, base + bonus));
+      return;
+    }
+    setLoading(true);
+    setAnswered(null);
+    setFeedback(null);
+    const { niveau, palier } = gradeAndPalierFromRung(rungs[index]);
+
+    async function fetchFor(withPalier) {
+      let query = supabase
+        .from('contenu_mini_jeu')
+        .select('id, donnees')
+        .eq('mini_jeu_id', jeuId)
+        .eq('niveau', niveau)
+        .eq('actif', true);
+      if (withPalier) query = query.eq('palier', palier);
+      const { data } = await query.limit(30);
+      return data ?? [];
+    }
+    let data = await fetchFor(true);
+    if (data.length === 0) data = await fetchFor(false);
+
+    if (data.length === 0) {
+      // Pas de contenu a ce cran precis : on saute cette question de
+      // calibrage plutot que de bloquer l'ecran.
+      loadCheckpoint(jeuId, rungs, index + 1);
+      return;
+    }
+    const pick = data[Math.floor(Math.random() * data.length)];
+    const prompt = buildPrompt(pick.donnees);
+    askedCount.current += 1;
+    setPromptData(prompt);
+    setOptionsOrder(shuffle(prompt.options));
+    setLoading(false);
+  }, [profil.niveau_defaut, maxRung, buildPrompt, onDone]);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', jeuCode).single();
+      if (!jeu) {
+        onDone(rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        return;
+      }
+      miniJeuIdRef.current = jeu.id;
+      const base = rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      // 4 crans repartis de facile a tres difficile a partir du niveau
+      // scolaire par defaut, plafonnes au maximum de contenu du jeu.
+      const rungs = [0, 2, 5, 8].map((offset) => Math.min(maxRung, base + offset));
+      setCheckpoints(rungs);
+      await loadCheckpoint(jeu.id, rungs, 0);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!promptData) return;
+    speakSmart(promptData.promptText);
+  }, [promptData]);
+
+  function onOptionPress(value) {
+    if (!promptData || answered !== null) return;
+    const isCorrect = String(value) === String(promptData.correct);
+    setAnswered(value);
+    if (isCorrect) {
+      correctCount.current += 1;
+      setFeedback('Bravo !');
+    }
+    // Pas de "Faux" affiche : c'est un test neutre pour trouver le bon
+    // point de depart, jamais presente comme un echec a l'enfant.
+    setTimeout(() => {
+      const next = step + 1;
+      setStep(next);
+      loadCheckpoint(miniJeuIdRef.current, checkpoints, next);
+    }, 900);
+  }
+
+  if (loading || !promptData) {
+    return (
+      <View style={styles.center}>
+        <BouncingWrap><Noisette size={72} /></BouncingWrap>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: colors.mossDeep, marginTop: 12, textAlign: 'center', paddingHorizontal: 24 }}>
+          On découvre ensemble ton niveau…
+        </Text>
+        <ActivityIndicator color={colors.mossDeep} style={{ marginTop: 12 }} />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame(jeuCode) }]}>
+      <View style={styles.topBar}>
+        <Text style={styles.gameTitle}>🔍 On découvre ton niveau !</Text>
+        <Text style={styles.roundLabel}>{step + 1}/4</Text>
+      </View>
+
+      {Character ? (
+        <View style={styles.gameCharacter}>
+          <BouncingWrap><Character size={48} /></BouncingWrap>
+        </View>
+      ) : null}
+
+      <View style={styles.promptZone}>
+        <Text style={styles.promptText}>{promptData.promptText}</Text>
+        <Pressable
+          style={styles.listenButton}
+          onPress={() => speakSmart(promptData.speak || promptData.promptText)}
+        >
+          <Text style={styles.listenText}>🎤 Écouter</Text>
+        </Pressable>
+      </View>
+
+      {feedback && (
+        <PopIn key={feedback + step}>
+          <Text style={[styles.feedback, styles.feedbackSuccess]}>{feedback}</Text>
+        </PopIn>
+      )}
+
+      <View style={styles.answerZone}>
+        <Text style={styles.answerZoneLabel}>Ta réponse</Text>
+        <View style={styles.stonesWrap}>
+          {optionsOrder.map((option, i) => {
+            const isAnswered = answered !== null;
+            const isThisAnswer = isAnswered && String(option) === String(answered);
+            const isThisCorrect = String(option) === String(promptData.correct);
+            const bg = STONE_COLORS[i % STONE_COLORS.length];
+            const estUnEmojiSeul = String(option).length <= 4;
+            return (
+              <Pressable
+                key={i}
+                disabled={isAnswered}
+                onPress={() => onOptionPress(option)}
+                hitSlop={14}
+                style={[
+                  styles.optionButton,
+                  { backgroundColor: bg },
+                  isAnswered && isThisAnswer && isThisCorrect && styles.optionCorrect,
+                ]}
+              >
+                <Text
+                  style={[styles.optionText, estUnEmojiSeul && styles.optionTextIcon]}
+                  numberOfLines={2}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.7}
+                >
+                  {String(option)}
+                </Text>
+                <Pressable
+                  style={[styles.optionListenBtn, estUnEmojiSeul && styles.optionListenBtnBas]}
+                  onPress={() => speakSmart(String(option))}
+                  hitSlop={10}
+                >
+                  <Text style={{ fontSize: 15 }}>🎤</Text>
+                </Pressable>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
+
+// ============================================================
 // Le Corps Humain — sciences (questions sur le corps humain)
 // ============================================================
 function buildCorpsHumainPrompt(d) {
@@ -4341,6 +4533,54 @@ function buildCorpsHumainPrompt(d) {
 }
 
 function CorpsHumainScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  // 'checking' : on verifie s'il existe deja une progression pour ce
+  // profil sur ce jeu ; 'calibration' : premiere fois, on propose le
+  // test de niveau ; 'play' : le jeu demarre normalement.
+  const [phase, setPhase] = useState('checking');
+  const [forcedStartRung, setForcedStartRung] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'corps_humain').single();
+      if (!jeu) { setPhase('play'); return; }
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+      setPhase(prog ? 'play' : 'calibration');
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  if (phase === 'checking') {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  if (phase === 'calibration') {
+    return (
+      <CalibrationTest
+        profil={profil}
+        jeuCode="corps_humain"
+        jeuTitre="🫀 Le Corps Humain"
+        Character={Maestro}
+        buildPrompt={buildCorpsHumainPrompt}
+        maxRung={gameMaxRung}
+        onDone={(startRung) => {
+          setForcedStartRung(startRung);
+          setPhase('play');
+        }}
+      />
+    );
+  }
+
   return (
     <ChoiceGameScreen
       route={route}
@@ -4349,7 +4589,8 @@ function CorpsHumainScreen({ route, navigation }) {
       Character={Maestro}
       jeuTitre="🫀 Le Corps Humain"
       buildPrompt={buildCorpsHumainPrompt}
-      maxRung={rungFromGradeAndPalier('ce2', 3)}
+      maxRung={gameMaxRung}
+      forcedStartRung={forcedStartRung}
     />
   );
 }
