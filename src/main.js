@@ -6659,12 +6659,31 @@ function ReglagesParentauxScreen({ route, navigation }) {
           if (!jeu) return null;
           const max = maxRungForGame(jeu.code);
           const note = Math.max(0, Math.min(10, Math.round((r.palier_actuel / max) * 10)));
-          return { code: jeu.code, nom: jeu.nom, icon: GAME_ICONS[jeu.code] ?? '🎲', note };
+          return {
+            code: jeu.code, nom: jeu.nom, icon: GAME_ICONS[jeu.code] ?? '🎲', note,
+            miniJeuId: r.mini_jeu_id, palier: r.palier_actuel, max,
+          };
         })
         .filter(Boolean)
         .sort((a, b) => a.nom.localeCompare(b.nom));
       setProgressionParProfil((prev) => ({ ...prev, [profilId]: lignes }));
     }
+  }
+
+  async function adjustGamePalier(profilId, ligne, delta) {
+    const nouveauPalier = Math.max(1, Math.min(ligne.max, ligne.palier + delta));
+    if (nouveauPalier === ligne.palier) return;
+    await supabase
+      .from('progression')
+      .update({ palier_actuel: nouveauPalier })
+      .eq('profil_id', profilId)
+      .eq('mini_jeu_id', ligne.miniJeuId);
+    setProgressionParProfil((prev) => ({
+      ...prev,
+      [profilId]: prev[profilId].map((l) => (l.code === ligne.code
+        ? { ...l, palier: nouveauPalier, note: Math.max(0, Math.min(10, Math.round((nouveauPalier / l.max) * 10))) }
+        : l)),
+    }));
   }
 
   function deleteProfil(profilId, prenom) {
@@ -6934,6 +6953,18 @@ function ReglagesParentauxScreen({ route, navigation }) {
                           ))}
                         </View>
                         <Text style={styles.progressionNote}>{ligne.note}/10</Text>
+                        <Pressable
+                          style={styles.progressionAdjustBtn}
+                          onPress={() => adjustGamePalier(p.id, ligne, -1)}
+                        >
+                          <Text style={styles.progressionAdjustText}>−</Text>
+                        </Pressable>
+                        <Pressable
+                          style={styles.progressionAdjustBtn}
+                          onPress={() => adjustGamePalier(p.id, ligne, 1)}
+                        >
+                          <Text style={styles.progressionAdjustText}>+</Text>
+                        </Pressable>
                       </View>
                     ))
                   )}
@@ -7494,6 +7525,11 @@ const styles = StyleSheet.create({
   progressionSegment: { flex: 1, height: 10, borderRadius: 3, backgroundColor: colors.sand },
   progressionSegmentFull: { backgroundColor: colors.mossSoft },
   progressionNote: { fontSize: 11, fontWeight: '800', color: colors.mossDeep, width: 30, textAlign: 'right' },
+  progressionAdjustBtn: {
+    width: 24, height: 24, borderRadius: 12, backgroundColor: colors.sand,
+    alignItems: 'center', justifyContent: 'center', marginLeft: 4,
+  },
+  progressionAdjustText: { fontSize: 15, fontWeight: '800', color: colors.ink },
   settingsButton: {
     backgroundColor: colors.mossDeep, borderRadius: 999, paddingVertical: 14,
     alignItems: 'center', marginTop: 18,
