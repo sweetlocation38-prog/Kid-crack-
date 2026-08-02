@@ -6512,6 +6512,24 @@ function ReglagesParentauxScreen({ route, navigation }) {
   const [editNiveau, setEditNiveau] = useState('gs');
   const [progressionOuverte, setProgressionOuverte] = useState(null);
   const [progressionParProfil, setProgressionParProfil] = useState({});
+  const [securityEditFor, setSecurityEditFor] = useState(null);
+  const [securityChoices, setSecurityChoices] = useState([]);
+
+  function openSecurityAvatarEdit(p) {
+    setSecurityEditFor(p.id);
+    setSecurityChoices(shuffle(SECURITY_AVATARS).slice(0, 10));
+  }
+
+  async function saveSecurityAvatar(emoji) {
+    // On leve aussi un eventuel verrouillage en cours : pas de raison de
+    // garder l'enfant bloque apres que le parent vient de changer l'avatar.
+    await supabase
+      .from('profils_enfants')
+      .update({ avatar_securite: emoji, verif_locked_until: null })
+      .eq('id', securityEditFor);
+    setSecurityEditFor(null);
+    await loadProfils();
+  }
 
   async function loadMemos() {
     const { data } = await supabase.from('memos_vocaux').select('*').eq('famille_id', familleId);
@@ -6864,10 +6882,31 @@ function ReglagesParentauxScreen({ route, navigation }) {
                     {progressionOuverte === p.id ? '📊 Masquer' : '📊 Progression'}
                   </Text>
                 </Pressable>
+                <Pressable style={styles.profilActionBtn} onPress={() => openSecurityAvatarEdit(p)}>
+                  <Text style={styles.profilActionText}>🔒 Avatar secret</Text>
+                </Pressable>
                 <Pressable style={styles.profilActionBtn} onPress={() => deleteProfil(p.id, p.prenom)}>
                   <Text style={[styles.profilActionText, { color: colors.error }]}>🗑️ Suppr.</Text>
                 </Pressable>
               </View>
+
+              {securityEditFor === p.id && (
+                <View style={[styles.progressionPanel, { alignItems: 'center' }]}>
+                  <Text style={[styles.memoEmptyText, { marginBottom: 8 }]}>
+                    Avatar secret actuel : {p.avatar_securite ?? '(aucun)'} — choisis-en un nouveau :
+                  </Text>
+                  <View style={styles.avatarGrid}>
+                    {securityChoices.map((a) => (
+                      <Pressable key={a} style={styles.avatarTile} onPress={() => saveSecurityAvatar(a)}>
+                        <Text style={{ fontSize: 22 }}>{a}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                  <Pressable style={{ marginTop: 8 }} onPress={() => setSecurityEditFor(null)}>
+                    <Text style={{ color: colors.ink, opacity: 0.6 }}>Annuler</Text>
+                  </Pressable>
+                </View>
+              )}
 
               {progressionOuverte === p.id && (
                 <View style={styles.progressionPanel}>
