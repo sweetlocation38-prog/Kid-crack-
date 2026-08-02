@@ -2188,6 +2188,11 @@ function AvatarInfoModal({ visible, profil, onClose, onOpenRecompenses }) {
 function RecompensesEarnedModal({ visible, profil, onClose }) {
   const [fiches, setFiches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    if (!visible) setSelected(null); // on repart de la liste a chaque nouvelle ouverture
+  }, [visible]);
 
   useEffect(() => {
     if (!visible || !profil) return;
@@ -2203,6 +2208,35 @@ function RecompensesEarnedModal({ visible, profil, onClose }) {
     })();
   }, [visible, profil]);
 
+  if (selected) {
+    return (
+      <Modal visible={visible} animationType="fade" transparent>
+        <View style={styles.modalBackdrop}>
+          <View style={[styles.modalCard, { alignItems: 'center' }]}>
+            <Image source={AVATAR_IMAGES[selected.code]} style={styles.recompenseDetailPhoto} resizeMode="cover" />
+            <Text style={[styles.modalTitle, { marginTop: 12 }]}>{selected.name}</Text>
+            {selected.fiche?.fait_amusant ? (
+              <Text style={{ color: colors.ink, textAlign: 'center', marginTop: 6, marginBottom: 14 }}>
+                {selected.fiche.fait_amusant}
+              </Text>
+            ) : null}
+            <Pressable
+              style={styles.listenButton}
+              onPress={() => speakSmart(
+                selected.fiche?.fait_amusant ? `${selected.name}. ${selected.fiche.fait_amusant}` : selected.name
+              )}
+            >
+              <Text style={styles.listenText}>🎤 Écouter</Text>
+            </Pressable>
+            <Pressable style={[styles.button, { marginTop: 14, alignSelf: 'stretch' }]} onPress={() => setSelected(null)}>
+              <Text style={styles.buttonText}>‹ Retour à mes récompenses</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
   return (
     <Modal visible={visible} animationType="fade" transparent>
       <View style={styles.modalBackdrop}>
@@ -2217,7 +2251,7 @@ function RecompensesEarnedModal({ visible, profil, onClose }) {
           ) : (
             <ScrollView style={{ maxHeight: 380 }}>
               {fiches.map((a) => (
-                <View key={a.code} style={styles.recompenseRow}>
+                <Pressable key={a.code} style={styles.recompenseRow} onPress={() => setSelected(a)}>
                   <Image source={AVATAR_IMAGES[a.code]} style={styles.recompensePhoto} resizeMode="cover" />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.recompenseNom}>{a.name}</Text>
@@ -2230,7 +2264,7 @@ function RecompensesEarnedModal({ visible, profil, onClose }) {
                       <Text style={{ fontSize: 20 }}>🎤</Text>
                     </Pressable>
                   ) : null}
-                </View>
+                </Pressable>
               ))}
             </ScrollView>
           )}
@@ -6942,13 +6976,21 @@ function ReglagesParentauxScreen({ route, navigation }) {
                     {progressionOuverte === p.id ? '📊 Masquer' : '📊 Progression'}
                   </Text>
                 </Pressable>
-                <Pressable style={styles.profilActionBtn} onPress={() => openSecurityAvatarEdit(p)}>
-                  <Text style={styles.profilActionText}>🔒 Avatar secret</Text>
-                </Pressable>
                 <Pressable style={styles.profilActionBtn} onPress={() => deleteProfil(p.id, p.prenom)}>
                   <Text style={[styles.profilActionText, { color: colors.error }]}>🗑️ Suppr.</Text>
                 </Pressable>
               </View>
+
+              <Pressable
+                style={{
+                  flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  backgroundColor: colors.mossSoft, borderRadius: 12, paddingVertical: 12, marginTop: 10,
+                }}
+                onPress={() => openSecurityAvatarEdit(p)}
+              >
+                <Text style={{ fontSize: 18 }}>🔒</Text>
+                <Text style={{ fontWeight: '800', color: colors.mossDeep }}>Changer l'avatar secret de {p.prenom}</Text>
+              </Pressable>
 
               {securityEditFor === p.id && (
                 <View style={[styles.progressionPanel, { alignItems: 'center' }]}>
@@ -7297,6 +7339,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)',
   },
   recompensePhoto: { width: 44, height: 44, borderRadius: 10 },
+  recompenseDetailPhoto: { width: 200, height: 200, borderRadius: 20 },
   cachettesCell: {
     borderWidth: 1, borderColor: 'rgba(0,0,0,0.12)', backgroundColor: '#fff',
     alignItems: 'center', justifyContent: 'center',
