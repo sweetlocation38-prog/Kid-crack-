@@ -1044,8 +1044,8 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
 // Calcule la progression "2 reussites d'affilee" pour les jeux dont une
 // session correspond a UNE activite complete plutot qu'a une serie de
 // questions individuelles (Memory, Tri du Village, Puzzle du Moulin, la
-// Frise du Temps, le Pont des Lettres) : une session terminee sans
-// aucune erreur compte comme une reussite ; 2 reussites d'affilee font
+// Frise du Temps, le Pont des Lettres) : une session terminee avec au
+// plus 1 erreur compte comme une reussite ; 2 reussites d'affilee font
 // monter d'un cran immediatement. Pas de mecanisme de descente ici (a la
 // difference des Cachettes de Luma), pour rester simple et coherent avec
 // le comportement deja existant du jeu Memory.
@@ -2794,7 +2794,7 @@ function PontDesLettresScreen({ route, navigation }) {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
     const precomputedRung = await computeStreakRung({
-      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current === 0, maxRung: MAX_CONTENT_RUNG,
+      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current <= 1, maxRung: MAX_CONTENT_RUNG,
     });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
@@ -5560,7 +5560,7 @@ function TriVillageScreen({ route, navigation }) {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
     const precomputedRung = await computeStreakRung({
-      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current === 0, maxRung: gameMaxRung,
+      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current <= 1, maxRung: gameMaxRung,
     });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
@@ -5731,7 +5731,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
     const precomputedRung = await computeStreakRung({
-      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current === 0, maxRung: gameMaxRung,
+      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current <= 1, maxRung: gameMaxRung,
     });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
@@ -5886,7 +5886,7 @@ function FriseTempsScreen({ route, navigation }) {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
     const precomputedRung = await computeStreakRung({
-      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current === 0, maxRung: gameMaxRung,
+      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current <= 1, maxRung: gameMaxRung,
     });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
