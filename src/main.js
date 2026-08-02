@@ -2301,6 +2301,9 @@ function WorldMapScreen({ route, navigation }) {
             <Text style={{ fontSize: 34 }}>{profil.avatar_personnel ?? '🐾'}</Text>
           )}
         </Pressable>
+        <Pressable onPress={() => setShowRecompensesModal(true)}>
+          <Text style={{ fontSize: 30 }}>🎁</Text>
+        </Pressable>
         {totalAllowed != null && (
           <TimeGaugeBar remainingSeconds={effectiveRemaining} totalSeconds={effectiveTotal} compact />
         )}
