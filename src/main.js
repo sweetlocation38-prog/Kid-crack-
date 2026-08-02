@@ -55,7 +55,7 @@
  */
 
 import 'react-native-url-polyfill/auto';
-import React, { useCallback, useContext, useEffect, useRef, useState, createContext } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState, createContext } from 'react';
 import {
   View,
   Text,
@@ -344,6 +344,36 @@ function EmojiCountRow({ count, emoji, size = 30 }) {
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
       {Array.from({ length: Math.max(0, count) }).map((_, i) => (
         <Text key={i} style={{ fontSize: tailleAdaptee }}>{emoji}</Text>
+      ))}
+    </View>
+  );
+}
+
+// Variante avec des objets-pieges melanges parmi ceux a compter (ex: des
+// poires au milieu des pommes, qu'il ne faut PAS compter) - permet de
+// varier une mecanique de comptage repetee sur plusieurs manches sans
+// changer la question elle-meme. L'ordre est fige (useMemo) pour que les
+// objets ne sautent pas de place a chaque re-rendu pendant que l'enfant
+// compte.
+function EmojiCountRowMixed({ count, emoji, distracteurCount, distracteurEmoji, size = 30 }) {
+  const items = useMemo(() => {
+    const arr = [
+      ...Array.from({ length: Math.max(0, count) }, () => emoji),
+      ...Array.from({ length: Math.max(0, distracteurCount ?? 0) }, () => distracteurEmoji),
+    ];
+    return shuffle(arr);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count, emoji, distracteurCount, distracteurEmoji]);
+  const total = items.length;
+  const tailleAdaptee =
+    total > 20 ? Math.min(size, 14) :
+    total > 12 ? Math.min(size, 18) :
+    total > 6 ? Math.min(size, 22) :
+    size;
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
+      {items.map((e, i) => (
+        <Text key={i} style={{ fontSize: tailleAdaptee }}>{e}</Text>
       ))}
     </View>
   );
@@ -4307,7 +4337,17 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         {promptData.visual ? <Text style={styles.visualRow}>{promptData.visual}</Text> : null}
         {promptData.emojiCount != null ? (
           <View style={{ marginBottom: 10 }}>
-            <EmojiCountRow count={promptData.emojiCount} emoji={promptData.emojiIcon ?? '🍎'} size={30} />
+            {promptData.emojiDistracteurIcon ? (
+              <EmojiCountRowMixed
+                count={promptData.emojiCount}
+                emoji={promptData.emojiIcon ?? '🍎'}
+                distracteurCount={promptData.emojiDistracteurCount}
+                distracteurEmoji={promptData.emojiDistracteurIcon}
+                size={30}
+              />
+            ) : (
+              <EmojiCountRow count={promptData.emojiCount} emoji={promptData.emojiIcon ?? '🍎'} size={30} />
+            )}
           </View>
         ) : null}
         {promptData.emojiSplit ? (
@@ -4515,16 +4555,29 @@ function buildLumaPrompt(d) {
   const objet = pickRandomObjet((d.cible ?? 0) + (d.decomposition ? d.decomposition[0] * 7 : 0) + Date.now() % 97);
   const nomObjetPluriel = { '🍎': 'pommes', '🍓': 'fraises', '🍌': 'bananes', '🍇': 'grappes de raisin', '🍊': 'oranges', '⭐': 'étoiles', '🎈': 'ballons', '🐝': 'abeilles', '🐞': 'coccinelles', '🦋': 'papillons', '🐣': 'poussins', '🌸': 'fleurs', '🍄': 'champignons', '🐚': 'coquillages', '🎲': 'dés', '🧩': 'pièces de puzzle', '🚗': 'voitures', '🎁': 'cadeaux', '🦆': 'canards', '🐟': 'poissons' }[objet] ?? 'objets';
   switch (d.etape) {
-    case 'concret':
+    case 'concret': {
+      // Objets-pieges optionnels (definis dans le contenu) : varie la
+      // mecanique de comptage repetee sur plusieurs manches sans changer la
+      // question - d'abord uniquement l'objet a compter, puis un objet
+      // piege s'ajoute au milieu (a ne pas compter), puis leurs positions
+      // sont simplement remelangees d'une manche a l'autre.
+      let distracteurIcon = null;
+      if (d.distracteur?.count > 0) {
+        const pool = OBJETS_A_COMPTER.filter((o) => o !== objet);
+        distracteurIcon = pool[Math.floor(Math.random() * pool.length)] ?? '🍐';
+      }
       return {
         emojiCount: d.cible,
         emojiIcon: objet,
+        emojiDistracteurCount: d.distracteur?.count ?? 0,
+        emojiDistracteurIcon: distracteurIcon,
         promptText: `Combien de ${nomObjetPluriel} vois-tu ?`,
         speak: `Combien de ${nomObjetPluriel} vois-tu ?`,
         mandatorySpeak: false, // les objets sont visibles a l'ecran
         options: d.options,
         correct: d.cible,
       };
+    }
     case 'chiffre':
       return {
         emojiCount: d.cible,
@@ -4936,7 +4989,7 @@ function CachettesGridVisual({ d }) {
   );
 }
 
-const CACHETTES_TOTAL_ROUNDS = 20;
+const CACHETTES_TOTAL_ROUNDS = 8;
 
 function CachettesLumaScreen({ route, navigation }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
@@ -5545,7 +5598,31 @@ function TriVillageScreen({ route, navigation }) {
   const [sessionSummary, setSessionSummary] = useState(null);
   const errorsTotal = useRef(0);
   const startedAt = useRef(Date.now());
+  const nextRungRef = useRef(null);
   const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+
+  const loadActivity = useCallback(async (jeuId, currentRung) => {
+    setLoading(true);
+    const { niveau, palier } = gradeAndPalierFromRung(currentRung);
+    const { data } = await supabase
+      .from('contenu_mini_jeu')
+      .select('id, donnees')
+      .eq('mini_jeu_id', jeuId)
+      .eq('niveau', niveau)
+      .eq('palier', palier)
+      .eq('actif', true)
+      .limit(10);
+
+    const pick = (data ?? [])[Math.floor(Math.random() * (data?.length ?? 1))];
+    if (pick) {
+      setCategories(pick.donnees.categories);
+      setPool(shuffle(pick.donnees.items.map((it, i) => ({ ...it, key: i }))));
+      setTotalItems(pick.donnees.items.length);
+      setPlacedCount(0);
+      speakSmart('Range chaque objet dans la bonne case !');
+    }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -5567,25 +5644,7 @@ function TriVillageScreen({ route, navigation }) {
       const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
       const startRung = Math.min(rawStart, gameMaxRung);
       setRung(startRung);
-      const { niveau, palier } = gradeAndPalierFromRung(startRung);
-
-      const { data } = await supabase
-        .from('contenu_mini_jeu')
-        .select('id, donnees')
-        .eq('mini_jeu_id', jeu.id)
-        .eq('niveau', niveau)
-        .eq('palier', palier)
-        .eq('actif', true)
-        .limit(10);
-
-      const pick = (data ?? [])[Math.floor(Math.random() * (data?.length ?? 1))];
-      if (pick) {
-        setCategories(pick.donnees.categories);
-        setPool(shuffle(pick.donnees.items.map((it, i) => ({ ...it, key: i }))));
-        setTotalItems(pick.donnees.items.length);
-        speakSmart('Range chaque objet dans la bonne case !');
-      }
-      setLoading(false);
+      loadActivity(jeu.id, startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profil.id]);
@@ -5605,8 +5664,18 @@ function TriVillageScreen({ route, navigation }) {
       maxRung: gameMaxRung,
       precomputedRung,
     });
+    nextRungRef.current = precomputedRung.newRung;
     setSessionSummary(summary);
     setSessionDone(true);
+  }
+
+  function proceedToNextActivity() {
+    const newRung = nextRungRef.current ?? rung;
+    setSessionDone(false);
+    errorsTotal.current = 0;
+    startedAt.current = Date.now();
+    setRung(newRung);
+    loadActivity(miniJeuId, newRung);
   }
 
   function onItemPress(index) {
@@ -5631,7 +5700,14 @@ function TriVillageScreen({ route, navigation }) {
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={proceedToNextActivity}
+      />
+    );
   }
 
   if (loading || categories.length === 0) {
@@ -5729,7 +5805,19 @@ function PuzzleMoulinScreen({ route, navigation }) {
   const errorsTotal = useRef(0);
   const totalPieces = useRef(6);
   const startedAt = useRef(Date.now());
+  const nextRungRef = useRef(null);
   const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+
+  const loadActivity = useCallback((currentRung) => {
+    setLoading(true);
+    const { palier } = gradeAndPalierFromRung(currentRung);
+    const n = targetPiecesForPalier(palier);
+    totalPieces.current = n;
+    setPieces(shuffle(Array.from({ length: n }, (_, i) => i + 1)));
+    setNextExpected(1);
+    speakSmart("Touche les pièces dans l'ordre, du numéro 1 au dernier !");
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -5751,12 +5839,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
       const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
       const startRung = Math.min(rawStart, gameMaxRung);
       setRung(startRung);
-      const { palier } = gradeAndPalierFromRung(startRung);
-      const n = targetPiecesForPalier(palier);
-      totalPieces.current = n;
-      setPieces(shuffle(Array.from({ length: n }, (_, i) => i + 1)));
-      speakSmart("Touche les pièces dans l'ordre, du numéro 1 au dernier !");
-      setLoading(false);
+      loadActivity(startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profil.id]);
@@ -5776,8 +5859,18 @@ function PuzzleMoulinScreen({ route, navigation }) {
       maxRung: gameMaxRung,
       precomputedRung,
     });
+    nextRungRef.current = precomputedRung.newRung;
     setSessionSummary(summary);
     setSessionDone(true);
+  }
+
+  function proceedToNextActivity() {
+    const newRung = nextRungRef.current ?? rung;
+    setSessionDone(false);
+    errorsTotal.current = 0;
+    startedAt.current = Date.now();
+    setRung(newRung);
+    loadActivity(newRung);
   }
 
   function onPiecePress(num) {
@@ -5795,7 +5888,14 @@ function PuzzleMoulinScreen({ route, navigation }) {
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={proceedToNextActivity}
+      />
+    );
   }
 
   if (loading) {
@@ -5876,7 +5976,30 @@ function FriseTempsScreen({ route, navigation }) {
   const [sessionSummary, setSessionSummary] = useState(null);
   const errorsTotal = useRef(0);
   const startedAt = useRef(Date.now());
+  const nextRungRef = useRef(null);
   const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+
+  const loadActivity = useCallback(async (jeuId, currentRung) => {
+    setLoading(true);
+    const { niveau, palier } = gradeAndPalierFromRung(currentRung);
+    const { data: rows } = await supabase
+      .from('contenu_mini_jeu')
+      .select('donnees')
+      .eq('mini_jeu_id', jeuId)
+      .eq('niveau', niveau)
+      .eq('palier', palier)
+      .eq('actif', true);
+
+    const pool = rows ?? [];
+    const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
+    const evts = pick?.donnees?.evenements ?? [];
+    const sorted = [...evts].sort((a, b) => a.annee - b.annee).map((e) => e.nom);
+    setCorrectOrder(sorted);
+    setEvenements(shuffle(evts));
+    setNextExpectedIndex(0);
+    speakSmart("Touche les événements dans l'ordre, du plus ancien au plus récent !");
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -5894,24 +6017,7 @@ function FriseTempsScreen({ route, navigation }) {
       const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
       const startRung = Math.min(rawStart, gameMaxRung);
       setRung(startRung);
-      const { niveau, palier } = gradeAndPalierFromRung(startRung);
-
-      const { data: rows } = await supabase
-        .from('contenu_mini_jeu')
-        .select('donnees')
-        .eq('mini_jeu_id', jeu.id)
-        .eq('niveau', niveau)
-        .eq('palier', palier)
-        .eq('actif', true);
-
-      const pool = rows ?? [];
-      const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
-      const evts = pick?.donnees?.evenements ?? [];
-      const sorted = [...evts].sort((a, b) => a.annee - b.annee).map((e) => e.nom);
-      setCorrectOrder(sorted);
-      setEvenements(shuffle(evts));
-      speakSmart("Touche les événements dans l'ordre, du plus ancien au plus récent !");
-      setLoading(false);
+      loadActivity(jeu.id, startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profil.id]);
@@ -5931,8 +6037,18 @@ function FriseTempsScreen({ route, navigation }) {
       maxRung: gameMaxRung,
       precomputedRung,
     });
+    nextRungRef.current = precomputedRung.newRung;
     setSessionSummary(summary);
     setSessionDone(true);
+  }
+
+  function proceedToNextActivity() {
+    const newRung = nextRungRef.current ?? rung;
+    setSessionDone(false);
+    errorsTotal.current = 0;
+    startedAt.current = Date.now();
+    setRung(newRung);
+    loadActivity(miniJeuId, newRung);
   }
 
   function onEventPress(nom) {
@@ -5948,7 +6064,14 @@ function FriseTempsScreen({ route, navigation }) {
   }
 
   if (sessionDone) {
-    return <SessionEndScreen profil={profil} summary={sessionSummary} navigation={navigation} />;
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={proceedToNextActivity}
+      />
+    );
   }
 
   if (loading || evenements.length === 0) {
