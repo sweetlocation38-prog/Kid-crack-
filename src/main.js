@@ -936,7 +936,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
           profil_id: profil.id,
           mini_jeu_id: miniJeuId,
           palier_actuel: newRung,
-          details: { streak: newStreak },
+          details: precomputedRung?.details ?? { streak: newStreak },
           temps_reference_secondes: newReference,
           echecs_consecutifs: newEchecs,
         },
@@ -1038,6 +1038,41 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
     rungChanged,
     direction,
     raison,
+  };
+}
+
+// Calcule la progression "2 reussites d'affilee" pour les jeux dont une
+// session correspond a UNE activite complete plutot qu'a une serie de
+// questions individuelles (Memory, Tri du Village, Puzzle du Moulin, la
+// Frise du Temps, le Pont des Lettres) : une session terminee sans
+// aucune erreur compte comme une reussite ; 2 reussites d'affilee font
+// monter d'un cran immediatement. Pas de mecanisme de descente ici (a la
+// difference des Cachettes de Luma), pour rester simple et coherent avec
+// le comportement deja existant du jeu Memory.
+async function computeStreakRung({ profil, miniJeuId, currentRung, wasPerfect, maxRung }) {
+  let streakActuel = wasPerfect ? 1 : 0;
+  try {
+    const { data: prog } = await supabase
+      .from('progression')
+      .select('details')
+      .eq('profil_id', profil.id)
+      .eq('mini_jeu_id', miniJeuId)
+      .maybeSingle();
+    if (wasPerfect) streakActuel = (prog?.details?.reussitesConsecutives ?? 0) + 1;
+  } catch (e) {
+    // Non bloquant : on part d'un streak a 0 ou 1 si la lecture echoue.
+  }
+  let newRung = currentRung;
+  let newStreak = streakActuel;
+  if (streakActuel >= 2 && currentRung < maxRung) {
+    newRung = currentRung + 1;
+    newStreak = 0;
+  }
+  return {
+    newRung,
+    direction: newRung > currentRung ? 'up' : 'same',
+    raison: newRung > currentRung ? 'parfait_rapide' : 'encore_un_effort',
+    details: { reussitesConsecutives: newStreak },
   };
 }
 
@@ -2758,6 +2793,9 @@ function PontDesLettresScreen({ route, navigation }) {
   async function finishSession() {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const precomputedRung = await computeStreakRung({
+      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current === 0, maxRung: MAX_CONTENT_RUNG,
+    });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
       erreursTotal: errorsTotal.current,
@@ -2765,6 +2803,7 @@ function PontDesLettresScreen({ route, navigation }) {
       totalRounds: TOTAL_ROUNDS,
       startedAt: startedAt.current,
       tempsMoyenParManche: Math.round(durationSeconds / TOTAL_ROUNDS),
+      precomputedRung,
     });
 
     // Reussite ET du temps de jeu restant : on propose de continuer sur le
@@ -5520,6 +5559,9 @@ function TriVillageScreen({ route, navigation }) {
   async function finishSession() {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const precomputedRung = await computeStreakRung({
+      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current === 0, maxRung: gameMaxRung,
+    });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
       erreursTotal: errorsTotal.current,
@@ -5527,6 +5569,7 @@ function TriVillageScreen({ route, navigation }) {
       totalRounds: totalItems,
       startedAt: startedAt.current,
       maxRung: gameMaxRung,
+      precomputedRung,
     });
     setSessionSummary(summary);
     setSessionDone(true);
@@ -5687,6 +5730,9 @@ function PuzzleMoulinScreen({ route, navigation }) {
   async function finishSession() {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const precomputedRung = await computeStreakRung({
+      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current === 0, maxRung: gameMaxRung,
+    });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
       erreursTotal: errorsTotal.current,
@@ -5694,6 +5740,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
       totalRounds: totalPieces.current,
       startedAt: startedAt.current,
       maxRung: gameMaxRung,
+      precomputedRung,
     });
     setSessionSummary(summary);
     setSessionDone(true);
@@ -5838,6 +5885,9 @@ function FriseTempsScreen({ route, navigation }) {
   async function finishSession() {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const precomputedRung = await computeStreakRung({
+      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current === 0, maxRung: gameMaxRung,
+    });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
       erreursTotal: errorsTotal.current,
@@ -5845,6 +5895,7 @@ function FriseTempsScreen({ route, navigation }) {
       totalRounds: evenements.length,
       startedAt: startedAt.current,
       maxRung: gameMaxRung,
+      precomputedRung,
     });
     setSessionSummary(summary);
     setSessionDone(true);
@@ -6028,36 +6079,23 @@ function MemoryScreen({ route, navigation }) {
 
   async function finishSession() {
     if (!miniJeuId) return;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
     // Mecanique dediee a ce jeu : on ne compte JAMAIS les erreurs (se tromper
     // en cherchant une paire fait partie du jeu). Seule la reussite complete
     // de la grille compte ; apres 2 reussites d'affilee, on monte de niveau.
-    const { data: prog } = await supabase
-      .from('progression')
-      .select('details')
-      .eq('profil_id', profil.id)
-      .eq('mini_jeu_id', miniJeuId)
-      .maybeSingle();
-    const streakActuel = (prog?.details?.reussitesConsecutives ?? 0) + 1;
-    const niveauMax = MAX_CONTENT_RUNG;
-    let nouveauRung = rung;
-    let nouveauStreak = streakActuel;
-    if (streakActuel >= 2 && rung < niveauMax) {
-      nouveauRung = rung + 1;
-      nouveauStreak = 0;
-    }
-    await supabase.from('progression').upsert({
-      profil_id: profil.id,
-      mini_jeu_id: miniJeuId,
-      palier_actuel: nouveauRung,
-      details: { reussitesConsecutives: nouveauStreak },
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'profil_id,mini_jeu_id' });
-
-    setSessionSummary({
-      direction: nouveauRung > rung ? 'up' : 'stay',
-      newRung: nouveauRung,
-      raison: nouveauRung > rung ? 'parfait_rapide' : 'encore_un_effort',
+    const precomputedRung = await computeStreakRung({
+      profil, miniJeuId, currentRung: rung, wasPerfect: true, maxRung: MAX_CONTENT_RUNG,
     });
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: cards.length / 2,
+      startedAt: startedAt.current,
+      maxRung: MAX_CONTENT_RUNG,
+      precomputedRung,
+    });
+    setSessionSummary(summary);
     setSessionDone(true);
   }
 
