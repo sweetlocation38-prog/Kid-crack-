@@ -4869,7 +4869,7 @@ function CachettesLumaScreen({ route, navigation }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
-  const cachettesMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const cachettesMaxRung = rungFromGradeAndPalier('cm2', 3);
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
