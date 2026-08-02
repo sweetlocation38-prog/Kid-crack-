@@ -4811,9 +4811,19 @@ function MondeCapitalesScreen({ route, navigation }) {
 // Le Jeu des Intrus — logique (reperer l'element qui ne va pas)
 // ============================================================
 function buildIntrusPrompt(d) {
+  // Varie la formulation de la consigne d'une manche a l'autre (meme
+  // question au fond : trouver l'intrus) pour eviter d'entendre
+  // exactement la meme phrase a chaque fois.
+  const formulations = [
+    { promptText: "Trouve l'intrus !", speak: "Trouve l'intrus, celui qui ne va pas avec les autres." },
+    { promptText: "Lequel ne va pas avec les autres ?", speak: "Lequel de ces mots ne va pas avec les autres ?" },
+    { promptText: "Quel est l'intrus ?", speak: "Regarde bien : quel est l'intrus dans cette liste ?" },
+    { promptText: "Trouve celui qui est différent !", speak: "Trouve celui qui est différent des trois autres." },
+  ];
+  const choix = formulations[Math.floor(Math.random() * formulations.length)];
   return {
-    promptText: "Trouve l'intrus !",
-    speak: "Trouve l'intrus, celui qui ne va pas avec les autres.",
+    promptText: choix.promptText,
+    speak: choix.speak,
     mandatorySpeak: false,
     options: d.items,
     correct: d.intrus,
