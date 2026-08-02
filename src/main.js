@@ -2690,6 +2690,24 @@ function SentierScreen({ route, navigation }) {
 // ============================================================
 const TOTAL_ROUNDS = 8;
 
+// Legere variation de difficulte AU SEIN d'une meme session (8 manches) :
+// un peu plus facile sur les 2 premieres manches, un peu plus dur sur les
+// 2 dernieres, le reste au cran normal. But : casser la sensation de
+// repetition d'une session ou toutes les manches sont rigoureusement au
+// meme niveau, sans changer le calcul du cran a la fin de la session (qui
+// continue de se baser sur le cran "normal", pas sur ces variations
+// ponctuelles).
+function difficultyOffsetForRound(roundNumber, totalRounds) {
+  if (roundNumber <= 2) return -1;
+  if (roundNumber >= totalRounds - 1) return 1;
+  return 0;
+}
+function rungWithSessionRamp(baseRung, roundNumber, totalRounds, maxRungCap) {
+  const cap = maxRungCap ?? MAX_CONTENT_RUNG;
+  const offset = difficultyOffsetForRound(roundNumber, totalRounds);
+  return Math.max(1, Math.min(cap, baseRung + offset));
+}
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -2842,7 +2860,7 @@ function PontDesLettresScreen({ route, navigation }) {
 
       const startRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
       setRung(startRung);
-      const { niveau, palier: palierValue } = gradeAndPalierFromRung(startRung);
+      const { niveau, palier: palierValue } = gradeAndPalierFromRung(rungWithSessionRamp(startRung, 1, TOTAL_ROUNDS, MAX_CONTENT_RUNG));
       loadRound(jeu.id, niveau, palierValue);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2903,7 +2921,7 @@ function PontDesLettresScreen({ route, navigation }) {
     startedAt.current = Date.now();
     setRung(newRung);
     setRound(1);
-    const { niveau, palier } = gradeAndPalierFromRung(newRung);
+    const { niveau, palier } = gradeAndPalierFromRung(rungWithSessionRamp(newRung, 1, TOTAL_ROUNDS, MAX_CONTENT_RUNG));
     loadRound(miniJeuId, niveau, palier);
   }
 
@@ -2926,7 +2944,7 @@ function PontDesLettresScreen({ route, navigation }) {
             await finishSession();
           } else {
             setRound((r) => r + 1);
-            const { niveau, palier } = gradeAndPalierFromRung(rung);
+            const { niveau, palier } = gradeAndPalierFromRung(rungWithSessionRamp(rung, round + 1, TOTAL_ROUNDS, MAX_CONTENT_RUNG));
             loadRound(miniJeuId, niveau, palier);
           }
         }, 500);
@@ -4069,7 +4087,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       const rawStartRung = prog?.palier_actuel ?? forcedStartRung ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
       const startRung = maxRung ? Math.min(rawStartRung, maxRung) : rawStartRung;
       setRung(startRung);
-      const { niveau, palier: palierValue } = gradeAndPalierFromRung(startRung);
+      const { niveau, palier: palierValue } = gradeAndPalierFromRung(rungWithSessionRamp(startRung, 1, TOTAL_ROUNDS, maxRung));
       loadRound(jeu.id, niveau, palierValue);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -4127,7 +4145,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
     startedAt.current = Date.now();
     setRung(newRung);
     setRound(1);
-    const { niveau, palier } = gradeAndPalierFromRung(newRung);
+    const { niveau, palier } = gradeAndPalierFromRung(rungWithSessionRamp(newRung, 1, TOTAL_ROUNDS, maxRung));
     loadRound(miniJeuId, niveau, palier);
   }
 
@@ -4150,7 +4168,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
           await finishSession();
         } else {
           setRound((r) => r + 1);
-          const { niveau, palier } = gradeAndPalierFromRung(rung);
+          const { niveau, palier } = gradeAndPalierFromRung(rungWithSessionRamp(rung, round + 1, TOTAL_ROUNDS, maxRung));
           loadRound(miniJeuId, niveau, palier);
         }
       }, 700);
@@ -4197,7 +4215,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       await finishSession();
     } else {
       setRound((r) => r + 1);
-      const { niveau, palier } = gradeAndPalierFromRung(rung);
+      const { niveau, palier } = gradeAndPalierFromRung(rungWithSessionRamp(rung, round + 1, TOTAL_ROUNDS, maxRung));
       loadRound(miniJeuId, niveau, palier);
     }
   }
