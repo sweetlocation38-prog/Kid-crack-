@@ -1085,7 +1085,7 @@ const GRADE_ORDER = ['ms', 'gs', 'cp', 'ce1', 'ce2', 'cm1', 'cm2', '6e'];
 
 // A augmenter au fur et a mesure qu'on ajoute du contenu pour les niveaux
 // superieurs. Pour l'instant, seul MS/GS/CP existe (3 niveaux x 3 paliers = 9).
-const MAX_CONTENT_RUNG = 18;
+const MAX_CONTENT_RUNG = 21; // cm2, palier 3 (releve depuis 18/cm1 pour couvrir le contenu CM2)
 
 function rungFromGradeAndPalier(niveau, palier) {
   const idx = Math.max(0, GRADE_ORDER.indexOf(niveau));
