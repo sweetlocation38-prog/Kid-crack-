@@ -975,6 +975,63 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   };
 }
 
+// Plafonds de niveau par jeu, necessaires pour calculer le "50%" du
+// systeme de deblocage des jeux bonus par zone - a completer au fur et a
+// mesure qu'on ajoute des zones. Par defaut, on utilise MAX_CONTENT_RUNG
+// pour les jeux non listes ici.
+const ZONE_GAME_MAX_RUNG = {
+  corps_humain: rungFromGradeAndPalier('ce2', 3),
+};
+
+// Verifie si TOUS les jeux "reels" (non-bonus) d'une zone ont atteint au
+// moins 50% de leur plafond de niveau pour ce profil ; si oui et que ce
+// n'est pas deja debloque, debloque definitivement le jeu bonus de cette
+// zone. Appele apres chaque fin de session, quel que soit le jeu.
+async function checkZoneBonusUnlock(profilId, miniJeuId) {
+  try {
+    const { data: jeu } = await supabase.from('mini_jeux').select('competence').eq('id', miniJeuId).maybeSingle();
+    const competence = jeu?.competence;
+    if (!competence) return;
+
+    const { data: dejaDebloque } = await supabase
+      .from('bonus_debloques')
+      .select('zone_competence')
+      .eq('profil_id', profilId)
+      .eq('zone_competence', competence)
+      .maybeSingle();
+    if (dejaDebloque) return;
+
+    const { data: jeuxZone } = await supabase
+      .from('mini_jeux')
+      .select('id, code')
+      .eq('competence', competence)
+      .eq('est_bonus', false);
+    if (!jeuxZone || jeuxZone.length === 0) return;
+
+    const ids = jeuxZone.map((j) => j.id);
+    const { data: progRows } = await supabase
+      .from('progression')
+      .select('mini_jeu_id, palier_actuel')
+      .eq('profil_id', profilId)
+      .in('mini_jeu_id', ids);
+    const progByJeu = Object.fromEntries((progRows ?? []).map((r) => [r.mini_jeu_id, r.palier_actuel]));
+
+    const tousAMoitie = jeuxZone.every((j) => {
+      const palier = progByJeu[j.id] ?? 0;
+      const max = ZONE_GAME_MAX_RUNG[j.code] ?? MAX_CONTENT_RUNG;
+      return palier >= Math.ceil(max / 2);
+    });
+
+    if (tousAMoitie) {
+      await supabase
+        .from('bonus_debloques')
+        .upsert({ profil_id: profilId, zone_competence: competence }, { onConflict: 'profil_id,zone_competence' });
+    }
+  } catch (e) {
+    // Non bloquant : le jeu bonus se debloquera a la prochaine session si ca echoue.
+  }
+}
+
 async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt, tempsMoyenParManche, maxRung, precomputedRung }) {
   // Robustesse : quoi qu'il arrive (probleme reseau, ligne manquante...),
   // on ne laisse JAMAIS l'enfant bloque sur l'ecran de jeu. Chaque etape
@@ -1117,6 +1174,10 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
     }
   } catch (e) {
     // Non bloquant.
+  }
+
+  if (miniJeuId) {
+    await checkZoneBonusUnlock(profil.id, miniJeuId);
   }
 
   return {
@@ -2123,6 +2184,7 @@ const GAME_ICONS = {
   frise_temps: '📜',
   corps_humain: '🫀',
   ronde_lucioles: '🎧',
+  indices_jardin: '🕵️',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
@@ -2141,6 +2203,7 @@ const GAME_SCREENS = {
   puzzle_moulin: 'PuzzleMoulin',
   frise_temps: 'FriseTemps',
   corps_humain: 'CorpsHumain',
+  indices_jardin: 'IndicesJardin',
 };
 
 // Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
@@ -2148,6 +2211,7 @@ const GAME_SCREENS = {
 const GAME_MAX_RUNG_15 = new Set([
   'monde_capitales', 'jeu_intrus', 'empreintes_clairiere', 'balance_prairie',
   'marche_village', 'cachettes_luma', 'ronde_lucioles', 'tri_village', 'puzzle_moulin',
+  'corps_humain', 'indices_jardin',
 ]);
 function maxRungForGame(code) {
   return GAME_MAX_RUNG_15.has(code) ? rungFromGradeAndPalier('ce2', 3) : MAX_CONTENT_RUNG;
@@ -2657,6 +2721,8 @@ function SentierScreen({ route, navigation }) {
   const zoom = computeZoomStyle(continent.zone, containerWidth);
   const [miniJeux, setMiniJeux] = useState([]);
   const [niveauxParJeu, setNiveauxParJeu] = useState({}); // mini_jeu_id -> cran actuel
+  const [bonusJeu, setBonusJeu] = useState(null);
+  const [bonusDebloque, setBonusDebloque] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showGate, setShowGate] = useState(false);
   const { extraMinutesGranted, grantExtraMinutes } = useContext(ExtraTimeContext);
@@ -2682,6 +2748,7 @@ function SentierScreen({ route, navigation }) {
         .from('mini_jeux')
         .select('*')
         .eq('competence', competence)
+        .eq('est_bonus', false)
         .order('nom');
       setMiniJeux(data ?? []);
 
@@ -2698,6 +2765,25 @@ function SentierScreen({ route, navigation }) {
         (progRows ?? []).forEach((r) => { map[r.mini_jeu_id] = r.palier_actuel; });
         setNiveauxParJeu(map);
       }
+
+      // Jeu bonus de la zone (s'il en existe un) et statut de deblocage.
+      const { data: bonus } = await supabase
+        .from('mini_jeux')
+        .select('*')
+        .eq('competence', competence)
+        .eq('est_bonus', true)
+        .maybeSingle();
+      if (bonus) {
+        setBonusJeu(bonus);
+        const { data: debloque } = await supabase
+          .from('bonus_debloques')
+          .select('zone_competence')
+          .eq('profil_id', profil.id)
+          .eq('zone_competence', competence)
+          .maybeSingle();
+        setBonusDebloque(!!debloque);
+      }
+
       setLoading(false);
     })();
   }, [competence]);
@@ -2790,9 +2876,46 @@ function SentierScreen({ route, navigation }) {
             </Pressable>
           );
         })}
-        {continent.paysVides.map((slot, i) => (
-          <View key={`vide-${i}`} style={[styles.paysVide, { top: slot.top, left: slot.left, transform: [{ rotate: `${-continent.rot}deg` }] }]} />
-        ))}
+        {continent.paysVides.map((slot, i) => {
+          // Le tout premier emplacement vide sert au jeu bonus de la zone,
+          // s'il en existe un pour cette competence.
+          if (i === 0 && bonusJeu) {
+            const targetScreen = GAME_SCREENS[bonusJeu.code];
+            return (
+              <Pressable
+                key="bonus"
+                style={[
+                  styles.paysMarker,
+                  MARKER_SHAPES[0],
+                  { top: slot.top, left: slot.left, borderColor: '#F5C542', borderWidth: bonusDebloque ? 2 : 1 },
+                  limitReached && bonusDebloque && styles.paysMarkerLocked,
+                ]}
+                disabled={!bonusDebloque}
+                onPress={() => bonusDebloque && handleGamePress(targetScreen)}
+              >
+                <View style={styles.paysMarkerTopRow}>
+                  <Text style={styles.paysMarkerIcon}>{bonusDebloque ? '🕵️' : '🔒'}</Text>
+                </View>
+                <Text style={styles.paysMarkerText} numberOfLines={3}>
+                  {bonusDebloque ? bonusJeu.nom : 'Jeu secret'}
+                </Text>
+                {bonusDebloque && (
+                  <Pressable
+                    style={styles.paysMarkerListenBtn}
+                    onPress={() => speakSmart(bonusJeu.nom)}
+                    hitSlop={8}
+                  >
+                    <Text style={{ fontSize: 11 }}>🎤</Text>
+                  </Pressable>
+                )}
+                {(!bonusDebloque || (limitReached && bonusDebloque)) && <Text style={styles.paysMarkerLock}>🔒</Text>}
+              </Pressable>
+            );
+          }
+          return (
+            <View key={`vide-${i}`} style={[styles.paysVide, { top: slot.top, left: slot.left, transform: [{ rotate: `${-continent.rot}deg` }] }]} />
+          );
+        })}
       </View>
 
       {limitReached && (
@@ -5700,6 +5823,233 @@ function buildCorpsHumainPrompt(d) {
   };
 }
 
+// ============================================================
+// Jeu bonus de la zone "Jardin" (sciences), debloque quand tous les
+// jeux de la zone atteignent 50% de leur niveau max (voir
+// checkZoneBonusUnlock). Mecanique differente des autres jeux : des
+// indices se revelent un par un sur un mystere (animal, plante...),
+// l'enfant peut deviner des le premier indice (plus valorisant) ou en
+// demander d'autres pour etre plus sur (plus facile).
+// ============================================================
+function IndicesJardinScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
+  const { profil } = route.params;
+  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const [loading, setLoading] = useState(true);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [round, setRound] = useState(1);
+  const [mystere, setMystere] = useState(null);
+  const [revealedCount, setRevealedCount] = useState(1);
+  const [optionsOrder, setOptionsOrder] = useState([]);
+  const [answered, setAnswered] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const errorsTotal = useRef(0);
+  const startedAt = useRef(Date.now());
+  const shownIds = useRef(new Set());
+
+  const loadRound = useCallback(async (jeuId, effectiveRung) => {
+    setLoading(true);
+    setAnswered(null);
+    setFeedback(null);
+    setRevealedCount(1);
+    const { niveau, palier } = gradeAndPalierFromRung(effectiveRung);
+
+    async function fetchFor(withPalier) {
+      let query = supabase
+        .from('contenu_mini_jeu')
+        .select('id, donnees')
+        .eq('mini_jeu_id', jeuId)
+        .eq('niveau', niveau)
+        .eq('actif', true);
+      if (withPalier) query = query.eq('palier', palier);
+      const { data } = await query.limit(60);
+      return data ?? [];
+    }
+    let data = await fetchFor(true);
+    if (data.length === 0) data = await fetchFor(false);
+
+    let pool = data.filter((r) => !shownIds.current.has(r.id));
+    if (pool.length === 0) {
+      shownIds.current.clear();
+      pool = data;
+    }
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    if (!pick) {
+      setLoading(false);
+      setMystere(null);
+      return;
+    }
+    shownIds.current.add(pick.id);
+    setMystere(pick.donnees);
+    setOptionsOrder(shuffle(pick.donnees.options));
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'indices_jardin').single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+      const startRung = Math.min(gameMaxRung, prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1));
+      setRung(startRung);
+      loadRound(jeu.id, rungWithSessionRamp(startRung, 1, TOTAL_ROUNDS, gameMaxRung));
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  useEffect(() => {
+    if (!mystere) return;
+    speakSmart(mystere.indices[0]);
+  }, [mystere]);
+
+  function revealNextClue() {
+    if (!mystere || answered !== null || revealedCount >= mystere.indices.length) return;
+    const next = revealedCount + 1;
+    setRevealedCount(next);
+    speakSmart(mystere.indices[next - 1]);
+  }
+
+  async function finishSession() {
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: TOTAL_ROUNDS,
+      startedAt: startedAt.current,
+      tempsMoyenParManche: Math.round(durationSeconds / TOTAL_ROUNDS),
+      maxRung: gameMaxRung,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function onOptionPress(value) {
+    if (!mystere || answered !== null) return;
+    const isCorrect = String(value) === String(mystere.cible);
+    setAnswered(value);
+    if (isCorrect) {
+      setFeedback(revealedCount <= 2 ? 'Bravo, trouvé en un rien de temps !' : 'Bravo, tu as trouvé !');
+    } else {
+      errorsTotal.current += 1;
+      setFeedback(`Ce n'était pas ça... c'était ${mystere.cible} !`);
+    }
+    setTimeout(async () => {
+      if (round >= TOTAL_ROUNDS) {
+        await finishSession();
+      } else {
+        const nextRound = round + 1;
+        setRound(nextRound);
+        loadRound(miniJeuId, rungWithSessionRamp(rung, nextRound, TOTAL_ROUNDS, gameMaxRung));
+      }
+    }, 1400);
+  }
+
+  if (sessionDone) {
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={() => {
+          const newRung = sessionSummary?.newRung ?? rung;
+          setSessionDone(false);
+          errorsTotal.current = 0;
+          startedAt.current = Date.now();
+          setRound(1);
+          setRung(newRung);
+          loadRound(miniJeuId, rungWithSessionRamp(newRung, 1, TOTAL_ROUNDS, gameMaxRung));
+        }}
+      />
+    );
+  }
+
+  if (loading || !mystere) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('indices_jardin') }]}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>🕵️ Les Indices du Jardin</Text>
+        <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
+      </View>
+
+      <View style={styles.gameCharacter}>
+        <BouncingWrap><Noisette size={48} /></BouncingWrap>
+      </View>
+
+      <View style={styles.promptZone}>
+        {Array.from({ length: revealedCount }).map((_, i) => (
+          <Text key={i} style={[styles.promptText, { marginBottom: 4 }]}>🔍 {mystere.indices[i]}</Text>
+        ))}
+        <View style={{ flexDirection: 'row', gap: 8, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Pressable style={styles.listenButton} onPress={() => speakSmart(mystere.indices[revealedCount - 1])}>
+            <Text style={styles.listenText}>🎤 Réécouter</Text>
+          </Pressable>
+          {revealedCount < mystere.indices.length && answered === null && (
+            <Pressable style={styles.listenButton} onPress={revealNextClue}>
+              <Text style={styles.listenText}>➕ Encore un indice</Text>
+            </Pressable>
+          )}
+        </View>
+      </View>
+
+      {feedback && (
+        <PopIn key={feedback + round}>
+          <Text style={[styles.feedback, String(answered) === String(mystere.cible) ? styles.feedbackSuccess : styles.feedbackError]}>
+            {feedback}
+          </Text>
+        </PopIn>
+      )}
+
+      <View style={styles.answerZone}>
+        <Text style={styles.answerZoneLabel}>Qui suis-je ?</Text>
+        <View style={styles.stonesWrap}>
+          {optionsOrder.map((option, i) => {
+            const isAnswered = answered !== null;
+            const isThisCorrect = String(option) === String(mystere.cible);
+            return (
+              <Pressable
+                key={i}
+                disabled={isAnswered}
+                onPress={() => onOptionPress(option)}
+                hitSlop={14}
+                style={[
+                  styles.optionButton,
+                  { backgroundColor: STONE_COLORS[i % STONE_COLORS.length] },
+                  isAnswered && isThisCorrect && styles.optionCorrect,
+                  isAnswered && String(answered) === String(option) && !isThisCorrect && styles.optionWrong,
+                ]}
+              >
+                <Text style={styles.optionText}>{option}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
+
+
 function CorpsHumainScreen({ route, navigation }) {
   return (
     <CalibratedChoiceGame
@@ -7533,6 +7883,7 @@ export default function RootNavigator() {
             <Stack.Screen name="PuzzleMoulin" component={PuzzleMoulinScreen} />
             <Stack.Screen name="FriseTemps" component={FriseTempsScreen} />
             <Stack.Screen name="CorpsHumain" component={CorpsHumainScreen} />
+            <Stack.Screen name="IndicesJardin" component={IndicesJardinScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
