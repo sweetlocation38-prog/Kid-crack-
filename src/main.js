@@ -934,11 +934,18 @@ const ZONE_GAME_MAX_RUNG = {
 // moins 50% de leur plafond de niveau pour ce profil ; si oui et que ce
 // n'est pas deja debloque, debloque definitivement le jeu bonus de cette
 // zone. Appele apres chaque fin de session, quel que soit le jeu.
+// Verifie l'avancement d'un profil sur tous les jeux "reels" (non-bonus)
+// d'une zone, et debloque definitivement le jeu bonus quand le jeu le
+// moins avance atteint 80% de son plafond. Retourne aussi le pourcentage
+// (le plus bas parmi les jeux de la zone) pour piloter les seuils
+// intermediaires : a 40%, on annonce qu'un jeu va bientot se debloquer ;
+// a 60%, le jeu apparait deja verrouille sur la carte (voir SentierScreen,
+// qui refait ce calcul cote affichage) ; a 80%, il se debloque pour de bon.
 async function checkZoneBonusUnlock(profilId, miniJeuId) {
   try {
     const { data: jeu } = await supabase.from('mini_jeux').select('competence').eq('id', miniJeuId).maybeSingle();
     const competence = jeu?.competence;
-    if (!competence) return;
+    if (!competence) return { competence: null, percent: 0, unlocked: false, dejaDebloque: false };
 
     const { data: dejaDebloque } = await supabase
       .from('bonus_debloques')
@@ -946,37 +953,47 @@ async function checkZoneBonusUnlock(profilId, miniJeuId) {
       .eq('profil_id', profilId)
       .eq('zone_competence', competence)
       .maybeSingle();
-    if (dejaDebloque) return;
 
-    const { data: jeuxZone } = await supabase
-      .from('mini_jeux')
-      .select('id, code')
-      .eq('competence', competence)
-      .eq('est_bonus', false);
-    if (!jeuxZone || jeuxZone.length === 0) return;
+    const percent = await computeZoneProgressPercent(profilId, competence);
+    if (dejaDebloque) return { competence, percent, unlocked: false, dejaDebloque: true };
 
-    const ids = jeuxZone.map((j) => j.id);
-    const { data: progRows } = await supabase
-      .from('progression')
-      .select('mini_jeu_id, palier_actuel')
-      .eq('profil_id', profilId)
-      .in('mini_jeu_id', ids);
-    const progByJeu = Object.fromEntries((progRows ?? []).map((r) => [r.mini_jeu_id, r.palier_actuel]));
-
-    const tousAMoitie = jeuxZone.every((j) => {
-      const palier = progByJeu[j.id] ?? 0;
-      const max = ZONE_GAME_MAX_RUNG[j.code] ?? MAX_CONTENT_RUNG;
-      return palier >= Math.ceil(max / 2);
-    });
-
-    if (tousAMoitie) {
+    if (percent >= 0.8) {
       await supabase
         .from('bonus_debloques')
         .upsert({ profil_id: profilId, zone_competence: competence }, { onConflict: 'profil_id,zone_competence' });
+      return { competence, percent, unlocked: true, dejaDebloque: false };
     }
+    return { competence, percent, unlocked: false, dejaDebloque: false };
   } catch (e) {
-    // Non bloquant : le jeu bonus se debloquera a la prochaine session si ca echoue.
+    return { competence: null, percent: 0, unlocked: false, dejaDebloque: false };
   }
+}
+
+// Calcule le pourcentage d'avancement d'une zone pour un profil : le plus
+// bas parmi tous les jeux "reels" (non-bonus) de la zone (celui qui traine
+// determine quand la zone entiere est consideree comme prete).
+async function computeZoneProgressPercent(profilId, competence) {
+  const { data: jeuxZone } = await supabase
+    .from('mini_jeux')
+    .select('id, code')
+    .eq('competence', competence)
+    .eq('est_bonus', false);
+  if (!jeuxZone || jeuxZone.length === 0) return 0;
+
+  const ids = jeuxZone.map((j) => j.id);
+  const { data: progRows } = await supabase
+    .from('progression')
+    .select('mini_jeu_id, palier_actuel')
+    .eq('profil_id', profilId)
+    .in('mini_jeu_id', ids);
+  const progByJeu = Object.fromEntries((progRows ?? []).map((r) => [r.mini_jeu_id, r.palier_actuel]));
+
+  const pourcentages = jeuxZone.map((j) => {
+    const palier = progByJeu[j.id] ?? 0;
+    const max = ZONE_GAME_MAX_RUNG[j.code] ?? MAX_CONTENT_RUNG;
+    return Math.max(0, Math.min(1, palier / max));
+  });
+  return Math.min(...pourcentages);
 }
 
 async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, dureeSecondes, totalRounds, startedAt, tempsMoyenParManche, maxRung, precomputedRung }) {
@@ -1115,8 +1132,9 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
     // Non bloquant.
   }
 
+  let bonusZone = null;
   if (miniJeuId) {
-    await checkZoneBonusUnlock(profil.id, miniJeuId);
+    bonusZone = await checkZoneBonusUnlock(profil.id, miniJeuId);
   }
 
   return {
@@ -1129,6 +1147,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
     rungChanged,
     direction,
     raison,
+    bonusZone,
   };
 }
 
@@ -2629,7 +2648,8 @@ function SentierScreen({ route, navigation }) {
         setNiveauxParJeu(map);
       }
 
-      // Jeu bonus de la zone (s'il en existe un) et statut de deblocage.
+      // Jeu bonus de la zone (s'il en existe un) : visible (verrouille) a
+      // partir de 60% de progression sur les jeux de la zone, debloque a 80%.
       const { data: bonus } = await supabase
         .from('mini_jeux')
         .select('*')
@@ -2637,14 +2657,22 @@ function SentierScreen({ route, navigation }) {
         .eq('est_bonus', true)
         .maybeSingle();
       if (bonus) {
-        setBonusJeu(bonus);
         const { data: debloque } = await supabase
           .from('bonus_debloques')
           .select('zone_competence')
           .eq('profil_id', profil.id)
           .eq('zone_competence', competence)
           .maybeSingle();
-        setBonusDebloque(!!debloque);
+        if (debloque) {
+          setBonusJeu(bonus);
+          setBonusDebloque(true);
+        } else {
+          const percent = await computeZoneProgressPercent(profil.id, competence);
+          if (percent >= 0.6) {
+            setBonusJeu(bonus);
+            setBonusDebloque(false);
+          }
+        }
       }
 
       setLoading(false);
@@ -3627,6 +3655,16 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
           .filter(Boolean)
           .join('. ');
         await speakSmart(histoire ? `${displayName}. ${histoire}` : displayName);
+      }
+      // Jeu bonus de zone : annonce des 40% (et jusqu'a 79%), celebration
+      // specifique au moment ou il vient tout juste de se debloquer (80%).
+      const bz = summary?.bonusZone;
+      if (bz?.competence) {
+        if (bz.unlocked) {
+          await speakSmart('Bravo ! Tu viens de débloquer un nouveau jeu bonus, va vite le découvrir sur la carte !');
+        } else if (!bz.dejaDebloque && bz.percent >= 0.4) {
+          await speakSmart('Continue comme ça, un nouveau jeu va bientôt se débloquer !');
+        }
       }
     })();
 
