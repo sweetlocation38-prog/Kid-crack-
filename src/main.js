@@ -994,7 +994,7 @@ const ZONE_GAME_MAX_RUNG = {
 // intermediaires : a 40%, on annonce qu'un jeu va bientot se debloquer ;
 // a 60%, le jeu apparait deja verrouille sur la carte (voir SentierScreen,
 // qui refait ce calcul cote affichage) ; a 80%, il se debloque pour de bon.
-async function checkZoneBonusUnlock(profilId, miniJeuId) {
+async function checkZoneBonusUnlock(profilId, miniJeuId, niveauDefaut) {
   try {
     const { data: jeu } = await supabase.from('mini_jeux').select('competence').eq('id', miniJeuId).maybeSingle();
     const competence = jeu?.competence;
@@ -1007,7 +1007,7 @@ async function checkZoneBonusUnlock(profilId, miniJeuId) {
       .eq('zone_competence', competence)
       .maybeSingle();
 
-    const percent = await computeZoneProgressPercent(profilId, competence);
+    const percent = await computeZoneProgressPercent(profilId, competence, niveauDefaut);
     if (dejaDebloque) return { competence, percent, unlocked: false, dejaDebloque: true };
 
     if (percent >= 0.8) {
@@ -1025,7 +1025,15 @@ async function checkZoneBonusUnlock(profilId, miniJeuId) {
 // Calcule le pourcentage d'avancement d'une zone pour un profil : le plus
 // bas parmi tous les jeux "reels" (non-bonus) de la zone (celui qui traine
 // determine quand la zone entiere est consideree comme prete).
-async function computeZoneProgressPercent(profilId, competence) {
+//
+// Le plafond utilise pour ce calcul n'est PAS le plafond absolu du jeu
+// (qui peut aller jusqu'a fin CM2), mais la fin de l'annee scolaire EN
+// COURS de l'enfant (niveau_defaut). Sans ca, un enfant de MS ou GS
+// devrait quasiment finir tout le primaire avant de voir apparaitre un
+// jeu bonus - ce qui prendrait des annees au lieu de quelques semaines ou
+// mois, et perdrait tout effet motivant. Si l'enfant depasse ensuite son
+// annee, il aura de toute facon deja debloque le jeu bien avant.
+async function computeZoneProgressPercent(profilId, competence, niveauDefaut) {
   const { data: jeuxZone } = await supabase
     .from('mini_jeux')
     .select('id, code')
@@ -1041,10 +1049,12 @@ async function computeZoneProgressPercent(profilId, competence) {
     .in('mini_jeu_id', ids);
   const progByJeu = Object.fromEntries((progRows ?? []).map((r) => [r.mini_jeu_id, r.palier_actuel]));
 
+  const plafondAnneeEnCours = rungFromGradeAndPalier(niveauDefaut ?? 'ms', 3);
   const pourcentages = jeuxZone.map((j) => {
     const palier = progByJeu[j.id] ?? 0;
-    const max = ZONE_GAME_MAX_RUNG[j.code] ?? MAX_CONTENT_RUNG;
-    return Math.max(0, Math.min(1, palier / max));
+    const maxJeu = ZONE_GAME_MAX_RUNG[j.code] ?? MAX_CONTENT_RUNG;
+    const cible = Math.min(maxJeu, plafondAnneeEnCours);
+    return Math.max(0, Math.min(1, palier / cible));
   });
   return Math.min(...pourcentages);
 }
@@ -1195,7 +1205,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
 
   let bonusZone = null;
   if (miniJeuId) {
-    bonusZone = await checkZoneBonusUnlock(profil.id, miniJeuId);
+    bonusZone = await checkZoneBonusUnlock(profil.id, miniJeuId, profil.niveau_defaut);
   }
 
   return {
@@ -2804,7 +2814,7 @@ function SentierScreen({ route, navigation }) {
           setBonusJeu(bonus);
           setBonusDebloque(true);
         } else {
-          const percent = await computeZoneProgressPercent(profil.id, competence);
+          const percent = await computeZoneProgressPercent(profil.id, competence, profil.niveau_defaut);
           if (percent >= 0.6) {
             setBonusJeu(bonus);
             setBonusDebloque(false);
