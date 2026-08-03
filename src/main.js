@@ -861,7 +861,7 @@ function TimeGaugeBar({ remainingSeconds, totalSeconds, compact }) {
   );
 }
 
-async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche, maxRung }) {
+async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, totalRounds, tempsMoyenParManche, maxRung }) {
   const effectiveMaxRung = maxRung ?? MAX_CONTENT_RUNG;
   const { data: existing } = await supabase
     .from('progression')
@@ -873,6 +873,9 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   const oldStreak = existing?.details?.streak ?? 0;
   const reference = existing?.temps_reference_secondes ?? null;
   const oldEchecs = existing?.echecs_consecutifs ?? 0;
+  const oldStreakRapideBon = existing?.details?.streakRapideBon ?? 0;
+  const oldTempsMoyenHistorique = existing?.details?.tempsMoyenHistorique ?? null;
+  const oldNbSessionsHistorique = existing?.details?.nbSessionsHistorique ?? 0;
   let newStreak = 0;
   let newRung = currentRung;
   let newReference = reference;
@@ -918,8 +921,58 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
     raison = 'erreurs_quelques';
   }
 
+  // --- Detection "rapide + bon niveau" (precipitation par ennui) ---
+  // Meme logique que pour computeStreakRung : on compare cette session a la
+  // moyenne HISTORIQUE personnelle de l'enfant sur ce jeu, pas a un seuil
+  // fixe. Ne s'applique que si la session n'etait pas deja parfaite (deja
+  // gere ci-dessus) et n'a pas revele une vraie difficulte (erreursTotal
+  // >= 3, deja gere ci-dessus non plus). Sert a distinguer un enfant qui va
+  // vite par lassitude (peu d'erreurs, tres rapide par rapport a son
+  // habitude) d'un enfant qui a besoin de ralentir.
+  let newStreakRapideBon = oldStreakRapideBon;
+  let newTempsMoyenHistorique = oldTempsMoyenHistorique;
+  let newNbSessionsHistorique = oldNbSessionsHistorique;
+
+  if (erreursTotal > 0 && erreursTotal < 3 && tempsMoyenParManche != null && totalRounds) {
+    const tauxErreurs = erreursTotal / totalRounds;
+    const assezRapide =
+      oldTempsMoyenHistorique != null &&
+      oldNbSessionsHistorique >= RAPIDE_ENNUI_MIN_SESSIONS_HISTORIQUE &&
+      tempsMoyenParManche <= oldTempsMoyenHistorique * RAPIDE_ENNUI_SEUIL_VITESSE;
+    if (assezRapide && tauxErreurs <= RAPIDE_ENNUI_RATIO_ERREURS_MAX) {
+      newStreakRapideBon = oldStreakRapideBon + 1;
+      if (newStreakRapideBon >= 2 && currentRung < effectiveMaxRung) {
+        newRung = currentRung + 1;
+        newStreakRapideBon = 0;
+        raison = 'rapide_et_bon_deux_fois';
+      } else {
+        raison = 'rapide_et_bon_une_fois';
+      }
+    } else {
+      newStreakRapideBon = 0;
+    }
+  } else if (erreursTotal === 0) {
+    newStreakRapideBon = 0; // deja gere par le streak de reussites parfaites
+  }
+
+  if (tempsMoyenParManche != null) {
+    if (newTempsMoyenHistorique == null) {
+      newTempsMoyenHistorique = tempsMoyenParManche;
+      newNbSessionsHistorique = 1;
+    } else {
+      const poids = Math.min(newNbSessionsHistorique, 20);
+      newTempsMoyenHistorique = (newTempsMoyenHistorique * poids + tempsMoyenParManche) / (poids + 1);
+      newNbSessionsHistorique = Math.min(newNbSessionsHistorique + 1, 20);
+    }
+  }
+
   const direction = newRung > currentRung ? 'up' : newRung < currentRung ? 'down' : 'same';
-  return { newRung, newStreak, newReference, newEchecs, rungChanged: newRung !== currentRung, direction, raison };
+  return {
+    newRung, newStreak, newReference, newEchecs, rungChanged: newRung !== currentRung, direction, raison,
+    streakRapideBon: newStreakRapideBon,
+    tempsMoyenHistorique: newTempsMoyenHistorique,
+    nbSessionsHistorique: newNbSessionsHistorique,
+  };
 }
 
 // Plafonds de niveau par jeu, necessaires pour calculer le "50%" du
@@ -1007,6 +1060,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
   let rungChanged = false;
   let direction = 'same';
   let raison = 'erreurs_quelques';
+  let newDetails = null;
   if (precomputedRung) {
     // Certains jeux (ex: Les Cachettes de Luma) ont leur propre regle de
     // progression et ont deja calcule le nouveau cran eux-memes : on saute
@@ -1015,10 +1069,11 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
     rungChanged = newRung !== currentRung;
     direction = precomputedRung.direction ?? 'same';
     raison = precomputedRung.raison ?? 'erreurs_quelques';
+    newDetails = precomputedRung.details ?? { streak: newStreak };
   } else {
     try {
       const result = await computeNextRung({
-        profil, miniJeuId, currentRung, erreursTotal, tempsMoyenParManche, maxRung,
+        profil, miniJeuId, currentRung, erreursTotal, totalRounds, tempsMoyenParManche, maxRung,
       });
       newRung = result.newRung;
       newStreak = result.newStreak;
@@ -1027,6 +1082,12 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
       rungChanged = result.rungChanged;
       direction = result.direction;
       raison = result.raison;
+      newDetails = {
+        streak: newStreak,
+        streakRapideBon: result.streakRapideBon,
+        tempsMoyenHistorique: result.tempsMoyenHistorique,
+        nbSessionsHistorique: result.nbSessionsHistorique,
+      };
     } catch (e) {
       // On garde le cran actuel si le calcul echoue.
     }
@@ -1040,7 +1101,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
           profil_id: profil.id,
           mini_jeu_id: miniJeuId,
           palier_actuel: newRung,
-          details: precomputedRung?.details ?? { streak: newStreak },
+          details: newDetails ?? { streak: newStreak },
           temps_reference_secondes: newReference,
           echecs_consecutifs: newEchecs,
         },
@@ -1159,30 +1220,106 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
 // monter d'un cran immediatement. Pas de mecanisme de descente ici (a la
 // difference des Cachettes de Luma), pour rester simple et coherent avec
 // le comportement deja existant du jeu Memory.
-async function computeStreakRung({ profil, miniJeuId, currentRung, wasPerfect, maxRung }) {
-  let streakActuel = wasPerfect ? 1 : 0;
+// PROTOTYPE (Pont des Lettres uniquement pour l'instant) : detection de la
+// precipitation par ennui, distincte de l'incomprehension. On compare la
+// duree moyenne de CETTE session a la moyenne HISTORIQUE personnelle de
+// l'enfant sur ce jeu (pas un seuil fixe, pour s'adapter a chaque enfant et
+// chaque jeu). Si la session est nettement plus rapide que son habitude ET
+// que le nombre d'erreurs reste faible (sans etre "parfait"), on considere
+// que l'enfant maitrise le contenu mais va vite par lassitude plutot que par
+// difficulte. Deux sessions "rapide + bon niveau" d'affilee font monter le
+// palier, exactement comme le streak de reussites parfaites existant - on
+// evite de faire monter sur un seul coup de chance ou une session inhabituelle.
+const RAPIDE_ENNUI_RATIO_ERREURS_MAX = 0.2; // jusqu'a 20% d'erreurs tolerees
+const RAPIDE_ENNUI_SEUIL_VITESSE = 0.6; // session <= 60% du temps habituel
+const RAPIDE_ENNUI_MIN_SESSIONS_HISTORIQUE = 3; // pas de comparaison fiable avant
+
+async function computeStreakRung({
+  profil, miniJeuId, currentRung, wasPerfect, maxRung,
+  erreursTotal, totalRounds, dureeMoyenneManche,
+}) {
+  let prog = null;
   try {
-    const { data: prog } = await supabase
+    const { data } = await supabase
       .from('progression')
       .select('details')
       .eq('profil_id', profil.id)
       .eq('mini_jeu_id', miniJeuId)
       .maybeSingle();
-    if (wasPerfect) streakActuel = (prog?.details?.reussitesConsecutives ?? 0) + 1;
+    prog = data;
   } catch (e) {
-    // Non bloquant : on part d'un streak a 0 ou 1 si la lecture echoue.
+    // Non bloquant : on part de zero si la lecture echoue.
   }
+  const detailsPrec = prog?.details ?? {};
+
+  let streakActuel = wasPerfect ? 1 : 0;
+  if (wasPerfect) streakActuel = (detailsPrec.reussitesConsecutives ?? 0) + 1;
+
+  // --- Detection "rapide + bon niveau" (precipitation par ennui) ---
+  // Uniquement calculee si l'appelant fournit les infos de duree (pour
+  // l'instant, seul Pont des Lettres le fait - les autres jeux continuent a
+  // fonctionner exactement comme avant, sans regression).
+  let streakRapideBonActuel = detailsPrec.streakRapideBon ?? 0;
+  let tempsMoyenHistorique = detailsPrec.tempsMoyenHistorique ?? null;
+  let nbSessionsHistorique = detailsPrec.nbSessionsHistorique ?? 0;
+  let rapideBonCetteSession = false;
+
+  if (!wasPerfect && dureeMoyenneManche != null && totalRounds) {
+    const tauxErreurs = (erreursTotal ?? 0) / totalRounds;
+    const assezRapide =
+      tempsMoyenHistorique != null &&
+      nbSessionsHistorique >= RAPIDE_ENNUI_MIN_SESSIONS_HISTORIQUE &&
+      dureeMoyenneManche <= tempsMoyenHistorique * RAPIDE_ENNUI_SEUIL_VITESSE;
+    if (assezRapide && tauxErreurs <= RAPIDE_ENNUI_RATIO_ERREURS_MAX) {
+      rapideBonCetteSession = true;
+      streakRapideBonActuel += 1;
+    } else {
+      streakRapideBonActuel = 0;
+    }
+  } else if (wasPerfect) {
+    streakRapideBonActuel = 0; // deja gere par le streak de reussites parfaites
+  }
+
+  // Mise a jour de la moyenne historique (moyenne glissante, plafonnee a 20
+  // sessions prises en compte pour rester adaptable si l'enfant progresse).
+  if (dureeMoyenneManche != null) {
+    if (tempsMoyenHistorique == null) {
+      tempsMoyenHistorique = dureeMoyenneManche;
+      nbSessionsHistorique = 1;
+    } else {
+      const poids = Math.min(nbSessionsHistorique, 20);
+      tempsMoyenHistorique = (tempsMoyenHistorique * poids + dureeMoyenneManche) / (poids + 1);
+      nbSessionsHistorique = Math.min(nbSessionsHistorique + 1, 20);
+    }
+  }
+
   let newRung = currentRung;
   let newStreak = streakActuel;
+  let newStreakRapideBon = streakRapideBonActuel;
+  let raison = 'encore_un_effort';
+
   if (streakActuel >= 2 && currentRung < maxRung) {
     newRung = currentRung + 1;
     newStreak = 0;
+    raison = 'parfait_deux_fois';
+  } else if (streakRapideBonActuel >= 2 && currentRung < maxRung) {
+    newRung = currentRung + 1;
+    newStreakRapideBon = 0;
+    raison = 'rapide_et_bon_deux_fois';
+  } else if (rapideBonCetteSession) {
+    raison = 'rapide_et_bon_une_fois';
   }
+
   return {
     newRung,
     direction: newRung > currentRung ? 'up' : 'same',
-    raison: newRung > currentRung ? 'parfait_rapide' : 'encore_un_effort',
-    details: { reussitesConsecutives: newStreak },
+    raison,
+    details: {
+      reussitesConsecutives: newStreak,
+      streakRapideBon: newStreakRapideBon,
+      tempsMoyenHistorique,
+      nbSessionsHistorique,
+    },
   };
 }
 
@@ -3026,8 +3163,10 @@ function PontDesLettresScreen({ route, navigation }) {
   async function finishSession() {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const tempsMoyenParManche = Math.round(durationSeconds / TOTAL_ROUNDS);
     const precomputedRung = await computeStreakRung({
       profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current <= 1, maxRung: MAX_CONTENT_RUNG,
+      erreursTotal: errorsTotal.current, totalRounds: TOTAL_ROUNDS, dureeMoyenneManche: tempsMoyenParManche,
     });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
@@ -3035,7 +3174,7 @@ function PontDesLettresScreen({ route, navigation }) {
       dureeSecondes: durationSeconds,
       totalRounds: TOTAL_ROUNDS,
       startedAt: startedAt.current,
-      tempsMoyenParManche: Math.round(durationSeconds / TOTAL_ROUNDS),
+      tempsMoyenParManche,
       precomputedRung,
     });
 
@@ -6068,8 +6207,10 @@ function TriVillageScreen({ route, navigation }) {
   async function finishSession() {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const tempsMoyenParManche = Math.round(durationSeconds / totalItems);
     const precomputedRung = await computeStreakRung({
       profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current <= 1, maxRung: gameMaxRung,
+      erreursTotal: errorsTotal.current, totalRounds: totalItems, dureeMoyenneManche: tempsMoyenParManche,
     });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
@@ -6077,6 +6218,7 @@ function TriVillageScreen({ route, navigation }) {
       dureeSecondes: durationSeconds,
       totalRounds: totalItems,
       startedAt: startedAt.current,
+      tempsMoyenParManche,
       maxRung: gameMaxRung,
       precomputedRung,
     });
@@ -6263,8 +6405,10 @@ function PuzzleMoulinScreen({ route, navigation }) {
   async function finishSession() {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const tempsMoyenParManche = Math.round(durationSeconds / totalPieces.current);
     const precomputedRung = await computeStreakRung({
       profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current <= 1, maxRung: gameMaxRung,
+      erreursTotal: errorsTotal.current, totalRounds: totalPieces.current, dureeMoyenneManche: tempsMoyenParManche,
     });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
@@ -6272,6 +6416,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
       dureeSecondes: durationSeconds,
       totalRounds: totalPieces.current,
       startedAt: startedAt.current,
+      tempsMoyenParManche,
       maxRung: gameMaxRung,
       precomputedRung,
     });
@@ -6441,8 +6586,10 @@ function FriseTempsScreen({ route, navigation }) {
   async function finishSession() {
     if (!miniJeuId) return;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const tempsMoyenParManche = Math.round(durationSeconds / evenements.length);
     const precomputedRung = await computeStreakRung({
       profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current <= 1, maxRung: gameMaxRung,
+      erreursTotal: errorsTotal.current, totalRounds: evenements.length, dureeMoyenneManche: tempsMoyenParManche,
     });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
@@ -6450,6 +6597,7 @@ function FriseTempsScreen({ route, navigation }) {
       dureeSecondes: durationSeconds,
       totalRounds: evenements.length,
       startedAt: startedAt.current,
+      tempsMoyenParManche,
       maxRung: gameMaxRung,
       precomputedRung,
     });
@@ -6883,6 +7031,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
       dureeSecondes: durationSeconds,
       totalRounds: targetLength.current,
       startedAt: startedAt.current,
+      tempsMoyenParManche: Math.round(durationSeconds / targetLength.current),
     });
     setSessionSummary(summary);
     setSessionDone(true);
