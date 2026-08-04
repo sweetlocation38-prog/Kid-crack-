@@ -6367,26 +6367,42 @@ const PUZZLE_REWARDS = ['🦋', '🌈', '🎨', '🚀', '🏰', '🌻', '🦄', 
 // unique est trace au hasard dans une grille, sans embranchement possible
 // - a chaque instant il n'existe qu'UNE seule case valide suivante, pour
 // eviter toute ambiguite sur la direction voulue par l'enfant. Les cases
-// hors chemin sont des murs (non franchissables). Taille de la grille et
-// longueur du chemin augmentent avec le niveau scolaire et le palier.
+// hors chemin sont des murs (non franchissables, juste des bordures fines
+// - jamais des elements a toucher).
+//
+// La grille elle-meme est GENERIQUE : elle remplit tout l'ecran disponible
+// avec une taille de case fixe et fiable au toucher (memes dimensions pour
+// tous les enfants). Ce qui varie avec le niveau, ce n'est PAS la taille
+// de la grille mais la LONGUEUR/complexite du chemin trace dedans - un
+// enfant qui progresse vite a donc acces a un chemin long et sinueux des
+// la petite section, sans avoir besoin d'etre objectivement plus age.
 // ============================================================
-function mazeSizeForRung(rung) {
-  const { niveau, palier } = gradeAndPalierFromRung(rung);
-  const niveauIndex = ['ms', 'gs', 'cp', 'ce1', 'ce2'].indexOf(niveau);
-  const index = Math.max(0, niveauIndex) * 3 + (palier - 1); // 0..14
-  const size = Math.min(9, 4 + Math.floor(index / 2));
-  const targetPathLen = Math.max(6, Math.round(size * size * 0.5));
-  return { rows: size, cols: size, targetPathLen };
+const MAZE_CELL_SIZE = 30; // taille fixe, fiable au doigt (jamais reduite pour "faire rentrer" plus de cases)
+
+function mazeGridDimensionsForScreen(screenWidth, screenHeight) {
+  const usableWidth = screenWidth - 24;
+  const usableHeight = screenHeight - 260; // barre du haut + personnage + marges
+  const cols = Math.max(6, Math.floor(usableWidth / (MAZE_CELL_SIZE + 2)));
+  const rows = Math.max(8, Math.floor(usableHeight / (MAZE_CELL_SIZE + 2)));
+  return { rows, cols };
 }
 
-function generateMazePath(rows, cols, targetLen) {
+function targetPathLenForRung(rung, maxRung) {
+  // 0 a 1 selon l'avancement reel de l'enfant sur CE jeu precis.
+  const ratio = Math.max(0.12, Math.min(0.8, rung / Math.max(1, maxRung)));
+  return ratio;
+}
+
+function generateMazePath(rows, cols, pathRatio) {
   // Marche aleatoire auto-evitante avec retour en arriere (backtracking) :
   // grandit tant que possible, revient sur ses pas si bloquee, jusqu'a
   // atteindre la longueur visee ou avoir explore toutes les options.
+  const totalCells = rows * cols;
+  const targetLen = Math.max(8, Math.round(totalCells * pathRatio * 0.6));
   const key = (r, c) => `${r},${c}`;
   const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
 
-  for (let attempt = 0; attempt < 30; attempt++) {
+  for (let attempt = 0; attempt < 50; attempt++) {
     const start = [Math.floor(Math.random() * rows), Math.floor(Math.random() * cols)];
     const path = [start];
     const visited = new Set([key(...start)]);
@@ -6398,7 +6414,7 @@ function generateMazePath(rows, cols, targetLen) {
         .filter(([nr, nc]) => nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited.has(key(nr, nc)));
 
       if (options.length === 0) {
-        if (path.length >= Math.max(6, targetLen * 0.6)) break; // assez long, on s'arrete la
+        if (path.length >= Math.max(8, targetLen * 0.6)) break; // assez long, on s'arrete la
         path.pop(); // retour en arriere
         if (path.length === 0) break;
         continue;
@@ -6408,7 +6424,7 @@ function generateMazePath(rows, cols, targetLen) {
       visited.add(key(...next));
     }
 
-    if (path.length >= Math.max(6, targetLen * 0.6)) {
+    if (path.length >= Math.max(8, targetLen * 0.6)) {
       return path.map(([r, c]) => ({ r, c }));
     }
   }
@@ -6416,10 +6432,8 @@ function generateMazePath(rows, cols, targetLen) {
   return Array.from({ length: Math.min(targetLen, cols) }, (_, i) => ({ r: 0, c: i }));
 }
 
-const MAZE_CELL_MAX = 40;
 function MazeGridVisual({ chemin, rows, cols, currentIndex, onCellPress, wrongFlash }) {
-  const { width: screenWidth } = useWindowDimensions();
-  const cellSize = Math.min(MAZE_CELL_MAX, Math.floor((screenWidth - 48) / cols));
+  const cellSize = MAZE_CELL_SIZE;
   const pathSet = useMemo(() => {
     const s = new Map();
     chemin.forEach((cell, i) => s.set(`${cell.r},${cell.c}`, i));
@@ -6470,12 +6484,15 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const { rows, cols } = useMemo(
+    () => mazeGridDimensionsForScreen(screenWidth, screenHeight),
+    [screenWidth, screenHeight]
+  );
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
   const [chemin, setChemin] = useState([]);
-  const [rows, setRows] = useState(4);
-  const [cols, setCols] = useState(4);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [wrongFlash, setWrongFlash] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -6486,15 +6503,14 @@ function LabyrintheGrotteScreen({ route, navigation }) {
 
   const loadMaze = useCallback((currentRung) => {
     setLoading(true);
-    const { rows: r, cols: c, targetPathLen } = mazeSizeForRung(currentRung);
-    const path = generateMazePath(r, c, targetPathLen);
-    setRows(r);
-    setCols(c);
+    const pathRatio = targetPathLenForRung(currentRung, gameMaxRung);
+    const path = generateMazePath(rows, cols, pathRatio);
     setChemin(path);
     setCurrentIndex(0);
     speakSmart("Avance case par case jusqu'au trésor !");
     setLoading(false);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, cols]);
 
   useEffect(() => {
     (async () => {
