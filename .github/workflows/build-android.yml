@@ -40,7 +40,7 @@ jobs:
           ./gradlew assembleRelease --no-daemon
 
       - name: Mettre l'APK à disposition au téléchargement
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: kid-crack-apk
           path: android/app/build/outputs/apk/release/app-release.apk
