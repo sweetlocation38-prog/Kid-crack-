@@ -6382,7 +6382,7 @@ const MAZE_CELL_SIZE = 34; // taille fixe, fiable au doigt
 
 function mazeGridDimensionsForScreen(screenWidth, screenHeight) {
   const usableWidth = screenWidth - 24;
-  const usableHeight = screenHeight - 260; // barre du haut + personnage + marges
+  const usableHeight = screenHeight - 90; // petit titre compact + marges seulement (plus de mascotte)
   const cols = Math.max(5, Math.floor(usableWidth / (MAZE_CELL_SIZE + 2)));
   const rows = Math.max(6, Math.floor(usableHeight / (MAZE_CELL_SIZE + 2)));
   return { rows, cols };
@@ -6687,16 +6687,14 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DCD3E8' }]}>
-      <View style={styles.topBar}>
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DCD3E8', paddingTop: 6, paddingBottom: 6 }]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 4 }}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>🌀 Le Labyrinthe de la Grotte</Text>
-      </View>
-
-      <View style={styles.gameCharacter}>
-        <BouncingWrap><Noisette size={48} /></BouncingWrap>
+        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6 }}>
+          🌀 Le Labyrinthe de la Grotte
+        </Text>
       </View>
 
       <View onLayout={onGridLayout}>
