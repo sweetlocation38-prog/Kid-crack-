@@ -975,14 +975,6 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   };
 }
 
-// Plafonds de niveau par jeu, necessaires pour calculer le "50%" du
-// systeme de deblocage des jeux bonus par zone - a completer au fur et a
-// mesure qu'on ajoute des zones. Par defaut, on utilise MAX_CONTENT_RUNG
-// pour les jeux non listes ici.
-const ZONE_GAME_MAX_RUNG = {
-  corps_humain: rungFromGradeAndPalier('ce2', 3),
-};
-
 // Verifie si TOUS les jeux "reels" (non-bonus) d'une zone ont atteint au
 // moins 50% de leur plafond de niveau pour ce profil ; si oui et que ce
 // n'est pas deja debloque, debloque definitivement le jeu bonus de cette
@@ -1355,6 +1347,14 @@ function gradeAndPalierFromRung(rung) {
   const palier = ((clamped - 1) % 3) + 1;
   return { niveau: GRADE_ORDER[Math.min(idx, GRADE_ORDER.length - 1)], palier };
 }
+
+// Plafonds de niveau par jeu, necessaires pour calculer le "50%" du
+// systeme de deblocage des jeux bonus par zone - a completer au fur et a
+// mesure qu'on ajoute des zones. Par defaut, on utilise MAX_CONTENT_RUNG
+// pour les jeux non listes ici.
+const ZONE_GAME_MAX_RUNG = {
+  corps_humain: rungFromGradeAndPalier('ce2', 3),
+};
 
 // Lettre de niveau scolaire (A=MS, B=GS, C=CP, D=CE1, E=CE2, F=CM1, G=CM2)
 // suivie du cran (1 a 3), pour un reperage visuel rapide sur la carte -
