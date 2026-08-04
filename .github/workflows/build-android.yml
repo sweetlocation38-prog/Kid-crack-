@@ -44,4 +44,4 @@ jobs:
         with:
           name: kid-crack-apk
           path: android/app/build/outputs/apk/release/app-release.apk
-          retention-days: 30
+          retention-days: 3
