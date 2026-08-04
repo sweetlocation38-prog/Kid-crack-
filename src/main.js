@@ -6358,120 +6358,168 @@ function targetPiecesForPalier(palier) {
 }
 
 const PUZZLE_REWARDS = ['🦋', '🌈', '🎨', '🚀', '🏰', '🌻', '🦄', '🐉', '⛵', '🎪'];
-
 // ============================================================
-// Le Labyrinthe de la Grotte (zone "logique") - etape 1 : deplacement de
-// base uniquement, pas encore de cases mystere (prevu pour une etape 2).
+// Le Labyrinthe de la Grotte (zone "logique") - etape 2 : vrai labyrinthe
+// avec embranchements et impasses (algorithme classique "recursive
+// backtracker" - genere un labyrinthe parfait : toutes les cases sont
+// reliees, un seul vrai chemin le plus court entre deux cases, mais de
+// vraies impasses a explorer, comme un labyrinthe papier).
 //
-// Genere proceduralement (pas de contenu en base) : un chemin sinueux
-// unique est trace au hasard dans une grille, sans embranchement possible
-// - a chaque instant il n'existe qu'UNE seule case valide suivante, pour
-// eviter toute ambiguite sur la direction voulue par l'enfant. Les cases
-// hors chemin sont des murs (non franchissables, juste des bordures fines
-// - jamais des elements a toucher).
+// Deplacement au doigt par glisser : l'enfant fait glisser son doigt de
+// case en case, aucune ambiguite possible car le moteur regarde juste
+// quelle case se trouve sous le doigt a chaque instant (comme un jeu de
+// mots ou l'on relie des lettres adjacentes). Aucune penalite pour les
+// impasses : exploration totalement libre, seul le fait d'atteindre le
+// tresor compte.
 //
-// La grille elle-meme est GENERIQUE : elle remplit tout l'ecran disponible
-// avec une taille de case fixe et fiable au toucher (memes dimensions pour
-// tous les enfants). Ce qui varie avec le niveau, ce n'est PAS la taille
-// de la grille mais la LONGUEUR/complexite du chemin trace dedans - un
-// enfant qui progresse vite a donc acces a un chemin long et sinueux des
-// la petite section, sans avoir besoin d'etre objectivement plus age.
+// La grille est generique : elle remplit tout l'ecran disponible avec une
+// taille de case fixe et fiable au toucher (memes dimensions pour tous
+// les enfants). Ce qui varie avec le niveau, c'est la DISTANCE entre le
+// depart et le tresor (donc la complexite du trajet a trouver), pas la
+// taille de la grille.
 // ============================================================
-const MAZE_CELL_SIZE = 30; // taille fixe, fiable au doigt (jamais reduite pour "faire rentrer" plus de cases)
+const MAZE_CELL_SIZE = 34; // taille fixe, fiable au doigt
 
 function mazeGridDimensionsForScreen(screenWidth, screenHeight) {
   const usableWidth = screenWidth - 24;
   const usableHeight = screenHeight - 260; // barre du haut + personnage + marges
-  const cols = Math.max(6, Math.floor(usableWidth / (MAZE_CELL_SIZE + 2)));
-  const rows = Math.max(8, Math.floor(usableHeight / (MAZE_CELL_SIZE + 2)));
+  const cols = Math.max(5, Math.floor(usableWidth / (MAZE_CELL_SIZE + 2)));
+  const rows = Math.max(6, Math.floor(usableHeight / (MAZE_CELL_SIZE + 2)));
   return { rows, cols };
 }
 
-function targetPathLenForRung(rung, maxRung) {
-  // 0 a 1 selon l'avancement reel de l'enfant sur CE jeu precis.
-  const ratio = Math.max(0.12, Math.min(0.8, rung / Math.max(1, maxRung)));
-  return ratio;
+// Genere un labyrinthe parfait par parcours en profondeur avec retour en
+// arriere : chaque case commence entouree de 4 murs, on retire les murs au
+// fur et a mesure qu'on visite des cases voisines non visitees.
+function generateMazeWalls(rows, cols) {
+  const cells = Array.from({ length: rows }, () =>
+    Array.from({ length: cols }, () => ({ top: true, right: true, bottom: true, left: true }))
+  );
+  const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+
+  function neighbors(r, c) {
+    const list = [];
+    if (r > 0) list.push([r - 1, c, 'top', 'bottom']);
+    if (r < rows - 1) list.push([r + 1, c, 'bottom', 'top']);
+    if (c > 0) list.push([r, c - 1, 'left', 'right']);
+    if (c < cols - 1) list.push([r, c + 1, 'right', 'left']);
+    return shuffle(list);
+  }
+
+  const startR = 0, startC = 0;
+  visited[startR][startC] = true;
+  const stack = [[startR, startC]];
+
+  while (stack.length > 0) {
+    const [r, c] = stack[stack.length - 1];
+    const options = neighbors(r, c).filter(([nr, nc]) => !visited[nr][nc]);
+    if (options.length === 0) {
+      stack.pop();
+      continue;
+    }
+    const [nr, nc, wallHere, wallThere] = options[0];
+    cells[r][c][wallHere] = false;
+    cells[nr][nc][wallThere] = false;
+    visited[nr][nc] = true;
+    stack.push([nr, nc]);
+  }
+
+  return cells;
 }
 
-function generateMazePath(rows, cols, pathRatio) {
-  // Marche aleatoire auto-evitante avec retour en arriere (backtracking) :
-  // grandit tant que possible, revient sur ses pas si bloquee, jusqu'a
-  // atteindre la longueur visee ou avoir explore toutes les options.
-  const totalCells = rows * cols;
-  const targetLen = Math.max(8, Math.round(totalCells * pathRatio * 0.6));
-  const key = (r, c) => `${r},${c}`;
-  const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-
-  for (let attempt = 0; attempt < 50; attempt++) {
-    const start = [Math.floor(Math.random() * rows), Math.floor(Math.random() * cols)];
-    const path = [start];
-    const visited = new Set([key(...start)]);
-
-    while (path.length < targetLen) {
-      const [r, c] = path[path.length - 1];
-      const options = shuffle(dirs)
-        .map(([dr, dc]) => [r + dr, c + dc])
-        .filter(([nr, nc]) => nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited.has(key(nr, nc)));
-
-      if (options.length === 0) {
-        if (path.length >= Math.max(8, targetLen * 0.6)) break; // assez long, on s'arrete la
-        path.pop(); // retour en arriere
-        if (path.length === 0) break;
-        continue;
+// Distances depuis le depart vers toutes les cases (parcours en largeur),
+// pour choisir un tresor a la bonne distance selon le niveau de l'enfant.
+function bfsDistances(cells, rows, cols, startR, startC) {
+  const dist = Array.from({ length: rows }, () => Array(cols).fill(-1));
+  dist[startR][startC] = 0;
+  const queue = [[startR, startC]];
+  let head = 0;
+  while (head < queue.length) {
+    const [r, c] = queue[head++];
+    const cell = cells[r][c];
+    const moves = [];
+    if (!cell.top) moves.push([r - 1, c]);
+    if (!cell.bottom) moves.push([r + 1, c]);
+    if (!cell.left) moves.push([r, c - 1]);
+    if (!cell.right) moves.push([r, c + 1]);
+    for (const [nr, nc] of moves) {
+      if (dist[nr][nc] === -1) {
+        dist[nr][nc] = dist[r][c] + 1;
+        queue.push([nr, nc]);
       }
-      const next = options[0];
-      path.push(next);
-      visited.add(key(...next));
-    }
-
-    if (path.length >= Math.max(8, targetLen * 0.6)) {
-      return path.map(([r, c]) => ({ r, c }));
     }
   }
-  // Filet de securite improbable : chemin tout droit.
-  return Array.from({ length: Math.min(targetLen, cols) }, (_, i) => ({ r: 0, c: i }));
+  return dist;
 }
 
-function MazeGridVisual({ chemin, rows, cols, currentIndex, onCellPress, wrongFlash }) {
+function pickTreasureForRung(dist, rows, cols, rung, maxRung) {
+  let maxDist = 0;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (dist[r][c] > maxDist) maxDist = dist[r][c];
+  const ratio = Math.max(0.2, Math.min(1, rung / Math.max(1, maxRung)));
+  const target = Math.round(maxDist * ratio);
+  let best = { r: 0, c: 0, diff: Infinity };
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const diff = Math.abs(dist[r][c] - target);
+      if (diff < best.diff) best = { r, c, diff };
+    }
+  }
+  return { r: best.r, c: best.c, targetDist: target };
+}
+
+function canMove(cells, r, c, dr, dc) {
+  const cell = cells[r]?.[c];
+  if (!cell) return false;
+  if (dr === -1 && cell.top) return false;
+  if (dr === 1 && cell.bottom) return false;
+  if (dc === -1 && cell.left) return false;
+  if (dc === 1 && cell.right) return false;
+  return true;
+}
+
+function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, onGridTouch, gridRef }) {
   const cellSize = MAZE_CELL_SIZE;
-  const pathSet = useMemo(() => {
-    const s = new Map();
-    chemin.forEach((cell, i) => s.set(`${cell.r},${cell.c}`, i));
-    return s;
-  }, [chemin]);
+  const wallColor = '#3D2E4F';
 
   return (
-    <View style={{ alignSelf: 'center', marginVertical: 12 }}>
-      {Array.from({ length: rows }).map((_, r) => (
+    <View
+      ref={gridRef}
+      collapsable={false}
+      onStartShouldSetResponder={() => true}
+      onMoveShouldSetResponder={() => true}
+      onResponderGrant={(e) => onGridTouch(e.nativeEvent.pageX, e.nativeEvent.pageY)}
+      onResponderMove={(e) => onGridTouch(e.nativeEvent.pageX, e.nativeEvent.pageY)}
+      style={{ alignSelf: 'center', marginVertical: 12, backgroundColor: '#EDE7F6', borderRadius: 6 }}
+    >
+      {cells.map((row, r) => (
         <View key={r} style={{ flexDirection: 'row' }}>
-          {Array.from({ length: cols }).map((_, c) => {
-            const idx = pathSet.get(`${r},${c}`);
-            const isPath = idx !== undefined;
-            const isStart = idx === 0;
-            const isEnd = idx === chemin.length - 1;
-            const isVisited = isPath && idx <= currentIndex;
-            const isWrong = wrongFlash === `${r},${c}`;
+          {row.map((cell, c) => {
+            const isVisited = visitedSet.has(`${r},${c}`);
+            const isPos = pos.r === r && pos.c === c;
+            const isStart = start.r === r && start.c === c;
+            const isTreasure = treasure.r === r && treasure.c === c;
             return (
-              <Pressable
+              <View
                 key={c}
-                onPress={() => onCellPress(r, c)}
-                hitSlop={2}
                 style={{
                   width: cellSize,
                   height: cellSize,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: isWrong ? '#E8A0A0' : isPath ? (isVisited ? '#C9B8E8' : '#EDE7F6') : '#4A3F5C',
-                  borderWidth: isPath ? 1 : 0,
-                  borderColor: '#A896C4',
-                  borderRadius: 3,
-                  margin: 1,
+                  backgroundColor: isVisited ? '#C9B8E8' : 'transparent',
+                  borderTopWidth: cell.top ? 2 : 0,
+                  borderBottomWidth: cell.bottom ? 2 : 0,
+                  borderLeftWidth: cell.left ? 2 : 0,
+                  borderRightWidth: cell.right ? 2 : 0,
+                  borderColor: wallColor,
                 }}
               >
-                {isStart && <Text style={{ fontSize: cellSize * 0.55 }}>🧑</Text>}
-                {isEnd && <Text style={{ fontSize: cellSize * 0.55 }}>💎</Text>}
-                {isVisited && !isStart && !isEnd && <Text style={{ fontSize: cellSize * 0.35 }}>·</Text>}
-              </Pressable>
+                {isPos && <Text style={{ fontSize: cellSize * 0.6 }}>🧑</Text>}
+                {!isPos && isTreasure && <Text style={{ fontSize: cellSize * 0.6 }}>💎</Text>}
+                {!isPos && !isTreasure && isStart && isVisited && (
+                  <View style={{ width: cellSize * 0.25, height: cellSize * 0.25, borderRadius: 99, backgroundColor: '#9B7FC4' }} />
+                )}
+              </View>
             );
           })}
         </View>
@@ -6492,25 +6540,41 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   );
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
-  const [chemin, setChemin] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [wrongFlash, setWrongFlash] = useState(null);
+  const [cells, setCells] = useState(null);
+  const [pos, setPos] = useState({ r: 0, c: 0 });
+  const [treasure, setTreasure] = useState({ r: 0, c: 0 });
+  const [visitedSet, setVisitedSet] = useState(() => new Set());
   const [loading, setLoading] = useState(true);
   const [sessionDone, setSessionDone] = useState(false);
   const [sessionSummary, setSessionSummary] = useState(null);
-  const errorsTotal = useRef(0);
   const startedAt = useRef(Date.now());
+  const cellsRef = useRef(null);
+  const posRef = useRef({ r: 0, c: 0 });
+  const treasureRef = useRef({ r: 0, c: 0 });
+  const finishedRef = useRef(false);
+  const stepsCountRef = useRef(0);
+  const targetDistRef = useRef(0);
+  const gridOriginRef = useRef({ x: 0, y: 0 });
+  const gridRef = useRef(null);
 
   const loadMaze = useCallback((currentRung) => {
     setLoading(true);
-    const pathRatio = targetPathLenForRung(currentRung, gameMaxRung);
-    const path = generateMazePath(rows, cols, pathRatio);
-    setChemin(path);
-    setCurrentIndex(0);
-    speakSmart("Avance case par case jusqu'au trésor !");
+    const generated = generateMazeWalls(rows, cols);
+    const dist = bfsDistances(generated, rows, cols, 0, 0);
+    const t = pickTreasureForRung(dist, rows, cols, currentRung, gameMaxRung);
+    cellsRef.current = generated;
+    posRef.current = { r: 0, c: 0 };
+    treasureRef.current = { r: t.r, c: t.c };
+    targetDistRef.current = t.targetDist;
+    finishedRef.current = false;
+    stepsCountRef.current = 0;
+    setCells(generated);
+    setPos({ r: 0, c: 0 });
+    setTreasure({ r: t.r, c: t.c });
+    setVisitedSet(new Set(['0,0']));
+    speakSmart('Fais glisser ton doigt pour trouver le chemin jusqu\u2019au trésor !');
     setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rows, cols]);
+  }, [rows, cols, gameMaxRung]);
 
   useEffect(() => {
     (async () => {
@@ -6531,19 +6595,21 @@ function LabyrintheGrotteScreen({ route, navigation }) {
       loadMaze(startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profil.id]);
+  }, [profil.id, rows, cols]);
 
   async function finishSession() {
-    if (!miniJeuId) return;
+    if (!miniJeuId || finishedRef.current) return;
+    finishedRef.current = true;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const wasEfficient = stepsCountRef.current <= Math.max(4, Math.round(targetDistRef.current * 1.4));
     const precomputedRung = await computeStreakRung({
-      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current <= 1, maxRung: gameMaxRung,
+      profil, miniJeuId, currentRung: rung, wasPerfect: wasEfficient, maxRung: gameMaxRung,
     });
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
-      erreursTotal: errorsTotal.current,
+      erreursTotal: 0,
       dureeSecondes: durationSeconds,
-      totalRounds: chemin.length,
+      totalRounds: Math.max(1, targetDistRef.current),
       startedAt: startedAt.current,
       maxRung: gameMaxRung,
       precomputedRung,
@@ -6555,24 +6621,50 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   function proceedToNextActivity() {
     const newRung = sessionSummary?.newRung ?? rung;
     setSessionDone(false);
-    errorsTotal.current = 0;
     startedAt.current = Date.now();
     setRung(newRung);
     loadMaze(newRung);
   }
 
-  function onCellPress(r, c) {
-    const next = chemin[currentIndex + 1];
-    if (!next) return;
-    if (next.r === r && next.c === c) {
-      const isLast = currentIndex + 1 === chemin.length - 1;
-      setCurrentIndex((i) => i + 1);
-      if (isLast) setTimeout(finishSession, 500);
-    } else {
-      errorsTotal.current += 1;
-      setWrongFlash(`${r},${c}`);
-      setTimeout(() => setWrongFlash(null), 400);
+  function tryMoveTo(r, c) {
+    if (finishedRef.current || !cellsRef.current) return;
+    if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+    const { r: pr, c: pc } = posRef.current;
+    if (r === pr && c === pc) return; // deja ici
+    const dr = r - pr, dc = c - pc;
+    // Seuls les deplacements vers une case immediatement adjacente comptent.
+    if (Math.abs(dr) + Math.abs(dc) !== 1) return;
+    if (!canMove(cellsRef.current, pr, pc, dr, dc)) return; // un mur bloque
+
+    posRef.current = { r, c };
+    stepsCountRef.current += 1;
+    setPos({ r, c });
+    setVisitedSet((prev) => {
+      const next = new Set(prev);
+      next.add(`${r},${c}`);
+      return next;
+    });
+
+    if (r === treasureRef.current.r && c === treasureRef.current.c) {
+      speakSmart('Bravo, tu as trouvé le trésor !');
+      setTimeout(finishSession, 500);
     }
+  }
+
+  function onGridTouch(pageX, pageY) {
+    const { x, y } = gridOriginRef.current;
+    const localX = pageX - x;
+    const localY = pageY - y;
+    const c = Math.floor(localX / (MAZE_CELL_SIZE + 0));
+    const r = Math.floor(localY / (MAZE_CELL_SIZE + 0));
+    tryMoveTo(r, c);
+  }
+
+  function onGridLayout() {
+    if (!gridRef.current) return;
+    gridRef.current.measure((fx, fy, w, h, pageX, pageY) => {
+      gridOriginRef.current = { x: pageX, y: pageY };
+    });
   }
 
   if (sessionDone) {
@@ -6586,7 +6678,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
     );
   }
 
-  if (loading) {
+  if (loading || !cells) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.mossDeep} />
@@ -6607,14 +6699,19 @@ function LabyrintheGrotteScreen({ route, navigation }) {
         <BouncingWrap><Noisette size={48} /></BouncingWrap>
       </View>
 
-      <MazeGridVisual
-        chemin={chemin}
-        rows={rows}
-        cols={cols}
-        currentIndex={currentIndex}
-        onCellPress={onCellPress}
-        wrongFlash={wrongFlash}
-      />
+      <View onLayout={onGridLayout}>
+        <MazeGridVisual
+          cells={cells}
+          rows={rows}
+          cols={cols}
+          pos={pos}
+          start={{ r: 0, c: 0 }}
+          treasure={treasure}
+          visitedSet={visitedSet}
+          onGridTouch={onGridTouch}
+          gridRef={gridRef}
+        />
+      </View>
     </ScrollView>
   );
 }
