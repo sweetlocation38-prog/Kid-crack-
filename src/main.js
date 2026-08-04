@@ -2214,6 +2214,7 @@ const GAME_ICONS = {
   corps_humain: '🫀',
   ronde_lucioles: '🎧',
   indices_jardin: '🕵️',
+  labyrinthe_grotte: '🌀',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
@@ -2233,6 +2234,7 @@ const GAME_SCREENS = {
   frise_temps: 'FriseTemps',
   corps_humain: 'CorpsHumain',
   indices_jardin: 'IndicesJardin',
+  labyrinthe_grotte: 'LabyrintheGrotte',
 };
 
 // Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
@@ -2240,7 +2242,7 @@ const GAME_SCREENS = {
 const GAME_MAX_RUNG_15 = new Set([
   'monde_capitales', 'jeu_intrus', 'empreintes_clairiere', 'balance_prairie',
   'marche_village', 'cachettes_luma', 'ronde_lucioles', 'tri_village', 'puzzle_moulin',
-  'corps_humain', 'indices_jardin',
+  'corps_humain', 'indices_jardin', 'labyrinthe_grotte',
 ]);
 function maxRungForGame(code) {
   return GAME_MAX_RUNG_15.has(code) ? rungFromGradeAndPalier('ce2', 3) : MAX_CONTENT_RUNG;
@@ -2292,7 +2294,7 @@ const CONTINENTS = [
     competence: 'logique',
     zone: { left: 0.0, top: 0.60, width: 0.5, height: 0.25 },
     labelCourt: 'Logique',
-    paysSlotsFor: { 'jeu_intrus': { top: '63%', left: '17%' }, 'empreintes_clairiere': { top: '63%', left: '83%' }, 'puzzle_moulin': { top: '88%', left: '17%' }, 'tri_village': { top: '88%', left: '50%' } },
+    paysSlotsFor: { 'jeu_intrus': { top: '63%', left: '17%' }, 'empreintes_clairiere': { top: '63%', left: '83%' }, 'puzzle_moulin': { top: '88%', left: '17%' }, 'tri_village': { top: '88%', left: '50%' }, 'labyrinthe_grotte': { top: '88%', left: '83%' } },
     paysVides: [],
     blobStyle: { borderTopLeftRadius: 90, borderTopRightRadius: 20, borderBottomLeftRadius: 100, borderBottomRightRadius: 90 }, rot: -5,
     nom: 'La Grotte des Énigmes',
@@ -6357,6 +6359,250 @@ function targetPiecesForPalier(palier) {
 
 const PUZZLE_REWARDS = ['🦋', '🌈', '🎨', '🚀', '🏰', '🌻', '🦄', '🐉', '⛵', '🎪'];
 
+// ============================================================
+// Le Labyrinthe de la Grotte (zone "logique") - etape 1 : deplacement de
+// base uniquement, pas encore de cases mystere (prevu pour une etape 2).
+//
+// Genere proceduralement (pas de contenu en base) : un chemin sinueux
+// unique est trace au hasard dans une grille, sans embranchement possible
+// - a chaque instant il n'existe qu'UNE seule case valide suivante, pour
+// eviter toute ambiguite sur la direction voulue par l'enfant. Les cases
+// hors chemin sont des murs (non franchissables). Taille de la grille et
+// longueur du chemin augmentent avec le niveau scolaire et le palier.
+// ============================================================
+function mazeSizeForRung(rung) {
+  const { niveau, palier } = gradeAndPalierFromRung(rung);
+  const niveauIndex = ['ms', 'gs', 'cp', 'ce1', 'ce2'].indexOf(niveau);
+  const index = Math.max(0, niveauIndex) * 3 + (palier - 1); // 0..14
+  const size = Math.min(9, 4 + Math.floor(index / 2));
+  const targetPathLen = Math.max(6, Math.round(size * size * 0.5));
+  return { rows: size, cols: size, targetPathLen };
+}
+
+function generateMazePath(rows, cols, targetLen) {
+  // Marche aleatoire auto-evitante avec retour en arriere (backtracking) :
+  // grandit tant que possible, revient sur ses pas si bloquee, jusqu'a
+  // atteindre la longueur visee ou avoir explore toutes les options.
+  const key = (r, c) => `${r},${c}`;
+  const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const start = [Math.floor(Math.random() * rows), Math.floor(Math.random() * cols)];
+    const path = [start];
+    const visited = new Set([key(...start)]);
+
+    while (path.length < targetLen) {
+      const [r, c] = path[path.length - 1];
+      const options = shuffle(dirs)
+        .map(([dr, dc]) => [r + dr, c + dc])
+        .filter(([nr, nc]) => nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited.has(key(nr, nc)));
+
+      if (options.length === 0) {
+        if (path.length >= Math.max(6, targetLen * 0.6)) break; // assez long, on s'arrete la
+        path.pop(); // retour en arriere
+        if (path.length === 0) break;
+        continue;
+      }
+      const next = options[0];
+      path.push(next);
+      visited.add(key(...next));
+    }
+
+    if (path.length >= Math.max(6, targetLen * 0.6)) {
+      return path.map(([r, c]) => ({ r, c }));
+    }
+  }
+  // Filet de securite improbable : chemin tout droit.
+  return Array.from({ length: Math.min(targetLen, cols) }, (_, i) => ({ r: 0, c: i }));
+}
+
+const MAZE_CELL_MAX = 40;
+function MazeGridVisual({ chemin, rows, cols, currentIndex, onCellPress, wrongFlash }) {
+  const { width: screenWidth } = useWindowDimensions();
+  const cellSize = Math.min(MAZE_CELL_MAX, Math.floor((screenWidth - 48) / cols));
+  const pathSet = useMemo(() => {
+    const s = new Map();
+    chemin.forEach((cell, i) => s.set(`${cell.r},${cell.c}`, i));
+    return s;
+  }, [chemin]);
+
+  return (
+    <View style={{ alignSelf: 'center', marginVertical: 12 }}>
+      {Array.from({ length: rows }).map((_, r) => (
+        <View key={r} style={{ flexDirection: 'row' }}>
+          {Array.from({ length: cols }).map((_, c) => {
+            const idx = pathSet.get(`${r},${c}`);
+            const isPath = idx !== undefined;
+            const isStart = idx === 0;
+            const isEnd = idx === chemin.length - 1;
+            const isVisited = isPath && idx <= currentIndex;
+            const isWrong = wrongFlash === `${r},${c}`;
+            return (
+              <Pressable
+                key={c}
+                onPress={() => onCellPress(r, c)}
+                hitSlop={2}
+                style={{
+                  width: cellSize,
+                  height: cellSize,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: isWrong ? '#E8A0A0' : isPath ? (isVisited ? '#C9B8E8' : '#EDE7F6') : '#4A3F5C',
+                  borderWidth: isPath ? 1 : 0,
+                  borderColor: '#A896C4',
+                  borderRadius: 3,
+                  margin: 1,
+                }}
+              >
+                {isStart && <Text style={{ fontSize: cellSize * 0.55 }}>🧑</Text>}
+                {isEnd && <Text style={{ fontSize: cellSize * 0.55 }}>💎</Text>}
+                {isVisited && !isStart && !isEnd && <Text style={{ fontSize: cellSize * 0.35 }}>·</Text>}
+              </Pressable>
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function LabyrintheGrotteScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
+  const { profil } = route.params;
+  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [chemin, setChemin] = useState([]);
+  const [rows, setRows] = useState(4);
+  const [cols, setCols] = useState(4);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [wrongFlash, setWrongFlash] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const errorsTotal = useRef(0);
+  const startedAt = useRef(Date.now());
+
+  const loadMaze = useCallback((currentRung) => {
+    setLoading(true);
+    const { rows: r, cols: c, targetPathLen } = mazeSizeForRung(currentRung);
+    const path = generateMazePath(r, c, targetPathLen);
+    setRows(r);
+    setCols(c);
+    setChemin(path);
+    setCurrentIndex(0);
+    speakSmart("Avance case par case jusqu'au trésor !");
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'labyrinthe_grotte').single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      const startRung = Math.min(rawStart, gameMaxRung);
+      setRung(startRung);
+      loadMaze(startRung);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  async function finishSession() {
+    if (!miniJeuId) return;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const precomputedRung = await computeStreakRung({
+      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current <= 1, maxRung: gameMaxRung,
+    });
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: chemin.length,
+      startedAt: startedAt.current,
+      maxRung: gameMaxRung,
+      precomputedRung,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function proceedToNextActivity() {
+    const newRung = sessionSummary?.newRung ?? rung;
+    setSessionDone(false);
+    errorsTotal.current = 0;
+    startedAt.current = Date.now();
+    setRung(newRung);
+    loadMaze(newRung);
+  }
+
+  function onCellPress(r, c) {
+    const next = chemin[currentIndex + 1];
+    if (!next) return;
+    if (next.r === r && next.c === c) {
+      const isLast = currentIndex + 1 === chemin.length - 1;
+      setCurrentIndex((i) => i + 1);
+      if (isLast) setTimeout(finishSession, 500);
+    } else {
+      errorsTotal.current += 1;
+      setWrongFlash(`${r},${c}`);
+      setTimeout(() => setWrongFlash(null), 400);
+    }
+  }
+
+  if (sessionDone) {
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={proceedToNextActivity}
+      />
+    );
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DCD3E8' }]}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>🌀 Le Labyrinthe de la Grotte</Text>
+      </View>
+
+      <View style={styles.gameCharacter}>
+        <BouncingWrap><Noisette size={48} /></BouncingWrap>
+      </View>
+
+      <MazeGridVisual
+        chemin={chemin}
+        rows={rows}
+        cols={cols}
+        currentIndex={currentIndex}
+        onCellPress={onCellPress}
+        wrongFlash={wrongFlash}
+      />
+    </ScrollView>
+  );
+}
+
 function PuzzleMoulinScreen({ route, navigation }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
@@ -7932,6 +8178,7 @@ export default function RootNavigator() {
             <Stack.Screen name="FriseTemps" component={FriseTempsScreen} />
             <Stack.Screen name="CorpsHumain" component={CorpsHumainScreen} />
             <Stack.Screen name="IndicesJardin" component={IndicesJardinScreen} />
+            <Stack.Screen name="LabyrintheGrotte" component={LabyrintheGrotteScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
