@@ -714,6 +714,40 @@ function avatarLabelFor(niveauGlobal) {
   return a.emoji + ' ' + a.name;
 }
 
+// Prefixe utilise pour reperer qu'un avatar_personnel n'est pas un simple
+// emoji mais le code d'une photo-trophee deja gagnee (ex: 'trophee:renard').
+const AVATAR_TROPHEE_PREFIX = 'trophee:';
+
+// Affichage unifie de l'avatar d'un profil, quelle que soit sa nature :
+// photo perso (photo_url), photo-trophee gagnee en jeu (avatar_personnel
+// prefixe 'trophee:'), ou simple emoji (avatar_personnel classique).
+// Centralise ici pour eviter de dupliquer cette logique a chaque endroit
+// ou l'avatar d'un profil est affiche.
+function ProfilAvatarDisplay({ profil, size = 48, style }) {
+  if (profil?.photo_url) {
+    return (
+      <Image
+        source={{ uri: profil.photo_url }}
+        style={[{ width: size, height: size, borderRadius: size / 2 }, style]}
+      />
+    );
+  }
+  const avatarPerso = profil?.avatar_personnel ?? '🐾';
+  if (typeof avatarPerso === 'string' && avatarPerso.startsWith(AVATAR_TROPHEE_PREFIX)) {
+    const code = avatarPerso.slice(AVATAR_TROPHEE_PREFIX.length);
+    const source = AVATAR_IMAGES[code];
+    if (source) {
+      return (
+        <Image
+          source={source}
+          style={[{ width: size, height: size, borderRadius: size / 2 }, style]}
+        />
+      );
+    }
+  }
+  return <Text style={[{ fontSize: size * 0.7, textAlign: 'center' }, style]}>{avatarPerso}</Text>;
+}
+
 // ============================================================
 // Fin de session partagee entre tous les mini-jeux :
 // enregistre la progression, avance le niveau global, verifie
@@ -1436,26 +1470,60 @@ const SECURITY_AVATARS = [
 
 // Petite fenetre pour choisir un avatar du jeu (utilisee a la creation
 // et pour changer la photo d'un profil existant).
-function AvatarPickerModal({ visible, onClose, onPick }) {
+// Petite fenetre pour choisir un avatar du jeu (utilisee a la creation
+// et pour changer la photo d'un profil existant). Si un profil est fourni,
+// propose en plus les photos-trophees deja gagnees par l'enfant (chaine
+// AVATAR_CHAIN jusqu'a son rang actuel), en plus des emojis generiques.
+function AvatarPickerModal({ visible, onClose, onPick, profil }) {
+  const [trophees, setTrophees] = useState([]);
+
+  useEffect(() => {
+    if (!visible || !profil) { setTrophees([]); return; }
+    const rank = avatarRankFor(profil.niveau_global ?? 0);
+    setTrophees(AVATAR_CHAIN.slice(0, rank).reverse()); // le plus recent en premier
+  }, [visible, profil]);
+
   return (
     <Modal visible={visible} animationType="fade" transparent>
       <View style={styles.modalBackdrop}>
         <View style={styles.modalCard}>
           <Text style={styles.modalTitle}>Choisir un avatar</Text>
-          <View style={styles.avatarGrid}>
-            {AVATAR_CHOICES.map((a) => (
-              <Pressable
-                key={a}
-                style={styles.avatarTile}
-                onPress={() => {
-                  onPick(a);
-                  onClose();
-                }}
-              >
-                <Text style={{ fontSize: 22 }}>{a}</Text>
-              </Pressable>
-            ))}
-          </View>
+          <ScrollView style={{ maxHeight: 380 }}>
+            {trophees.length > 0 && (
+              <>
+                <Text style={styles.avatarPickerSectionTitle}>🏆 Mes trophées gagnés</Text>
+                <View style={styles.avatarGrid}>
+                  {trophees.map((a) => (
+                    <Pressable
+                      key={a.code}
+                      style={styles.avatarTile}
+                      onPress={() => {
+                        onPick(AVATAR_TROPHEE_PREFIX + a.code);
+                        onClose();
+                      }}
+                    >
+                      <Image source={AVATAR_IMAGES[a.code]} style={{ width: 44, height: 44, borderRadius: 22 }} />
+                    </Pressable>
+                  ))}
+                </View>
+                <Text style={styles.avatarPickerSectionTitle}>Avatars simples</Text>
+              </>
+            )}
+            <View style={styles.avatarGrid}>
+              {AVATAR_CHOICES.map((a) => (
+                <Pressable
+                  key={a}
+                  style={styles.avatarTile}
+                  onPress={() => {
+                    onPick(a);
+                    onClose();
+                  }}
+                >
+                  <Text style={{ fontSize: 22 }}>{a}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </ScrollView>
           <Pressable onPress={onClose}>
             <Text style={styles.cancelText}>Annuler</Text>
           </Pressable>
@@ -1770,6 +1838,16 @@ function ProfileSelectScreen({ navigation }) {
   const [familleId, setFamilleId] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [avatarPickerFor, setAvatarPickerFor] = useState(null);
+  const [expectedPin, setExpectedPin] = useState(null);
+  const [pendingPhoto, setPendingPhoto] = useState(null); // { profilId, choix } en attente du code parent
+
+  useEffect(() => {
+    if (!familleId) return;
+    (async () => {
+      const parametres = await getParametresParentaux(familleId);
+      setExpectedPin(parametres?.code_validation ?? null);
+    })();
+  }, [familleId]);
 
   const loadProfils = useCallback(async () => {
     setLoading(true);
@@ -1817,6 +1895,16 @@ function ProfileSelectScreen({ navigation }) {
       setAvatarPickerFor(profilId);
       return;
     }
+    // Une photo du telephone (galerie ou appareil photo) passe toujours par
+    // le code parent avant d'etre enregistree - jamais accessible librement
+    // a l'enfant, contrairement aux avatars du jeu.
+    setPendingPhoto({ profilId, choix });
+  }
+
+  async function uploadPendingPhoto() {
+    if (!pendingPhoto) return;
+    const { profilId, choix } = pendingPhoto;
+    setPendingPhoto(null);
     // On ajoute un suffixe different a chaque fois (au lieu d'un nom de
     // fichier toujours identique) pour eviter tout souci de remplacement
     // silencieux d'une photo par une autre.
@@ -1871,7 +1959,7 @@ function ProfileSelectScreen({ navigation }) {
               {item.photo_url ? (
                 <Image source={{ uri: item.photo_url }} style={styles.avatarPhoto} />
               ) : (
-                <Text style={styles.avatarEmoji}>{item.avatar_personnel ?? '🐾'}</Text>
+                <ProfilAvatarDisplay profil={item} size={48} style={styles.avatarEmoji} />
               )}
               <View style={styles.avatarEditBadge}>
                 <Text style={{ fontSize: 10 }}>📷</Text>
@@ -1923,6 +2011,15 @@ function ProfileSelectScreen({ navigation }) {
         visible={avatarPickerFor != null}
         onClose={() => setAvatarPickerFor(null)}
         onPick={(emoji) => handlePickAvatar(avatarPickerFor, emoji)}
+        profil={profils.find((p) => p.id === avatarPickerFor)}
+      />
+
+      <ParentGateModal
+        visible={pendingPhoto != null}
+        expectedPin={expectedPin}
+        skipTimeStep
+        onCancel={() => setPendingPhoto(null)}
+        onSuccess={uploadPendingPhoto}
       />
     </View>
   );
@@ -2477,7 +2574,7 @@ function AvatarInfoModal({ visible, profil, onClose, onOpenRecompenses }) {
           {profil.photo_url ? (
             <Image source={{ uri: profil.photo_url }} style={styles.avatarInfoPhoto} />
           ) : (
-            <Text style={{ fontSize: 48, textAlign: 'center' }}>{profil.avatar_personnel ?? '🐾'}</Text>
+            <ProfilAvatarDisplay profil={profil} size={48} />
           )}
           <Text style={[styles.modalTitle, { textAlign: 'center', marginTop: 8 }]}>{profil.prenom}</Text>
           <Text style={{ textAlign: 'center', color: colors.ink, opacity: 0.7, marginBottom: 16 }}>
@@ -2679,7 +2776,7 @@ function WorldMapScreen({ route, navigation }) {
           {profil.photo_url ? (
             <Image source={{ uri: profil.photo_url }} style={styles.mapAvatarPhoto} />
           ) : (
-            <Text style={{ fontSize: 34 }}>{profil.avatar_personnel ?? '🐾'}</Text>
+            <ProfilAvatarDisplay profil={profil} size={34} />
           )}
         </Pressable>
         <Pressable onPress={() => setShowRecompensesModal(true)}>
@@ -8062,7 +8159,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
                 {p.photo_url ? (
                   <Image source={{ uri: p.photo_url }} style={styles.avatarPhoto} />
                 ) : (
-                  <Text style={{ fontSize: 32 }}>{p.avatar_personnel ?? '🐾'}</Text>
+                  <ProfilAvatarDisplay profil={p} size={32} />
                 )}
                 <View style={{ flex: 1 }}>
                   <Text style={styles.profilManageName}>{p.prenom}</Text>
@@ -8464,6 +8561,7 @@ const styles = StyleSheet.create({
   chipText: { fontWeight: '600', color: colors.ink },
   chipTextSelected: { color: '#fff' },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
+  avatarPickerSectionTitle: { fontWeight: '700', color: colors.ink, marginBottom: 8, marginTop: 4 },
   avatarTile: { width: 46, height: 46, borderRadius: 14, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'transparent' },
   avatarTileSelected: { borderColor: colors.gold, backgroundColor: colors.sand },
   cancelText: { textAlign: 'center', marginTop: 14, opacity: 0.6, fontWeight: '600' },
