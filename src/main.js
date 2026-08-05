@@ -2724,13 +2724,19 @@ function WorldMapScreen({ route, navigation }) {
 // zoom trop serre et flou), et en etendant la hauteur autour du centre de
 // la zone pour remplir le cadre - quitte a deborder un peu sur le sentier
 // voisin, sans jamais sortir des bords de l'image elle-meme.
-function computeZoomStyle(zone, containerWidth) {
+// Variante a hauteur FIXE (independante de zone.height) : l'illustration
+// du theme occupe toujours la meme proportion d'ecran quel que soit le
+// nombre de jeux de la zone (les jeux ne sont plus poses sur l'image).
+// Le cadrage reste centre sur le meme point que la zone d'origine.
+function computeZoomStyleFixed(zone, containerWidth, containerHeight) {
   const imageWidth = containerWidth / zone.width;
   const imageHeight = imageWidth / CAMPAGNE_MAP_ASPECT;
-  const containerHeight = imageHeight * zone.height;
+  const centerFraction = zone.top + zone.height / 2;
+  const visibleFraction = containerHeight / imageHeight;
+  const topFraction = centerFraction - visibleFraction / 2;
   const imageLeft = -zone.left * imageWidth;
-  const imageTop = -zone.top * imageHeight;
-  return { containerHeight, imageWidth, imageHeight, imageLeft, imageTop };
+  const imageTop = -topFraction * imageHeight;
+  return { imageWidth, imageHeight, imageLeft, imageTop };
 }
 
 // Quelques formes differentes pour les jeux poses sur la carte, afin
@@ -2749,7 +2755,8 @@ function SentierScreen({ route, navigation }) {
   const continent = continentFor(competence);
   const { width: screenWidth } = useWindowDimensions();
   const containerWidth = screenWidth - 36;
-  const zoom = computeZoomStyle(continent.zone, containerWidth);
+  const imageContainerHeight = containerWidth * 0.95;
+  const zoom = computeZoomStyleFixed(continent.zone, containerWidth, imageContainerHeight);
   const [miniJeux, setMiniJeux] = useState([]);
   const [niveauxParJeu, setNiveauxParJeu] = useState({}); // mini_jeu_id -> cran actuel
   const [bonusJeu, setBonusJeu] = useState(null);
@@ -2862,7 +2869,10 @@ function SentierScreen({ route, navigation }) {
         </Pressable>
       </View>
 
-      <View style={[styles.continentBlob, { width: containerWidth, height: zoom.containerHeight }]}>
+      {/* Illustration du theme seule, sans jeux dessus - hauteur fixe,
+          environ 38% de la largeur d'ecran pour rester dans l'esprit
+          "un tiers a la moitie de l'ecran" quel que soit le nombre de jeux. */}
+      <View style={[styles.continentBlob, { width: containerWidth, height: imageContainerHeight }]}>
         <Image
           source={CAMPAGNE_MAP_IMAGE}
           style={{
@@ -2876,20 +2886,18 @@ function SentierScreen({ route, navigation }) {
         {continent.decor.map((d, i) => (
           <DriftingDecor key={`decor-${i}`} {...d} size={(d.size ?? 22) + 6} />
         ))}
-        {miniJeux.map((item, index) => {
-          const slot = continent.paysSlotsFor[item.code];
-          if (!slot) return null; // position pas encore definie pour ce jeu
+      </View>
+
+      {/* Grille des jeux, en dessous de l'image - autant de cartes que
+          necessaire, l'ecran defile normalement s'il y en a beaucoup. */}
+      <View style={styles.gameGrid}>
+        {miniJeux.map((item) => {
           const targetScreen = GAME_SCREENS[item.code];
-          const forme = MARKER_SHAPES[index % MARKER_SHAPES.length];
+          const locked = limitReached && !!targetScreen;
           return (
             <Pressable
               key={item.id}
-              style={[
-                styles.paysMarker,
-                forme,
-                { top: slot.top, left: slot.left },
-                limitReached && targetScreen && styles.paysMarkerLocked,
-              ]}
+              style={[styles.gridCard, locked && styles.paysMarkerLocked]}
               disabled={!targetScreen}
               onPress={() => handleGamePress(targetScreen)}
             >
@@ -2911,51 +2919,39 @@ function SentierScreen({ route, navigation }) {
               >
                 <Text style={{ fontSize: 11 }}>🎤</Text>
               </Pressable>
-              {!targetScreen && <Text style={styles.paysMarkerLock}>🔒</Text>}
-              {limitReached && targetScreen && <Text style={styles.paysMarkerLock}>🔒</Text>}
+              {(!targetScreen || locked) && <Text style={styles.paysMarkerLock}>🔒</Text>}
             </Pressable>
           );
         })}
-        {continent.paysVides.map((slot, i) => {
-          // Le tout premier emplacement vide sert au jeu bonus de la zone,
-          // s'il en existe un pour cette competence.
-          if (i === 0 && bonusJeu) {
-            const targetScreen = GAME_SCREENS[bonusJeu.code];
-            return (
-              <Pressable
-                key="bonus"
-                style={[
-                  styles.paysMarker,
-                  MARKER_SHAPES[0],
-                  { top: slot.top, left: slot.left, borderColor: '#F5C542', borderWidth: bonusDebloque ? 2 : 1 },
-                  limitReached && bonusDebloque && styles.paysMarkerLocked,
-                ]}
-                disabled={!bonusDebloque}
-                onPress={() => bonusDebloque && handleGamePress(targetScreen)}
-              >
-                <View style={styles.paysMarkerTopRow}>
-                  <Text style={styles.paysMarkerIcon}>{bonusDebloque ? '🕵️' : '🔒'}</Text>
-                </View>
-                <Text style={styles.paysMarkerText} numberOfLines={3}>
-                  {bonusDebloque ? bonusJeu.nom : 'Jeu secret'}
-                </Text>
-                {bonusDebloque && (
-                  <Pressable
-                    style={styles.paysMarkerListenBtn}
-                    onPress={() => speakSmart(bonusJeu.nom)}
-                    hitSlop={8}
-                  >
-                    <Text style={{ fontSize: 11 }}>🎤</Text>
-                  </Pressable>
-                )}
-                {(!bonusDebloque || (limitReached && bonusDebloque)) && <Text style={styles.paysMarkerLock}>🔒</Text>}
-              </Pressable>
-            );
-          }
+
+        {bonusJeu && (() => {
+          const targetScreen = GAME_SCREENS[bonusJeu.code];
+          const locked = !bonusDebloque || (limitReached && bonusDebloque);
           return (
-            <View key={`vide-${i}`} style={[styles.paysVide, { top: slot.top, left: slot.left, transform: [{ rotate: `${-continent.rot}deg` }] }]} />
+            <Pressable
+              style={[styles.gridCard, { borderColor: '#F5C542', borderWidth: bonusDebloque ? 2 : 1 }, locked && bonusDebloque && styles.paysMarkerLocked]}
+              disabled={!bonusDebloque}
+              onPress={() => bonusDebloque && handleGamePress(targetScreen)}
+            >
+              <View style={styles.paysMarkerTopRow}>
+                <Text style={styles.paysMarkerIcon}>{bonusDebloque ? '🕵️' : '🔒'}</Text>
+              </View>
+              <Text style={styles.paysMarkerText} numberOfLines={3}>
+                {bonusDebloque ? bonusJeu.nom : 'Jeu secret'}
+              </Text>
+              {bonusDebloque && (
+                <Pressable
+                  style={styles.paysMarkerListenBtn}
+                  onPress={() => speakSmart(bonusJeu.nom)}
+                  hitSlop={8}
+                >
+                  <Text style={{ fontSize: 11 }}>🎤</Text>
+                </Pressable>
+              )}
+              {locked && <Text style={styles.paysMarkerLock}>🔒</Text>}
+            </Pressable>
           );
-        })}
+        })()}
       </View>
 
       {limitReached && (
@@ -8440,6 +8436,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.001)',
   },
   campagnePinEmoji: { fontSize: 1, opacity: 0 },
+  // Grille des jeux sous l'illustration du theme - flux normal (pas de
+  // positionnement absolu), autant de cartes que necessaire, l'ecran
+  // defile s'il y en a beaucoup. Remplace l'ancien systeme de poses en %
+  // sur l'image, source de chevauchements et de cartes coupees.
+  gameGrid: {
+    flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center',
+    gap: 10, paddingHorizontal: 8, marginTop: 4,
+  },
+  gridCard: {
+    width: 104, alignItems: 'center', backgroundColor: '#fff',
+    borderRadius: 14, paddingVertical: 8, paddingHorizontal: 6,
+    borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', marginBottom: 4,
+  },
   paysMarker: {
     position: 'absolute', width: 102, alignItems: 'center', backgroundColor: '#fff',
     borderRadius: 14, paddingVertical: 6, paddingHorizontal: 6,
