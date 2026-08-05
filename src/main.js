@@ -6411,31 +6411,65 @@ function generateMazeWalls(rows, cols) {
   );
   const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
 
-  function neighbors(r, c) {
+  function neighborsOf(r, c) {
     const list = [];
     if (r > 0) list.push([r - 1, c, 'top', 'bottom']);
     if (r < rows - 1) list.push([r + 1, c, 'bottom', 'top']);
     if (c > 0) list.push([r, c - 1, 'left', 'right']);
     if (c < cols - 1) list.push([r, c + 1, 'right', 'left']);
-    return shuffle(list);
+    return list;
   }
 
   const startR = 0, startC = 0;
   visited[startR][startC] = true;
-  const stack = [[startR, startC]];
 
-  while (stack.length > 0) {
-    const [r, c] = stack[stack.length - 1];
-    const options = neighbors(r, c).filter(([nr, nc]) => !visited[nr][nc]);
-    if (options.length === 0) {
-      stack.pop();
-      continue;
-    }
-    const [nr, nc, wallHere, wallThere] = options[0];
+  // Algorithme de Prim aleatoire plutot qu'un simple parcours en profondeur
+  // : produit naturellement beaucoup plus d'embranchements et d'impasses
+  // courtes des le debut, au lieu de longs couloirs qui serpentent sans
+  // jamais vraiment bifurquer.
+  let frontier = neighborsOf(startR, startC).map(([nr, nc, wallHere, wallThere]) => [startR, startC, wallHere, wallThere, nr, nc]);
+
+  while (frontier.length > 0) {
+    const idx = Math.floor(Math.random() * frontier.length);
+    const [r, c, wallHere, wallThere, nr, nc] = frontier[idx];
+    frontier.splice(idx, 1);
+    if (visited[nr][nc]) continue;
     cells[r][c][wallHere] = false;
     cells[nr][nc][wallThere] = false;
     visited[nr][nc] = true;
-    stack.push([nr, nc]);
+    for (const [nnr, nnc, wallHere2, wallThere2] of neighborsOf(nr, nc)) {
+      if (!visited[nnr][nnc]) {
+        frontier.push([nr, nc, wallHere2, wallThere2, nnr, nnc]);
+      }
+    }
+  }
+
+  // Tressage : on retire un peu plus de murs au hasard pour creer de
+  // vraies boucles (plusieurs chemins possibles pour arriver au meme
+  // endroit, des croisements), pas seulement des impasses sans issue.
+  const murs = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (c < cols - 1 && cells[r][c].right) murs.push([r, c, 'right', r, c + 1, 'left']);
+      if (r < rows - 1 && cells[r][c].bottom) murs.push([r, c, 'bottom', r + 1, c, 'top']);
+    }
+  }
+  const muresATresser = shuffle(murs).slice(0, Math.round(murs.length * 0.14));
+  for (const [r, c, wallHere, nr, nc, wallThere] of muresATresser) {
+    cells[r][c][wallHere] = false;
+    cells[nr][nc][wallThere] = false;
+  }
+
+  // S'assure que le depart a toujours au moins 2 directions ouvertes : un
+  // vrai choix des la premiere case, jamais un simple couloir impose.
+  const ouvertesDepart = ['top', 'right', 'bottom', 'left'].filter((k) => !cells[startR][startC][k]);
+  if (ouvertesDepart.length < 2) {
+    const candidats = neighborsOf(startR, startC).filter(([, , wallHere]) => cells[startR][startC][wallHere]);
+    if (candidats.length > 0) {
+      const [nr, nc, wallHere, wallThere] = candidats[Math.floor(Math.random() * candidats.length)];
+      cells[startR][startC][wallHere] = false;
+      cells[nr][nc][wallThere] = false;
+    }
   }
 
   return cells;
@@ -6615,10 +6649,16 @@ function LabyrintheGrotteScreen({ route, navigation }) {
     if (!miniJeuId || finishedRef.current) return;
     finishedRef.current = true;
     const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
-    const wasEfficient = stepsCountRef.current <= Math.max(4, Math.round(targetDistRef.current * 1.4));
-    const precomputedRung = await computeStreakRung({
-      profil, miniJeuId, currentRung: rung, wasPerfect: wasEfficient, maxRung: gameMaxRung,
-    });
+    // Progression rapide et volontairement simple : chaque labyrinthe
+    // resolu fait monter d'un cran (le vrai defi vient desormais de la
+    // richesse du labyrinthe lui-meme - embranchements, boucles - pas
+    // d'un systeme de "2 reussites d'affilee" comme les autres jeux.
+    const newRung = Math.min(gameMaxRung, rung + 1);
+    const precomputedRung = {
+      newRung,
+      direction: newRung > rung ? 'up' : 'same',
+      raison: newRung > rung ? 'parfait_rapide' : 'encore_un_effort',
+    };
     const summary = await completeSession({
       profil, miniJeuId, currentRung: rung,
       erreursTotal: 0,
