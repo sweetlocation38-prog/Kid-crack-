@@ -2239,6 +2239,24 @@ const GAME_SCREENS = {
 
 // Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
 // jauge de 0 a 10 fidele a l'avancement reel de l'enfant sur CE jeu precis.
+// Palette de couleurs pastel et petites variations de forme pour que les
+// cartes de jeu, sous l'illustration du theme, soient plus vivantes qu'un
+// simple bloc blanc repete - toujours assez clair pour garder le texte
+// bien lisible.
+const CARD_COLORS = ['#FFE0B2', '#B3E5FC', '#C8E6C9', '#F8BBD0', '#D1C4E9', '#FFF9C4', '#B2DFDB', '#FFCCBC'];
+const CARD_SHAPES = [
+  { borderRadius: 16 },
+  { borderRadius: 30 },
+  { borderTopLeftRadius: 30, borderTopRightRadius: 10, borderBottomLeftRadius: 10, borderBottomRightRadius: 30 },
+  { borderTopLeftRadius: 10, borderTopRightRadius: 30, borderBottomLeftRadius: 30, borderBottomRightRadius: 10 },
+];
+function cardStyleForIndex(index) {
+  return {
+    backgroundColor: CARD_COLORS[index % CARD_COLORS.length],
+    ...CARD_SHAPES[index % CARD_SHAPES.length],
+  };
+}
+
 const GAME_MAX_RUNG_15 = new Set([
   'monde_capitales', 'jeu_intrus', 'empreintes_clairiere', 'balance_prairie',
   'marche_village', 'cachettes_luma', 'ronde_lucioles', 'tri_village', 'puzzle_moulin',
@@ -2891,13 +2909,13 @@ function SentierScreen({ route, navigation }) {
       {/* Grille des jeux, en dessous de l'image - autant de cartes que
           necessaire, l'ecran defile normalement s'il y en a beaucoup. */}
       <View style={styles.gameGrid}>
-        {miniJeux.map((item) => {
+        {miniJeux.map((item, index) => {
           const targetScreen = GAME_SCREENS[item.code];
           const locked = limitReached && !!targetScreen;
           return (
             <Pressable
               key={item.id}
-              style={[styles.gridCard, locked && styles.paysMarkerLocked]}
+              style={[styles.gridCard, cardStyleForIndex(index), locked && styles.paysMarkerLocked]}
               disabled={!targetScreen}
               onPress={() => handleGamePress(targetScreen)}
             >
@@ -2929,7 +2947,7 @@ function SentierScreen({ route, navigation }) {
           const locked = !bonusDebloque || (limitReached && bonusDebloque);
           return (
             <Pressable
-              style={[styles.gridCard, { borderColor: '#F5C542', borderWidth: bonusDebloque ? 2 : 1 }, locked && bonusDebloque && styles.paysMarkerLocked]}
+              style={[styles.gridCard, cardStyleForIndex(miniJeux.length), { borderColor: '#F5C542', borderWidth: bonusDebloque ? 2 : 1 }, locked && bonusDebloque && styles.paysMarkerLocked]}
               disabled={!bonusDebloque}
               onPress={() => bonusDebloque && handleGamePress(targetScreen)}
             >
