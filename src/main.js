@@ -876,10 +876,26 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   const oldStreakRapideBon = existing?.details?.streakRapideBon ?? 0;
   const oldTempsMoyenHistorique = existing?.details?.tempsMoyenHistorique ?? null;
   const oldNbSessionsHistorique = existing?.details?.nbSessionsHistorique ?? 0;
+  const oldDropStreak = existing?.details?.dropStreak ?? 0;
   let newStreak = 0;
   let newRung = currentRung;
   let newReference = reference;
   let newEchecs = 0;
+  let newDropStreak = oldDropStreak;
+
+  // Calibrage rapide : quand l'enfant enchaine les sessions parfaites (ex:
+  // il a en realite 2 classes d'avance sur son niveau assigne), on saute de
+  // plus en plus de crans d'un coup au lieu de toujours +1 - sinon il faut
+  // des dizaines de manches triviales avant de trouver le vrai niveau ou
+  // "ca coince", ce qui est decourageant pour rien. Meme logique inversee
+  // quand l'enfant enchaine les vraies difficultes : on redescend de plus
+  // en plus vite pour trouver le bon niveau au lieu de s'acharner cran par
+  // cran. Des qu'une session casse la serie (ni parfaite, ni vraiment ratee),
+  // on repart de zero des deux cotes : la "zone ou ca coince" est trouvee.
+  const CALIBRAGE_JUMP_MAX = 6;
+  function jumpFor(streakCount) {
+    return Math.min(CALIBRAGE_JUMP_MAX, Math.pow(2, Math.max(0, streakCount - 1)));
+  }
 
   // La vitesse n'est plus un critere qui bloque la montee de niveau : plus
   // le niveau grimpe, plus le contenu est difficile, donc plus il est normal
@@ -890,7 +906,8 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   if (erreursTotal === 0) {
     // Session parfaite : la remontee s'accelere, quel que soit le temps mis.
     newStreak = oldStreak + 1;
-    const jump = Math.min(3, newStreak);
+    newDropStreak = 0; // une reussite claire = on n'est plus en train de chuter
+    const jump = jumpFor(newStreak);
     newRung = Math.min(effectiveMaxRung, currentRung + jump);
     if (tempsMoyenParManche != null) {
       // Le temps de reference continue d'etre suivi a titre informatif.
@@ -906,7 +923,9 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
     newStreak = 0;
     const echecsCumules = oldEchecs + 1;
     if (echecsCumules >= 3) {
-      newRung = Math.max(1, currentRung - 1);
+      newDropStreak = oldDropStreak + 1;
+      const jump = jumpFor(newDropStreak);
+      newRung = Math.max(1, currentRung - jump);
       newEchecs = 0;
       raison = 'erreurs_beaucoup';
     } else {
@@ -917,6 +936,7 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
   } else {
     // Quelques erreurs, sans plus : on reste sur place, sans casser un futur enchainement.
     newStreak = 0;
+    newDropStreak = 0; // zone stable trouvee, plus de calibrage accelere a partir d'ici
     newRung = currentRung;
     raison = 'erreurs_quelques';
   }
@@ -972,6 +992,7 @@ async function computeNextRung({ profil, miniJeuId, currentRung, erreursTotal, t
     streakRapideBon: newStreakRapideBon,
     tempsMoyenHistorique: newTempsMoyenHistorique,
     nbSessionsHistorique: newNbSessionsHistorique,
+    dropStreak: newDropStreak,
   };
 }
 
@@ -1089,6 +1110,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
         streakRapideBon: result.streakRapideBon,
         tempsMoyenHistorique: result.tempsMoyenHistorique,
         nbSessionsHistorique: result.nbSessionsHistorique,
+        dropStreak: result.dropStreak,
       };
     } catch (e) {
       // On garde le cran actuel si le calcul echoue.
@@ -1300,10 +1322,20 @@ async function computeStreakRung({
   let newStreakRapideBon = streakRapideBonActuel;
   let raison = 'encore_un_effort';
 
-  if (streakActuel >= 2 && currentRung < maxRung) {
-    newRung = currentRung + 1;
-    newStreak = 0;
-    raison = 'parfait_deux_fois';
+  // Meme calibrage rapide que pour les autres jeux (computeNextRung) : le
+  // saut grandit avec les reussites parfaites enchainees (1, 2, 4, 6 max)
+  // au lieu de toujours viser exactement 2 reussites pour +1 cran.
+  const CALIBRAGE_JUMP_MAX = 6;
+  function jumpFor(streakCount) {
+    return Math.min(CALIBRAGE_JUMP_MAX, Math.pow(2, Math.max(0, streakCount - 1)));
+  }
+
+  if (streakActuel >= 1 && currentRung < maxRung) {
+    const jump = jumpFor(streakActuel);
+    newRung = Math.min(maxRung, currentRung + jump);
+    raison = 'parfait_rapide';
+    // newStreak n'est PAS remis a zero : tant que les reussites parfaites
+    // s'enchainent, le prochain saut est plus grand.
   } else if (streakRapideBonActuel >= 2 && currentRung < maxRung) {
     newRung = currentRung + 1;
     newStreakRapideBon = 0;
