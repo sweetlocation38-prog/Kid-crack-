@@ -6654,7 +6654,45 @@ function canMove(cells, r, c, dr, dc) {
   return true;
 }
 
-function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, onGridTouch, gridRef }) {
+// Retrace le plus court chemin du depart au tresor (via le tableau des
+// distances BFS deja calcule), pour savoir ou poser les pieges de facon a
+// ce qu'ils soient forcement rencontres en suivant la route la plus directe.
+function bfsPath(cells, dist, startR, startC, endR, endC) {
+  const path = [{ r: endR, c: endC }];
+  let r = endR, c = endC;
+  while (r !== startR || c !== startC) {
+    const cell = cells[r][c];
+    const options = [];
+    if (!cell.top && dist[r - 1]?.[c] === dist[r][c] - 1) options.push([r - 1, c]);
+    if (!cell.bottom && dist[r + 1]?.[c] === dist[r][c] - 1) options.push([r + 1, c]);
+    if (!cell.left && dist[r]?.[c - 1] === dist[r][c] - 1) options.push([r, c - 1]);
+    if (!cell.right && dist[r]?.[c + 1] === dist[r][c] - 1) options.push([r, c + 1]);
+    if (options.length === 0) break; // securite, ne devrait pas arriver
+    [r, c] = options[0];
+    path.push({ r, c });
+  }
+  return path.reverse();
+}
+
+// Choisit quelques cases-piege reparties le long du chemin le plus direct
+// (jamais la toute premiere ni la toute derniere case), pour qu'un enfant
+// qui suit la route la plus evidente les rencontre forcement. Le nombre de
+// pieges augmente doucement avec le niveau.
+function pickTrapCells(path, rung) {
+  if (path.length <= 3) return [];
+  const nbPieges = Math.min(4, Math.max(1, Math.floor(rung / 3) + 1));
+  const interieur = path.slice(1, -1);
+  if (interieur.length === 0) return [];
+  const pas = interieur.length / (nbPieges + 1);
+  const pieges = [];
+  for (let i = 1; i <= nbPieges; i++) {
+    const idx = Math.min(interieur.length - 1, Math.round(pas * i));
+    pieges.push(interieur[idx]);
+  }
+  return pieges;
+}
+
+function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, trapCells, trapsResolus, onGridTouch, gridRef }) {
   const cellSize = MAZE_CELL_SIZE;
   const wallColor = '#3D2E4F';
 
@@ -6675,6 +6713,7 @@ function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, o
             const isPos = pos.r === r && pos.c === c;
             const isStart = start.r === r && start.c === c;
             const isTreasure = treasure.r === r && treasure.c === c;
+            const isTrapResolu = trapsResolus?.has(`${r},${c}`);
             return (
               <View
                 key={c}
@@ -6693,7 +6732,8 @@ function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, o
               >
                 {isPos && <Text style={{ fontSize: cellSize * 0.6 }}>🧑</Text>}
                 {!isPos && isTreasure && <Text style={{ fontSize: cellSize * 0.6 }}>💎</Text>}
-                {!isPos && !isTreasure && isStart && isVisited && (
+                {!isPos && !isTreasure && isTrapResolu && <Text style={{ fontSize: cellSize * 0.5 }}>⭐</Text>}
+                {!isPos && !isTreasure && !isTrapResolu && isStart && isVisited && (
                   <View style={{ width: cellSize * 0.25, height: cellSize * 0.25, borderRadius: 99, backgroundColor: '#9B7FC4' }} />
                 )}
               </View>
@@ -6702,6 +6742,80 @@ function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, o
         </View>
       ))}
     </View>
+  );
+}
+
+// Va chercher une question-piege adaptee au vrai niveau de l'enfant dans un
+// AUTRE jeu (logique ou calcul) plutot que de creer du contenu specifique
+// au labyrinthe - reutilise Le Jeu des Intrus (logique, correspond au theme
+// de la zone) et La Balance de la Prairie (calcul), en alternance.
+async function fetchTrapQuestion(profil) {
+  const source = Math.random() < 0.6 ? 'jeu_intrus' : 'balance_prairie';
+  try {
+    const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', source).single();
+    if (!jeu) return null;
+    const { data: prog } = await supabase
+      .from('progression')
+      .select('palier_actuel')
+      .eq('profil_id', profil.id)
+      .eq('mini_jeu_id', jeu.id)
+      .maybeSingle();
+    const rung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+    const { niveau, palier } = gradeAndPalierFromRung(rung);
+    const { data: contenu } = await supabase
+      .from('contenu_mini_jeu')
+      .select('donnees')
+      .eq('mini_jeu_id', jeu.id)
+      .eq('niveau', niveau)
+      .eq('palier', palier)
+      .eq('actif', true);
+    if (!contenu || contenu.length === 0) return null;
+    const pick = contenu[Math.floor(Math.random() * contenu.length)].donnees;
+
+    if (source === 'jeu_intrus' && pick.items && pick.intrus) {
+      return {
+        question: "Trouve l'intrus !",
+        options: shuffle(pick.items),
+        bonneReponse: pick.intrus,
+      };
+    }
+    if (source === 'balance_prairie' && pick.options && pick.manque != null) {
+      return {
+        question: `La balance a ${pick.gauche} d'un côté. De l'autre, il y a déjà ${pick.droit_connu}. Combien manque-t-il ?`,
+        options: shuffle(pick.options),
+        bonneReponse: pick.manque,
+      };
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function TrapQuestionModal({ visible, trapData, onAnswer }) {
+  if (!trapData) return null;
+  return (
+    <Modal visible={visible} animationType="fade" transparent>
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalCard}>
+          <Text style={styles.modalTitle}>🔒 Piège !</Text>
+          <Text style={{ textAlign: 'center', marginBottom: 16, fontSize: 16, color: colors.ink }}>
+            {trapData.question}
+          </Text>
+          <View style={{ gap: 10 }}>
+            {trapData.options.map((opt, i) => (
+              <Pressable
+                key={i}
+                style={styles.button}
+                onPress={() => onAnswer(String(opt) === String(trapData.bonneReponse))}
+              >
+                <Text style={styles.buttonText}>{String(opt)}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </View>
+    </Modal>
   );
 }
 
@@ -6721,6 +6835,8 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   const [pos, setPos] = useState({ r: 0, c: 0 });
   const [treasure, setTreasure] = useState({ r: 0, c: 0 });
   const [visitedSet, setVisitedSet] = useState(() => new Set());
+  const [trapsResolus, setTrapsResolus] = useState(() => new Set());
+  const [activeTrap, setActiveTrap] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sessionDone, setSessionDone] = useState(false);
   const [sessionSummary, setSessionSummary] = useState(null);
@@ -6733,23 +6849,33 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   const targetDistRef = useRef(0);
   const gridOriginRef = useRef({ x: 0, y: 0 });
   const gridRef = useRef(null);
+  const trapCellsRef = useRef([]);
+  const trapsResolusRef = useRef(new Set());
+  const trapActiveRef = useRef(false); // bloque les deplacements pendant qu'une question est affichee
 
   const loadMaze = useCallback((currentRung) => {
     setLoading(true);
     const generated = generateMazeWalls(rows, cols);
     const dist = bfsDistances(generated, rows, cols, 0, 0);
     const t = pickTreasureForRung(dist, rows, cols, currentRung, gameMaxRung);
+    const chemin = bfsPath(generated, dist, 0, 0, t.r, t.c);
+    const pieges = pickTrapCells(chemin, currentRung);
     cellsRef.current = generated;
     posRef.current = { r: 0, c: 0 };
     treasureRef.current = { r: t.r, c: t.c };
     targetDistRef.current = t.targetDist;
+    trapCellsRef.current = pieges;
+    trapsResolusRef.current = new Set();
     finishedRef.current = false;
     stepsCountRef.current = 0;
     setCells(generated);
     setPos({ r: 0, c: 0 });
     setTreasure({ r: t.r, c: t.c });
     setVisitedSet(new Set(['0,0']));
-    speakSmart('Fais glisser ton doigt pour trouver le chemin jusqu\u2019au trésor !');
+    setTrapsResolus(new Set());
+    setActiveTrap(null);
+    trapActiveRef.current = false;
+    speakSmart('Fais glisser ton doigt pour trouver le chemin jusqu\u2019au trésor ! Attention aux pièges.');
     setLoading(false);
   }, [rows, cols, gameMaxRung]);
 
@@ -6810,7 +6936,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   }
 
   function tryMoveTo(r, c) {
-    if (finishedRef.current || !cellsRef.current) return;
+    if (finishedRef.current || !cellsRef.current || trapActiveRef.current) return;
     if (r < 0 || r >= rows || c < 0 || c >= cols) return;
     const { r: pr, c: pc } = posRef.current;
     if (r === pr && c === pc) return; // deja ici
@@ -6831,6 +6957,41 @@ function LabyrintheGrotteScreen({ route, navigation }) {
     if (r === treasureRef.current.r && c === treasureRef.current.c) {
       speakSmart('Bravo, tu as trouvé le trésor !');
       setTimeout(finishSession, 500);
+      return;
+    }
+
+    // Case-piege non encore resolue : on bloque le deplacement et on pose
+    // une question adaptee au vrai niveau de l'enfant dans un autre jeu.
+    const surUnPiege = trapCellsRef.current.some((p) => p.r === r && p.c === c);
+    const dejaResolu = trapsResolusRef.current.has(`${r},${c}`);
+    if (surUnPiege && !dejaResolu) {
+      trapActiveRef.current = true;
+      (async () => {
+        const question = await fetchTrapQuestion(profil);
+        if (question) {
+          setActiveTrap({ ...question, cellKey: `${r},${c}` });
+        } else {
+          trapActiveRef.current = false; // pas de contenu dispo, on ne bloque pas l'enfant pour rien
+        }
+      })();
+    }
+  }
+
+  function handleTrapAnswer(correct) {
+    if (!activeTrap) return;
+    if (correct) {
+      speakSmart('Bravo, bonne réponse !');
+      trapsResolusRef.current.add(activeTrap.cellKey);
+      setTrapsResolus(new Set(trapsResolusRef.current));
+      setActiveTrap(null);
+      trapActiveRef.current = false;
+    } else {
+      speakSmart('Ce n\u2019est pas ça, retour au départ !');
+      posRef.current = { r: 0, c: 0 };
+      setPos({ r: 0, c: 0 });
+      setVisitedSet(new Set(['0,0']));
+      setActiveTrap(null);
+      trapActiveRef.current = false;
     }
   }
 
@@ -6889,10 +7050,18 @@ function LabyrintheGrotteScreen({ route, navigation }) {
           start={{ r: 0, c: 0 }}
           treasure={treasure}
           visitedSet={visitedSet}
+          trapCells={trapCellsRef.current}
+          trapsResolus={trapsResolus}
           onGridTouch={onGridTouch}
           gridRef={gridRef}
         />
       </View>
+
+      <TrapQuestionModal
+        visible={activeTrap != null}
+        trapData={activeTrap}
+        onAnswer={handleTrapAnswer}
+      />
     </ScrollView>
   );
 }
