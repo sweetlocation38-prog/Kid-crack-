@@ -152,20 +152,23 @@ const VIVID = {
 async function uploadFileToStorage(bucket, path, uri, contentType) {
   try {
     const response = await fetch(uri);
-    const blob = await response.blob();
-    const { error } = await supabase.storage.from(bucket).upload(path, blob, {
+    // Sur Android, passer un Blob directement a Supabase est connu pour
+    // echouer silencieusement ou produire un fichier vide (bug documente
+    // d'Expo) - un ArrayBuffer est beaucoup plus fiable.
+    const arraybuffer = await response.arrayBuffer();
+    const { error } = await supabase.storage.from(bucket).upload(path, arraybuffer, {
       contentType,
       upsert: true,
     });
     if (error) {
       console.warn('Erreur upload', error);
-      return null;
+      return { url: null, error: error.message ?? String(error) };
     }
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    return data?.publicUrl ?? null;
+    return { url: data?.publicUrl ?? null, error: null };
   } catch (e) {
     console.warn('Erreur upload', e);
-    return null;
+    return { url: null, error: e?.message ?? String(e) };
   }
 }
 
@@ -259,7 +262,7 @@ async function pickAndAddMemo(familleId, categorie) {
   const file = result.assets[0];
   const ext = (file.name?.split('.').pop() || 'm4a').toLowerCase();
   const path = `${familleId}/${categorie}/${Date.now()}.${ext}`;
-  const url = await uploadFileToStorage('memos-vocaux', path, file.uri, file.mimeType || 'audio/mpeg');
+  const { url } = await uploadFileToStorage('memos-vocaux', path, file.uri, file.mimeType || 'audio/mpeg');
   if (!url) return false;
   await supabase.from('memos_vocaux').insert({ famille_id: familleId, categorie, audio_url: url });
   return true;
@@ -1908,12 +1911,12 @@ function ProfileSelectScreen({ navigation }) {
     // On ajoute un suffixe different a chaque fois (au lieu d'un nom de
     // fichier toujours identique) pour eviter tout souci de remplacement
     // silencieux d'une photo par une autre.
-    const url = await uploadFileToStorage('profil-photos', `${profilId}-${Date.now()}.jpg`, choix, 'image/jpeg');
+    const { url, error } = await uploadFileToStorage('profil-photos', `${profilId}-${Date.now()}.jpg`, choix, 'image/jpeg');
     if (url) {
       await supabase.from('profils_enfants').update({ photo_url: url }).eq('id', profilId);
       await loadProfils();
     } else {
-      Alert.alert('Photo non enregistrée', "La photo n'a pas pu être envoyée. Vérifiez la connexion internet et réessayez.");
+      Alert.alert('Photo non enregistrée', `La photo n'a pas pu être envoyée.${error ? ` (${error})` : ''} Vérifiez la connexion internet et réessayez.`);
     }
   }
 
@@ -2221,13 +2224,13 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
       .single();
 
     if (inserted && photoUri) {
-      const url = await uploadFileToStorage(
+      const { url, error } = await uploadFileToStorage(
         'profil-photos', `${inserted.id}-${Date.now()}.jpg`, photoUri, 'image/jpeg'
       );
       if (url) {
         await supabase.from('profils_enfants').update({ photo_url: url }).eq('id', inserted.id);
       } else {
-        Alert.alert('Photo non enregistrée', "Le profil est bien créé, mais la photo n'a pas pu être envoyée. Vous pourrez réessayer depuis l'écran des profils.");
+        Alert.alert('Photo non enregistrée', `Le profil est bien créé, mais la photo n'a pas pu être envoyée.${error ? ` (${error})` : ''} Vous pourrez réessayer depuis l'écran des profils.`);
       }
     }
 
