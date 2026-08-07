@@ -5368,16 +5368,19 @@ function EmpreintesClairiereScreen({ route, navigation }) {
 
 // ============================================================
 // La Balance de la Prairie — maths (equilibrer une balance)
-// Vraie balance visuelle avec des "poids" a ajouter un par un (au tap,
-// plus fiable qu'un geste de glisser sur ce projet), plutot qu'un choix
-// multiple textuel. L'habillage des poids (forme/couleur) est tire au
-// hasard une fois par session pour casser la routine si l'enfant reste
-// longtemps sur le meme niveau - test demande par l'utilisateur.
+// Vraie balance visuelle a deux plateaux qui s'inclinent pour trouver
+// l'equilibre (garde, c'est ce qui rend la balance parlante). Ce qui
+// change : au lieu d'ajouter un seul type de poids en boucle (trop facile,
+// il suffisait de regarder la barre redevenir horizontale sans vraiment
+// calculer), l'enfant choisit desormais parmi une dizaine de poids de
+// VALEURS DIFFERENTES (1 a 10) a combiner - il doit vraiment calculer
+// quelle combinaison atteint le bon total, pas juste taper au hasard en
+// regardant la balance.
 // ============================================================
 function buildEquilibrePrompt(d) {
   return {
-    promptText: 'Ajoute des poids pour équilibrer la balance !',
-    speak: 'Ajoute des poids pour équilibrer la balance !',
+    promptText: 'Choisis des poids pour équilibrer la balance !',
+    speak: 'Choisis des poids pour équilibrer la balance !',
     mandatorySpeak: true,
     gauche: d.gauche,
     droitConnu: d.droit_connu,
@@ -5386,26 +5389,42 @@ function buildEquilibrePrompt(d) {
   };
 }
 
-const BALANCE_HABILLAGES = [
-  { emoji: '🏋️', nom: 'haltère', couleur: '#7BB6E8' },
-  { emoji: '🪨', nom: 'caillou', couleur: '#A6968A' },
-  { emoji: '🎒', nom: 'sac', couleur: '#F2A65A' },
-  { emoji: '🧺', nom: 'panier', couleur: '#8FD19E' },
-  { emoji: '📦', nom: 'boîte', couleur: '#E8899A' },
-];
+// Dix poids de valeurs differentes, avec une couleur propre a chacun pour
+// bien les distinguer d'un coup d'oeil (pas seulement par le chiffre, utile
+// pour un enfant qui debute en lecture des nombres).
+const BALANCE_VALEURS_POIDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const BALANCE_COULEURS_POIDS = ['#7BB6E8', '#F2A65A', '#8FD19E', '#E8899A', '#C9A6E8', '#F5C542', '#6FBF9E', '#E8896B', '#9AA6E8', '#D68FC9'];
+
+function PoidsIcon({ valeur, taille = 40 }) {
+  const couleur = BALANCE_COULEURS_POIDS[(valeur - 1) % BALANCE_COULEURS_POIDS.length];
+  return (
+    <View style={{
+      width: taille, height: taille, borderRadius: taille / 2, backgroundColor: couleur,
+      alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.15)',
+    }}>
+      <Text style={{ fontWeight: '800', color: '#fff', fontSize: taille * 0.42 }}>{valeur}</Text>
+    </View>
+  );
+}
 
 function BalanceVisual({ promptData, onOptionPress, answered }) {
-  const [ajoutes, setAjoutes] = useState(0);
-  const habillage = useMemo(() => BALANCE_HABILLAGES[Math.floor(Math.random() * BALANCE_HABILLAGES.length)], []);
+  const [poses, setPoses] = useState([]); // liste des valeurs de poids poses sur le plateau droit
 
-  // Remet le compteur a zero a chaque nouvelle manche (nouvelle question).
-  useEffect(() => { setAjoutes(0); }, [promptData]);
+  // Remet a zero a chaque nouvelle manche (nouvelle question).
+  useEffect(() => { setPoses([]); }, [promptData]);
 
-  const totalDroite = promptData.droitConnu + ajoutes;
+  const totalAjoute = poses.reduce((s, v) => s + v, 0);
+  const totalDroite = promptData.droitConnu + totalAjoute;
   const difference = totalDroite - promptData.gauche;
-  // Inclinaison visuelle de la balance : plafonnee pour rester lisible
-  // meme avec de grands ecarts.
-  const inclinaison = Math.max(-18, Math.min(18, difference * -4));
+  // Inclinaison visuelle de la balance, plafonnee pour rester lisible.
+  const inclinaison = Math.max(-18, Math.min(18, difference * -2.5));
+
+  function ajouterPoids(valeur) {
+    setPoses((p) => [...p, valeur]);
+  }
+  function retirerPoids(index) {
+    setPoses((p) => p.filter((_, i) => i !== index));
+  }
 
   return (
     <View style={{ alignItems: 'center', paddingHorizontal: 16 }}>
@@ -5413,39 +5432,36 @@ function BalanceVisual({ promptData, onOptionPress, answered }) {
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 14 }}>
         <View style={styles.balancePlateau}>
           <Text style={styles.balancePlateauLabel}>{promptData.gauche}</Text>
-          <Text style={{ fontSize: 22 }}>{habillage.emoji}</Text>
+          <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: '#B8B0A6', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.15)' }}>
+            <Text style={{ fontSize: 14 }}>⚖️</Text>
+          </View>
         </View>
         <View style={styles.balancePlateau}>
           <Text style={styles.balancePlateauLabel}>{totalDroite}</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', maxWidth: 90, justifyContent: 'center' }}>
-            {Array.from({ length: Math.min(totalDroite, 14) }).map((_, i) => (
-              <Text key={i} style={{ fontSize: 16 }}>{habillage.emoji}</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', maxWidth: 110, justifyContent: 'center', gap: 3 }}>
+            {poses.map((v, i) => (
+              <Pressable key={i} disabled={answered !== null} onPress={() => retirerPoids(i)}>
+                <PoidsIcon valeur={v} taille={22} />
+              </Pressable>
             ))}
           </View>
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
-        <Pressable
-          disabled={answered !== null}
-          style={styles.button}
-          onPress={() => setAjoutes((a) => a + 1)}
-        >
-          <Text style={styles.buttonText}>➕ Ajouter {habillage.emoji}</Text>
-        </Pressable>
-        <Pressable
-          disabled={answered !== null || ajoutes === 0}
-          style={[styles.button, { backgroundColor: '#E0C9A6' }]}
-          onPress={() => setAjoutes((a) => Math.max(0, a - 1))}
-        >
-          <Text style={styles.buttonText}>➖ Retirer</Text>
-        </Pressable>
+      <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.7, marginBottom: 6 }}>Touche un poids posé pour le retirer</Text>
+
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginBottom: 14, maxWidth: 300 }}>
+        {BALANCE_VALEURS_POIDS.map((v) => (
+          <Pressable key={v} disabled={answered !== null} onPress={() => ajouterPoids(v)}>
+            <PoidsIcon valeur={v} taille={38} />
+          </Pressable>
+        ))}
       </View>
 
       <Pressable
         disabled={answered !== null}
         style={[styles.button, { minWidth: 180 }]}
-        onPress={() => onOptionPress(ajoutes)}
+        onPress={() => onOptionPress(totalAjoute)}
       >
         <Text style={styles.buttonText}>✅ C'est équilibré !</Text>
       </Pressable>
