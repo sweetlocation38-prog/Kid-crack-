@@ -7608,16 +7608,27 @@ function CheminDizainesScreen({ route, navigation }) {
 const BARRE_BLOC_TAILLE = 34;
 const BARRE_COULEURS = ['#7BB6E8', '#F2A65A', '#8FD19E', '#E8899A', '#C9A6E8'];
 
+// 4 paliers, du plus concret au plus abstrait (esprit Singapour), qui
+// montent vraiment jusqu'au niveau CE2 - avant, la difficulte plafonnait
+// beaucoup trop bas (toujours des barres de 10 maximum, complement a 10
+// systematique, jamais plus dur meme au cran le plus eleve).
 function barresLumaModeForRung(rung) {
-  if (rung <= 6) return 'comparaison';
-  if (rung <= 12) return 'construction';
-  return 'complement10';
+  if (rung <= 4) return 'comparaison';
+  if (rung <= 9) return 'construction';
+  if (rung <= 14) return 'complementRond';
+  return 'toutEtPartie';
+}
+
+function rondCibleForRung(rung) {
+  if (rung <= 11) return 10;
+  if (rung <= 12) return 20;
+  if (rung <= 13) return 30;
+  return 50;
 }
 
 function genererMancheBarres(rung) {
   const mode = barresLumaModeForRung(rung);
   if (mode === 'comparaison') {
-    // Deux quantites distinctes, qui grandissent doucement avec le niveau.
     const max = Math.min(9, 3 + Math.floor(rung / 2));
     let a = 1 + Math.floor(Math.random() * max);
     let b = 1 + Math.floor(Math.random() * max);
@@ -7627,52 +7638,73 @@ function genererMancheBarres(rung) {
       mode,
       barreA: a,
       barreB: b,
-      veutPlusLongue,
       consigne: veutPlusLongue ? 'Touche la barre la plus longue !' : 'Touche la barre la plus courte !',
       bonneReponse: veutPlusLongue ? (a > b ? 'A' : 'B') : (a < b ? 'A' : 'B'),
     };
   }
   if (mode === 'construction') {
-    const max = Math.min(10, 4 + Math.floor((rung - 7) / 2));
-    const cible = 2 + Math.floor(Math.random() * (max - 1));
+    const max = 4 + Math.floor((rung - 5) * 2.2); // 4 a ~15
+    const cible = 3 + Math.floor(Math.random() * (max - 2));
     return {
       mode,
       cible,
       consigne: `Construis une barre de ${cible} !`,
     };
   }
-  // complement10
-  const deja = 2 + Math.floor(Math.random() * 7); // entre 2 et 8 deja poses
+  if (mode === 'complementRond') {
+    const cible = rondCibleForRung(rung);
+    const deja = 1 + Math.floor(Math.random() * (cible - 1));
+    return {
+      mode,
+      deja,
+      cible,
+      consigne: `Il y a déjà ${deja}. Complète jusqu'à ${cible} !`,
+    };
+  }
+  // toutEtPartie : le tout et une partie sont donnes, il faut construire
+  // l'autre partie (vraie soustraction posee via un modele en barres).
+  const ratio = Math.max(0, Math.min(1, (rung - 15) / 6));
+  const tout = Math.round(24 + ratio * 66); // 24 a 90
+  const part1 = Math.max(4, Math.round(tout * (0.25 + Math.random() * 0.35)));
+  const part2 = tout - part1;
   return {
     mode,
-    deja,
-    cible: 10,
-    consigne: `Il y a déjà ${deja}. Complète jusqu'à dix !`,
+    tout,
+    part1,
+    cible: part2,
+    consigne: `Le tout vaut ${tout}. Une partie vaut ${part1}. Construis l'autre partie !`,
   };
 }
 
-function BarreVisuelle({ blocs, couleur, maxSlots, onBlocPress, disabledIndices }) {
+// Barre CONCRETE (cases unitaires comptables une par une) - utilisee pour
+// la comparaison et la construction simple, quand les nombres restent
+// petits. Jamais de case vide en pointilles : seuls les blocs deja poses
+// sont affiches, sinon il suffit de remplir les trous visibles sans
+// vraiment calculer (defaut releve par l'utilisateur).
+function BarreConcrete({ blocs, couleur }) {
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 3 }}>
-      {Array.from({ length: maxSlots }).map((_, i) => {
-        const rempli = i < blocs;
-        return (
-          <Pressable
-            key={i}
-            disabled={!rempli || !onBlocPress || disabledIndices?.has(i)}
-            onPress={() => onBlocPress && onBlocPress(i)}
-            style={{
-              width: BARRE_BLOC_TAILLE,
-              height: BARRE_BLOC_TAILLE,
-              borderRadius: 8,
-              backgroundColor: rempli ? couleur : 'transparent',
-              borderWidth: 2,
-              borderColor: rempli ? couleur : 'rgba(0,0,0,0.2)',
-              borderStyle: rempli ? 'solid' : 'dashed',
-            }}
-          />
-        );
-      })}
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 3, maxWidth: 260 }}>
+      {Array.from({ length: blocs }).map((_, i) => (
+        <View
+          key={i}
+          style={{ width: BARRE_BLOC_TAILLE, height: BARRE_BLOC_TAILLE, borderRadius: 8, backgroundColor: couleur }}
+        />
+      ))}
+    </View>
+  );
+}
+
+// Barre ABSTRAITE (longueur proportionnelle, comme un vrai modele en
+// barres) - utilisee pour les grands nombres (complement a un nombre rond,
+// tout et une partie), pour rester lisible sans afficher des dizaines de
+// petites cases. La largeur donne une idee de grandeur, le chiffre donne
+// la valeur exacte.
+function BarreAbstraite({ valeur, valeurMax, couleur, hauteur = 40 }) {
+  const largeurMax = 260;
+  const largeur = Math.max(24, Math.round((valeur / Math.max(1, valeurMax)) * largeurMax));
+  return (
+    <View style={{ width: largeur, height: hauteur, borderRadius: 8, backgroundColor: couleur, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontWeight: '800', color: '#fff', fontSize: 15 }}>{valeur}</Text>
     </View>
   );
 }
@@ -7685,7 +7717,7 @@ function BarresLumaScreen({ route, navigation }) {
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
   const [manche, setManche] = useState(null);
-  const [construitBlocs, setConstruitBlocs] = useState(0); // pour construction / complement10
+  const [construitBlocs, setConstruitBlocs] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sessionDone, setSessionDone] = useState(false);
@@ -7767,22 +7799,24 @@ function BarresLumaScreen({ route, navigation }) {
     }
   }
 
-  function ajouterBloc() {
-    const max = manche.mode === 'complement10' ? (10 - manche.deja) : manche.cible;
-    setConstruitBlocs((b) => Math.min(max, b + 1));
+  function ajouter(valeur) {
+    setConstruitBlocs((b) => Math.max(0, b + valeur));
   }
-  function retirerBloc() {
-    setConstruitBlocs((b) => Math.max(0, b - 1));
+
+  function cibleActuelle() {
+    if (manche.mode === 'complementRond') return manche.cible - manche.deja;
+    if (manche.mode === 'toutEtPartie') return manche.cible;
+    return manche.cible;
   }
 
   function validerConstruction() {
-    const total = manche.mode === 'complement10' ? manche.deja + construitBlocs : construitBlocs;
-    if (total === manche.cible) {
+    const attendu = cibleActuelle();
+    if (construitBlocs === attendu) {
       speakSmart('Bravo, le compte est bon !');
       setTimeout(() => finishSession(erreursRef.current === 0), 400);
     } else {
       erreursRef.current += 1;
-      const diff = manche.cible - total;
+      const diff = attendu - construitBlocs;
       const msg = diff > 0 ? `Il en manque encore ${diff} !` : `Il y en a ${-diff} de trop !`;
       setFeedback(msg);
       speakSmart(msg);
@@ -7807,6 +7841,8 @@ function BarresLumaScreen({ route, navigation }) {
       </View>
     );
   }
+
+  const grandNombre = manche.mode === 'complementRond' || manche.mode === 'toutEtPartie';
 
   return (
     <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#EAF4E8' }]}>
@@ -7840,75 +7876,61 @@ function BarresLumaScreen({ route, navigation }) {
         <View style={{ paddingHorizontal: 20, gap: 24 }}>
           <Pressable onPress={() => handleComparaisonChoix('A')} style={styles.barresLumaRow}>
             <Text style={styles.barresLumaLabel}>A</Text>
-            <BarreVisuelle blocs={manche.barreA} couleur={BARRE_COULEURS[0]} maxSlots={9} />
+            <BarreConcrete blocs={manche.barreA} couleur={BARRE_COULEURS[0]} />
           </Pressable>
           <Pressable onPress={() => handleComparaisonChoix('B')} style={styles.barresLumaRow}>
             <Text style={styles.barresLumaLabel}>B</Text>
-            <BarreVisuelle blocs={manche.barreB} couleur={BARRE_COULEURS[1]} maxSlots={9} />
+            <BarreConcrete blocs={manche.barreB} couleur={BARRE_COULEURS[1]} />
           </Pressable>
         </View>
       )}
 
       {manche.mode === 'construction' && (
         <View style={{ paddingHorizontal: 20, alignItems: 'center' }}>
-          <BarreVisuelle blocs={construitBlocs} couleur={BARRE_COULEURS[2]} maxSlots={manche.cible} />
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 24 }}>
-            <Pressable style={styles.button} onPress={ajouterBloc}>
-              <Text style={styles.buttonText}>➕ Ajouter</Text>
-            </Pressable>
-            <Pressable style={[styles.button, { backgroundColor: '#E0C9A6' }]} onPress={retirerBloc}>
-              <Text style={styles.buttonText}>➖ Retirer</Text>
-            </Pressable>
-          </View>
-          <Pressable style={[styles.button, { marginTop: 16, minWidth: 160 }]} onPress={validerConstruction}>
-            <Text style={styles.buttonText}>✅ C'est bon !</Text>
-          </Pressable>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: colors.mossDeep, marginBottom: 8 }}>{construitBlocs}</Text>
+          <BarreConcrete blocs={construitBlocs} couleur={BARRE_COULEURS[2]} />
         </View>
       )}
 
-      {manche.mode === 'complement10' && (
-        <View style={{ paddingHorizontal: 20, alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 3 }}>
-            {Array.from({ length: manche.deja }).map((_, i) => (
-              <View
-                key={`deja-${i}`}
-                style={{
-                  width: BARRE_BLOC_TAILLE, height: BARRE_BLOC_TAILLE, borderRadius: 8,
-                  backgroundColor: BARRE_COULEURS[3], borderWidth: 2, borderColor: BARRE_COULEURS[3],
-                }}
-              />
-            ))}
-            {Array.from({ length: construitBlocs }).map((_, i) => (
-              <View
-                key={`ajoute-${i}`}
-                style={{
-                  width: BARRE_BLOC_TAILLE, height: BARRE_BLOC_TAILLE, borderRadius: 8,
-                  backgroundColor: BARRE_COULEURS[4], borderWidth: 2, borderColor: BARRE_COULEURS[4],
-                }}
-              />
-            ))}
-            {Array.from({ length: Math.max(0, 10 - manche.deja - construitBlocs) }).map((_, i) => (
-              <View
-                key={`vide-${i}`}
-                style={{
-                  width: BARRE_BLOC_TAILLE, height: BARRE_BLOC_TAILLE, borderRadius: 8,
-                  backgroundColor: 'transparent', borderWidth: 2, borderColor: 'rgba(0,0,0,0.2)', borderStyle: 'dashed',
-                }}
-              />
-            ))}
-          </View>
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 24 }}>
-            <Pressable style={styles.button} onPress={ajouterBloc}>
-              <Text style={styles.buttonText}>➕ Ajouter</Text>
+      {manche.mode === 'complementRond' && (
+        <View style={{ paddingHorizontal: 20, alignItems: 'center', gap: 6 }}>
+          <BarreAbstraite valeur={manche.deja} valeurMax={manche.cible} couleur={BARRE_COULEURS[3]} />
+          {construitBlocs > 0 && <BarreAbstraite valeur={construitBlocs} valeurMax={manche.cible} couleur={BARRE_COULEURS[4]} />}
+        </View>
+      )}
+
+      {manche.mode === 'toutEtPartie' && (
+        <View style={{ paddingHorizontal: 20, alignItems: 'center', gap: 6 }}>
+          <BarreAbstraite valeur={manche.tout} valeurMax={manche.tout} couleur={'#B8B0A6'} hauteur={30} />
+          <BarreAbstraite valeur={manche.part1} valeurMax={manche.tout} couleur={BARRE_COULEURS[0]} />
+          {construitBlocs > 0 && <BarreAbstraite valeur={construitBlocs} valeurMax={manche.tout} couleur={BARRE_COULEURS[4]} />}
+        </View>
+      )}
+
+      {manche.mode !== 'comparaison' && (
+        <>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 20, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Pressable style={styles.button} onPress={() => ajouter(1)}>
+              <Text style={styles.buttonText}>➕ 1</Text>
             </Pressable>
-            <Pressable style={[styles.button, { backgroundColor: '#E0C9A6' }]} onPress={retirerBloc}>
-              <Text style={styles.buttonText}>➖ Retirer</Text>
+            <Pressable style={[styles.button, { backgroundColor: '#E0C9A6' }]} onPress={() => ajouter(-1)}>
+              <Text style={styles.buttonText}>➖ 1</Text>
             </Pressable>
+            {grandNombre && (
+              <>
+                <Pressable style={styles.button} onPress={() => ajouter(10)}>
+                  <Text style={styles.buttonText}>➕ 10</Text>
+                </Pressable>
+                <Pressable style={[styles.button, { backgroundColor: '#E0C9A6' }]} onPress={() => ajouter(-10)}>
+                  <Text style={styles.buttonText}>➖ 10</Text>
+                </Pressable>
+              </>
+            )}
           </View>
-          <Pressable style={[styles.button, { marginTop: 16, minWidth: 160 }]} onPress={validerConstruction}>
+          <Pressable style={[styles.button, { marginTop: 16, marginHorizontal: 60 }]} onPress={validerConstruction}>
             <Text style={styles.buttonText}>✅ C'est bon !</Text>
           </Pressable>
-        </View>
+        </>
       )}
     </ScrollView>
   );
