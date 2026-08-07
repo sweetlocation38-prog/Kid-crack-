@@ -6796,24 +6796,49 @@ async function fetchTrapQuestion(profil) {
 }
 
 function TrapQuestionModal({ visible, trapData, onAnswer }) {
+  useEffect(() => {
+    if (!visible || !trapData) return;
+    let cancelled = false;
+    (async () => {
+      await speakSmart(trapData.question);
+      for (const opt of trapData.options) {
+        if (cancelled) return;
+        await speakSmart(String(opt));
+      }
+    })();
+    return () => { cancelled = true; Speech.stop(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, trapData]);
+
   if (!trapData) return null;
   return (
     <Modal visible={visible} animationType="fade" transparent>
       <View style={styles.modalBackdrop}>
         <View style={styles.modalCard}>
-          <Text style={styles.modalTitle}>🔒 Piège !</Text>
-          <Text style={{ textAlign: 'center', marginBottom: 16, fontSize: 16, color: colors.ink }}>
-            {trapData.question}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <Text style={styles.modalTitle}>🔒 Piège !</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+            <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, color: colors.ink }}>
+              {trapData.question}
+            </Text>
+            <Pressable onPress={() => speakSmart(trapData.question)} hitSlop={8}>
+              <Text style={{ fontSize: 18 }}>🎤</Text>
+            </Pressable>
+          </View>
           <View style={{ gap: 10 }}>
             {trapData.options.map((opt, i) => (
-              <Pressable
-                key={i}
-                style={styles.button}
-                onPress={() => onAnswer(String(opt) === String(trapData.bonneReponse))}
-              >
-                <Text style={styles.buttonText}>{String(opt)}</Text>
-              </Pressable>
+              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Pressable
+                  style={[styles.button, { flex: 1, marginTop: 0 }]}
+                  onPress={() => onAnswer(String(opt) === String(trapData.bonneReponse))}
+                >
+                  <Text style={styles.buttonText}>{String(opt)}</Text>
+                </Pressable>
+                <Pressable onPress={() => speakSmart(String(opt))} hitSlop={8}>
+                  <Text style={{ fontSize: 16 }}>🎤</Text>
+                </Pressable>
+              </View>
             ))}
           </View>
         </View>
