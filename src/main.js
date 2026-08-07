@@ -2402,21 +2402,36 @@ function maxRungForGame(code) {
   return GAME_MAX_RUNG_15.has(code) ? rungFromGradeAndPalier('ce2', 3) : MAX_CONTENT_RUNG;
 }
 
-// Petites etoiles de progression affichees sur chaque carte de jeu, pour
-// que l'enfant voie ou il en est avant meme de cliquer - calculee par
-// rapport a la fin de l'annee scolaire EN COURS de l'enfant (comme pour
-// le seuil des jeux bonus), pas le maximum absolu du jeu, sinon un enfant
-// en MS verrait une barre quasi vide meme en maitrisant tres bien son niveau.
-function ProgressionStars({ rung, code, niveauDefaut }) {
-  const plafondAnneeEnCours = rungFromGradeAndPalier(niveauDefaut ?? 'ms', 3);
-  const cible = Math.min(maxRungForGame(code), plafondAnneeEnCours);
-  const fraction = Math.max(0, Math.min(1, rung / Math.max(1, cible)));
-  const NB_ETOILES = 5;
-  const remplies = Math.round(fraction * NB_ETOILES);
+// Jauge de progression affichee sur chaque carte de jeu, pour que l'enfant
+// (et le parent) voie ou il en est avant meme de cliquer - calculee par
+// rapport au MAXIMUM ABSOLU du jeu (pas l'annee en cours), pour rester
+// juste meme quand un enfant depasse largement sa classe grace au
+// calibrage rapide. De petits traits marquent les frontieres entre
+// classes (fin MS, fin GS, fin CP...), pour se reperer d'un coup d'oeil
+// sur le niveau scolaire atteint, pas seulement un pourcentage abstrait.
+const GAUGE_LARGEUR = 82;
+const GAUGE_HAUTEUR = 7;
+function ProgressionGauge({ rung, code }) {
+  const maxAbsolu = maxRungForGame(code);
+  const fraction = Math.max(0, Math.min(1, rung / Math.max(1, maxAbsolu)));
+  // Frontieres de classe (fin de chaque niveau scolaire) a l'interieur de
+  // la plage du jeu - jamais la toute derniere (c'est la fin de la jauge
+  // elle-meme, pas la peine d'un trait dessus).
+  const frontieres = GRADE_ORDER
+    .map((_, i) => (i + 1) * 3)
+    .filter((f) => f < maxAbsolu);
+
   return (
-    <View style={{ flexDirection: 'row', gap: 1, marginTop: 2, marginBottom: 2 }}>
-      {Array.from({ length: NB_ETOILES }).map((_, i) => (
-        <Text key={i} style={{ fontSize: 11 }}>{i < remplies ? '⭐' : '☆'}</Text>
+    <View style={{ width: GAUGE_LARGEUR, height: GAUGE_HAUTEUR, borderRadius: GAUGE_HAUTEUR / 2, backgroundColor: 'rgba(0,0,0,0.12)', marginTop: 3, marginBottom: 3, overflow: 'hidden' }}>
+      <View style={{ width: `${fraction * 100}%`, height: '100%', backgroundColor: colors.mossDeep, borderRadius: GAUGE_HAUTEUR / 2 }} />
+      {frontieres.map((f) => (
+        <View
+          key={f}
+          style={{
+            position: 'absolute', top: 0, bottom: 0, left: `${(f / maxAbsolu) * 100}%`,
+            width: 1, backgroundColor: 'rgba(255,255,255,0.85)',
+          }}
+        />
       ))}
     </View>
   );
@@ -3087,7 +3102,7 @@ function SentierScreen({ route, navigation }) {
                 {item.nom}
               </Text>
               {niveauxParJeu[item.id] != null && (
-                <ProgressionStars rung={niveauxParJeu[item.id]} code={item.code} niveauDefaut={profil.niveau_defaut} />
+                <ProgressionGauge rung={niveauxParJeu[item.id]} code={item.code} />
               )}
               <Pressable
                 style={styles.paysMarkerListenBtn}
