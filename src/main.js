@@ -2347,6 +2347,7 @@ const GAME_ICONS = {
   ronde_lucioles: '🎧',
   indices_jardin: '🕵️',
   labyrinthe_grotte: '🌀',
+  chemin_dizaines: '🌾',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
@@ -2367,6 +2368,7 @@ const GAME_SCREENS = {
   corps_humain: 'CorpsHumain',
   indices_jardin: 'IndicesJardin',
   labyrinthe_grotte: 'LabyrintheGrotte',
+  chemin_dizaines: 'CheminDizaines',
 };
 
 // Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
@@ -2392,7 +2394,7 @@ function cardStyleForIndex(index) {
 const GAME_MAX_RUNG_15 = new Set([
   'monde_capitales', 'jeu_intrus', 'empreintes_clairiere', 'balance_prairie',
   'marche_village', 'cachettes_luma', 'ronde_lucioles', 'tri_village', 'puzzle_moulin',
-  'corps_humain', 'indices_jardin', 'labyrinthe_grotte',
+  'corps_humain', 'indices_jardin', 'labyrinthe_grotte', 'chemin_dizaines',
 ]);
 function maxRungForGame(code) {
   return GAME_MAX_RUNG_15.has(code) ? rungFromGradeAndPalier('ce2', 3) : MAX_CONTENT_RUNG;
@@ -7094,6 +7096,368 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   );
 }
 
+// ============================================================
+// Le Chemin des Dizaines (jeu bonus cache de "Le Bois des Nombres",
+// competence maths) - travaille la numeration en base 10
+// (dizaines/unites), pilier CP-CE1 de la methode de Singapour, absent du
+// reste de l'app jusqu'ici.
+//
+// Reutilise le moteur de deplacement sur grille du Labyrinthe de la Grotte
+// (meme generation de labyrinthe, meme glisser-deposer) : la ou le
+// labyrinthe pose des questions "a cote" du trajet, ici c'est le trajet
+// lui-meme (ramasser des jetons, les regrouper en paquets de 10) qui porte
+// la notion enseignee.
+//
+// But du jeu : atteindre exactement un nombre cible annonce au depart, en
+// ramassant des jetons disperses dans le labyrinthe et en les regroupant
+// soi-meme en dizaines. Aucune penalite de type "retour au depart" - on
+// ajuste jusqu'a tomber juste, dans un esprit de manipulation libre.
+// ============================================================
+
+// Cible un nombre a deux chiffres, grandissant avec le niveau reel de
+// l'enfant sur ce jeu (9 au tout debut, jusqu'a 99 au niveau maximum).
+function targetForDizainesRung(rung, maxRung) {
+  const ratio = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
+  return Math.max(6, Math.round(9 + ratio * 90));
+}
+
+// Disperse des petits tas de jetons (1 a 4) sur environ 45% des cases du
+// labyrinthe (jamais la case de depart), en s'assurant qu'il y en a assez
+// au total pour largement depasser la cible visee.
+function placeJetonsDansLabyrinthe(rows, cols, target) {
+  const cells = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (r === 0 && c === 0) continue; // jamais sur le depart
+      cells.push({ r, c });
+    }
+  }
+  const melange = shuffle(cells);
+  const nbTas = Math.max(6, Math.round(melange.length * 0.45));
+  const jetons = new Map();
+  let total = 0;
+  let i = 0;
+  while ((total < target + 12 || i < nbTas) && i < melange.length) {
+    const { r, c } = melange[i];
+    const taille = 1 + Math.floor(Math.random() * 4);
+    jetons.set(`${r},${c}`, taille);
+    total += taille;
+    i++;
+  }
+  return jetons;
+}
+
+function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, onGridTouch, gridRef }) {
+  const cellSize = MAZE_CELL_SIZE;
+  const wallColor = '#3D2E4F';
+
+  return (
+    <View
+      ref={gridRef}
+      collapsable={false}
+      onStartShouldSetResponder={() => true}
+      onMoveShouldSetResponder={() => true}
+      onResponderGrant={(e) => onGridTouch(e.nativeEvent.pageX, e.nativeEvent.pageY)}
+      onResponderMove={(e) => onGridTouch(e.nativeEvent.pageX, e.nativeEvent.pageY)}
+      style={{ alignSelf: 'center', marginVertical: 8, backgroundColor: '#FFF3D6', borderRadius: 6 }}
+    >
+      {cells.map((row, r) => (
+        <View key={r} style={{ flexDirection: 'row' }}>
+          {row.map((cell, c) => {
+            const isVisited = visitedSet.has(`${r},${c}`);
+            const isPos = pos.r === r && pos.c === c;
+            const jetonCount = jetons.get(`${r},${c}`);
+            return (
+              <View
+                key={c}
+                style={{
+                  width: cellSize,
+                  height: cellSize,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: isVisited ? '#F5DFA0' : 'transparent',
+                  borderTopWidth: cell.top ? 2 : 0,
+                  borderBottomWidth: cell.bottom ? 2 : 0,
+                  borderLeftWidth: cell.left ? 2 : 0,
+                  borderRightWidth: cell.right ? 2 : 0,
+                  borderColor: wallColor,
+                }}
+              >
+                {isPos && <Text style={{ fontSize: cellSize * 0.6 }}>🧑</Text>}
+                {!isPos && jetonCount > 0 && (
+                  <Text style={{ fontSize: cellSize * 0.45 }}>🌾{jetonCount}</Text>
+                )}
+              </View>
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function CheminDizainesScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []);
+
+  const { profil } = route.params;
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const { rows, cols } = useMemo(
+    () => mazeGridDimensionsForScreen(screenWidth, screenHeight),
+    [screenWidth, screenHeight]
+  );
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [cells, setCells] = useState(null);
+  const [pos, setPos] = useState({ r: 0, c: 0 });
+  const [visitedSet, setVisitedSet] = useState(() => new Set());
+  const [jetonsRestants, setJetonsRestants] = useState(() => new Map());
+  const [enVrac, setEnVrac] = useState(0);
+  const [dizaines, setDizaines] = useState(0);
+  const [target, setTarget] = useState(10);
+  const [feedback, setFeedback] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const startedAt = useRef(Date.now());
+  const cellsRef = useRef(null);
+  const posRef = useRef({ r: 0, c: 0 });
+  const finishedRef = useRef(false);
+  const gridOriginRef = useRef({ x: 0, y: 0 });
+  const gridRef = useRef(null);
+
+  const loadNiveau = useCallback((currentRung) => {
+    setLoading(true);
+    const generated = generateMazeWalls(rows, cols);
+    const cible = targetForDizainesRung(currentRung, gameMaxRung);
+    const jetons = placeJetonsDansLabyrinthe(rows, cols, cible);
+    cellsRef.current = generated;
+    posRef.current = { r: 0, c: 0 };
+    finishedRef.current = false;
+    setCells(generated);
+    setPos({ r: 0, c: 0 });
+    setVisitedSet(new Set(['0,0']));
+    setJetonsRestants(jetons);
+    setEnVrac(0);
+    setDizaines(0);
+    setTarget(cible);
+    setFeedback(null);
+    speakSmart(`Va chercher ${cible} jetons ! Tape sur les tas pour les ramasser.`);
+    setLoading(false);
+  }, [rows, cols, gameMaxRung]);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'chemin_dizaines').single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      const startRung = Math.min(rawStart, gameMaxRung);
+      setRung(startRung);
+      loadNiveau(startRung);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id, rows, cols]);
+
+  async function finishSession() {
+    if (!miniJeuId || finishedRef.current) return;
+    finishedRef.current = true;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const newRung = Math.min(gameMaxRung, rung + 1);
+    const precomputedRung = {
+      newRung,
+      direction: newRung > rung ? 'up' : 'same',
+      raison: newRung > rung ? 'parfait_rapide' : 'encore_un_effort',
+    };
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: 0,
+      dureeSecondes: durationSeconds,
+      totalRounds: Math.max(1, Math.round(target / 10)),
+      startedAt: startedAt.current,
+      maxRung: gameMaxRung,
+      precomputedRung,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function proceedToNextActivity() {
+    const newRung = sessionSummary?.newRung ?? rung;
+    setSessionDone(false);
+    startedAt.current = Date.now();
+    setRung(newRung);
+    loadNiveau(newRung);
+  }
+
+  function tryMoveTo(r, c) {
+    if (finishedRef.current || !cellsRef.current) return;
+    if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+    const { r: pr, c: pc } = posRef.current;
+    if (r === pr && c === pc) return;
+    const dr = r - pr, dc = c - pc;
+    if (Math.abs(dr) + Math.abs(dc) !== 1) return;
+    if (!canMove(cellsRef.current, pr, pc, dr, dc)) return;
+
+    posRef.current = { r, c };
+    setPos({ r, c });
+    setVisitedSet((prev) => {
+      const next = new Set(prev);
+      next.add(`${r},${c}`);
+      return next;
+    });
+  }
+
+  function onGridTouch(pageX, pageY) {
+    const { x, y } = gridOriginRef.current;
+    const c = Math.floor((pageX - x) / MAZE_CELL_SIZE);
+    const r = Math.floor((pageY - y) / MAZE_CELL_SIZE);
+    tryMoveTo(r, c);
+  }
+
+  function onGridLayout() {
+    if (!gridRef.current) return;
+    gridRef.current.measure((fx, fy, w, h, pageX, pageY) => {
+      gridOriginRef.current = { x: pageX, y: pageY };
+    });
+  }
+
+  function ramasserIci() {
+    const key = `${pos.r},${pos.c}`;
+    const qte = jetonsRestants.get(key);
+    if (!qte) return;
+    setJetonsRestants((prev) => {
+      const next = new Map(prev);
+      next.delete(key);
+      return next;
+    });
+    setEnVrac((v) => v + qte);
+    speakSmart(`Plus ${qte} !`);
+  }
+
+  function retirerUnEnVrac() {
+    setEnVrac((v) => Math.max(0, v - 1));
+  }
+
+  function faireUnPaquet() {
+    if (enVrac < 10) return;
+    setEnVrac((v) => v - 10);
+    setDizaines((d) => d + 1);
+    speakSmart('Un paquet de dix !');
+  }
+
+  function verifier() {
+    const total = dizaines * 10 + enVrac;
+    if (total === target) {
+      speakSmart('Bravo, le compte est bon !');
+      setFeedback(null);
+      setTimeout(finishSession, 400);
+    } else if (total < target) {
+      const manque = target - total;
+      setFeedback(`Il en manque encore ${manque} !`);
+      speakSmart(`Il en manque encore ${manque} !`);
+    } else {
+      const trop = total - target;
+      setFeedback(`Il y en a ${trop} de trop !`);
+      speakSmart(`Il y en a ${trop} de trop !`);
+    }
+  }
+
+  const jetonIci = jetonsRestants.get(`${pos.r},${pos.c}`);
+
+  if (sessionDone) {
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={proceedToNextActivity}
+      />
+    );
+  }
+
+  if (loading || !cells) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#FFF3D6', paddingTop: 6, paddingBottom: 6 }]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 4 }}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>
+          🌾 Le Chemin des Dizaines
+        </Text>
+      </View>
+
+      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 14, marginBottom: 6 }}>
+        <View style={styles.dizainesBadge}>
+          <Text style={styles.dizainesBadgeText}>🎯 {target}</Text>
+        </View>
+        <View style={styles.dizainesBadge}>
+          <Text style={styles.dizainesBadgeText}>📦 {dizaines} dizaine{dizaines > 1 ? 's' : ''}</Text>
+        </View>
+        <View style={styles.dizainesBadge}>
+          <Text style={styles.dizainesBadgeText}>🌾 {enVrac}</Text>
+        </View>
+      </View>
+
+      {feedback && (
+        <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '700', marginBottom: 4 }}>
+          {feedback}
+        </Text>
+      )}
+
+      <View onLayout={onGridLayout}>
+        <DizainesGridVisual
+          cells={cells}
+          rows={rows}
+          cols={cols}
+          pos={pos}
+          visitedSet={visitedSet}
+          jetons={jetonsRestants}
+          onGridTouch={onGridTouch}
+          gridRef={gridRef}
+        />
+      </View>
+
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
+        {jetonIci > 0 && (
+          <Pressable style={styles.button} onPress={ramasserIci}>
+            <Text style={styles.buttonText}>🌾 Ramasser {jetonIci}</Text>
+          </Pressable>
+        )}
+        {enVrac >= 10 && (
+          <Pressable style={styles.button} onPress={faireUnPaquet}>
+            <Text style={styles.buttonText}>📦 Faire un paquet !</Text>
+          </Pressable>
+        )}
+        {enVrac > 0 && (
+          <Pressable style={[styles.button, { backgroundColor: '#E0C9A6' }]} onPress={retirerUnEnVrac}>
+            <Text style={styles.buttonText}>↩️ Retirer un jeton</Text>
+          </Pressable>
+        )}
+      </View>
+      <Pressable style={[styles.button, { marginTop: 10, marginHorizontal: 40 }]} onPress={verifier}>
+        <Text style={styles.buttonText}>✅ C'est bon !</Text>
+      </Pressable>
+    </ScrollView>
+  );
+}
+
 function PuzzleMoulinScreen({ route, navigation }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
@@ -8670,6 +9034,7 @@ export default function RootNavigator() {
             <Stack.Screen name="CorpsHumain" component={CorpsHumainScreen} />
             <Stack.Screen name="IndicesJardin" component={IndicesJardinScreen} />
             <Stack.Screen name="LabyrintheGrotte" component={LabyrintheGrotteScreen} />
+            <Stack.Screen name="CheminDizaines" component={CheminDizainesScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
@@ -8829,6 +9194,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center',
     gap: 10, paddingHorizontal: 8, marginTop: 4,
   },
+  dizainesBadge: {
+    backgroundColor: '#fff', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 12,
+    borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)',
+  },
+  dizainesBadgeText: { fontWeight: '800', fontSize: 15, color: colors.ink },
   gridCard: {
     width: 104, alignItems: 'center', backgroundColor: '#fff',
     borderRadius: 14, paddingVertical: 8, paddingHorizontal: 6,
