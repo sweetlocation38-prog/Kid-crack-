@@ -4382,7 +4382,7 @@ function EuropeMapChallenge({ pays, onResult }) {
   );
 }
 
-function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions, forcedStartRung }) {
+function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions, forcedStartRung, customVisual }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -4814,7 +4814,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
 
       <View style={styles.promptZone}>
         {promptData.icon ? <Text style={styles.icon}>{promptData.icon}</Text> : null}
-        {promptData.visual ? <Text style={styles.visualRow}>{promptData.visual}</Text> : null}
+        {promptData.visual && !customVisual ? <Text style={styles.visualRow}>{promptData.visual}</Text> : null}
         {promptData.emojiCount != null ? (
           <View style={{ marginBottom: 10 }}>
             {promptData.emojiDistracteurIcon ? (
@@ -4875,6 +4875,9 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         </PopIn>
       )}
 
+      {customVisual ? (
+        (() => { const CustomVisual = customVisual; return <CustomVisual promptData={promptData} onOptionPress={onOptionPress} answered={answered} />; })()
+      ) : (
       <View style={styles.answerZone}>
         <Text style={styles.answerZoneLabel}>Ta réponse</Text>
         <View style={styles.stonesWrap}>
@@ -4933,6 +4936,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
           })}
         </View>
       </View>
+      )}
     </ScrollView>
   );
 }
@@ -5336,16 +5340,89 @@ function EmpreintesClairiereScreen({ route, navigation }) {
 
 // ============================================================
 // La Balance de la Prairie — maths (equilibrer une balance)
+// Vraie balance visuelle avec des "poids" a ajouter un par un (au tap,
+// plus fiable qu'un geste de glisser sur ce projet), plutot qu'un choix
+// multiple textuel. L'habillage des poids (forme/couleur) est tire au
+// hasard une fois par session pour casser la routine si l'enfant reste
+// longtemps sur le meme niveau - test demande par l'utilisateur.
 // ============================================================
 function buildEquilibrePrompt(d) {
   return {
-    visual: `⚖️  ${d.gauche}   VS   ${d.droit_connu} + ?`,
-    promptText: "Combien faut-il ajouter a droite pour equilibrer la balance ?",
-    speak: `Combien faut-il ajouter pour équilibrer la balance ?`,
-    mandatorySpeak: false,
-    options: d.options,
+    promptText: 'Ajoute des poids pour équilibrer la balance !',
+    speak: 'Ajoute des poids pour équilibrer la balance !',
+    mandatorySpeak: true,
+    gauche: d.gauche,
+    droitConnu: d.droit_connu,
     correct: d.manque,
+    options: d.options, // non affiche (customVisual gere sa propre interface), garde pour ne pas casser le moteur partage qui melange "options" a chaque manche
   };
+}
+
+const BALANCE_HABILLAGES = [
+  { emoji: '🏋️', nom: 'haltère', couleur: '#7BB6E8' },
+  { emoji: '🪨', nom: 'caillou', couleur: '#A6968A' },
+  { emoji: '🎒', nom: 'sac', couleur: '#F2A65A' },
+  { emoji: '🧺', nom: 'panier', couleur: '#8FD19E' },
+  { emoji: '📦', nom: 'boîte', couleur: '#E8899A' },
+];
+
+function BalanceVisual({ promptData, onOptionPress, answered }) {
+  const [ajoutes, setAjoutes] = useState(0);
+  const habillage = useMemo(() => BALANCE_HABILLAGES[Math.floor(Math.random() * BALANCE_HABILLAGES.length)], []);
+
+  // Remet le compteur a zero a chaque nouvelle manche (nouvelle question).
+  useEffect(() => { setAjoutes(0); }, [promptData]);
+
+  const totalDroite = promptData.droitConnu + ajoutes;
+  const difference = totalDroite - promptData.gauche;
+  // Inclinaison visuelle de la balance : plafonnee pour rester lisible
+  // meme avec de grands ecarts.
+  const inclinaison = Math.max(-18, Math.min(18, difference * -4));
+
+  return (
+    <View style={{ alignItems: 'center', paddingHorizontal: 16 }}>
+      <View style={{ width: '90%', height: 6, backgroundColor: colors.mossDeep, borderRadius: 3, transform: [{ rotate: `${inclinaison}deg` }], marginBottom: 4 }} />
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 14 }}>
+        <View style={styles.balancePlateau}>
+          <Text style={styles.balancePlateauLabel}>{promptData.gauche}</Text>
+          <Text style={{ fontSize: 22 }}>{habillage.emoji}</Text>
+        </View>
+        <View style={styles.balancePlateau}>
+          <Text style={styles.balancePlateauLabel}>{totalDroite}</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', maxWidth: 90, justifyContent: 'center' }}>
+            {Array.from({ length: Math.min(totalDroite, 14) }).map((_, i) => (
+              <Text key={i} style={{ fontSize: 16 }}>{habillage.emoji}</Text>
+            ))}
+          </View>
+        </View>
+      </View>
+
+      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
+        <Pressable
+          disabled={answered !== null}
+          style={styles.button}
+          onPress={() => setAjoutes((a) => a + 1)}
+        >
+          <Text style={styles.buttonText}>➕ Ajouter {habillage.emoji}</Text>
+        </Pressable>
+        <Pressable
+          disabled={answered !== null || ajoutes === 0}
+          style={[styles.button, { backgroundColor: '#E0C9A6' }]}
+          onPress={() => setAjoutes((a) => Math.max(0, a - 1))}
+        >
+          <Text style={styles.buttonText}>➖ Retirer</Text>
+        </Pressable>
+      </View>
+
+      <Pressable
+        disabled={answered !== null}
+        style={[styles.button, { minWidth: 180 }]}
+        onPress={() => onOptionPress(ajoutes)}
+      >
+        <Text style={styles.buttonText}>✅ C'est équilibré !</Text>
+      </Pressable>
+    </View>
+  );
 }
 
 function BalancePrairieScreen({ route, navigation }) {
@@ -5358,6 +5435,7 @@ function BalancePrairieScreen({ route, navigation }) {
       jeuTitre="⚖️ La Balance de la Prairie"
       buildPrompt={buildEquilibrePrompt}
       maxRung={MAX_CONTENT_RUNG}
+      customVisual={BalanceVisual}
     />
   );
 }
@@ -5921,7 +5999,7 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
 // "progression" pour ce profil sur ce jeu) ; ensuite, comportement
 // inchange.
 // ============================================================
-function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions }) {
+function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions, customVisual }) {
   const { profil } = route.params;
   const effectiveMaxRung = maxRung ?? MAX_CONTENT_RUNG;
   // 'checking' : on verifie s'il existe deja une progression pour ce
@@ -6007,6 +6085,7 @@ function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPromp
       themeFilter={themeFilter}
       singleLineOptions={singleLineOptions}
       forcedStartRung={forcedStartRung}
+      customVisual={customVisual}
     />
   );
 }
@@ -9533,6 +9612,11 @@ const styles = StyleSheet.create({
     borderRadius: 16, padding: 12, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
   },
   barresLumaLabel: { fontSize: 20, fontWeight: '800', color: colors.ink, width: 24, textAlign: 'center' },
+  balancePlateau: {
+    alignItems: 'center', backgroundColor: '#fff', borderRadius: 16, padding: 12,
+    borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)', minWidth: 110, minHeight: 90, justifyContent: 'center', gap: 4,
+  },
+  balancePlateauLabel: { fontSize: 20, fontWeight: '800', color: colors.ink },
   dizainesBadge: {
     backgroundColor: '#fff', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 12,
     borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)',
