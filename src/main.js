@@ -2394,7 +2394,7 @@ function cardStyleForIndex(index) {
 }
 
 const GAME_MAX_RUNG_15 = new Set([
-  'tri_village', 'corps_humain', 'indices_jardin', 'frise_temps',
+  'indices_jardin',
 ]);
 function maxRungForGame(code) {
   return GAME_MAX_RUNG_15.has(code) ? rungFromGradeAndPalier('ce2', 3) : MAX_CONTENT_RUNG;
@@ -6395,7 +6395,7 @@ function CorpsHumainScreen({ route, navigation }) {
       Character={Maestro}
       jeuTitre="🫀 Le Corps Humain"
       buildPrompt={buildCorpsHumainPrompt}
-      maxRung={rungFromGradeAndPalier('ce2', 3)}
+      maxRung={rungFromGradeAndPalier('cm2', 3)}
     />
   );
 }
@@ -6452,7 +6452,7 @@ function TriVillageScreen({ route, navigation }) {
   const errorsTotal = useRef(0);
   const startedAt = useRef(Date.now());
   const nextRungRef = useRef(null);
-  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
 
   const loadActivity = useCallback(async (jeuId, currentRung) => {
     setLoading(true);
@@ -8145,7 +8145,7 @@ function FriseTempsScreen({ route, navigation }) {
   const errorsTotal = useRef(0);
   const startedAt = useRef(Date.now());
   const nextRungRef = useRef(null);
-  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
 
   const loadActivity = useCallback(async (jeuId, currentRung) => {
     setLoading(true);
