@@ -6664,7 +6664,7 @@ function mazeGridDimensionsForScreen(screenWidth, screenHeight) {
 // Genere un labyrinthe parfait par parcours en profondeur avec retour en
 // arriere : chaque case commence entouree de 4 murs, on retire les murs au
 // fur et a mesure qu'on visite des cases voisines non visitees.
-function generateMazeWalls(rows, cols) {
+function generateMazeWalls(rows, cols, rung = 1, maxRung = 21) {
   const cells = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => ({ top: true, right: true, bottom: true, left: true }))
   );
@@ -6704,8 +6704,13 @@ function generateMazeWalls(rows, cols) {
   }
 
   // Tressage : on retire un peu plus de murs au hasard pour creer de
-  // vraies boucles (plusieurs chemins possibles pour arriver au meme
-  // endroit, des croisements), pas seulement des impasses sans issue.
+  // vraies boucles (plusieurs chemins possibles, des croisements) - mais
+  // seulement pour les petits niveaux, ou un labyrinthe plus ouvert et
+  // indulgent convient mieux. Plus le niveau grandit, plus le tressage
+  // diminue, jusqu'a un labyrinthe completement ferme (aucun espace libre,
+  // uniquement des couloirs muraille a muraille) au niveau maximum.
+  const ratioNiveau = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
+  const tauxTressage = 0.22 * (1 - ratioNiveau); // 22% au debut -> 0% au maximum
   const murs = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -6713,7 +6718,7 @@ function generateMazeWalls(rows, cols) {
       if (r < rows - 1 && cells[r][c].bottom) murs.push([r, c, 'bottom', r + 1, c, 'top']);
     }
   }
-  const muresATresser = shuffle(murs).slice(0, Math.round(murs.length * 0.14));
+  const muresATresser = shuffle(murs).slice(0, Math.round(murs.length * tauxTressage));
   for (const [r, c, wallHere, nr, nc, wallThere] of muresATresser) {
     cells[r][c][wallHere] = false;
     cells[nr][nc][wallThere] = false;
@@ -6852,7 +6857,7 @@ function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, t
                   height: cellSize,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: isVisited ? '#C9B8E8' : 'transparent',
+                  backgroundColor: isVisited ? '#C9B8E8' : '#FBF8FF',
                   borderTopWidth: cell.top ? 2 : 0,
                   borderBottomWidth: cell.bottom ? 2 : 0,
                   borderLeftWidth: cell.left ? 2 : 0,
@@ -7010,7 +7015,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
 
   const loadMaze = useCallback((currentRung) => {
     setLoading(true);
-    const generated = generateMazeWalls(rows, cols);
+    const generated = generateMazeWalls(rows, cols, currentRung, gameMaxRung);
     const dist = bfsDistances(generated, rows, cols, 0, 0);
     const t = pickTreasureForRung(dist, rows, cols, currentRung, gameMaxRung);
     const chemin = bfsPath(generated, dist, 0, 0, t.r, t.c);
@@ -7353,7 +7358,7 @@ function CheminDizainesScreen({ route, navigation }) {
 
   const loadNiveau = useCallback((currentRung) => {
     setLoading(true);
-    const generated = generateMazeWalls(rows, cols);
+    const generated = generateMazeWalls(rows, cols, currentRung, gameMaxRung);
     const cible = targetForDizainesRung(currentRung, gameMaxRung);
     const jetons = placeJetonsDansLabyrinthe(rows, cols, cible);
     cellsRef.current = generated;
