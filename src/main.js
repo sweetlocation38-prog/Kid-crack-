@@ -3104,11 +3104,18 @@ function SentierScreen({ route, navigation }) {
         {bonusJeu && (() => {
           const targetScreen = GAME_SCREENS[bonusJeu.code];
           const locked = !bonusDebloque || (limitReached && bonusDebloque);
+          const explicationVerrouille = "C'est un jeu secret ! Continue à bien jouer aux autres jeux de cette carte pour le débloquer bientôt.";
+          function onPressCarte() {
+            if (bonusDebloque) {
+              handleGamePress(targetScreen);
+            } else {
+              speakSmart(explicationVerrouille);
+            }
+          }
           return (
             <Pressable
               style={[styles.gridCard, cardStyleForIndex(miniJeux.length), { borderColor: '#F5C542', borderWidth: bonusDebloque ? 2 : 1 }, locked && bonusDebloque && styles.paysMarkerLocked]}
-              disabled={!bonusDebloque}
-              onPress={() => bonusDebloque && handleGamePress(targetScreen)}
+              onPress={onPressCarte}
             >
               <View style={styles.paysMarkerTopRow}>
                 <Text style={styles.paysMarkerIcon}>{bonusDebloque ? '🕵️' : '🔒'}</Text>
@@ -3116,15 +3123,13 @@ function SentierScreen({ route, navigation }) {
               <Text style={styles.paysMarkerText} numberOfLines={3}>
                 {bonusDebloque ? bonusJeu.nom : 'Jeu secret'}
               </Text>
-              {bonusDebloque && (
-                <Pressable
-                  style={styles.paysMarkerListenBtn}
-                  onPress={() => speakSmart(bonusJeu.nom)}
-                  hitSlop={8}
-                >
-                  <Text style={{ fontSize: 11 }}>🎤</Text>
-                </Pressable>
-              )}
+              <Pressable
+                style={styles.paysMarkerListenBtn}
+                onPress={() => speakSmart(bonusDebloque ? bonusJeu.nom : explicationVerrouille)}
+                hitSlop={8}
+              >
+                <Text style={{ fontSize: 11 }}>🎤</Text>
+              </Pressable>
               {locked && <Text style={styles.paysMarkerLock}>🔒</Text>}
             </Pressable>
           );
