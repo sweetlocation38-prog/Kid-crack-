@@ -2348,6 +2348,7 @@ const GAME_ICONS = {
   indices_jardin: '🕵️',
   labyrinthe_grotte: '🌀',
   chemin_dizaines: '🌾',
+  barres_luma: '📏',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
@@ -2369,6 +2370,7 @@ const GAME_SCREENS = {
   indices_jardin: 'IndicesJardin',
   labyrinthe_grotte: 'LabyrintheGrotte',
   chemin_dizaines: 'CheminDizaines',
+  barres_luma: 'BarresLuma',
 };
 
 // Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
@@ -2428,7 +2430,7 @@ const CONTINENTS = [
     competence: 'maths',
     zone: { left: 0.5, top: 0.3166, width: 0.5, height: 0.2136 },
     labelCourt: 'Maths',
-    paysSlotsFor: { 'pommes_de_luma': { top: '45%', left: '17%' }, 'balance_prairie': { top: '45%', left: '83%' }, 'marche_village': { top: '75%', left: '17%' }, 'cachettes_luma': { top: '75%', left: '83%' } },
+    paysSlotsFor: { 'pommes_de_luma': { top: '45%', left: '17%' }, 'balance_prairie': { top: '45%', left: '83%' }, 'marche_village': { top: '75%', left: '17%' }, 'cachettes_luma': { top: '75%', left: '83%' }, 'barres_luma': { top: '90%', left: '50%' } },
     paysVides: [],
     blobStyle: { borderTopLeftRadius: 20, borderTopRightRadius: 110, borderBottomLeftRadius: 130, borderBottomRightRadius: 30 }, rot: 2,
     nom: 'Le Bois des Nombres',
@@ -7458,6 +7460,337 @@ function CheminDizainesScreen({ route, navigation }) {
   );
 }
 
+// ============================================================
+// Les Barres de Luma (jeu normal de "Le Bois des Nombres", competence
+// maths) - modelisation en barres, le pilier le plus central de la
+// methode de Singapour, absent du reste de l'app.
+//
+// Contrairement a la Balance (comparaison par equilibre), ici on
+// compare/compose des quantites par LONGUEUR DE BARRES empilables - base
+// des futurs problemes CE1-CE2 (complements a 10, additions imagees).
+//
+// Progression en 3 paliers, du plus simple au plus abstrait :
+//  1) Comparaison (MS-GS) : deux barres deja construites, laquelle est la
+//     plus longue/courte - juste taper la bonne barre.
+//  2) Construction (CP-CE1) : un nombre cible est donne, l'enfant ajoute
+//     des blocs un par un (au tap, pas de vrai glisser - plus fiable) pour
+//     construire une barre de la bonne longueur.
+//  3) Complement a dix (CE1-CE2) : une barre est deja partiellement
+//     remplie, l'enfant ajoute les blocs manquants pour arriver a dix.
+//
+// Contenu genere proceduralement (comme le labyrinthe), pas besoin de
+// contenu en base.
+// ============================================================
+
+const BARRE_BLOC_TAILLE = 34;
+const BARRE_COULEURS = ['#7BB6E8', '#F2A65A', '#8FD19E', '#E8899A', '#C9A6E8'];
+
+function barresLumaModeForRung(rung) {
+  if (rung <= 6) return 'comparaison';
+  if (rung <= 12) return 'construction';
+  return 'complement10';
+}
+
+function genererMancheBarres(rung) {
+  const mode = barresLumaModeForRung(rung);
+  if (mode === 'comparaison') {
+    // Deux quantites distinctes, qui grandissent doucement avec le niveau.
+    const max = Math.min(9, 3 + Math.floor(rung / 2));
+    let a = 1 + Math.floor(Math.random() * max);
+    let b = 1 + Math.floor(Math.random() * max);
+    while (b === a) b = 1 + Math.floor(Math.random() * max);
+    const veutPlusLongue = Math.random() < 0.5;
+    return {
+      mode,
+      barreA: a,
+      barreB: b,
+      veutPlusLongue,
+      consigne: veutPlusLongue ? 'Touche la barre la plus longue !' : 'Touche la barre la plus courte !',
+      bonneReponse: veutPlusLongue ? (a > b ? 'A' : 'B') : (a < b ? 'A' : 'B'),
+    };
+  }
+  if (mode === 'construction') {
+    const max = Math.min(10, 4 + Math.floor((rung - 7) / 2));
+    const cible = 2 + Math.floor(Math.random() * (max - 1));
+    return {
+      mode,
+      cible,
+      consigne: `Construis une barre de ${cible} !`,
+    };
+  }
+  // complement10
+  const deja = 2 + Math.floor(Math.random() * 7); // entre 2 et 8 deja poses
+  return {
+    mode,
+    deja,
+    cible: 10,
+    consigne: `Il y a déjà ${deja}. Complète jusqu'à dix !`,
+  };
+}
+
+function BarreVisuelle({ blocs, couleur, maxSlots, onBlocPress, disabledIndices }) {
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 3 }}>
+      {Array.from({ length: maxSlots }).map((_, i) => {
+        const rempli = i < blocs;
+        return (
+          <Pressable
+            key={i}
+            disabled={!rempli || !onBlocPress || disabledIndices?.has(i)}
+            onPress={() => onBlocPress && onBlocPress(i)}
+            style={{
+              width: BARRE_BLOC_TAILLE,
+              height: BARRE_BLOC_TAILLE,
+              borderRadius: 8,
+              backgroundColor: rempli ? couleur : 'transparent',
+              borderWidth: 2,
+              borderColor: rempli ? couleur : 'rgba(0,0,0,0.2)',
+              borderStyle: rempli ? 'solid' : 'dashed',
+            }}
+          />
+        );
+      })}
+    </View>
+  );
+}
+
+function BarresLumaScreen({ route, navigation }) {
+  useEffect(() => { stopBgMusic(); }, []);
+
+  const { profil } = route.params;
+  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [manche, setManche] = useState(null);
+  const [construitBlocs, setConstruitBlocs] = useState(0); // pour construction / complement10
+  const [feedback, setFeedback] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const startedAt = useRef(Date.now());
+  const finishedRef = useRef(false);
+  const erreursRef = useRef(0);
+
+  const nouvelleManche = useCallback((currentRung) => {
+    const m = genererMancheBarres(currentRung);
+    setManche(m);
+    setConstruitBlocs(0);
+    setFeedback(null);
+    speakSmart(m.consigne);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'barres_luma').single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      const startRung = Math.min(rawStart, gameMaxRung);
+      setRung(startRung);
+      erreursRef.current = 0;
+      nouvelleManche(startRung);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  async function finishSession(wasEfficient) {
+    if (!miniJeuId || finishedRef.current) return;
+    finishedRef.current = true;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const precomputedRung = await computeStreakRung({
+      profil, miniJeuId, currentRung: rung, wasPerfect: wasEfficient, maxRung: gameMaxRung,
+    });
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: erreursRef.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: 1,
+      startedAt: startedAt.current,
+      maxRung: gameMaxRung,
+      precomputedRung,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function proceedToNextActivity() {
+    const newRung = sessionSummary?.newRung ?? rung;
+    setSessionDone(false);
+    finishedRef.current = false;
+    erreursRef.current = 0;
+    startedAt.current = Date.now();
+    setRung(newRung);
+    setLoading(true);
+    nouvelleManche(newRung);
+  }
+
+  function handleComparaisonChoix(choix) {
+    if (choix === manche.bonneReponse) {
+      speakSmart('Bravo !');
+      setTimeout(() => finishSession(erreursRef.current === 0), 400);
+    } else {
+      erreursRef.current += 1;
+      setFeedback('Regarde bien laquelle est la plus longue...');
+      speakSmart("Ce n'est pas celle-là, réessaie !");
+    }
+  }
+
+  function ajouterBloc() {
+    const max = manche.mode === 'complement10' ? (10 - manche.deja) : manche.cible;
+    setConstruitBlocs((b) => Math.min(max, b + 1));
+  }
+  function retirerBloc() {
+    setConstruitBlocs((b) => Math.max(0, b - 1));
+  }
+
+  function validerConstruction() {
+    const total = manche.mode === 'complement10' ? manche.deja + construitBlocs : construitBlocs;
+    if (total === manche.cible) {
+      speakSmart('Bravo, le compte est bon !');
+      setTimeout(() => finishSession(erreursRef.current === 0), 400);
+    } else {
+      erreursRef.current += 1;
+      const diff = manche.cible - total;
+      const msg = diff > 0 ? `Il en manque encore ${diff} !` : `Il y en a ${-diff} de trop !`;
+      setFeedback(msg);
+      speakSmart(msg);
+    }
+  }
+
+  if (sessionDone) {
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={proceedToNextActivity}
+      />
+    );
+  }
+
+  if (loading || !manche) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#EAF4E8' }]}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>📏 Les Barres de Luma</Text>
+      </View>
+
+      <View style={styles.gameCharacter}>
+        <BouncingWrap><Noisette size={48} /></BouncingWrap>
+      </View>
+
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16, paddingHorizontal: 16 }}>
+        <Text style={{ flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '700', color: colors.ink }}>
+          {manche.consigne}
+        </Text>
+        <Pressable onPress={() => speakSmart(manche.consigne)} hitSlop={8}>
+          <Text style={{ fontSize: 18 }}>🎤</Text>
+        </Pressable>
+      </View>
+
+      {feedback && (
+        <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '700', marginBottom: 10 }}>
+          {feedback}
+        </Text>
+      )}
+
+      {manche.mode === 'comparaison' && (
+        <View style={{ paddingHorizontal: 20, gap: 24 }}>
+          <Pressable onPress={() => handleComparaisonChoix('A')} style={styles.barresLumaRow}>
+            <Text style={styles.barresLumaLabel}>A</Text>
+            <BarreVisuelle blocs={manche.barreA} couleur={BARRE_COULEURS[0]} maxSlots={9} />
+          </Pressable>
+          <Pressable onPress={() => handleComparaisonChoix('B')} style={styles.barresLumaRow}>
+            <Text style={styles.barresLumaLabel}>B</Text>
+            <BarreVisuelle blocs={manche.barreB} couleur={BARRE_COULEURS[1]} maxSlots={9} />
+          </Pressable>
+        </View>
+      )}
+
+      {manche.mode === 'construction' && (
+        <View style={{ paddingHorizontal: 20, alignItems: 'center' }}>
+          <BarreVisuelle blocs={construitBlocs} couleur={BARRE_COULEURS[2]} maxSlots={manche.cible} />
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 24 }}>
+            <Pressable style={styles.button} onPress={ajouterBloc}>
+              <Text style={styles.buttonText}>➕ Ajouter</Text>
+            </Pressable>
+            <Pressable style={[styles.button, { backgroundColor: '#E0C9A6' }]} onPress={retirerBloc}>
+              <Text style={styles.buttonText}>➖ Retirer</Text>
+            </Pressable>
+          </View>
+          <Pressable style={[styles.button, { marginTop: 16, minWidth: 160 }]} onPress={validerConstruction}>
+            <Text style={styles.buttonText}>✅ C'est bon !</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {manche.mode === 'complement10' && (
+        <View style={{ paddingHorizontal: 20, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 3 }}>
+            {Array.from({ length: manche.deja }).map((_, i) => (
+              <View
+                key={`deja-${i}`}
+                style={{
+                  width: BARRE_BLOC_TAILLE, height: BARRE_BLOC_TAILLE, borderRadius: 8,
+                  backgroundColor: BARRE_COULEURS[3], borderWidth: 2, borderColor: BARRE_COULEURS[3],
+                }}
+              />
+            ))}
+            {Array.from({ length: construitBlocs }).map((_, i) => (
+              <View
+                key={`ajoute-${i}`}
+                style={{
+                  width: BARRE_BLOC_TAILLE, height: BARRE_BLOC_TAILLE, borderRadius: 8,
+                  backgroundColor: BARRE_COULEURS[4], borderWidth: 2, borderColor: BARRE_COULEURS[4],
+                }}
+              />
+            ))}
+            {Array.from({ length: Math.max(0, 10 - manche.deja - construitBlocs) }).map((_, i) => (
+              <View
+                key={`vide-${i}`}
+                style={{
+                  width: BARRE_BLOC_TAILLE, height: BARRE_BLOC_TAILLE, borderRadius: 8,
+                  backgroundColor: 'transparent', borderWidth: 2, borderColor: 'rgba(0,0,0,0.2)', borderStyle: 'dashed',
+                }}
+              />
+            ))}
+          </View>
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 24 }}>
+            <Pressable style={styles.button} onPress={ajouterBloc}>
+              <Text style={styles.buttonText}>➕ Ajouter</Text>
+            </Pressable>
+            <Pressable style={[styles.button, { backgroundColor: '#E0C9A6' }]} onPress={retirerBloc}>
+              <Text style={styles.buttonText}>➖ Retirer</Text>
+            </Pressable>
+          </View>
+          <Pressable style={[styles.button, { marginTop: 16, minWidth: 160 }]} onPress={validerConstruction}>
+            <Text style={styles.buttonText}>✅ C'est bon !</Text>
+          </Pressable>
+        </View>
+      )}
+    </ScrollView>
+  );
+}
+
 function PuzzleMoulinScreen({ route, navigation }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
@@ -9035,6 +9368,7 @@ export default function RootNavigator() {
             <Stack.Screen name="IndicesJardin" component={IndicesJardinScreen} />
             <Stack.Screen name="LabyrintheGrotte" component={LabyrintheGrotteScreen} />
             <Stack.Screen name="CheminDizaines" component={CheminDizainesScreen} />
+            <Stack.Screen name="BarresLuma" component={BarresLumaScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
@@ -9194,6 +9528,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center',
     gap: 10, paddingHorizontal: 8, marginTop: 4,
   },
+  barresLumaRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#fff',
+    borderRadius: 16, padding: 12, borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
+  },
+  barresLumaLabel: { fontSize: 20, fontWeight: '800', color: colors.ink, width: 24, textAlign: 'center' },
   dizainesBadge: {
     backgroundColor: '#fff', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 12,
     borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)',
