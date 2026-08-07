@@ -2402,6 +2402,26 @@ function maxRungForGame(code) {
   return GAME_MAX_RUNG_15.has(code) ? rungFromGradeAndPalier('ce2', 3) : MAX_CONTENT_RUNG;
 }
 
+// Petites etoiles de progression affichees sur chaque carte de jeu, pour
+// que l'enfant voie ou il en est avant meme de cliquer - calculee par
+// rapport a la fin de l'annee scolaire EN COURS de l'enfant (comme pour
+// le seuil des jeux bonus), pas le maximum absolu du jeu, sinon un enfant
+// en MS verrait une barre quasi vide meme en maitrisant tres bien son niveau.
+function ProgressionStars({ rung, code, niveauDefaut }) {
+  const plafondAnneeEnCours = rungFromGradeAndPalier(niveauDefaut ?? 'ms', 3);
+  const cible = Math.min(maxRungForGame(code), plafondAnneeEnCours);
+  const fraction = Math.max(0, Math.min(1, rung / Math.max(1, cible)));
+  const NB_ETOILES = 5;
+  const remplies = Math.round(fraction * NB_ETOILES);
+  return (
+    <View style={{ flexDirection: 'row', gap: 1, marginTop: 2, marginBottom: 2 }}>
+      {Array.from({ length: NB_ETOILES }).map((_, i) => (
+        <Text key={i} style={{ fontSize: 11 }}>{i < remplies ? '⭐' : '☆'}</Text>
+      ))}
+    </View>
+  );
+}
+
 // ============================================================
 // Les 7 continents — un univers thematique par competence, pour
 // naviguer en 2 clics : continent, puis jeu (pays).
@@ -3066,6 +3086,9 @@ function SentierScreen({ route, navigation }) {
               <Text style={styles.paysMarkerText} numberOfLines={3}>
                 {item.nom}
               </Text>
+              {niveauxParJeu[item.id] != null && (
+                <ProgressionStars rung={niveauxParJeu[item.id]} code={item.code} niveauDefaut={profil.niveau_defaut} />
+              )}
               <Pressable
                 style={styles.paysMarkerListenBtn}
                 onPress={() => speakSmart(item.nom)}
