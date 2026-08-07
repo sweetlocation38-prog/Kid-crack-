@@ -2394,7 +2394,7 @@ function cardStyleForIndex(index) {
 }
 
 const GAME_MAX_RUNG_15 = new Set([
-  'indices_jardin',
+  // Tous les jeux ont desormais leur contenu jusqu'au CM2.
 ]);
 function maxRungForGame(code) {
   return GAME_MAX_RUNG_15.has(code) ? rungFromGradeAndPalier('ce2', 3) : MAX_CONTENT_RUNG;
@@ -6171,7 +6171,7 @@ function IndicesJardinScreen({ route, navigation }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
-  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
