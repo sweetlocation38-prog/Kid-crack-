@@ -2394,9 +2394,7 @@ function cardStyleForIndex(index) {
 }
 
 const GAME_MAX_RUNG_15 = new Set([
-  'monde_capitales', 'jeu_intrus', 'empreintes_clairiere', 'balance_prairie',
-  'marche_village', 'cachettes_luma', 'ronde_lucioles', 'tri_village', 'puzzle_moulin',
-  'corps_humain', 'indices_jardin', 'labyrinthe_grotte', 'chemin_dizaines',
+  'tri_village', 'corps_humain', 'indices_jardin', 'frise_temps',
 ]);
 function maxRungForGame(code) {
   return GAME_MAX_RUNG_15.has(code) ? rungFromGradeAndPalier('ce2', 3) : MAX_CONTENT_RUNG;
@@ -6999,7 +6997,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
 
   const { profil } = route.params;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
   const { rows, cols } = useMemo(
     () => mazeGridDimensionsForScreen(screenWidth, screenHeight),
     [screenWidth, screenHeight]
@@ -7346,7 +7344,7 @@ function CheminDizainesScreen({ route, navigation }) {
 
   const { profil } = route.params;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
   const { rows, cols } = useMemo(
     () => mazeGridDimensionsForScreen(screenWidth, screenHeight),
     [screenWidth, screenHeight]
@@ -7733,7 +7731,7 @@ function BarresLumaScreen({ route, navigation }) {
   useEffect(() => { stopBgMusic(); }, []);
 
   const { profil } = route.params;
-  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
   const [manche, setManche] = useState(null);
@@ -7973,7 +7971,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
   const totalPieces = useRef(6);
   const startedAt = useRef(Date.now());
   const nextRungRef = useRef(null);
-  const gameMaxRung = rungFromGradeAndPalier('ce2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
 
   const loadActivity = useCallback((currentRung) => {
     setLoading(true);
