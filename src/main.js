@@ -7318,7 +7318,7 @@ function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, onGrid
                   height: cellSize,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: isVisited ? '#F5DFA0' : 'transparent',
+                  backgroundColor: isVisited ? '#F5DFA0' : '#FFFCF2',
                   borderTopWidth: cell.top ? 2 : 0,
                   borderBottomWidth: cell.bottom ? 2 : 0,
                   borderLeftWidth: cell.left ? 2 : 0,
@@ -7346,7 +7346,11 @@ function CheminDizainesScreen({ route, navigation }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
   const { rows, cols } = useMemo(
-    () => mazeGridDimensionsForScreen(screenWidth, screenHeight),
+    // Cet ecran a en plus des badges et des boutons sous la grille (contrairement
+    // au labyrinthe simple) - on reserve donc davantage d'espace que la fonction
+    // partagee ne le fait par defaut, pour que rien ne deborde et que l'ecran
+    // n'ait jamais besoin de defiler pendant qu'on glisse le doigt sur la grille.
+    () => mazeGridDimensionsForScreen(screenWidth, screenHeight - 150),
     [screenWidth, screenHeight]
   );
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -7368,6 +7372,7 @@ function CheminDizainesScreen({ route, navigation }) {
   const finishedRef = useRef(false);
   const gridOriginRef = useRef({ x: 0, y: 0 });
   const gridRef = useRef(null);
+  const jetonsRestantsRef = useRef(new Map());
 
   const loadNiveau = useCallback((currentRung) => {
     setLoading(true);
@@ -7377,6 +7382,7 @@ function CheminDizainesScreen({ route, navigation }) {
     cellsRef.current = generated;
     posRef.current = { r: 0, c: 0 };
     finishedRef.current = false;
+    jetonsRestantsRef.current = jetons;
     setCells(generated);
     setPos({ r: 0, c: 0 });
     setVisitedSet(new Set(['0,0']));
@@ -7385,7 +7391,7 @@ function CheminDizainesScreen({ route, navigation }) {
     setDizaines(0);
     setTarget(cible);
     setFeedback(null);
-    speakSmart(`Va chercher ${cible} jetons ! Tape sur les tas pour les ramasser.`);
+    speakSmart(`Va chercher ${cible} jetons ! Marche sur les tas pour les ramasser.`);
     setLoading(false);
   }, [rows, cols, gameMaxRung]);
 
@@ -7457,6 +7463,19 @@ function CheminDizainesScreen({ route, navigation }) {
       next.add(`${r},${c}`);
       return next;
     });
+
+    // Ramassage automatique en marchant sur un tas de jetons - plus besoin
+    // de s'arreter et d'appuyer sur un bouton a part, on ramasse juste en
+    // passant dessus (retour utilisateur : l'etape supplementaire genait).
+    const key = `${r},${c}`;
+    const qte = jetonsRestantsRef.current.get(key);
+    if (qte) {
+      jetonsRestantsRef.current = new Map(jetonsRestantsRef.current);
+      jetonsRestantsRef.current.delete(key);
+      setJetonsRestants(jetonsRestantsRef.current);
+      setEnVrac((v) => v + qte);
+      speakSmart(`Plus ${qte} !`);
+    }
   }
 
   function onGridTouch(pageX, pageY) {
@@ -7471,19 +7490,6 @@ function CheminDizainesScreen({ route, navigation }) {
     gridRef.current.measure((fx, fy, w, h, pageX, pageY) => {
       gridOriginRef.current = { x: pageX, y: pageY };
     });
-  }
-
-  function ramasserIci() {
-    const key = `${pos.r},${pos.c}`;
-    const qte = jetonsRestants.get(key);
-    if (!qte) return;
-    setJetonsRestants((prev) => {
-      const next = new Map(prev);
-      next.delete(key);
-      return next;
-    });
-    setEnVrac((v) => v + qte);
-    speakSmart(`Plus ${qte} !`);
   }
 
   function retirerUnEnVrac() {
@@ -7513,8 +7519,6 @@ function CheminDizainesScreen({ route, navigation }) {
       speakSmart(`Il y en a ${trop} de trop !`);
     }
   }
-
-  const jetonIci = jetonsRestants.get(`${pos.r},${pos.c}`);
 
   if (sessionDone) {
     return (
@@ -7578,11 +7582,6 @@ function CheminDizainesScreen({ route, navigation }) {
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
-        {jetonIci > 0 && (
-          <Pressable style={styles.button} onPress={ramasserIci}>
-            <Text style={styles.buttonText}>🌾 Ramasser {jetonIci}</Text>
-          </Pressable>
-        )}
         {enVrac >= 10 && (
           <Pressable style={styles.button} onPress={faireUnPaquet}>
             <Text style={styles.buttonText}>📦 Faire un paquet !</Text>
