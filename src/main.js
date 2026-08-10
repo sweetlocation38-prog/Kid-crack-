@@ -5310,6 +5310,34 @@ function buildLumaPrompt(d) {
 // ============================================================
 // Le Monde en Capitales — geographie (drapeaux, pays, capitales)
 // ============================================================
+// Utilise uniquement pour l'etape 'drapeau_capitale' : le contenu en base
+// ne stocke que l'emoji du drapeau pour cette etape-la (pas le nom du
+// pays), donc on le retrouve ici pour pouvoir le dire et l'ecrire a cote
+// du drapeau - ca aide a associer le drapeau au pays, comme demande,
+// plutot que de demander une capitale "de ce pays" sans jamais le nommer.
+const DRAPEAU_VERS_PAYS = {
+  '🇦🇴': 'l\'Angola', '🇦🇷': 'l\'Argentine', '🇦🇺': 'l\'Australie', '🇧🇩': 'le Bangladesh',
+  '🇧🇪': 'la Belgique', '🇧🇬': 'la Bulgarie', '🇧🇮': 'le Burundi', '🇧🇴': 'la Bolivie',
+  '🇧🇼': 'le Botswana', '🇨🇩': 'la République démocratique du Congo', '🇨🇬': 'le Congo',
+  '🇨🇭': 'la Suisse', '🇨🇮': 'la Côte d\'Ivoire', '🇨🇱': 'le Chili', '🇨🇲': 'le Cameroun',
+  '🇨🇴': 'la Colombie', '🇨🇺': 'Cuba', '🇨🇿': 'la République tchèque', '🇩🇿': 'l\'Algérie',
+  '🇪🇨': 'l\'Équateur', '🇪🇪': 'l\'Estonie', '🇪🇹': 'l\'Éthiopie', '🇫🇮': 'la Finlande',
+  '🇬🇦': 'le Gabon', '🇬🇳': 'la Guinée', '🇬🇷': 'la Grèce', '🇭🇷': 'la Croatie',
+  '🇭🇺': 'la Hongrie', '🇮🇩': 'l\'Indonésie', '🇮🇱': 'Israël', '🇮🇳': 'l\'Inde',
+  '🇮🇶': 'l\'Irak', '🇮🇷': 'l\'Iran', '🇮🇸': 'l\'Islande', '🇯🇲': 'la Jamaïque',
+  '🇰🇪': 'le Kenya', '🇰🇷': 'la Corée du Sud', '🇱🇧': 'le Liban', '🇱🇰': 'le Sri Lanka',
+  '🇱🇹': 'la Lituanie', '🇱🇻': 'la Lettonie', '🇲🇦': 'le Maroc', '🇲🇳': 'la Mongolie',
+  '🇲🇼': 'le Malawi', '🇲🇾': 'la Malaisie', '🇲🇿': 'le Mozambique', '🇳🇦': 'la Namibie',
+  '🇳🇬': 'le Nigeria', '🇳🇱': 'les Pays-Bas', '🇳🇴': 'la Norvège', '🇳🇵': 'le Népal',
+  '🇳🇿': 'la Nouvelle-Zélande', '🇵🇪': 'le Pérou', '🇵🇰': 'le Pakistan', '🇵🇱': 'la Pologne',
+  '🇵🇹': 'le Portugal', '🇵🇾': 'le Paraguay', '🇷🇴': 'la Roumanie', '🇷🇸': 'la Serbie',
+  '🇷🇺': 'la Russie', '🇷🇼': 'le Rwanda', '🇸🇦': 'l\'Arabie saoudite', '🇸🇪': 'la Suède',
+  '🇸🇬': 'Singapour', '🇸🇰': 'la Slovaquie', '🇸🇾': 'la Syrie', '🇹🇭': 'la Thaïlande',
+  '🇹🇳': 'la Tunisie', '🇹🇷': 'la Turquie', '🇹🇼': 'Taïwan', '🇺🇦': 'l\'Ukraine',
+  '🇺🇾': 'l\'Uruguay', '🇻🇪': 'le Venezuela', '🇻🇳': 'le Vietnam', '🇾🇪': 'le Yémen',
+  '🇿🇲': 'la Zambie',
+};
+
 function buildGeoPrompt(d) {
   switch (d.etape) {
     case 'drapeau_pays':
@@ -5329,15 +5357,18 @@ function buildGeoPrompt(d) {
         options: d.options,
         correct: d.reponse,
       };
-    case 'drapeau_capitale':
+    case 'drapeau_capitale': {
+      const pays = DRAPEAU_VERS_PAYS[d.drapeau];
+      const question = pays ? `Quelle est la capitale de ${pays} ?` : 'Quelle est la capitale de ce pays ?';
       return {
         icon: d.drapeau,
-        promptText: 'Quelle est la capitale de ce pays ?',
-        speak: 'Quelle est la capitale de ce pays ?',
-        mandatorySpeak: false,
+        promptText: question,
+        speak: question,
+        mandatorySpeak: false, // le pays est deja ecrit a l'ecran quand on le connait
         options: d.options,
         correct: d.reponse,
       };
+    }
     case 'animal_pays':
       return {
         icon: d.animal,
@@ -5572,35 +5603,54 @@ function BalanceVisual({ promptData, onOptionPress, answered }) {
 
   const totalAjoute = poses.reduce((s, v) => s + v, 0);
   const totalDroite = promptData.droitConnu + totalAjoute;
-  const difference = totalDroite - promptData.gauche;
-  // Inclinaison visuelle de la balance, plafonnee pour rester lisible.
-  const inclinaison = Math.max(-18, Math.min(18, difference * -2.5));
+
+  // Aucun indice visuel tant que l'enfant n'a pas valide : les deux
+  // assiettes restent immobiles, a niveau, quel que soit ce qui est pose
+  // dedans. Ce n'est qu'au moment de valider que la vraie difference se
+  // revele et que les assiettes montent ou descendent en consequence -
+  // avant, la balance s'inclinait en temps reel, ce qui suffisait a
+  // trouver la reponse sans jamais calculer.
+  const difference = answered !== null ? totalDroite - promptData.gauche : 0;
+  const decalage = Math.max(-22, Math.min(22, difference * 3.5));
 
   function ajouterPoids(valeur) {
+    if (answered !== null) return;
     setPoses((p) => [...p, valeur]);
   }
   function retirerPoids(index) {
+    if (answered !== null) return;
     setPoses((p) => p.filter((_, i) => i !== index));
   }
 
   return (
     <View style={{ alignItems: 'center', paddingHorizontal: 16 }}>
-      <View style={{ width: '90%', height: 6, backgroundColor: colors.mossDeep, borderRadius: 3, transform: [{ rotate: `${inclinaison}deg` }], marginBottom: 4 }} />
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 14 }}>
-        <View style={styles.balancePlateau}>
-          <Text style={styles.balancePlateauLabel}>{promptData.gauche}</Text>
-          <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: '#B8B0A6', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.15)' }}>
-            <Text style={{ fontSize: 14 }}>⚖️</Text>
+      {/* Barre horizontale fixe, comme le fleau d'une vraie balance. */}
+      <View style={{ width: '80%', height: 5, backgroundColor: colors.mossDeep, borderRadius: 3, marginBottom: 2 }} />
+
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 4, marginBottom: 10 }}>
+        {/* Assiette gauche, suspendue par un fil - descend si elle est plus lourde. */}
+        <View style={{ alignItems: 'center', transform: [{ translateY: -decalage }] }}>
+          <View style={{ width: 2, height: 18, backgroundColor: colors.mossDeep }} />
+          <View style={[styles.balanceAssiette, { borderColor: '#B8B0A6' }]}>
+            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#B8B0A6', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 12 }}>⚖️</Text>
+            </View>
+            <Text style={styles.balancePlateauLabel}>{promptData.gauche}</Text>
           </View>
         </View>
-        <View style={styles.balancePlateau}>
-          <Text style={styles.balancePlateauLabel}>{totalDroite}</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', maxWidth: 110, justifyContent: 'center', gap: 3 }}>
-            {poses.map((v, i) => (
-              <Pressable key={i} disabled={answered !== null} onPress={() => retirerPoids(i)}>
-                <PoidsIcon valeur={v} taille={22} />
-              </Pressable>
-            ))}
+
+        {/* Assiette droite, suspendue par un fil - monte si elle est plus legere. */}
+        <View style={{ alignItems: 'center', transform: [{ translateY: decalage }] }}>
+          <View style={{ width: 2, height: 18, backgroundColor: colors.mossDeep }} />
+          <View style={[styles.balanceAssiette, { borderColor: BALANCE_COULEURS_POIDS[4] }]}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', maxWidth: 110, justifyContent: 'center', gap: 3 }}>
+              {poses.length === 0 && <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.5 }}>vide</Text>}
+              {poses.map((v, i) => (
+                <Pressable key={i} disabled={answered !== null} onPress={() => retirerPoids(i)}>
+                  <PoidsIcon valeur={v} taille={22} />
+                </Pressable>
+              ))}
+            </View>
           </View>
         </View>
       </View>
@@ -7760,9 +7810,13 @@ function CheminDizainesScreen({ route, navigation }) {
     setLoading(false);
   }, [rows, cols, gameMaxRung]);
 
-  // Deplacement automatique du voleur (l'ecureuil) : un pas aleatoire valide
-  // de temps en temps, plus frequent aux niveaux eleves. Il grignote aussi
-  // les tas de jetons sur lesquels il passe, et vole la collecte de
+  // Deplacement automatique du voleur (l'ecureuil) : il cherche activement
+  // le tas de jetons le plus proche et se dirige droit dessus (via un
+  // parcours en largeur, comme pour le tresor du labyrinthe), plutot que
+  // d'errer au hasard - retour utilisateur : il fallait qu'il "aille
+  // chercher" quelque chose, pas se balader sans but. S'il n'y a plus
+  // aucun jeton a recolter, il erre au hasard en dernier recours. Il
+  // grignote les tas sur lesquels il passe, et vole la collecte de
   // l'enfant s'ils se retrouvent sur la meme case (sans jamais le
   // repositionner, juste sa collecte qui repart a zero - pas de retour au
   // depart pour ce cas-la, contrairement aux pieges fixes).
@@ -7772,26 +7826,56 @@ function CheminDizainesScreen({ route, navigation }) {
     const timer = setInterval(() => {
       if (finishedRef.current || !cellsRef.current || !voleurPosRef.current) return;
       const { r, c } = voleurPosRef.current;
-      const directions = shuffle([[-1, 0], [1, 0], [0, -1], [0, 1]]);
-      for (const [dr, dc] of directions) {
-        const nr = r + dr, nc = c + dc;
-        if (canMove(cellsRef.current, r, c, dr, dc)) {
-          voleurPosRef.current = { r: nr, c: nc };
-          setVoleurPos({ r: nr, c: nc });
-          const key = `${nr},${nc}`;
-          if (jetonsRestantsRef.current.has(key)) {
-            jetonsRestantsRef.current = new Map(jetonsRestantsRef.current);
-            jetonsRestantsRef.current.delete(key);
-            setJetonsRestants(jetonsRestantsRef.current);
+      let nr = null, nc = null;
+
+      if (jetonsRestantsRef.current.size > 0) {
+        const dist = bfsDistances(cellsRef.current, rows, cols, r, c);
+        let meilleure = null;
+        let meilleureDist = Infinity;
+        for (const key of jetonsRestantsRef.current.keys()) {
+          const [tr, tc] = key.split(',').map(Number);
+          const d = dist[tr]?.[tc];
+          if (d != null && d > 0 && d < meilleureDist) {
+            meilleureDist = d;
+            meilleure = { r: tr, c: tc };
           }
-          if (posRef.current.r === nr && posRef.current.c === nc) {
-            setEnVrac(0);
-            setDizaines(0);
-            setFeedback('Le voleur a filé avec tes jetons !');
-            speakSmart("Attention, l'écureuil a volé ta récolte !");
-          }
-          break;
         }
+        if (meilleure) {
+          const chemin = bfsPath(cellsRef.current, dist, r, c, meilleure.r, meilleure.c);
+          if (chemin.length > 1) {
+            nr = chemin[1].r;
+            nc = chemin[1].c;
+          }
+        }
+      }
+
+      if (nr === null) {
+        // Plus rien a recolter (ou chemin introuvable) : erre au hasard.
+        const directions = shuffle([[-1, 0], [1, 0], [0, -1], [0, 1]]);
+        for (const [dr, dc] of directions) {
+          if (canMove(cellsRef.current, r, c, dr, dc)) {
+            nr = r + dr;
+            nc = c + dc;
+            break;
+          }
+        }
+      }
+
+      if (nr === null) return; // completement bloque, ne devrait pas arriver
+
+      voleurPosRef.current = { r: nr, c: nc };
+      setVoleurPos({ r: nr, c: nc });
+      const key = `${nr},${nc}`;
+      if (jetonsRestantsRef.current.has(key)) {
+        jetonsRestantsRef.current = new Map(jetonsRestantsRef.current);
+        jetonsRestantsRef.current.delete(key);
+        setJetonsRestants(jetonsRestantsRef.current);
+      }
+      if (posRef.current.r === nr && posRef.current.c === nc) {
+        setEnVrac(0);
+        setDizaines(0);
+        setFeedback('Le voleur a filé avec tes jetons !');
+        speakSmart("Attention, l'écureuil a volé ta récolte !");
       }
     }, vitesse);
     voleurTimerRef.current = timer;
@@ -7984,7 +8068,10 @@ function CheminDizainesScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#FFF3D6', paddingTop: 6, paddingBottom: 6 }]}>
+    <ScrollView
+      scrollEnabled={false}
+      contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#FFF3D6', paddingTop: 6, paddingBottom: 6 }]}
+    >
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 4 }}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -10435,7 +10522,11 @@ const styles = StyleSheet.create({
     alignItems: 'center', backgroundColor: '#fff', borderRadius: 16, padding: 12,
     borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)', minWidth: 110, minHeight: 90, justifyContent: 'center', gap: 4,
   },
-  balancePlateauLabel: { fontSize: 20, fontWeight: '800', color: colors.ink },
+  balancePlateauLabel: { fontSize: 18, fontWeight: '800', color: colors.ink, marginTop: 2 },
+  balanceAssiette: {
+    alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderRadius: 999,
+    width: 110, height: 70, borderWidth: 3, gap: 2, paddingHorizontal: 8,
+  },
   dizainesBadge: {
     backgroundColor: '#fff', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 12,
     borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)',
