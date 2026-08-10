@@ -7290,7 +7290,7 @@ function placeJetonsDansLabyrinthe(rows, cols, target) {
   return jetons;
 }
 
-function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, onGridTouch, gridRef }) {
+function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, onTouchStart, onTouchMove, gridRef }) {
   const cellSize = MAZE_CELL_SIZE;
   const wallColor = '#3D2E4F';
 
@@ -7300,8 +7300,8 @@ function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, onGrid
       collapsable={false}
       onStartShouldSetResponder={() => true}
       onMoveShouldSetResponder={() => true}
-      onResponderGrant={(e) => onGridTouch(e.nativeEvent.pageX, e.nativeEvent.pageY)}
-      onResponderMove={(e) => onGridTouch(e.nativeEvent.pageX, e.nativeEvent.pageY)}
+      onResponderGrant={(e) => onTouchStart(e.nativeEvent.pageX, e.nativeEvent.pageY)}
+      onResponderMove={(e) => onTouchMove(e.nativeEvent.pageX, e.nativeEvent.pageY)}
       style={{ alignSelf: 'center', marginVertical: 8, backgroundColor: '#FFF3D6', borderRadius: 6 }}
     >
       {cells.map((row, r) => (
@@ -7370,7 +7370,6 @@ function CheminDizainesScreen({ route, navigation }) {
   const cellsRef = useRef(null);
   const posRef = useRef({ r: 0, c: 0 });
   const finishedRef = useRef(false);
-  const gridOriginRef = useRef({ x: 0, y: 0 });
   const gridRef = useRef(null);
   const jetonsRestantsRef = useRef(new Map());
 
@@ -7478,18 +7477,38 @@ function CheminDizainesScreen({ route, navigation }) {
     }
   }
 
-  function onGridTouch(pageX, pageY) {
-    const { x, y } = gridOriginRef.current;
-    const c = Math.floor((pageX - x) / MAZE_CELL_SIZE);
-    const r = Math.floor((pageY - y) / MAZE_CELL_SIZE);
-    tryMoveTo(r, c);
+  // Glissement RELATIF plutot que position absolue : ou que le doigt se
+  // pose sur la grille, glisser dans une direction fait avancer le
+  // personnage pas a pas dans cette direction - le doigt n'a plus besoin
+  // d'etre exactement sur le personnage, donc il ne cache plus la vue sur
+  // le chemin (retour utilisateur).
+  const touchAnchorRef = useRef(null);
+  const PAS_GLISSEMENT = MAZE_CELL_SIZE * 0.7; // distance a glisser pour declencher un pas
+
+  function onTouchStart(pageX, pageY) {
+    touchAnchorRef.current = { x: pageX, y: pageY };
   }
 
-  function onGridLayout() {
-    if (!gridRef.current) return;
-    gridRef.current.measure((fx, fy, w, h, pageX, pageY) => {
-      gridOriginRef.current = { x: pageX, y: pageY };
-    });
+  function onTouchMove(pageX, pageY) {
+    if (!touchAnchorRef.current) {
+      touchAnchorRef.current = { x: pageX, y: pageY };
+      return;
+    }
+    const dx = pageX - touchAnchorRef.current.x;
+    const dy = pageY - touchAnchorRef.current.y;
+    if (Math.abs(dx) < PAS_GLISSEMENT && Math.abs(dy) < PAS_GLISSEMENT) return;
+
+    const { r, c } = posRef.current;
+    let nr = r, nc = c;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      nc = c + (dx > 0 ? 1 : -1);
+    } else {
+      nr = r + (dy > 0 ? 1 : -1);
+    }
+    tryMoveTo(nr, nc);
+    // On redemarre la mesure a partir d'ici, pour un glissement continu
+    // qui fait avancer le personnage pas a pas tant que le doigt bouge.
+    touchAnchorRef.current = { x: pageX, y: pageY };
   }
 
   function retirerUnEnVrac() {
@@ -7568,18 +7587,17 @@ function CheminDizainesScreen({ route, navigation }) {
         </Text>
       )}
 
-      <View onLayout={onGridLayout}>
-        <DizainesGridVisual
-          cells={cells}
-          rows={rows}
-          cols={cols}
-          pos={pos}
-          visitedSet={visitedSet}
-          jetons={jetonsRestants}
-          onGridTouch={onGridTouch}
-          gridRef={gridRef}
-        />
-      </View>
+      <DizainesGridVisual
+        cells={cells}
+        rows={rows}
+        cols={cols}
+        pos={pos}
+        visitedSet={visitedSet}
+        jetons={jetonsRestants}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        gridRef={gridRef}
+      />
 
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
         {enVrac >= 10 && (
