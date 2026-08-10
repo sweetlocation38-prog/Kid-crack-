@@ -3264,6 +3264,19 @@ function PontDesLettresScreen({ route, navigation }) {
   const effectiveRemainingIci = baseRemaining != null ? liveRemaining + extraMinutesGranted * 60 : null;
   const limiteAtteinteIci = effectiveRemainingIci != null && effectiveRemainingIci <= 0;
 
+  // Calibrage adaptatif : chaque mot assemble sans aucune erreur compte
+  // comme une "manche" reussie (un mot = une manche de calibrage, plutot
+  // que la session complete de TOTAL_ROUNDS mots). Seules les erreurs
+  // determinent la montee/descente, jamais le temps.
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee');
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const calibErrorsRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [2, 4, 6, 6];
+
   useEffect(() => {
     fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -3329,6 +3342,69 @@ function PontDesLettresScreen({ route, navigation }) {
     setLoading(false);
   }, []);
 
+  function terminerCalibrage(jeuId, finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: jeuId,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant.
+      }
+    })();
+    setRung(finalRung);
+    errorsTotal.current = 0;
+    setRound(1);
+    setCalibPhase('play');
+    const { niveau, palier: palierValue } = gradeAndPalierFromRung(rungWithSessionRamp(finalRung, 1, TOTAL_ROUNDS, MAX_CONTENT_RUNG));
+    loadRound(jeuId, niveau, palierValue);
+  }
+
+  function handleCalibrationResult(jeuId, isCorrect) {
+    setCalibRoundIndex((i) => i + 1);
+    calibErrorsRef.current = 0;
+    if (calibStepPhaseRef.current === 'montee') {
+      calibRoundsMonteeRef.current += 1;
+      if (!isCorrect) {
+        calibStepPhaseRef.current = 'descente';
+        calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 2);
+        const { niveau, palier } = gradeAndPalierFromRung(calibCurrentRungRef.current);
+        loadRound(jeuId, niveau, palier);
+        return;
+      }
+      if (calibRoundsMonteeRef.current >= 4) {
+        terminerCalibrage(jeuId, Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current));
+        return;
+      }
+      const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+      calibCurrentRungRef.current = Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current + saut);
+      const { niveau, palier } = gradeAndPalierFromRung(calibCurrentRungRef.current);
+      loadRound(jeuId, niveau, palier);
+      return;
+    }
+
+    calibRoundsDescenteRef.current += 1;
+    if (isCorrect) {
+      terminerCalibrage(jeuId, Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current));
+      return;
+    }
+    if (calibRoundsDescenteRef.current >= 3) {
+      terminerCalibrage(jeuId, Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current));
+      return;
+    }
+    calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 2);
+    const { niveau, palier } = gradeAndPalierFromRung(calibCurrentRungRef.current);
+    loadRound(jeuId, niveau, palier);
+  }
+
   // Recupere le jeu et le cran de difficulte sauvegarde, puis lance la
   // premiere manche avec ce cran precis (le cran reste fixe pendant toute
   // la session : seule la fin de session peut le faire evoluer).
@@ -3349,8 +3425,23 @@ function PontDesLettresScreen({ route, navigation }) {
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const startRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      if (!prog) {
+        const base = Math.min(MAX_CONTENT_RUNG, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        calibErrorsRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        const { niveau, palier } = gradeAndPalierFromRung(base);
+        loadRound(jeu.id, niveau, palier);
+        return;
+      }
+
+      const startRung = prog.palier_actuel;
       setRung(startRung);
+      setCalibPhase('play');
       const { niveau, palier: palierValue } = gradeAndPalierFromRung(rungWithSessionRamp(startRung, 1, TOTAL_ROUNDS, MAX_CONTENT_RUNG));
       loadRound(jeu.id, niveau, palierValue);
     })();
@@ -3431,6 +3522,13 @@ function PontDesLettresScreen({ route, navigation }) {
         setFeedback('Bravo !');
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 800);
+
+        if (calibPhase === 'calibrating') {
+          const isCorrect = calibErrorsRef.current === 0;
+          setTimeout(() => handleCalibrationResult(miniJeuId, isCorrect), 500);
+          return;
+        }
+
         maybeSpeakMidSessionEncouragement(round);
         setTimeout(async () => {
           if (round >= TOTAL_ROUNDS) {
@@ -3445,6 +3543,12 @@ function PontDesLettresScreen({ route, navigation }) {
         setStepIndex(nextStep);
       }
     } else {
+      if (calibPhase === 'calibrating') {
+        calibErrorsRef.current += 1;
+        setFeedback('Essaie encore !');
+        setTimeout(() => setFeedback(null), 500);
+        return;
+      }
       errorsThisRound.current += 1;
       errorsTotal.current += 1;
       setFeedback('Essaie encore !');
@@ -3488,8 +3592,43 @@ function PontDesLettresScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>🌉 Le Pont des Lettres</Text>
-        <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
+        <Text style={styles.gameTitle}>
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🌉 Le Pont des Lettres'}
+        </Text>
+        {calibPhase === 'play' && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Refaire le calibrage ?',
+                "On va reposer quelques questions pour retrouver le bon niveau. C'est rapide !",
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, on y va !',
+                    onPress: () => {
+                      const base = Math.min(MAX_CONTENT_RUNG, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+                      calibCurrentRungRef.current = base;
+                      calibStepPhaseRef.current = 'montee';
+                      calibRoundsMonteeRef.current = 0;
+                      calibRoundsDescenteRef.current = 0;
+                      calibErrorsRef.current = 0;
+                      setCalibRoundIndex(0);
+                      setCalibPhase('calibrating');
+                      const { niveau, palier } = gradeAndPalierFromRung(base);
+                      loadRound(miniJeuId, niveau, palier);
+                    },
+                  },
+                ]
+              );
+            }}
+            hitSlop={10}
+          >
+            <Text style={{ fontSize: 20 }}>🔄</Text>
+          </Pressable>
+        )}
+        <Text style={styles.roundLabel}>
+          {calibPhase === 'calibrating' ? `Manche ${calibRoundIndex + 1}` : `${round}/${TOTAL_ROUNDS}`}
+        </Text>
       </View>
 
       <View style={styles.gameCharacter}>
@@ -6511,6 +6650,18 @@ function TriVillageScreen({ route, navigation }) {
   const nextRungRef = useRef(null);
   const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
 
+  // Calibrage adaptatif : chaque exercice complet de tri (tous les objets
+  // ranges sans aucune erreur) compte comme une "manche" reussie. Seules
+  // les erreurs determinent la montee/descente, jamais le temps.
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee');
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const calibErrorsRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [2, 4, 6, 6];
+
   const loadActivity = useCallback(async (jeuId, currentRung) => {
     setLoading(true);
     const { niveau, palier } = gradeAndPalierFromRung(currentRung);
@@ -6534,6 +6685,64 @@ function TriVillageScreen({ route, navigation }) {
     setLoading(false);
   }, []);
 
+  function terminerCalibrage(jeuId, finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: jeuId,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant.
+      }
+    })();
+    setRung(finalRung);
+    errorsTotal.current = 0;
+    setCalibPhase('play');
+    loadActivity(jeuId, finalRung);
+  }
+
+  function handleCalibrationResult(jeuId, isCorrect) {
+    setCalibRoundIndex((i) => i + 1);
+    calibErrorsRef.current = 0;
+    if (calibStepPhaseRef.current === 'montee') {
+      calibRoundsMonteeRef.current += 1;
+      if (!isCorrect) {
+        calibStepPhaseRef.current = 'descente';
+        calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 2);
+        loadActivity(jeuId, calibCurrentRungRef.current);
+        return;
+      }
+      if (calibRoundsMonteeRef.current >= 4) {
+        terminerCalibrage(jeuId, Math.min(gameMaxRung, calibCurrentRungRef.current));
+        return;
+      }
+      const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+      calibCurrentRungRef.current = Math.min(gameMaxRung, calibCurrentRungRef.current + saut);
+      loadActivity(jeuId, calibCurrentRungRef.current);
+      return;
+    }
+
+    calibRoundsDescenteRef.current += 1;
+    if (isCorrect) {
+      terminerCalibrage(jeuId, Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    if (calibRoundsDescenteRef.current >= 3) {
+      terminerCalibrage(jeuId, Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 2);
+    loadActivity(jeuId, calibCurrentRungRef.current);
+  }
+
   useEffect(() => {
     (async () => {
       const { data: jeu } = await supabase
@@ -6551,9 +6760,22 @@ function TriVillageScreen({ route, navigation }) {
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
-      const startRung = Math.min(rawStart, gameMaxRung);
+      if (!prog) {
+        const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        calibErrorsRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        loadActivity(jeu.id, base);
+        return;
+      }
+
+      const startRung = Math.min(prog.palier_actuel, gameMaxRung);
       setRung(startRung);
+      setCalibPhase('play');
       loadActivity(jeu.id, startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -6604,8 +6826,17 @@ function TriVillageScreen({ route, navigation }) {
       setPlacedCount((c) => c + 1);
       setSelected(null);
       if (nextPool.length === 0) {
-        setTimeout(finishSession, 400);
+        if (calibPhase === 'calibrating') {
+          const isCorrect = calibErrorsRef.current === 0;
+          speakSmart(isCorrect ? 'Bravo, tout est bien rangé !' : "Bien joué, on continue !");
+          setTimeout(() => handleCalibrationResult(miniJeuId, isCorrect), 500);
+        } else {
+          setTimeout(finishSession, 400);
+        }
       }
+    } else if (calibPhase === 'calibrating') {
+      calibErrorsRef.current += 1;
+      setSelected(null);
     } else {
       errorsTotal.current += 1;
       setSelected(null);
@@ -6637,8 +6868,42 @@ function TriVillageScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>🗂️ Le Tri du Village</Text>
-        <Text style={styles.roundLabel}>{placedCount}/{totalItems}</Text>
+        <Text style={styles.gameTitle}>
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🗂️ Le Tri du Village'}
+        </Text>
+        {calibPhase === 'play' && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Refaire le calibrage ?',
+                "On va reposer quelques questions pour retrouver le bon niveau. C'est rapide !",
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, on y va !',
+                    onPress: () => {
+                      const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+                      calibCurrentRungRef.current = base;
+                      calibStepPhaseRef.current = 'montee';
+                      calibRoundsMonteeRef.current = 0;
+                      calibRoundsDescenteRef.current = 0;
+                      calibErrorsRef.current = 0;
+                      setCalibRoundIndex(0);
+                      setCalibPhase('calibrating');
+                      loadActivity(miniJeuId, base);
+                    },
+                  },
+                ]
+              );
+            }}
+            hitSlop={10}
+          >
+            <Text style={{ fontSize: 20 }}>🔄</Text>
+          </Pressable>
+        )}
+        <Text style={styles.roundLabel}>
+          {calibPhase === 'calibrating' ? `Manche ${calibRoundIndex + 1}` : `${placedCount}/${totalItems}`}
+        </Text>
       </View>
 
       <View style={styles.gameCharacter}>
@@ -7923,6 +8188,20 @@ function BarresLumaScreen({ route, navigation }) {
   const finishedRef = useRef(false);
   const erreursRef = useRef(0);
 
+  // Calibrage adaptatif (identique en principe a celui des autres jeux) :
+  // 'checking' -> verifie s'il existe deja une progression ; 'calibrating'
+  // -> teste rapidement le niveau (montee jusqu'a 4 manches, puis descente
+  // fine jusqu'a 3 manches de plus si une erreur a ete rencontree) ;
+  // 'play' -> jeu normal. Seules les ERREURS determinent la montee/descente,
+  // jamais le temps de reponse.
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee'); // 'montee' | 'descente'
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [2, 4, 6, 6];
+
   const nouvelleManche = useCallback((currentRung) => {
     const m = genererMancheBarres(currentRung);
     setManche(m);
@@ -7931,6 +8210,82 @@ function BarresLumaScreen({ route, navigation }) {
     speakSmart(m.consigne);
     setLoading(false);
   }, []);
+
+  function terminerCalibrage(jeuId, finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: jeuId,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant : le jeu demarre quand meme au bon niveau pour
+        // cette session, meme si la sauvegarde a echoue.
+      }
+    })();
+    setRung(finalRung);
+    erreursRef.current = 0;
+    setCalibPhase('play');
+    nouvelleManche(finalRung);
+  }
+
+  function handleCalibrationResult(jeuId, isCorrect) {
+    setTimeout(() => {
+      setCalibRoundIndex((i) => i + 1);
+      if (calibStepPhaseRef.current === 'montee') {
+        calibRoundsMonteeRef.current += 1;
+        if (!isCorrect) {
+          calibStepPhaseRef.current = 'descente';
+          calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 2);
+          setManche(null);
+          setLoading(true);
+          const m = genererMancheBarres(calibCurrentRungRef.current);
+          setManche(m);
+          setConstruitBlocs(0);
+          setFeedback(null);
+          speakSmart(m.consigne);
+          setLoading(false);
+          return;
+        }
+        if (calibRoundsMonteeRef.current >= 4) {
+          terminerCalibrage(jeuId, Math.min(gameMaxRung, calibCurrentRungRef.current));
+          return;
+        }
+        const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+        calibCurrentRungRef.current = Math.min(gameMaxRung, calibCurrentRungRef.current + saut);
+        const m = genererMancheBarres(calibCurrentRungRef.current);
+        setManche(m);
+        setConstruitBlocs(0);
+        setFeedback(null);
+        speakSmart(m.consigne);
+        return;
+      }
+
+      // Phase de descente.
+      calibRoundsDescenteRef.current += 1;
+      if (isCorrect) {
+        terminerCalibrage(jeuId, Math.min(gameMaxRung, calibCurrentRungRef.current));
+        return;
+      }
+      if (calibRoundsDescenteRef.current >= 3) {
+        terminerCalibrage(jeuId, Math.min(gameMaxRung, calibCurrentRungRef.current));
+        return;
+      }
+      calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 2);
+      const m = genererMancheBarres(calibCurrentRungRef.current);
+      setManche(m);
+      setConstruitBlocs(0);
+      setFeedback(null);
+      speakSmart(m.consigne);
+    }, 900);
+  }
 
   useEffect(() => {
     (async () => {
@@ -7945,10 +8300,29 @@ function BarresLumaScreen({ route, navigation }) {
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
-      const startRung = Math.min(rawStart, gameMaxRung);
+      if (!prog) {
+        // Premier lancement : on lance le calibrage adaptatif plutot que
+        // de partir directement sur le niveau scolaire par defaut.
+        const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        const m = genererMancheBarres(base);
+        setManche(m);
+        setConstruitBlocs(0);
+        setFeedback(null);
+        speakSmart(m.consigne);
+        setLoading(false);
+        return;
+      }
+
+      const startRung = Math.min(prog.palier_actuel, gameMaxRung);
       setRung(startRung);
       erreursRef.current = 0;
+      setCalibPhase('play');
       nouvelleManche(startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -7986,7 +8360,13 @@ function BarresLumaScreen({ route, navigation }) {
   }
 
   function handleComparaisonChoix(choix) {
-    if (choix === manche.bonneReponse) {
+    const isCorrect = choix === manche.bonneReponse;
+    if (calibPhase === 'calibrating') {
+      speakSmart(isCorrect ? 'Bravo !' : "Ce n'est pas celle-là.");
+      handleCalibrationResult(miniJeuId, isCorrect);
+      return;
+    }
+    if (isCorrect) {
       speakSmart('Bravo !');
       setTimeout(() => finishSession(erreursRef.current === 0), 400);
     } else {
@@ -8008,7 +8388,13 @@ function BarresLumaScreen({ route, navigation }) {
 
   function validerConstruction() {
     const attendu = cibleActuelle();
-    if (construitBlocs === attendu) {
+    const isCorrect = construitBlocs === attendu;
+    if (calibPhase === 'calibrating') {
+      speakSmart(isCorrect ? 'Bravo, le compte est bon !' : "Ce n'est pas tout à fait ça.");
+      handleCalibrationResult(miniJeuId, isCorrect);
+      return;
+    }
+    if (isCorrect) {
       speakSmart('Bravo, le compte est bon !');
       setTimeout(() => finishSession(erreursRef.current === 0), 400);
     } else {
@@ -8047,8 +8433,49 @@ function BarresLumaScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>📏 Les Barres de Luma</Text>
+        <Text style={styles.gameTitle}>
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '📏 Les Barres de Luma'}
+        </Text>
+        {calibPhase === 'play' && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Refaire le calibrage ?',
+                "On va reposer quelques questions pour retrouver le bon niveau. C'est rapide !",
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, on y va !',
+                    onPress: () => {
+                      const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+                      calibCurrentRungRef.current = base;
+                      calibStepPhaseRef.current = 'montee';
+                      calibRoundsMonteeRef.current = 0;
+                      calibRoundsDescenteRef.current = 0;
+                      setCalibRoundIndex(0);
+                      setCalibPhase('calibrating');
+                      const m = genererMancheBarres(base);
+                      setManche(m);
+                      setConstruitBlocs(0);
+                      setFeedback(null);
+                      speakSmart(m.consigne);
+                    },
+                  },
+                ]
+              );
+            }}
+            hitSlop={10}
+          >
+            <Text style={{ fontSize: 20 }}>🔄</Text>
+          </Pressable>
+        )}
       </View>
+
+      {calibPhase === 'calibrating' && (
+        <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '700', marginBottom: 4 }}>
+          Manche {calibRoundIndex + 1}
+        </Text>
+      )}
 
       <View style={styles.gameCharacter}>
         <BouncingWrap><Noisette size={48} /></BouncingWrap>
@@ -8326,6 +8753,18 @@ function FriseTempsScreen({ route, navigation }) {
   const nextRungRef = useRef(null);
   const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
 
+  // Calibrage adaptatif : chaque frise complete (tous les evenements
+  // ordonnes sans aucune erreur) compte comme une "manche" reussie.
+  // Seules les erreurs determinent la montee/descente, jamais le temps.
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee');
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const calibErrorsRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [2, 4, 6, 6];
+
   const loadActivity = useCallback(async (jeuId, currentRung) => {
     setLoading(true);
     const { niveau, palier } = gradeAndPalierFromRung(currentRung);
@@ -8348,6 +8787,64 @@ function FriseTempsScreen({ route, navigation }) {
     setLoading(false);
   }, []);
 
+  function terminerCalibrage(jeuId, finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: jeuId,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant.
+      }
+    })();
+    setRung(finalRung);
+    errorsTotal.current = 0;
+    setCalibPhase('play');
+    loadActivity(jeuId, finalRung);
+  }
+
+  function handleCalibrationResult(jeuId, isCorrect) {
+    setCalibRoundIndex((i) => i + 1);
+    calibErrorsRef.current = 0;
+    if (calibStepPhaseRef.current === 'montee') {
+      calibRoundsMonteeRef.current += 1;
+      if (!isCorrect) {
+        calibStepPhaseRef.current = 'descente';
+        calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 2);
+        loadActivity(jeuId, calibCurrentRungRef.current);
+        return;
+      }
+      if (calibRoundsMonteeRef.current >= 4) {
+        terminerCalibrage(jeuId, Math.min(gameMaxRung, calibCurrentRungRef.current));
+        return;
+      }
+      const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+      calibCurrentRungRef.current = Math.min(gameMaxRung, calibCurrentRungRef.current + saut);
+      loadActivity(jeuId, calibCurrentRungRef.current);
+      return;
+    }
+
+    calibRoundsDescenteRef.current += 1;
+    if (isCorrect) {
+      terminerCalibrage(jeuId, Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    if (calibRoundsDescenteRef.current >= 3) {
+      terminerCalibrage(jeuId, Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 2);
+    loadActivity(jeuId, calibCurrentRungRef.current);
+  }
+
   useEffect(() => {
     (async () => {
       const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'frise_temps').single();
@@ -8361,9 +8858,22 @@ function FriseTempsScreen({ route, navigation }) {
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
-      const startRung = Math.min(rawStart, gameMaxRung);
+      if (!prog) {
+        const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        calibErrorsRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        loadActivity(jeu.id, base);
+        return;
+      }
+
+      const startRung = Math.min(prog.palier_actuel, gameMaxRung);
       setRung(startRung);
+      setCalibPhase('play');
       loadActivity(jeu.id, startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -8405,7 +8915,19 @@ function FriseTempsScreen({ route, navigation }) {
     if (nom === correctOrder[nextExpectedIndex]) {
       const isLast = nextExpectedIndex === correctOrder.length - 1;
       setNextExpectedIndex((i) => i + 1);
-      if (isLast) setTimeout(finishSession, 500);
+      if (isLast) {
+        if (calibPhase === 'calibrating') {
+          const isCorrect = calibErrorsRef.current === 0;
+          speakSmart(isCorrect ? 'Bravo, frise parfaite !' : 'Bien joué, on continue !');
+          setTimeout(() => handleCalibrationResult(miniJeuId, isCorrect), 500);
+        } else {
+          setTimeout(finishSession, 500);
+        }
+      }
+    } else if (calibPhase === 'calibrating') {
+      calibErrorsRef.current += 1;
+      setWrongFlash(nom);
+      setTimeout(() => setWrongFlash(null), 400);
     } else {
       errorsTotal.current += 1;
       setWrongFlash(nom);
@@ -8440,8 +8962,42 @@ function FriseTempsScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>📜 La Frise du Temps</Text>
-        <Text style={styles.roundLabel}>{progress}/{correctOrder.length}</Text>
+        <Text style={styles.gameTitle}>
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '📜 La Frise du Temps'}
+        </Text>
+        {calibPhase === 'play' && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Refaire le calibrage ?',
+                "On va reposer quelques questions pour retrouver le bon niveau. C'est rapide !",
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, on y va !',
+                    onPress: () => {
+                      const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+                      calibCurrentRungRef.current = base;
+                      calibStepPhaseRef.current = 'montee';
+                      calibRoundsMonteeRef.current = 0;
+                      calibRoundsDescenteRef.current = 0;
+                      calibErrorsRef.current = 0;
+                      setCalibRoundIndex(0);
+                      setCalibPhase('calibrating');
+                      loadActivity(miniJeuId, base);
+                    },
+                  },
+                ]
+              );
+            }}
+            hitSlop={10}
+          >
+            <Text style={{ fontSize: 20 }}>🔄</Text>
+          </Pressable>
+        )}
+        <Text style={styles.roundLabel}>
+          {calibPhase === 'calibrating' ? `Manche ${calibRoundIndex + 1}` : `${progress}/${correctOrder.length}`}
+        </Text>
       </View>
 
       <View style={styles.gameCharacter}>
