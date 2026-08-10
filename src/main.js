@@ -7264,10 +7264,16 @@ function targetForDizainesRung(rung, maxRung) {
   return Math.max(6, Math.round(9 + ratio * 90));
 }
 
-// Disperse des petits tas de jetons (1 a 4) sur environ 45% des cases du
-// labyrinthe (jamais la case de depart), en s'assurant qu'il y en a assez
-// au total pour largement depasser la cible visee.
-function placeJetonsDansLabyrinthe(rows, cols, target) {
+// Disperse des petits tas de jetons (1 a 4) sur les cases du labyrinthe
+// (jamais la case de depart), en s'assurant qu'il y en a assez au total
+// pour depasser la cible visee. Se rarefie avec le niveau : moins de tas,
+// marge de securite plus fine - il faut explorer davantage pour trouver
+// son compte, plutot que tomber dessus sans effort.
+function placeJetonsDansLabyrinthe(rows, cols, target, rung = 1, maxRung = 21) {
+  const ratioNiveau = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
+  const tauxCases = 0.45 - ratioNiveau * 0.22; // 45% au debut -> 23% au maximum
+  const margeSecurite = Math.round(12 - ratioNiveau * 7); // marge confortable -> plus fine
+
   const cells = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -7276,21 +7282,42 @@ function placeJetonsDansLabyrinthe(rows, cols, target) {
     }
   }
   const melange = shuffle(cells);
-  const nbTas = Math.max(6, Math.round(melange.length * 0.45));
+  const nbTas = Math.max(5, Math.round(melange.length * tauxCases));
   const jetons = new Map();
   let total = 0;
   let i = 0;
-  while ((total < target + 12 || i < nbTas) && i < melange.length) {
+  while ((total < target + margeSecurite || i < nbTas) && i < melange.length) {
     const { r, c } = melange[i];
     const taille = 1 + Math.floor(Math.random() * 4);
     jetons.set(`${r},${c}`, taille);
     total += taille;
     i++;
   }
-  return jetons;
+  return { jetons, cellsRestantes: melange.slice(i) };
 }
 
-function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, onTouchStart, onTouchMove, gridRef }) {
+// Quelques pieges fixes et visibles (jamais caches en surprise) : y
+// marcher dessus renvoie au depart, mais l'enfant garde tout ce qu'il a
+// deja ramasse - juste le trajet a refaire, pas la collecte perdue. Leur
+// nombre grandit doucement avec le niveau.
+function placePiegesDansLabyrinthe(cellsDisponibles, rung) {
+  const nbPieges = Math.min(5, 1 + Math.floor(rung / 5));
+  const pieges = new Set();
+  for (let i = 0; i < Math.min(nbPieges, cellsDisponibles.length); i++) {
+    pieges.add(`${cellsDisponibles[i].r},${cellsDisponibles[i].c}`);
+  }
+  return pieges;
+}
+
+// Vitesse du voleur (l'ecureuil) : plus rapide a mesure que le niveau
+// grandit, mais toujours largement plus lent que l'enfant pour ne jamais
+// donner de sensation de course contre la montre.
+function vitesseVoleurPourRung(rung, maxRung) {
+  const ratio = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
+  return Math.round(2600 - ratio * 1600); // 2600ms au debut -> 1000ms au maximum
+}
+
+function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, pieges, voleurPos, onTouchStart, onTouchMove, gridRef }) {
   const cellSize = MAZE_CELL_SIZE;
   const wallColor = '#3D2E4F';
 
@@ -7309,6 +7336,8 @@ function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, onTouc
           {row.map((cell, c) => {
             const isVisited = visitedSet.has(`${r},${c}`);
             const isPos = pos.r === r && pos.c === c;
+            const isVoleur = voleurPos && voleurPos.r === r && voleurPos.c === c;
+            const isPiege = pieges?.has(`${r},${c}`);
             const jetonCount = jetons.get(`${r},${c}`);
             return (
               <View
@@ -7327,7 +7356,9 @@ function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, onTouc
                 }}
               >
                 {isPos && <Text style={{ fontSize: cellSize * 0.6 }}>🧑</Text>}
-                {!isPos && jetonCount > 0 && (
+                {!isPos && isVoleur && <Text style={{ fontSize: cellSize * 0.6 }}>🐿️</Text>}
+                {!isPos && !isVoleur && isPiege && <Text style={{ fontSize: cellSize * 0.5 }}>🕳️</Text>}
+                {!isPos && !isVoleur && !isPiege && jetonCount > 0 && (
                   <Text style={{ fontSize: cellSize * 0.45 }}>🌾{jetonCount}</Text>
                 )}
               </View>
@@ -7359,6 +7390,8 @@ function CheminDizainesScreen({ route, navigation }) {
   const [pos, setPos] = useState({ r: 0, c: 0 });
   const [visitedSet, setVisitedSet] = useState(() => new Set());
   const [jetonsRestants, setJetonsRestants] = useState(() => new Map());
+  const [pieges, setPieges] = useState(() => new Set());
+  const [voleurPos, setVoleurPos] = useState(null);
   const [enVrac, setEnVrac] = useState(0);
   const [dizaines, setDizaines] = useState(0);
   const [target, setTarget] = useState(10);
@@ -7372,20 +7405,31 @@ function CheminDizainesScreen({ route, navigation }) {
   const finishedRef = useRef(false);
   const gridRef = useRef(null);
   const jetonsRestantsRef = useRef(new Map());
+  const piegesRef = useRef(new Set());
+  const voleurPosRef = useRef(null);
+  const voleurTimerRef = useRef(null);
 
   const loadNiveau = useCallback((currentRung) => {
     setLoading(true);
+    if (voleurTimerRef.current) clearInterval(voleurTimerRef.current);
     const generated = generateMazeWalls(rows, cols, currentRung, gameMaxRung);
     const cible = targetForDizainesRung(currentRung, gameMaxRung);
-    const jetons = placeJetonsDansLabyrinthe(rows, cols, cible);
+    const { jetons, cellsRestantes } = placeJetonsDansLabyrinthe(rows, cols, cible, currentRung, gameMaxRung);
+    const piegesPlaces = placePiegesDansLabyrinthe(shuffle(cellsRestantes), currentRung);
+    // Le voleur demarre loin du depart, dans un coin oppose approximatif.
+    const voleurDepart = { r: rows - 1, c: cols - 1 };
     cellsRef.current = generated;
     posRef.current = { r: 0, c: 0 };
     finishedRef.current = false;
     jetonsRestantsRef.current = jetons;
+    piegesRef.current = piegesPlaces;
+    voleurPosRef.current = voleurDepart;
     setCells(generated);
     setPos({ r: 0, c: 0 });
     setVisitedSet(new Set(['0,0']));
     setJetonsRestants(jetons);
+    setPieges(piegesPlaces);
+    setVoleurPos(voleurDepart);
     setEnVrac(0);
     setDizaines(0);
     setTarget(cible);
@@ -7393,6 +7437,44 @@ function CheminDizainesScreen({ route, navigation }) {
     speakSmart(`Va chercher ${cible} jetons ! Marche sur les tas pour les ramasser.`);
     setLoading(false);
   }, [rows, cols, gameMaxRung]);
+
+  // Deplacement automatique du voleur (l'ecureuil) : un pas aleatoire valide
+  // de temps en temps, plus frequent aux niveaux eleves. Il grignote aussi
+  // les tas de jetons sur lesquels il passe, et vole la collecte de
+  // l'enfant s'ils se retrouvent sur la meme case (sans jamais le
+  // repositionner, juste sa collecte qui repart a zero - pas de retour au
+  // depart pour ce cas-la, contrairement aux pieges fixes).
+  useEffect(() => {
+    if (!cells || finishedRef.current) return;
+    const vitesse = vitesseVoleurPourRung(rung, gameMaxRung);
+    const timer = setInterval(() => {
+      if (finishedRef.current || !cellsRef.current || !voleurPosRef.current) return;
+      const { r, c } = voleurPosRef.current;
+      const directions = shuffle([[-1, 0], [1, 0], [0, -1], [0, 1]]);
+      for (const [dr, dc] of directions) {
+        const nr = r + dr, nc = c + dc;
+        if (canMove(cellsRef.current, r, c, dr, dc)) {
+          voleurPosRef.current = { r: nr, c: nc };
+          setVoleurPos({ r: nr, c: nc });
+          const key = `${nr},${nc}`;
+          if (jetonsRestantsRef.current.has(key)) {
+            jetonsRestantsRef.current = new Map(jetonsRestantsRef.current);
+            jetonsRestantsRef.current.delete(key);
+            setJetonsRestants(jetonsRestantsRef.current);
+          }
+          if (posRef.current.r === nr && posRef.current.c === nc) {
+            setEnVrac(0);
+            setDizaines(0);
+            setFeedback('Le voleur a filé avec tes jetons !');
+            speakSmart("Attention, l'écureuil a volé ta récolte !");
+          }
+          break;
+        }
+      }
+    }, vitesse);
+    voleurTimerRef.current = timer;
+    return () => clearInterval(timer);
+  }, [cells, rung, gameMaxRung]);
 
   useEffect(() => {
     (async () => {
@@ -7455,18 +7537,30 @@ function CheminDizainesScreen({ route, navigation }) {
     if (Math.abs(dr) + Math.abs(dc) !== 1) return;
     if (!canMove(cellsRef.current, pr, pc, dr, dc)) return;
 
+    const key = `${r},${c}`;
+
+    // Piege fixe et visible : renvoie au depart, mais l'enfant garde tout
+    // ce qu'il a deja ramasse - seul le trajet est a refaire.
+    if (piegesRef.current.has(key)) {
+      posRef.current = { r: 0, c: 0 };
+      setPos({ r: 0, c: 0 });
+      setVisitedSet(new Set(['0,0']));
+      setFeedback('Un piège ! Retour au départ (tu gardes ta récolte).');
+      speakSmart('Oups, un piège ! Retour au départ, mais tu gardes ta récolte.');
+      return;
+    }
+
     posRef.current = { r, c };
     setPos({ r, c });
     setVisitedSet((prev) => {
       const next = new Set(prev);
-      next.add(`${r},${c}`);
+      next.add(key);
       return next;
     });
 
     // Ramassage automatique en marchant sur un tas de jetons - plus besoin
     // de s'arreter et d'appuyer sur un bouton a part, on ramasse juste en
     // passant dessus (retour utilisateur : l'etape supplementaire genait).
-    const key = `${r},${c}`;
     const qte = jetonsRestantsRef.current.get(key);
     if (qte) {
       jetonsRestantsRef.current = new Map(jetonsRestantsRef.current);
@@ -7474,6 +7568,15 @@ function CheminDizainesScreen({ route, navigation }) {
       setJetonsRestants(jetonsRestantsRef.current);
       setEnVrac((v) => v + qte);
       speakSmart(`Plus ${qte} !`);
+    }
+
+    // Si l'enfant arrive sur la case du voleur, il se fait voler sa
+    // recolte (mais reste sur place, contrairement aux pieges fixes).
+    if (voleurPosRef.current && voleurPosRef.current.r === r && voleurPosRef.current.c === c) {
+      setEnVrac(0);
+      setDizaines(0);
+      setFeedback('Le voleur a filé avec tes jetons !');
+      speakSmart("Attention, l'écureuil a volé ta récolte !");
     }
   }
 
@@ -7594,6 +7697,8 @@ function CheminDizainesScreen({ route, navigation }) {
         pos={pos}
         visitedSet={visitedSet}
         jetons={jetonsRestants}
+        pieges={pieges}
+        voleurPos={voleurPos}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         gridRef={gridRef}
