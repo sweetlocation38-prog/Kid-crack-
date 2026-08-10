@@ -5872,14 +5872,17 @@ function CachettesLumaScreen({ route, navigation }) {
 // monte le niveau rapidement (jusqu'a 4 manches) en sautant de plus en
 // plus de crans a chaque reussite facile, jusqu'a detecter soit une
 // mauvaise reponse, soit une reponse correcte mais nettement plus lente
-// que les precedentes (signe de reflexion/difficulte) - ce point devient
-// le "plafond". On redescend alors d'un cran ou deux (jusqu'a 3 manches
-// de plus) pour confirmer le vrai point d'equilibre de l'enfant. Au total,
-// jamais plus de 7 manches (4 montee + 3 descente), au lieu de dizaines
-// de sessions pour y arriver naturellement - trouve rapidement le niveau
-// reel plutot que de faire s'ennuyer un enfant deja a l'aise.
+// que les precedentes (signe de reflexion) - garde en memoire a titre
+// informatif seulement : cela n'a jamais d'impact sur la montee ou la
+// descente elle-meme. Seules les ERREURS determinent le plafond puis la
+// redescente : on ne veut surtout pas qu'un enfant se sente presse ou
+// stresse par un chronometre, ce n'est pas ce qui compte pour situer son
+// niveau. Une fois le plafond trouve, on redescend d'un cran ou deux
+// (jusqu'a 3 manches de plus) pour confirmer le vrai point d'equilibre.
+// Au total, jamais plus de 7 manches, au lieu de dizaines de sessions
+// pour y arriver naturellement - trouve rapidement le niveau reel plutot
+// que de faire s'ennuyer un enfant deja a l'aise.
 const CALIBRAGE_SAUTS_MONTEE = [2, 4, 6, 6];
-const CALIBRAGE_SEUIL_LENTEUR = 1.8; // x fois la moyenne des reussites precedentes
 
 function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, maxRung, onDone }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
@@ -5894,7 +5897,6 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
   const phaseRef = useRef('montee'); // 'montee' | 'descente'
   const roundsMonteeRef = useRef(0);
   const roundsDescenteRef = useRef(0);
-  const historiqueReussitesRef = useRef([]); // temps (ms) des bonnes reponses precedentes
   const roundStartRef = useRef(Date.now());
 
   const loadRound = useCallback(async (jeuId, rung) => {
@@ -5954,19 +5956,14 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
   function onOptionPress(value) {
     if (!promptData || answered !== null) return;
     const isCorrect = String(value) === String(promptData.correct);
-    const elapsed = Date.now() - roundStartRef.current;
     setAnswered(value);
     if (isCorrect) setFeedback('Bravo !');
     // Pas de "Faux" affiche : c'est un test neutre pour trouver le bon
     // point de depart, jamais presente comme un echec a l'enfant.
 
-    const reussitesPrecedentes = historiqueReussitesRef.current;
-    const moyenne = reussitesPrecedentes.length
-      ? reussitesPrecedentes.reduce((s, t) => s + t, 0) / reussitesPrecedentes.length
-      : null;
-    const estLent = moyenne != null && elapsed > moyenne * CALIBRAGE_SEUIL_LENTEUR;
-    const estDifficile = !isCorrect || estLent;
-    if (isCorrect) historiqueReussitesRef.current.push(elapsed);
+    // Seule l'erreur determine le plafond - le temps de reponse n'a
+    // aucune influence ici, pour ne jamais mettre l'enfant sous pression.
+    const estDifficile = !isCorrect;
 
     setTimeout(() => {
       setRoundIndex((i) => i + 1);
