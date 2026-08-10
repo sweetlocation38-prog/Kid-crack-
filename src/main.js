@@ -4423,7 +4423,7 @@ function EuropeMapChallenge({ pays, onResult }) {
   );
 }
 
-function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions, forcedStartRung, customVisual }) {
+function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions, forcedStartRung, customVisual, onRequestRecalibrate }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -4829,6 +4829,11 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
           <Text style={styles.back}>‹</Text>
         </Pressable>
         <Text style={styles.gameTitle}>{jeuTitre}</Text>
+        {onRequestRecalibrate && (
+          <Pressable onPress={onRequestRecalibrate} hitSlop={10} style={{ marginRight: 6 }}>
+            <Text style={{ fontSize: 20 }}>🔄</Text>
+          </Pressable>
+        )}
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
 
@@ -5863,34 +5868,40 @@ function CachettesLumaScreen({ route, navigation }) {
 // n'est jamais note ni presente comme un echec possible - juste une
 // petite decouverte avant de commencer a jouer pour de vrai.
 // ============================================================
+// Calibrage adaptatif : au lieu de 4 crans fixes espaces largement, on
+// monte le niveau rapidement (jusqu'a 4 manches) en sautant de plus en
+// plus de crans a chaque reussite facile, jusqu'a detecter soit une
+// mauvaise reponse, soit une reponse correcte mais nettement plus lente
+// que les precedentes (signe de reflexion/difficulte) - ce point devient
+// le "plafond". On redescend alors d'un cran ou deux (jusqu'a 3 manches
+// de plus) pour confirmer le vrai point d'equilibre de l'enfant. Au total,
+// jamais plus de 7 manches (4 montee + 3 descente), au lieu de dizaines
+// de sessions pour y arriver naturellement - trouve rapidement le niveau
+// reel plutot que de faire s'ennuyer un enfant deja a l'aise.
+const CALIBRAGE_SAUTS_MONTEE = [2, 4, 6, 6];
+const CALIBRAGE_SEUIL_LENTEUR = 1.8; // x fois la moyenne des reussites precedentes
+
 function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, maxRung, onDone }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
-  const [checkpoints, setCheckpoints] = useState(null);
-  const [step, setStep] = useState(0);
   const [promptData, setPromptData] = useState(null);
   const [optionsOrder, setOptionsOrder] = useState([]);
   const [answered, setAnswered] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [roundIndex, setRoundIndex] = useState(0);
   const miniJeuIdRef = useRef(null);
-  const correctCount = useRef(0);
-  const askedCount = useRef(0);
+  const currentRungRef = useRef(1);
+  const phaseRef = useRef('montee'); // 'montee' | 'descente'
+  const roundsMonteeRef = useRef(0);
+  const roundsDescenteRef = useRef(0);
+  const historiqueReussitesRef = useRef([]); // temps (ms) des bonnes reponses precedentes
+  const roundStartRef = useRef(Date.now());
 
-  const loadCheckpoint = useCallback(async (jeuId, rungs, index) => {
-    if (index >= rungs.length) {
-      const base = rungFromGradeAndPalier(profil.niveau_defaut, 1);
-      const total = askedCount.current;
-      const ratio = total > 0 ? correctCount.current / total : 0;
-      let bonus = 0;
-      if (ratio > 0.75) bonus = 2;
-      else if (ratio > 0.25) bonus = 1;
-      onDone(Math.min(maxRung, base + bonus));
-      return;
-    }
+  const loadRound = useCallback(async (jeuId, rung) => {
     setLoading(true);
     setAnswered(null);
     setFeedback(null);
-    const { niveau, palier } = gradeAndPalierFromRung(rungs[index]);
+    const { niveau, palier } = gradeAndPalierFromRung(rung);
 
     async function fetchFor(withPalier) {
       let query = supabase
@@ -5907,18 +5918,18 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
     if (data.length === 0) data = await fetchFor(false);
 
     if (data.length === 0) {
-      // Pas de contenu a ce cran precis : on saute cette question de
-      // calibrage plutot que de bloquer l'ecran.
-      loadCheckpoint(jeuId, rungs, index + 1);
+      // Pas de contenu a ce cran precis : on s'arrete la, c'est deja une
+      // bonne estimation du niveau.
+      onDone(Math.min(maxRung, Math.max(1, rung)));
       return;
     }
     const pick = data[Math.floor(Math.random() * data.length)];
     const prompt = buildPrompt(pick.donnees);
-    askedCount.current += 1;
     setPromptData(prompt);
     setOptionsOrder(shuffle(prompt.options));
+    roundStartRef.current = Date.now();
     setLoading(false);
-  }, [profil.niveau_defaut, maxRung, buildPrompt, onDone]);
+  }, [buildPrompt, maxRung, onDone]);
 
   useEffect(() => {
     (async () => {
@@ -5928,12 +5939,9 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
         return;
       }
       miniJeuIdRef.current = jeu.id;
-      const base = rungFromGradeAndPalier(profil.niveau_defaut, 1);
-      // 4 crans repartis de facile a tres difficile a partir du niveau
-      // scolaire par defaut, plafonnes au maximum de contenu du jeu.
-      const rungs = [0, 2, 5, 8].map((offset) => Math.min(maxRung, base + offset));
-      setCheckpoints(rungs);
-      await loadCheckpoint(jeu.id, rungs, 0);
+      const base = Math.min(maxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+      currentRungRef.current = base;
+      await loadRound(jeu.id, base);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -5946,17 +5954,59 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
   function onOptionPress(value) {
     if (!promptData || answered !== null) return;
     const isCorrect = String(value) === String(promptData.correct);
+    const elapsed = Date.now() - roundStartRef.current;
     setAnswered(value);
-    if (isCorrect) {
-      correctCount.current += 1;
-      setFeedback('Bravo !');
-    }
+    if (isCorrect) setFeedback('Bravo !');
     // Pas de "Faux" affiche : c'est un test neutre pour trouver le bon
     // point de depart, jamais presente comme un echec a l'enfant.
+
+    const reussitesPrecedentes = historiqueReussitesRef.current;
+    const moyenne = reussitesPrecedentes.length
+      ? reussitesPrecedentes.reduce((s, t) => s + t, 0) / reussitesPrecedentes.length
+      : null;
+    const estLent = moyenne != null && elapsed > moyenne * CALIBRAGE_SEUIL_LENTEUR;
+    const estDifficile = !isCorrect || estLent;
+    if (isCorrect) historiqueReussitesRef.current.push(elapsed);
+
     setTimeout(() => {
-      const next = step + 1;
-      setStep(next);
-      loadCheckpoint(miniJeuIdRef.current, checkpoints, next);
+      setRoundIndex((i) => i + 1);
+
+      if (phaseRef.current === 'montee') {
+        roundsMonteeRef.current += 1;
+        if (estDifficile) {
+          // Plafond trouve : on bascule en descente fine pour confirmer
+          // le vrai point d'equilibre, 2 crans plus bas pour commencer.
+          phaseRef.current = 'descente';
+          currentRungRef.current = Math.max(1, currentRungRef.current - 2);
+          loadRound(miniJeuIdRef.current, currentRungRef.current);
+          return;
+        }
+        if (roundsMonteeRef.current >= 4) {
+          // 4 manches faciles d'affilee sans jamais buter : l'enfant
+          // maitrise deja tres bien, pas besoin d'aller plus loin.
+          onDone(Math.min(maxRung, currentRungRef.current));
+          return;
+        }
+        const saut = CALIBRAGE_SAUTS_MONTEE[roundsMonteeRef.current] ?? 6;
+        currentRungRef.current = Math.min(maxRung, currentRungRef.current + saut);
+        loadRound(miniJeuIdRef.current, currentRungRef.current);
+        return;
+      }
+
+      // Phase de descente.
+      roundsDescenteRef.current += 1;
+      if (!estDifficile) {
+        // Point d'equilibre trouve : l'enfant est a l'aise ici.
+        onDone(Math.min(maxRung, currentRungRef.current));
+        return;
+      }
+      if (roundsDescenteRef.current >= 3) {
+        // 3 essais en descente : on s'arrete la, meme si encore difficile.
+        onDone(Math.min(maxRung, currentRungRef.current));
+        return;
+      }
+      currentRungRef.current = Math.max(1, currentRungRef.current - 2);
+      loadRound(miniJeuIdRef.current, currentRungRef.current);
     }, 900);
   }
 
@@ -5976,7 +6026,7 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
     <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame(jeuCode) }]}>
       <View style={styles.topBar}>
         <Text style={styles.gameTitle}>🔍 On découvre ton niveau !</Text>
-        <Text style={styles.roundLabel}>{step + 1}/4</Text>
+        <Text style={styles.roundLabel}>Manche {roundIndex + 1}</Text>
       </View>
 
       {Character ? (
@@ -6143,6 +6193,16 @@ function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPromp
       singleLineOptions={singleLineOptions}
       forcedStartRung={forcedStartRung}
       customVisual={customVisual}
+      onRequestRecalibrate={() => {
+        Alert.alert(
+          'Refaire le calibrage ?',
+          "On va reposer quelques questions pour retrouver le bon niveau. C'est rapide !",
+          [
+            { text: 'Annuler', style: 'cancel' },
+            { text: 'Oui, on y va !', onPress: () => setPhase('calibration') },
+          ]
+        );
+      }}
     />
   );
 }
