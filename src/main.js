@@ -7730,7 +7730,9 @@ function genererCalculPourRung(rung, maxRung) {
 // donner de sensation de course contre la montre.
 function vitesseVoleurPourRung(rung, maxRung) {
   const ratio = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
-  return Math.round(1300 - ratio * 800); // 1300ms au debut -> 500ms au maximum (vitesse doublee)
+  const debut = 1690; // 1300ms x 1.3 : 30% plus lent qu'avant au premier niveau
+  const fin = 350; // 500ms x 0.7 : 30% plus rapide qu'avant au dernier niveau
+  return Math.round(debut - ratio * (debut - fin));
 }
 
 function PorteCalculModal({ visible, calcul, onAnswer }) {
