@@ -7686,7 +7686,7 @@ function placePiegesDansLabyrinthe(cellsDisponibles, rung) {
 // donner de sensation de course contre la montre.
 function vitesseVoleurPourRung(rung, maxRung) {
   const ratio = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
-  return Math.round(2600 - ratio * 1600); // 2600ms au debut -> 1000ms au maximum
+  return Math.round(1300 - ratio * 800); // 1300ms au debut -> 500ms au maximum (vitesse doublee)
 }
 
 function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, pieges, voleurPos, onTouchStart, onTouchMove, gridRef }) {
@@ -7788,8 +7788,17 @@ function CheminDizainesScreen({ route, navigation }) {
     const cible = targetForDizainesRung(currentRung, gameMaxRung);
     const { jetons, cellsRestantes } = placeJetonsDansLabyrinthe(rows, cols, cible, currentRung, gameMaxRung);
     const piegesPlaces = placePiegesDansLabyrinthe(shuffle(cellsRestantes), currentRung);
-    // Le voleur demarre loin du depart, dans un coin oppose approximatif.
-    const voleurDepart = { r: rows - 1, c: cols - 1 };
+    // Le voleur demarre a un endroit aleatoire du labyrinthe (jamais sur
+    // la case de depart de l'enfant), plutot que toujours au coin oppose.
+    let voleurDepart = { r: rows - 1, c: cols - 1 };
+    for (let tentative = 0; tentative < 20; tentative++) {
+      const r = Math.floor(Math.random() * rows);
+      const c = Math.floor(Math.random() * cols);
+      if (r !== 0 || c !== 0) {
+        voleurDepart = { r, c };
+        break;
+      }
+    }
     cellsRef.current = generated;
     posRef.current = { r: 0, c: 0 };
     finishedRef.current = false;
