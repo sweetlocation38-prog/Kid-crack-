@@ -7681,6 +7681,46 @@ function placePiegesDansLabyrinthe(cellsDisponibles, rung) {
   return pieges;
 }
 
+// Portes a calcul mental : bloquent le passage tant que l'enfant n'a pas
+// resolu un petit calcul adapte a son niveau. Une fois resolue, la porte
+// reste ouverte pour le reste de la partie. Contrairement aux pieges,
+// jamais de retour en arriere en cas d'erreur - juste "essaie encore".
+function placePortesDansLabyrinthe(cellsDisponibles, rung) {
+  const nbPortes = Math.min(4, 1 + Math.floor(rung / 6));
+  const portes = new Set();
+  for (let i = 0; i < Math.min(nbPortes, cellsDisponibles.length); i++) {
+    portes.add(`${cellsDisponibles[i].r},${cellsDisponibles[i].c}`);
+  }
+  return portes;
+}
+
+// Genere un petit calcul mental (addition ou soustraction simple) adapte
+// au niveau de l'enfant, pour les portes du Chemin des Dizaines - pas
+// besoin de contenu en base, genere a la volee comme le reste du jeu.
+function genererCalculPourRung(rung, maxRung) {
+  const ratio = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
+  const maxNombre = Math.max(5, Math.round(6 + ratio * 90)); // 6 au debut -> 96 au maximum
+  const soustraction = Math.random() < 0.5;
+  let a, b, resultat;
+  if (soustraction) {
+    a = 2 + Math.floor(Math.random() * maxNombre);
+    b = 1 + Math.floor(Math.random() * a);
+    resultat = a - b;
+  } else {
+    a = 1 + Math.floor(Math.random() * maxNombre);
+    b = 1 + Math.floor(Math.random() * maxNombre);
+    resultat = a + b;
+  }
+  const question = `${a} ${soustraction ? '-' : '+'} ${b} = ?`;
+  const options = new Set([resultat]);
+  while (options.size < 3) {
+    const ecart = 1 + Math.floor(Math.random() * 5);
+    const leurre = Math.random() < 0.5 ? resultat + ecart : Math.max(0, resultat - ecart);
+    options.add(leurre);
+  }
+  return { question, reponse: resultat, options: shuffle([...options]) };
+}
+
 // Vitesse du voleur (l'ecureuil) : plus rapide a mesure que le niveau
 // grandit, mais toujours largement plus lent que l'enfant pour ne jamais
 // donner de sensation de course contre la montre.
@@ -7689,7 +7729,41 @@ function vitesseVoleurPourRung(rung, maxRung) {
   return Math.round(1300 - ratio * 800); // 1300ms au debut -> 500ms au maximum (vitesse doublee)
 }
 
-function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, pieges, voleurPos, onTouchStart, onTouchMove, gridRef }) {
+function PorteCalculModal({ visible, calcul, onAnswer }) {
+  if (!calcul) return null;
+  return (
+    <Modal visible={visible} animationType="fade" transparent>
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalCard}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <Text style={styles.modalTitle}>🚪 Une porte !</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+            <Text style={{ flex: 1, textAlign: 'center', fontSize: 20, fontWeight: '800', color: colors.ink }}>
+              {calcul.question}
+            </Text>
+            <Pressable onPress={() => speakSmart(calcul.question.replace('?', 'combien'))} hitSlop={8}>
+              <Text style={{ fontSize: 18 }}>🎤</Text>
+            </Pressable>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
+            {calcul.options.map((opt, i) => (
+              <Pressable
+                key={i}
+                style={styles.button}
+                onPress={() => onAnswer(opt === calcul.reponse)}
+              >
+                <Text style={styles.buttonText}>{opt}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, pieges, portes, portesResolues, voleurPos, onTouchStart, onTouchMove, gridRef }) {
   const cellSize = MAZE_CELL_SIZE;
   const wallColor = '#3D2E4F';
 
@@ -7710,7 +7784,10 @@ function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, pieges
             const isPos = pos.r === r && pos.c === c;
             const isVoleur = voleurPos && voleurPos.r === r && voleurPos.c === c;
             const isPiege = pieges?.has(`${r},${c}`);
-            const jetonCount = jetons.get(`${r},${c}`);
+            const key = `${r},${c}`;
+            const estPorteFermee = portes?.has(key) && !portesResolues?.has(key);
+            const estPorteOuverte = portes?.has(key) && portesResolues?.has(key);
+            const jetonCount = jetons.get(key);
             return (
               <View
                 key={c}
@@ -7719,7 +7796,7 @@ function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, pieges
                   height: cellSize,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: isVisited ? '#F5DFA0' : '#FFFCF2',
+                  backgroundColor: estPorteFermee ? '#E6D2F5' : isVisited ? '#F5DFA0' : '#FFFCF2',
                   borderTopWidth: cell.top ? 2 : 0,
                   borderBottomWidth: cell.bottom ? 2 : 0,
                   borderLeftWidth: cell.left ? 2 : 0,
@@ -7730,7 +7807,9 @@ function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, pieges
                 {isPos && <Text style={{ fontSize: cellSize * 0.6 }}>🧑</Text>}
                 {!isPos && isVoleur && <Text style={{ fontSize: cellSize * 0.6 }}>🐿️</Text>}
                 {!isPos && !isVoleur && isPiege && <Text style={{ fontSize: cellSize * 0.5 }}>🕳️</Text>}
-                {!isPos && !isVoleur && !isPiege && jetonCount > 0 && (
+                {!isPos && !isVoleur && estPorteFermee && <Text style={{ fontSize: cellSize * 0.5 }}>🚪</Text>}
+                {!isPos && !isVoleur && estPorteOuverte && <Text style={{ fontSize: cellSize * 0.4 }}>🔓</Text>}
+                {!isPos && !isVoleur && !isPiege && !estPorteFermee && !estPorteOuverte && jetonCount > 0 && (
                   <Text style={{ fontSize: cellSize * 0.45 }}>🌾{jetonCount}</Text>
                 )}
               </View>
@@ -7763,6 +7842,9 @@ function CheminDizainesScreen({ route, navigation }) {
   const [visitedSet, setVisitedSet] = useState(() => new Set());
   const [jetonsRestants, setJetonsRestants] = useState(() => new Map());
   const [pieges, setPieges] = useState(() => new Set());
+  const [portes, setPortes] = useState(() => new Set());
+  const [portesResolues, setPortesResolues] = useState(() => new Set());
+  const [porteActive, setPorteActive] = useState(null);
   const [voleurPos, setVoleurPos] = useState(null);
   const [enVrac, setEnVrac] = useState(0);
   const [dizaines, setDizaines] = useState(0);
@@ -7778,6 +7860,9 @@ function CheminDizainesScreen({ route, navigation }) {
   const gridRef = useRef(null);
   const jetonsRestantsRef = useRef(new Map());
   const piegesRef = useRef(new Set());
+  const portesRef = useRef(new Set());
+  const portesResoluesRef = useRef(new Set());
+  const porteActiveRef = useRef(false); // bloque le deplacement pendant qu'une porte est posee
   const voleurPosRef = useRef(null);
   const voleurTimerRef = useRef(null);
 
@@ -7787,7 +7872,10 @@ function CheminDizainesScreen({ route, navigation }) {
     const generated = generateMazeWalls(rows, cols, currentRung, gameMaxRung);
     const cible = targetForDizainesRung(currentRung, gameMaxRung);
     const { jetons, cellsRestantes } = placeJetonsDansLabyrinthe(rows, cols, cible, currentRung, gameMaxRung);
-    const piegesPlaces = placePiegesDansLabyrinthe(shuffle(cellsRestantes), currentRung);
+    const cellsMelangees = shuffle(cellsRestantes);
+    const piegesPlaces = placePiegesDansLabyrinthe(cellsMelangees, currentRung);
+    const cellsPourPortes = cellsMelangees.filter((c) => !piegesPlaces.has(`${c.r},${c.c}`));
+    const portesPlacees = placePortesDansLabyrinthe(cellsPourPortes, currentRung);
     // Le voleur demarre a un endroit aleatoire du labyrinthe (jamais sur
     // la case de depart de l'enfant), plutot que toujours au coin oppose.
     let voleurDepart = { r: rows - 1, c: cols - 1 };
@@ -7804,12 +7892,18 @@ function CheminDizainesScreen({ route, navigation }) {
     finishedRef.current = false;
     jetonsRestantsRef.current = jetons;
     piegesRef.current = piegesPlaces;
+    portesRef.current = portesPlacees;
+    portesResoluesRef.current = new Set();
+    porteActiveRef.current = false;
     voleurPosRef.current = voleurDepart;
     setCells(generated);
     setPos({ r: 0, c: 0 });
     setVisitedSet(new Set(['0,0']));
     setJetonsRestants(jetons);
     setPieges(piegesPlaces);
+    setPortes(portesPlacees);
+    setPortesResolues(new Set());
+    setPorteActive(null);
     setVoleurPos(voleurDepart);
     setEnVrac(0);
     setDizaines(0);
@@ -7944,7 +8038,7 @@ function CheminDizainesScreen({ route, navigation }) {
   }
 
   function tryMoveTo(r, c) {
-    if (finishedRef.current || !cellsRef.current) return;
+    if (finishedRef.current || !cellsRef.current || porteActiveRef.current) return;
     if (r < 0 || r >= rows || c < 0 || c >= cols) return;
     const { r: pr, c: pc } = posRef.current;
     if (r === pr && c === pc) return;
@@ -7965,6 +8059,15 @@ function CheminDizainesScreen({ route, navigation }) {
       return;
     }
 
+    // Porte a calcul mental : bloque le passage tant qu'elle n'est pas
+    // resolue. Une fois franchie, elle reste ouverte pour la suite.
+    if (portesRef.current.has(key) && !portesResoluesRef.current.has(key)) {
+      porteActiveRef.current = true;
+      const calcul = genererCalculPourRung(rung, gameMaxRung);
+      setPorteActive({ ...calcul, cellKey: key, r, c });
+      return;
+    }
+
     posRef.current = { r, c };
     setPos({ r, c });
     setVisitedSet((prev) => {
@@ -7973,25 +8076,58 @@ function CheminDizainesScreen({ route, navigation }) {
       return next;
     });
 
-    // Ramassage automatique en marchant sur un tas de jetons - plus besoin
-    // de s'arreter et d'appuyer sur un bouton a part, on ramasse juste en
-    // passant dessus (retour utilisateur : l'etape supplementaire genait).
+    // Ramassage automatique en marchant sur un tas de jetons, et
+    // regroupement automatique en bottes de dix des que possible - plus
+    // besoin de bouton "Faire un paquet", ca se fait tout seul.
     const qte = jetonsRestantsRef.current.get(key);
     if (qte) {
       jetonsRestantsRef.current = new Map(jetonsRestantsRef.current);
       jetonsRestantsRef.current.delete(key);
       setJetonsRestants(jetonsRestantsRef.current);
-      setEnVrac((v) => v + qte);
       speakSmart(`Plus ${qte} !`);
+      setEnVrac((v) => {
+        const total = v + qte;
+        const nouvellesBottes = Math.floor(total / 10);
+        if (nouvellesBottes > 0) {
+          setDizaines((d) => d + nouvellesBottes);
+          setTimeout(() => {
+            speakSmart(nouvellesBottes > 1 ? `${nouvellesBottes} nouvelles bottes de dix !` : 'Une nouvelle botte de dix !');
+          }, 600);
+        }
+        return total % 10;
+      });
     }
 
-    // Si l'enfant arrive sur la case du voleur, il se fait voler sa
-    // recolte (mais reste sur place, contrairement aux pieges fixes).
+    // Si l'enfant arrive sur la case du voleur, il se fait voler toute sa
+    // recolte ET renvoyer au depart (plus severe qu'avant : avant, il ne
+    // faisait que perdre la recolte sans se deplacer).
     if (voleurPosRef.current && voleurPosRef.current.r === r && voleurPosRef.current.c === c) {
       setEnVrac(0);
       setDizaines(0);
-      setFeedback('Le voleur a filé avec tes jetons !');
-      speakSmart("Attention, l'écureuil a volé ta récolte !");
+      posRef.current = { r: 0, c: 0 };
+      setPos({ r: 0, c: 0 });
+      setVisitedSet(new Set(['0,0']));
+      setFeedback('Le voleur a filé avec tes bottes ! Retour au départ.');
+      speakSmart("Attention, l'écureuil a volé tes bottes ! Retour au départ.");
+    }
+  }
+
+  function handlePorteReponse(correct) {
+    if (!porteActive) return;
+    if (correct) {
+      portesResoluesRef.current = new Set(portesResoluesRef.current);
+      portesResoluesRef.current.add(porteActive.cellKey);
+      setPortesResolues(new Set(portesResoluesRef.current));
+      speakSmart('Bravo, la porte s\'ouvre !');
+      const { r, c } = porteActive;
+      setPorteActive(null);
+      porteActiveRef.current = false;
+      // On avance directement dans la case maintenant ouverte.
+      tryMoveTo(r, c);
+    } else {
+      speakSmart('Essaie encore !');
+      setPorteActive(null);
+      porteActiveRef.current = false;
     }
   }
 
@@ -8031,13 +8167,6 @@ function CheminDizainesScreen({ route, navigation }) {
 
   function retirerUnEnVrac() {
     setEnVrac((v) => Math.max(0, v - 1));
-  }
-
-  function faireUnPaquet() {
-    if (enVrac < 10) return;
-    setEnVrac((v) => v - 10);
-    setDizaines((d) => d + 1);
-    speakSmart('Un paquet de dix !');
   }
 
   function verifier() {
@@ -8116,6 +8245,8 @@ function CheminDizainesScreen({ route, navigation }) {
         visitedSet={visitedSet}
         jetons={jetonsRestants}
         pieges={pieges}
+        portes={portes}
+        portesResolues={portesResolues}
         voleurPos={voleurPos}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
@@ -8123,11 +8254,6 @@ function CheminDizainesScreen({ route, navigation }) {
       />
 
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
-        {enVrac >= 10 && (
-          <Pressable style={styles.button} onPress={faireUnPaquet}>
-            <Text style={styles.buttonText}>📦 Faire un paquet !</Text>
-          </Pressable>
-        )}
         {enVrac > 0 && (
           <Pressable style={[styles.button, { backgroundColor: '#E0C9A6' }]} onPress={retirerUnEnVrac}>
             <Text style={styles.buttonText}>↩️ Retirer un jeton</Text>
@@ -8137,6 +8263,12 @@ function CheminDizainesScreen({ route, navigation }) {
       <Pressable style={[styles.button, { marginTop: 10, marginHorizontal: 40 }]} onPress={verifier}>
         <Text style={styles.buttonText}>✅ C'est bon !</Text>
       </Pressable>
+
+      <PorteCalculModal
+        visible={porteActive != null}
+        calcul={porteActive}
+        onAnswer={handlePorteReponse}
+      />
     </ScrollView>
   );
 }
