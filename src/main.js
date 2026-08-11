@@ -8169,6 +8169,22 @@ function CheminDizainesScreen({ route, navigation }) {
     setEnVrac((v) => Math.max(0, v - 1));
   }
 
+  // A partir du CE1, le compte des bottes et des jetons en vrac n'est plus
+  // affiche en direct - l'enfant doit suivre son compte de tete, comme un
+  // vrai calcul mental. Le Joker permet de "tricher" en revelant le
+  // total exact, mais ca a un prix : entre 1 et 10 jetons sont perdus au
+  // hasard a chaque utilisation, en contrepartie.
+  function utiliserJoker() {
+    const total = dizaines * 10 + enVrac;
+    const perte = Math.min(total, 1 + Math.floor(Math.random() * 10));
+    const nouveauTotal = total - perte;
+    setDizaines(Math.floor(nouveauTotal / 10));
+    setEnVrac(nouveauTotal % 10);
+    const msg = `Tu avais ${total} ! Le joker t'en prend ${perte}, il t'en reste ${nouveauTotal}.`;
+    setFeedback(msg);
+    speakSmart(msg);
+  }
+
   function verifier() {
     const total = dizaines * 10 + enVrac;
     if (total === target) {
@@ -8185,6 +8201,11 @@ function CheminDizainesScreen({ route, navigation }) {
       speakSmart(`Il y en a ${trop} de trop !`);
     }
   }
+
+  // A partir du CE1, l'enfant compte de tete plutot que de voir le total
+  // affiche en direct - le Joker (avec son cout) prend le relais du
+  // comptage en direct des badges.
+  const calculDeTeteActif = rung >= rungFromGradeAndPalier('ce1', 1);
 
   if (sessionDone) {
     return (
@@ -8223,12 +8244,20 @@ function CheminDizainesScreen({ route, navigation }) {
         <View style={styles.dizainesBadge}>
           <Text style={styles.dizainesBadgeText}>🎯 {target}</Text>
         </View>
-        <View style={styles.dizainesBadge}>
-          <Text style={styles.dizainesBadgeText}>📦 {dizaines} dizaine{dizaines > 1 ? 's' : ''}</Text>
-        </View>
-        <View style={styles.dizainesBadge}>
-          <Text style={styles.dizainesBadgeText}>🌾 {enVrac}</Text>
-        </View>
+        {calculDeTeteActif ? (
+          <Pressable style={styles.dizainesBadge} onPress={utiliserJoker}>
+            <Text style={styles.dizainesBadgeText}>🃏 Joker</Text>
+          </Pressable>
+        ) : (
+          <>
+            <View style={styles.dizainesBadge}>
+              <Text style={styles.dizainesBadgeText}>📦 {dizaines} dizaine{dizaines > 1 ? 's' : ''}</Text>
+            </View>
+            <View style={styles.dizainesBadge}>
+              <Text style={styles.dizainesBadgeText}>🌾 {enVrac}</Text>
+            </View>
+          </>
+        )}
       </View>
 
       {feedback && (
