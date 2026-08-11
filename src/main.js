@@ -7643,11 +7643,10 @@ function targetForDizainesRung(rung, maxRung) {
 function placeJetonsDansLabyrinthe(rows, cols, target, rung = 1, maxRung = 21) {
   const ratioNiveau = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
   const tauxCases = 0.45 - ratioNiveau * 0.22; // 45% au debut -> 23% au maximum
-  // Marge de securite : couvre a la fois la difficulte croissante ET ce
-  // que le voleur peut manger avant que l'enfant l'atteigne (plafonne a
-  // MAX_PILES_VOLEUR piles, voir plus bas) - sans cette reserve, le
-  // voleur pouvait epuiser toute la carte avant que l'enfant ait une
-  // chance, rendant le niveau impossible a terminer.
+  // Marge de securite generale (exploration pas toujours optimale, quelques
+  // jetons hors de portee) - le voleur ne mange plus dans une limite fixe
+  // desormais : il reste immobile tant que l'enfant n'a pas bouge, puis
+  // mange librement, donc c'est a l'enfant d'aller assez vite.
   const margeSecurite = Math.round(28 - ratioNiveau * 8); // 28 au debut -> 20 au maximum
 
   const cells = [];
@@ -7871,8 +7870,7 @@ function CheminDizainesScreen({ route, navigation }) {
   const porteActiveRef = useRef(false); // bloque le deplacement pendant qu'une porte est posee
   const voleurPosRef = useRef(null);
   const voleurTimerRef = useRef(null);
-  const voleurPilesMangeesRef = useRef(0);
-  const MAX_PILES_VOLEUR = 3; // plafond : au-dela, le voleur erre au hasard sans plus manger
+  const voleurDemarreRef = useRef(false); // ne bouge/mange qu'apres le premier pas de l'enfant
 
   const loadNiveau = useCallback((currentRung) => {
     setLoading(true);
@@ -7903,7 +7901,7 @@ function CheminDizainesScreen({ route, navigation }) {
     portesRef.current = portesPlacees;
     portesResoluesRef.current = new Set();
     porteActiveRef.current = false;
-    voleurPilesMangeesRef.current = 0;
+    voleurDemarreRef.current = false;
     voleurPosRef.current = voleurDepart;
     setCells(generated);
     setPos({ r: 0, c: 0 });
@@ -7936,11 +7934,15 @@ function CheminDizainesScreen({ route, navigation }) {
     if (!cells || finishedRef.current) return;
     const vitesse = vitesseVoleurPourRung(rung, gameMaxRung);
     const timer = setInterval(() => {
+      // N'agit qu'une fois que l'enfant a fait son premier pas - avant ca,
+      // il reste immobile. Comme ca, il ne peut jamais rien manger avant
+      // meme que la partie ait commence pour de vrai.
+      if (!voleurDemarreRef.current) return;
       if (finishedRef.current || !cellsRef.current || !voleurPosRef.current) return;
       const { r, c } = voleurPosRef.current;
       let nr = null, nc = null;
 
-      if (jetonsRestantsRef.current.size > 0 && voleurPilesMangeesRef.current < MAX_PILES_VOLEUR) {
+      if (jetonsRestantsRef.current.size > 0) {
         const dist = bfsDistances(cellsRef.current, rows, cols, r, c);
         let meilleure = null;
         let meilleureDist = Infinity;
@@ -7962,8 +7964,7 @@ function CheminDizainesScreen({ route, navigation }) {
       }
 
       if (nr === null) {
-        // Plus rien a recolter, plafond de grignotage atteint, ou chemin
-        // introuvable : erre au hasard.
+        // Plus rien a recolter (ou chemin introuvable) : erre au hasard.
         const directions = shuffle([[-1, 0], [1, 0], [0, -1], [0, 1]]);
         for (const [dr, dc] of directions) {
           if (canMove(cellsRef.current, r, c, dr, dc)) {
@@ -7979,11 +7980,10 @@ function CheminDizainesScreen({ route, navigation }) {
       voleurPosRef.current = { r: nr, c: nc };
       setVoleurPos({ r: nr, c: nc });
       const key = `${nr},${nc}`;
-      if (jetonsRestantsRef.current.has(key) && voleurPilesMangeesRef.current < MAX_PILES_VOLEUR) {
+      if (jetonsRestantsRef.current.has(key)) {
         jetonsRestantsRef.current = new Map(jetonsRestantsRef.current);
         jetonsRestantsRef.current.delete(key);
         setJetonsRestants(jetonsRestantsRef.current);
-        voleurPilesMangeesRef.current += 1;
       }
       if (posRef.current.r === nr && posRef.current.c === nc) {
         setEnVrac(0);
@@ -8056,6 +8056,10 @@ function CheminDizainesScreen({ route, navigation }) {
     const dr = r - pr, dc = c - pc;
     if (Math.abs(dr) + Math.abs(dc) !== 1) return;
     if (!canMove(cellsRef.current, pr, pc, dr, dc)) return;
+
+    // Premier mouvement reel de l'enfant sur cette carte : c'est le signal
+    // qui reveille le voleur, jusque-la il reste immobile.
+    voleurDemarreRef.current = true;
 
     const key = `${r},${c}`;
 
