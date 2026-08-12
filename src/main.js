@@ -8101,6 +8101,20 @@ function CheminDizainesScreen({ route, navigation }) {
   const voleurPosRef = useRef(null);
   const voleurTimerRef = useRef(null);
   const voleurDemarreRef = useRef(false); // ne bouge/mange qu'apres le premier pas de l'enfant
+  const calibErreursCalculRef = useRef(0); // portes ratees + verifications fausses (signal d'erreur pour le calibrage)
+
+  // Calibrage adaptatif : une "manche" de calibrage est un labyrinthe
+  // complet (atteindre le nombre cible), donc 3 montee max, 2 descente
+  // max. Le signal d'erreur est le calcul (portes ratees, verifications
+  // fausses) - pas les pieges ni le voleur, qui relevent plus de
+  // l'exploration/chance que du calcul lui-meme.
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee');
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [3, 6, 6];
 
   const loadNiveau = useCallback((currentRung) => {
     setLoading(true);
@@ -8132,6 +8146,7 @@ function CheminDizainesScreen({ route, navigation }) {
     portesResoluesRef.current = new Set();
     porteActiveRef.current = false;
     voleurDemarreRef.current = false;
+    calibErreursCalculRef.current = 0;
     voleurPosRef.current = voleurDepart;
     setCells(generated);
     setPos({ r: 0, c: 0 });
@@ -8239,21 +8254,89 @@ function CheminDizainesScreen({ route, navigation }) {
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
-      const startRung = Math.min(rawStart, gameMaxRung);
-      setRung(startRung);
       if (!prog) {
         // Tout premier lancement de ce jeu pour cet enfant : on explique
         // les symboles avant de commencer, pour qu'il ne les decouvre pas
-        // par accident en cours de partie.
+        // par accident en cours de partie, puis on lance le calibrage
+        // adaptatif plutot que de partir directement sur le niveau
+        // scolaire par defaut.
         await speakSmart(
           "Bienvenue dans le Chemin des Dizaines ! Attention aux pièges, ce sont des petits trous : ils te renvoient au départ. Les portes te demandent un petit calcul pour s'ouvrir. Et fais attention à l'écureuil : s'il te touche, il vole ta récolte !"
         );
+        const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        loadNiveau(base);
+        return;
       }
+
+      const startRung = Math.min(prog.palier_actuel, gameMaxRung);
+      setRung(startRung);
+      setCalibPhase('play');
       loadNiveau(startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profil.id, rows, cols]);
+
+  function terminerCalibrageDizaines(finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: miniJeuId,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant.
+      }
+    })();
+    setRung(finalRung);
+    setCalibPhase('play');
+    loadNiveau(finalRung);
+  }
+
+  function handleCalibrationResultDizaines(isCorrect) {
+    setCalibRoundIndex((i) => i + 1);
+    if (calibStepPhaseRef.current === 'montee') {
+      calibRoundsMonteeRef.current += 1;
+      if (!isCorrect) {
+        calibStepPhaseRef.current = 'descente';
+        calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+        loadNiveau(calibCurrentRungRef.current);
+        return;
+      }
+      if (calibRoundsMonteeRef.current >= 3) {
+        terminerCalibrageDizaines(Math.min(gameMaxRung, calibCurrentRungRef.current));
+        return;
+      }
+      const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+      calibCurrentRungRef.current = Math.min(gameMaxRung, calibCurrentRungRef.current + saut);
+      loadNiveau(calibCurrentRungRef.current);
+      return;
+    }
+
+    calibRoundsDescenteRef.current += 1;
+    if (isCorrect) {
+      terminerCalibrageDizaines(Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    if (calibRoundsDescenteRef.current >= 2) {
+      terminerCalibrageDizaines(Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+    loadNiveau(calibCurrentRungRef.current);
+  }
 
   async function finishSession() {
     if (!miniJeuId || finishedRef.current) return;
@@ -8378,6 +8461,7 @@ function CheminDizainesScreen({ route, navigation }) {
       // On avance directement dans la case maintenant ouverte.
       tryMoveTo(r, c);
     } else {
+      calibErreursCalculRef.current += 1;
       speakSmart('Essaie encore !');
       setPorteActive(null);
       porteActiveRef.current = false;
@@ -8443,12 +8527,19 @@ function CheminDizainesScreen({ route, navigation }) {
     if (total === target) {
       speakSmart('Bravo, le compte est bon !');
       setFeedback(null);
-      setTimeout(finishSession, 400);
+      if (calibPhase === 'calibrating') {
+        const isCorrect = calibErreursCalculRef.current === 0;
+        setTimeout(() => handleCalibrationResultDizaines(isCorrect), 400);
+      } else {
+        setTimeout(finishSession, 400);
+      }
     } else if (total < target) {
+      calibErreursCalculRef.current += 1;
       const manque = target - total;
       setFeedback(`Il en manque encore ${manque} !`);
       speakSmart(`Il en manque encore ${manque} !`);
     } else {
+      calibErreursCalculRef.current += 1;
       const trop = total - target;
       setFeedback(`Il y en a ${trop} de trop !`);
       speakSmart(`Il y en a ${trop} de trop !`);
@@ -8489,9 +8580,44 @@ function CheminDizainesScreen({ route, navigation }) {
           <Text style={styles.back}>‹</Text>
         </Pressable>
         <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>
-          🌾 Le Chemin des Dizaines
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🌾 Le Chemin des Dizaines'}
         </Text>
+        {calibPhase === 'play' && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Refaire le calibrage ?',
+                "On va refaire quelques parcours pour retrouver le bon niveau. C'est rapide !",
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, on y va !',
+                    onPress: () => {
+                      const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+                      calibCurrentRungRef.current = base;
+                      calibStepPhaseRef.current = 'montee';
+                      calibRoundsMonteeRef.current = 0;
+                      calibRoundsDescenteRef.current = 0;
+                      setCalibRoundIndex(0);
+                      setCalibPhase('calibrating');
+                      loadNiveau(base);
+                    },
+                  },
+                ]
+              );
+            }}
+            hitSlop={10}
+          >
+            <Text style={{ fontSize: 18 }}>🔄</Text>
+          </Pressable>
+        )}
       </View>
+
+      {calibPhase === 'calibrating' && (
+        <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '700', marginBottom: 4 }}>
+          Manche {calibRoundIndex + 1}
+        </Text>
+      )}
 
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 14, marginBottom: 6 }}>
         <View style={styles.dizainesBadge}>
@@ -9735,6 +9861,100 @@ function MemoryScreen({ route, navigation }) {
   const errorsTotal = useRef(0);
   const startedAt = useRef(Date.now());
 
+  // Calibrage adaptatif : reutilise le compteur d'errorsTotal deja
+  // present dans le code, mais UNIQUEMENT pour cette decision de
+  // calibrage - la philosophie du jeu normal reste inchangee (on ne
+  // penalise jamais les erreurs en jeu normal, chercher une paire de
+  // memoire implique naturellement des essais). Une "manche" de calibrage
+  // est une grille complete (pas juste une paire), donc 3 montee max, 2
+  // descente max.
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee');
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [3, 6, 6];
+  const calibMiniJeuIdRef = useRef(null);
+
+  async function chargerGrilleCalibrage(jeuId, currentRung) {
+    setLoading(true);
+    const { niveau, palier } = gradeAndPalierFromRung(currentRung);
+    const { data } = await supabase
+      .from('contenu_mini_jeu')
+      .select('id, donnees')
+      .eq('mini_jeu_id', jeuId)
+      .eq('niveau', niveau)
+      .eq('palier', palier)
+      .eq('actif', true)
+      .limit(10);
+    const pick = (data ?? [])[Math.floor(Math.random() * (data?.length ?? 1))];
+    if (pick) {
+      setCards(shuffleCards(pick.donnees.paires));
+      speakSmart('Trouve les paires !');
+    }
+    errorsTotal.current = 0;
+    setMatched([]);
+    setFlipped([]);
+    setLoading(false);
+  }
+
+  function terminerCalibrageMemoire(finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: calibMiniJeuIdRef.current,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant.
+      }
+    })();
+    setRung(finalRung);
+    setCalibPhase('play');
+    chargerGrilleCalibrage(calibMiniJeuIdRef.current, finalRung);
+  }
+
+  function handleCalibrationResultMemoire(isCorrect) {
+    setCalibRoundIndex((i) => i + 1);
+    if (calibStepPhaseRef.current === 'montee') {
+      calibRoundsMonteeRef.current += 1;
+      if (!isCorrect) {
+        calibStepPhaseRef.current = 'descente';
+        calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+        chargerGrilleCalibrage(calibMiniJeuIdRef.current, calibCurrentRungRef.current);
+        return;
+      }
+      if (calibRoundsMonteeRef.current >= 3) {
+        terminerCalibrageMemoire(Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current));
+        return;
+      }
+      const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+      calibCurrentRungRef.current = Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current + saut);
+      chargerGrilleCalibrage(calibMiniJeuIdRef.current, calibCurrentRungRef.current);
+      return;
+    }
+
+    calibRoundsDescenteRef.current += 1;
+    if (isCorrect) {
+      terminerCalibrageMemoire(Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current));
+      return;
+    }
+    if (calibRoundsDescenteRef.current >= 2) {
+      terminerCalibrageMemoire(Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current));
+      return;
+    }
+    calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+    chargerGrilleCalibrage(calibMiniJeuIdRef.current, calibCurrentRungRef.current);
+  }
+
   useEffect(() => {
     (async () => {
       const { data: jeu } = await supabase
@@ -9744,6 +9964,7 @@ function MemoryScreen({ route, navigation }) {
         .single();
       if (!jeu) return;
       setMiniJeuId(jeu.id);
+      calibMiniJeuIdRef.current = jeu.id;
 
       const { data: prog } = await supabase
         .from('progression')
@@ -9752,8 +9973,21 @@ function MemoryScreen({ route, navigation }) {
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const startRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      if (!prog) {
+        const base = Math.min(MAX_CONTENT_RUNG, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        await chargerGrilleCalibrage(jeu.id, base);
+        return;
+      }
+
+      const startRung = Math.min(prog.palier_actuel, MAX_CONTENT_RUNG);
       setRung(startRung);
+      setCalibPhase('play');
       const { niveau, palier } = gradeAndPalierFromRung(startRung);
 
       const { data } = await supabase
@@ -9822,7 +10056,13 @@ function MemoryScreen({ route, navigation }) {
           setFlipped([]);
           setBusy(false);
           if (newMatched.length === cards.length / 2) {
-            await finishSession();
+            if (calibPhase === 'calibrating') {
+              const isCorrect = errorsTotal.current === 0;
+              speakSmart(isCorrect ? 'Bravo, toutes les paires trouvées !' : 'Bien joué, on continue !');
+              setTimeout(() => handleCalibrationResultMemoire(isCorrect), 500);
+            } else {
+              await finishSession();
+            }
           }
         } else {
           errorsTotal.current += 1;
@@ -9883,8 +10123,41 @@ function MemoryScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>⭐ Le Mémory des Étoiles</Text>
-        <Text style={styles.roundLabel}>{matched.length}/{cards.length / 2}</Text>
+        <Text style={styles.gameTitle}>
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '⭐ Le Mémory des Étoiles'}
+        </Text>
+        {calibPhase === 'play' && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Refaire le calibrage ?',
+                "On va refaire quelques grilles pour retrouver le bon niveau. C'est rapide !",
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, on y va !',
+                    onPress: () => {
+                      const base = Math.min(MAX_CONTENT_RUNG, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+                      calibCurrentRungRef.current = base;
+                      calibStepPhaseRef.current = 'montee';
+                      calibRoundsMonteeRef.current = 0;
+                      calibRoundsDescenteRef.current = 0;
+                      setCalibRoundIndex(0);
+                      setCalibPhase('calibrating');
+                      chargerGrilleCalibrage(calibMiniJeuIdRef.current, base);
+                    },
+                  },
+                ]
+              );
+            }}
+            hitSlop={10}
+          >
+            <Text style={{ fontSize: 20 }}>🔄</Text>
+          </Pressable>
+        )}
+        <Text style={styles.roundLabel}>
+          {calibPhase === 'calibrating' ? `Manche ${calibRoundIndex + 1}` : `${matched.length}/${cards.length / 2}`}
+        </Text>
       </View>
 
       <View style={styles.gameCharacter}>
