@@ -5573,44 +5573,116 @@ function buildEquilibrePrompt(d) {
     gauche: d.gauche,
     droitConnu: d.droit_connu,
     correct: d.manque,
+    precision: d.precision ?? 0, // 0 = entiers, 1 ou 2 decimales selon le niveau
     options: d.options, // non affiche (customVisual gere sa propre interface), garde pour ne pas casser le moteur partage qui melange "options" a chaque manche
   };
 }
 
-// Dix poids de valeurs differentes, avec une couleur propre a chacun pour
-// bien les distinguer d'un coup d'oeil (pas seulement par le chiffre, utile
-// pour un enfant qui debute en lecture des nombres).
-const BALANCE_VALEURS_POIDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+// Genere des denominations de poids "façon pieces de monnaie" (1, 2, 5, 10,
+// 20, 50...) adaptees a l'ampleur du nombre a atteindre - avec ce systeme,
+// jamais plus de 2 poids identiques ne sont necessaires pour atteindre
+// n'importe quel nombre (largement sous la limite de 5 demandee). S'adapte
+// aussi aux decimales (CM1 = 1 decimale, CM2 = 2 decimales) en descendant
+// l'echelle des denominations en dessous de l'unite.
+function genererDenominationsPoids(target, precision) {
+  const facteur = Math.pow(10, precision);
+  const targetEntier = Math.max(1, Math.round(target * facteur));
+  const denomsEntiers = [];
+  let echelle = 1;
+  while (echelle <= targetEntier) {
+    denomsEntiers.push(echelle, echelle * 2, echelle * 5);
+    echelle *= 10;
+  }
+  return denomsEntiers
+    .filter((d) => d <= targetEntier)
+    .sort((a, b) => a - b)
+    .map((d) => Math.round((d / facteur) * 100) / 100);
+}
+
 const BALANCE_COULEURS_POIDS = ['#7BB6E8', '#F2A65A', '#8FD19E', '#E8899A', '#C9A6E8', '#F5C542', '#6FBF9E', '#E8896B', '#9AA6E8', '#D68FC9'];
 
-function PoidsIcon({ valeur, taille = 40 }) {
-  const couleur = BALANCE_COULEURS_POIDS[(valeur - 1) % BALANCE_COULEURS_POIDS.length];
+function formatPoidsValeur(v) {
+  if (Number.isInteger(v)) return String(v);
+  return String(v).replace('.', ',');
+}
+
+// Taille du bouton (echelle logarithmique, pour que les tres grandes et
+// tres petites denominations restent toutes lisibles sans que les
+// extremes deviennent absurdes).
+function tailleBoutonPoids(valeur, toutesDenominations) {
+  const minV = Math.min(...toutesDenominations);
+  const maxV = Math.max(...toutesDenominations);
+  if (maxV === minV) return 44;
+  const ratio = (Math.log(valeur) - Math.log(minV)) / (Math.log(maxV) - Math.log(minV));
+  return Math.round(32 + ratio * 26); // 32 a 58
+}
+
+function PoidsBouton({ valeur, taille, onPress, disabled }) {
+  const couleur = BALANCE_COULEURS_POIDS[Math.abs(Math.round(valeur * 100)) % BALANCE_COULEURS_POIDS.length];
   return (
-    <View style={{
+    <Pressable disabled={disabled} onPress={onPress} style={{
       width: taille, height: taille, borderRadius: taille / 2, backgroundColor: couleur,
-      alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.15)',
+      alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.15)', margin: 3,
     }}>
-      <Text style={{ fontWeight: '800', color: '#fff', fontSize: taille * 0.42 }}>{valeur}</Text>
-    </View>
+      <Text style={{ fontWeight: '800', color: '#fff', fontSize: Math.max(11, taille * 0.36) }}>{formatPoidsValeur(valeur)}</Text>
+    </Pressable>
+  );
+}
+
+// Un poids pose dans l'assiette : rendu comme une "tranche" empilee, dont
+// la HAUTEUR est proportionnelle a sa valeur (echelle logarithmique) - donc
+// la pile grandit visiblement en volume, pas seulement en nombre de
+// pastilles, comme demande.
+function TrancheEmpilee({ valeur, toutesDenominations, onPress, disabled }) {
+  const minV = Math.min(...toutesDenominations);
+  const maxV = Math.max(...toutesDenominations);
+  const ratio = maxV === minV ? 0.5 : (Math.log(valeur) - Math.log(minV)) / (Math.log(maxV) - Math.log(minV));
+  const hauteur = Math.round(10 + ratio * 20); // 10 a 30
+  const couleur = BALANCE_COULEURS_POIDS[Math.abs(Math.round(valeur * 100)) % BALANCE_COULEURS_POIDS.length];
+  return (
+    <Pressable disabled={disabled} onPress={onPress} style={{
+      width: '86%', height: hauteur, borderRadius: 6, backgroundColor: couleur,
+      alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.15)', marginTop: 2,
+    }}>
+      <Text style={{ fontWeight: '800', color: '#fff', fontSize: Math.min(13, hauteur * 0.55) }}>{formatPoidsValeur(valeur)}</Text>
+    </Pressable>
   );
 }
 
 function BalanceVisual({ promptData, onOptionPress, answered }) {
   const [poses, setPoses] = useState([]); // liste des valeurs de poids poses sur le plateau droit
+  const inclinaisonAnim = useRef(new Animated.Value(0)).current;
+
+  const precision = promptData.precision ?? 0;
+  const denominations = useMemo(
+    () => genererDenominationsPoids(Math.max(promptData.gauche, promptData.correct + promptData.droitConnu, 1), precision),
+    [promptData]
+  );
 
   // Remet a zero a chaque nouvelle manche (nouvelle question).
   useEffect(() => { setPoses([]); }, [promptData]);
 
   const totalAjoute = poses.reduce((s, v) => s + v, 0);
-  const totalDroite = promptData.droitConnu + totalAjoute;
-
-  // Les assiettes bougent EN DIRECT selon le poids pose, comme une vraie
-  // balance physique - ca donne a l'enfant un repere intuitif (trop
-  // lourd/trop leger) meme s'il ne sait pas encore bien compter, ce qui
-  // compte plus que le risque de deviner sans calculer (demande explicite
-  // de l'utilisateur, qui prime sur la version precedente).
+  const totalDroite = Math.round((promptData.droitConnu + totalAjoute) * 100) / 100;
   const difference = totalDroite - promptData.gauche;
-  const decalage = Math.max(-22, Math.min(22, difference * 3.5));
+  const cibleInclinaison = Math.max(-16, Math.min(16, difference * 2.2));
+
+  // Animation "recherche de stabilite" : le fleau oscille legerement avant
+  // de se stabiliser a chaque poids ajoute ou retire, comme une vraie
+  // balance physique, plutot qu'un saut instantane.
+  useEffect(() => {
+    Animated.spring(inclinaisonAnim, {
+      toValue: cibleInclinaison,
+      friction: 4,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  }, [cibleInclinaison]);
+
+  const rotationInterpolee = inclinaisonAnim.interpolate({
+    inputRange: [-16, 16],
+    outputRange: ['-16deg', '16deg'],
+  });
 
   function ajouterPoids(valeur) {
     if (answered !== null) return;
@@ -5622,52 +5694,62 @@ function BalanceVisual({ promptData, onOptionPress, answered }) {
   }
 
   return (
-    <View style={{ alignItems: 'center', paddingHorizontal: 16 }}>
-      {/* Barre horizontale fixe, comme le fleau d'une vraie balance. */}
-      <View style={{ width: '80%', height: 5, backgroundColor: colors.mossDeep, borderRadius: 3, marginBottom: 2 }} />
-
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 4, marginBottom: 10 }}>
-        {/* Assiette gauche, suspendue par un fil - descend si elle est plus lourde. */}
-        <View style={{ alignItems: 'center', transform: [{ translateY: -decalage }] }}>
-          <View style={{ width: 2, height: 18, backgroundColor: colors.mossDeep }} />
-          <View style={[styles.balanceAssiette, { borderColor: '#B8B0A6' }]}>
-            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#B8B0A6', alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 12 }}>⚖️</Text>
+    <View style={{ alignItems: 'center', flex: 1, paddingHorizontal: 12, paddingTop: 4 }}>
+      {/* Le fleau ET les deux assiettes pivotent ensemble comme un seul
+          bloc rigide autour du point central - c'est ce qui donne le vrai
+          effet de balance physique (pas des mouvements independants). */}
+      <Animated.View style={{
+        flexDirection: 'row', alignItems: 'center', width: '100%',
+        transform: [{ rotate: rotationInterpolee }],
+      }}>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <View style={[styles.balanceAssiette, { borderColor: '#B8B0A6', justifyContent: 'center' }]}>
+            <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: '#B8B0A6', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 11 }}>⚖️</Text>
             </View>
-            <Text style={styles.balancePlateauLabel}>{promptData.gauche}</Text>
+            <Text style={styles.balancePlateauLabel}>{formatPoidsValeur(promptData.gauche)}</Text>
           </View>
+          <View style={{ width: 2, height: 16, backgroundColor: colors.mossDeep }} />
         </View>
 
-        {/* Assiette droite, suspendue par un fil - monte si elle est plus legere. */}
-        <View style={{ alignItems: 'center', transform: [{ translateY: decalage }] }}>
-          <View style={{ width: 2, height: 18, backgroundColor: colors.mossDeep }} />
-          <View style={[styles.balanceAssiette, { borderColor: BALANCE_COULEURS_POIDS[4] }]}>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', maxWidth: 110, justifyContent: 'center', gap: 3 }}>
-              {poses.length === 0 && <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.5 }}>vide</Text>}
-              {poses.map((v, i) => (
-                <Pressable key={i} disabled={answered !== null} onPress={() => retirerPoids(i)}>
-                  <PoidsIcon valeur={v} taille={22} />
-                </Pressable>
-              ))}
-            </View>
+        <View style={{ height: 5, flex: 1.3, backgroundColor: colors.mossDeep, borderRadius: 3, marginBottom: 16 }} />
+
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <View style={[styles.balanceAssiette, { borderColor: BALANCE_COULEURS_POIDS[4], justifyContent: 'flex-end' }]}>
+            {poses.length === 0 ? (
+              <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.5 }}>vide</Text>
+            ) : (
+              <View style={{ width: '100%', alignItems: 'center' }}>
+                {poses.map((v, i) => (
+                  <TrancheEmpilee key={i} valeur={v} toutesDenominations={denominations} disabled={answered !== null} onPress={() => retirerPoids(i)} />
+                ))}
+              </View>
+            )}
           </View>
+          <View style={{ width: 2, height: 16, backgroundColor: colors.mossDeep }} />
         </View>
-      </View>
+      </Animated.View>
 
-      <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.7, marginBottom: 6 }}>Touche un poids posé pour le retirer</Text>
+      <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.7, marginTop: 10, marginBottom: 8, textAlign: 'center' }}>
+        Touche un poids posé pour le retirer
+      </Text>
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginBottom: 14, maxWidth: 300 }}>
-        {BALANCE_VALEURS_POIDS.map((v) => (
-          <Pressable key={v} disabled={answered !== null} onPress={() => ajouterPoids(v)}>
-            <PoidsIcon valeur={v} taille={38} />
-          </Pressable>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', maxWidth: 340 }}>
+        {denominations.map((v) => (
+          <PoidsBouton
+            key={v}
+            valeur={v}
+            taille={tailleBoutonPoids(v, denominations)}
+            disabled={answered !== null}
+            onPress={() => ajouterPoids(v)}
+          />
         ))}
       </View>
 
       <Pressable
         disabled={answered !== null}
-        style={[styles.button, { minWidth: 180 }]}
-        onPress={() => onOptionPress(totalAjoute)}
+        style={[styles.button, { minWidth: 180, marginTop: 12 }]}
+        onPress={() => onOptionPress(Math.round(totalAjoute * 100) / 100)}
       >
         <Text style={styles.buttonText}>✅ C'est équilibré !</Text>
       </Pressable>
@@ -10709,8 +10791,8 @@ const styles = StyleSheet.create({
   },
   balancePlateauLabel: { fontSize: 18, fontWeight: '800', color: colors.ink, marginTop: 2 },
   balanceAssiette: {
-    alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderRadius: 999,
-    width: 110, height: 70, borderWidth: 3, gap: 2, paddingHorizontal: 8,
+    alignItems: 'center', backgroundColor: '#fff', borderRadius: 18,
+    width: 118, minHeight: 70, borderWidth: 3, paddingHorizontal: 8, paddingVertical: 8,
   },
   dizainesBadge: {
     backgroundColor: '#fff', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 12,
