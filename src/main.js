@@ -5599,7 +5599,14 @@ function genererDenominationsPoids(target, precision) {
     .map((d) => Math.round((d / facteur) * 100) / 100);
 }
 
-const BALANCE_COULEURS_POIDS = ['#7BB6E8', '#F2A65A', '#8FD19E', '#E8899A', '#C9A6E8', '#F5C542', '#6FBF9E', '#E8896B', '#9AA6E8', '#D68FC9'];
+// Plusieurs palettes de couleurs pour les poids, tirees au hasard une fois
+// par session (pas a chaque manche) pour casser la routine si l'enfant
+// reste longtemps sur ce jeu - meme principe deja teste sur d'autres jeux.
+const BALANCE_PALETTES = [
+  ['#7BB6E8', '#F2A65A', '#8FD19E', '#E8899A', '#C9A6E8', '#F5C542', '#6FBF9E', '#E8896B', '#9AA6E8', '#D68FC9'],
+  ['#F28C8C', '#8CC7F2', '#F2D68C', '#8CF2B0', '#C78CF2', '#F2A88C', '#8CF2E0', '#F28CD6', '#B0F28C', '#8C9AF2'],
+  ['#5C8A99', '#B08968', '#7A9E7E', '#C68B59', '#8E7CC3', '#D4A574', '#6B9F8F', '#B5838D', '#A3B18A', '#6D6875'],
+];
 
 function formatPoidsValeur(v) {
   if (Number.isInteger(v)) return String(v);
@@ -5617,8 +5624,8 @@ function tailleBoutonPoids(valeur, toutesDenominations) {
   return Math.round(32 + ratio * 26); // 32 a 58
 }
 
-function PoidsBouton({ valeur, taille, onPress, disabled }) {
-  const couleur = BALANCE_COULEURS_POIDS[Math.abs(Math.round(valeur * 100)) % BALANCE_COULEURS_POIDS.length];
+function PoidsBouton({ valeur, taille, onPress, disabled, palette }) {
+  const couleur = palette[Math.abs(Math.round(valeur * 100)) % palette.length];
   return (
     <Pressable disabled={disabled} onPress={onPress} style={{
       width: taille, height: taille, borderRadius: taille / 2, backgroundColor: couleur,
@@ -5633,12 +5640,12 @@ function PoidsBouton({ valeur, taille, onPress, disabled }) {
 // la HAUTEUR est proportionnelle a sa valeur (echelle logarithmique) - donc
 // la pile grandit visiblement en volume, pas seulement en nombre de
 // pastilles, comme demande.
-function TrancheEmpilee({ valeur, toutesDenominations, onPress, disabled }) {
+function TrancheEmpilee({ valeur, toutesDenominations, onPress, disabled, palette }) {
   const minV = Math.min(...toutesDenominations);
   const maxV = Math.max(...toutesDenominations);
   const ratio = maxV === minV ? 0.5 : (Math.log(valeur) - Math.log(minV)) / (Math.log(maxV) - Math.log(minV));
   const hauteur = Math.round(10 + ratio * 20); // 10 a 30
-  const couleur = BALANCE_COULEURS_POIDS[Math.abs(Math.round(valeur * 100)) % BALANCE_COULEURS_POIDS.length];
+  const couleur = palette[Math.abs(Math.round(valeur * 100)) % palette.length];
   return (
     <Pressable disabled={disabled} onPress={onPress} style={{
       width: '86%', height: hauteur, borderRadius: 6, backgroundColor: couleur,
@@ -5652,6 +5659,10 @@ function TrancheEmpilee({ valeur, toutesDenominations, onPress, disabled }) {
 function BalanceVisual({ promptData, onOptionPress, answered }) {
   const [poses, setPoses] = useState([]); // liste des valeurs de poids poses sur le plateau droit
   const inclinaisonAnim = useRef(new Animated.Value(0)).current;
+  // Palette tiree au hasard une fois par session (stable tant que l'ecran
+  // reste monte), pas a chaque manche - casse la routine sans changer
+  // l'apparence en pleine reflexion.
+  const palette = useMemo(() => BALANCE_PALETTES[Math.floor(Math.random() * BALANCE_PALETTES.length)], []);
 
   const precision = promptData.precision ?? 0;
   const denominations = useMemo(
@@ -5687,10 +5698,15 @@ function BalanceVisual({ promptData, onOptionPress, answered }) {
   function ajouterPoids(valeur) {
     if (answered !== null) return;
     setPoses((p) => [...p, valeur]);
+    speakSmart(formatPoidsValeur(valeur));
   }
   function retirerPoids(index) {
     if (answered !== null) return;
     setPoses((p) => p.filter((_, i) => i !== index));
+  }
+  function toutRetirer() {
+    if (answered !== null) return;
+    setPoses([]);
   }
 
   return (
@@ -5715,13 +5731,13 @@ function BalanceVisual({ promptData, onOptionPress, answered }) {
         <View style={{ height: 5, flex: 1.3, backgroundColor: colors.mossDeep, borderRadius: 3, marginBottom: 16 }} />
 
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <View style={[styles.balanceAssiette, { borderColor: BALANCE_COULEURS_POIDS[4], justifyContent: 'flex-end' }]}>
+          <View style={[styles.balanceAssiette, { borderColor: palette[4], justifyContent: 'flex-end' }]}>
             {poses.length === 0 ? (
               <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.5 }}>vide</Text>
             ) : (
               <View style={{ width: '100%', alignItems: 'center' }}>
                 {poses.map((v, i) => (
-                  <TrancheEmpilee key={i} valeur={v} toutesDenominations={denominations} disabled={answered !== null} onPress={() => retirerPoids(i)} />
+                  <TrancheEmpilee key={i} valeur={v} toutesDenominations={denominations} disabled={answered !== null} onPress={() => retirerPoids(i)} palette={palette} />
                 ))}
               </View>
             )}
@@ -5730,9 +5746,16 @@ function BalanceVisual({ promptData, onOptionPress, answered }) {
         </View>
       </Animated.View>
 
-      <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.7, marginTop: 10, marginBottom: 8, textAlign: 'center' }}>
-        Touche un poids posé pour le retirer
-      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, marginBottom: 8 }}>
+        <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.7, textAlign: 'center' }}>
+          Touche un poids posé pour le retirer
+        </Text>
+        {poses.length > 0 && answered === null && (
+          <Pressable onPress={toutRetirer} style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.08)' }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: colors.ink }}>🧹 Tout retirer</Text>
+          </Pressable>
+        )}
+      </View>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', maxWidth: 340 }}>
         {denominations.map((v) => (
@@ -5742,6 +5765,7 @@ function BalanceVisual({ promptData, onOptionPress, answered }) {
             taille={tailleBoutonPoids(v, denominations)}
             disabled={answered !== null}
             onPress={() => ajouterPoids(v)}
+            palette={palette}
           />
         ))}
       </View>
@@ -7478,6 +7502,20 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   const trapCellsRef = useRef([]);
   const trapsResolusRef = useRef(new Set());
   const trapActiveRef = useRef(false); // bloque les deplacements pendant qu'une question est affichee
+  const piegesRatesRef = useRef(0); // pieges rates durant la manche en cours (signal d'erreur pour le calibrage)
+
+  // Calibrage adaptatif : ici, une "manche" de calibrage est un labyrinthe
+  // COMPLET (trouver le tresor), donc on reduit le nombre de manches (3
+  // montee max, 2 descente max). Le signal d'erreur est le nombre de
+  // pieges rates (pas d'autre notion d'erreur dans ce jeu, volontairement
+  // simple en temps normal). Seules les erreurs comptent, jamais le temps.
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee');
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [3, 6, 6];
 
   const loadMaze = useCallback((currentRung) => {
     setLoading(true);
@@ -7494,6 +7532,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
     trapsResolusRef.current = new Set();
     finishedRef.current = false;
     stepsCountRef.current = 0;
+    piegesRatesRef.current = 0;
     setCells(generated);
     setPos({ r: 0, c: 0 });
     setTreasure({ r: t.r, c: t.c });
@@ -7518,13 +7557,81 @@ function LabyrintheGrotteScreen({ route, navigation }) {
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
-      const startRung = Math.min(rawStart, gameMaxRung);
+      if (!prog) {
+        const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        loadMaze(base);
+        return;
+      }
+
+      const startRung = Math.min(prog.palier_actuel, gameMaxRung);
       setRung(startRung);
+      setCalibPhase('play');
       loadMaze(startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profil.id, rows, cols]);
+
+  function terminerCalibrage(finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: miniJeuId,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant.
+      }
+    })();
+    setRung(finalRung);
+    setCalibPhase('play');
+    loadMaze(finalRung);
+  }
+
+  function handleCalibrationResult(isCorrect) {
+    setCalibRoundIndex((i) => i + 1);
+    if (calibStepPhaseRef.current === 'montee') {
+      calibRoundsMonteeRef.current += 1;
+      if (!isCorrect) {
+        calibStepPhaseRef.current = 'descente';
+        calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+        loadMaze(calibCurrentRungRef.current);
+        return;
+      }
+      if (calibRoundsMonteeRef.current >= 3) {
+        terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+        return;
+      }
+      const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+      calibCurrentRungRef.current = Math.min(gameMaxRung, calibCurrentRungRef.current + saut);
+      loadMaze(calibCurrentRungRef.current);
+      return;
+    }
+
+    calibRoundsDescenteRef.current += 1;
+    if (isCorrect) {
+      terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    if (calibRoundsDescenteRef.current >= 2) {
+      terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+    loadMaze(calibCurrentRungRef.current);
+  }
 
   async function finishSession() {
     if (!miniJeuId || finishedRef.current) return;
@@ -7582,7 +7689,12 @@ function LabyrintheGrotteScreen({ route, navigation }) {
 
     if (r === treasureRef.current.r && c === treasureRef.current.c) {
       speakSmart('Bravo, tu as trouvé le trésor !');
-      setTimeout(finishSession, 500);
+      if (calibPhase === 'calibrating') {
+        const isCorrect = piegesRatesRef.current === 0;
+        setTimeout(() => handleCalibrationResult(isCorrect), 500);
+      } else {
+        setTimeout(finishSession, 500);
+      }
       return;
     }
 
@@ -7612,6 +7724,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
       setActiveTrap(null);
       trapActiveRef.current = false;
     } else {
+      piegesRatesRef.current += 1;
       speakSmart('Ce n\u2019est pas ça, retour au départ !');
       posRef.current = { r: 0, c: 0 };
       setPos({ r: 0, c: 0 });
@@ -7662,10 +7775,45 @@ function LabyrintheGrotteScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6 }}>
-          🌀 Le Labyrinthe de la Grotte
+        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🌀 Le Labyrinthe de la Grotte'}
         </Text>
+        {calibPhase === 'play' && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Refaire le calibrage ?',
+                "On va refaire quelques labyrinthes pour retrouver le bon niveau. C'est rapide !",
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, on y va !',
+                    onPress: () => {
+                      const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+                      calibCurrentRungRef.current = base;
+                      calibStepPhaseRef.current = 'montee';
+                      calibRoundsMonteeRef.current = 0;
+                      calibRoundsDescenteRef.current = 0;
+                      setCalibRoundIndex(0);
+                      setCalibPhase('calibrating');
+                      loadMaze(base);
+                    },
+                  },
+                ]
+              );
+            }}
+            hitSlop={10}
+          >
+            <Text style={{ fontSize: 18 }}>🔄</Text>
+          </Pressable>
+        )}
       </View>
+
+      {calibPhase === 'calibrating' && (
+        <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '700', marginBottom: 4 }}>
+          Manche {calibRoundIndex + 1}
+        </Text>
+      )}
 
       <View onLayout={onGridLayout}>
         <MazeGridVisual
@@ -8094,6 +8242,14 @@ function CheminDizainesScreen({ route, navigation }) {
       const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
       const startRung = Math.min(rawStart, gameMaxRung);
       setRung(startRung);
+      if (!prog) {
+        // Tout premier lancement de ce jeu pour cet enfant : on explique
+        // les symboles avant de commencer, pour qu'il ne les decouvre pas
+        // par accident en cours de partie.
+        await speakSmart(
+          "Bienvenue dans le Chemin des Dizaines ! Attention aux pièges, ce sont des petits trous : ils te renvoient au départ. Les portes te demandent un petit calcul pour s'ouvrir. Et fais attention à l'écureuil : s'il te touche, il vole ta récolte !"
+        );
+      }
       loadNiveau(startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -8933,6 +9089,18 @@ function PuzzleMoulinScreen({ route, navigation }) {
   const nextRungRef = useRef(null);
   const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
 
+  // Calibrage adaptatif : ici, une "manche" de calibrage est un puzzle
+  // COMPLET (pas juste une piece), donc on reduit le nombre de manches
+  // (3 montee max, 2 descente max) puisque chaque essai prend deja plus
+  // de temps qu'un simple tap. Seules les erreurs comptent, jamais le temps.
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee');
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [3, 6, 6];
+
   const loadActivity = useCallback((currentRung) => {
     setLoading(true);
     const { palier } = gradeAndPalierFromRung(currentRung);
@@ -8943,6 +9111,64 @@ function PuzzleMoulinScreen({ route, navigation }) {
     speakSmart("Touche les pièces dans l'ordre, du numéro 1 au dernier !");
     setLoading(false);
   }, []);
+
+  function terminerCalibrage(finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: miniJeuId,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant.
+      }
+    })();
+    setRung(finalRung);
+    errorsTotal.current = 0;
+    setCalibPhase('play');
+    loadActivity(finalRung);
+  }
+
+  function handleCalibrationResult(isCorrect) {
+    setCalibRoundIndex((i) => i + 1);
+    errorsTotal.current = 0;
+    if (calibStepPhaseRef.current === 'montee') {
+      calibRoundsMonteeRef.current += 1;
+      if (!isCorrect) {
+        calibStepPhaseRef.current = 'descente';
+        calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+        loadActivity(calibCurrentRungRef.current);
+        return;
+      }
+      if (calibRoundsMonteeRef.current >= 3) {
+        terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+        return;
+      }
+      const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+      calibCurrentRungRef.current = Math.min(gameMaxRung, calibCurrentRungRef.current + saut);
+      loadActivity(calibCurrentRungRef.current);
+      return;
+    }
+
+    calibRoundsDescenteRef.current += 1;
+    if (isCorrect) {
+      terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    if (calibRoundsDescenteRef.current >= 2) {
+      terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+    loadActivity(calibCurrentRungRef.current);
+  }
 
   useEffect(() => {
     (async () => {
@@ -8961,9 +9187,21 @@ function PuzzleMoulinScreen({ route, navigation }) {
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const rawStart = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
-      const startRung = Math.min(rawStart, gameMaxRung);
+      if (!prog) {
+        const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        loadActivity(base);
+        return;
+      }
+
+      const startRung = Math.min(prog.palier_actuel, gameMaxRung);
       setRung(startRung);
+      setCalibPhase('play');
       loadActivity(startRung);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -9006,8 +9244,18 @@ function PuzzleMoulinScreen({ route, navigation }) {
       const isLast = num === totalPieces.current;
       setNextExpected(num + 1);
       if (isLast) {
-        setTimeout(finishSession, 500);
+        if (calibPhase === 'calibrating') {
+          const isCorrect = errorsTotal.current === 0;
+          speakSmart(isCorrect ? 'Bravo, puzzle terminé !' : 'Bien joué, on continue !');
+          setTimeout(() => handleCalibrationResult(isCorrect), 500);
+        } else {
+          setTimeout(finishSession, 500);
+        }
       }
+    } else if (calibPhase === 'calibrating') {
+      errorsTotal.current += 1;
+      setWrongFlash(num);
+      setTimeout(() => setWrongFlash(null), 400);
     } else {
       errorsTotal.current += 1;
       setWrongFlash(num);
@@ -9042,8 +9290,41 @@ function PuzzleMoulinScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>🧩 Le Puzzle du Moulin</Text>
-        <Text style={styles.roundLabel}>{progress}/{totalPieces.current}</Text>
+        <Text style={styles.gameTitle}>
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🧩 Le Puzzle du Moulin'}
+        </Text>
+        {calibPhase === 'play' && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Refaire le calibrage ?',
+                "On va refaire quelques puzzles pour retrouver le bon niveau. C'est rapide !",
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, on y va !',
+                    onPress: () => {
+                      const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+                      calibCurrentRungRef.current = base;
+                      calibStepPhaseRef.current = 'montee';
+                      calibRoundsMonteeRef.current = 0;
+                      calibRoundsDescenteRef.current = 0;
+                      setCalibRoundIndex(0);
+                      setCalibPhase('calibrating');
+                      loadActivity(base);
+                    },
+                  },
+                ]
+              );
+            }}
+            hitSlop={10}
+          >
+            <Text style={{ fontSize: 20 }}>🔄</Text>
+          </Pressable>
+        )}
+        <Text style={styles.roundLabel}>
+          {calibPhase === 'calibrating' ? `Manche ${calibRoundIndex + 1}` : `${progress}/${totalPieces.current}`}
+        </Text>
       </View>
 
       <View style={styles.gameCharacter}>
@@ -9671,6 +9952,19 @@ function CoffreSouvenirsScreen({ route, navigation }) {
   const startedAt = useRef(Date.now());
   const targetLength = useRef(4);
 
+  // Calibrage adaptatif : une "manche" de calibrage est une sequence
+  // complete jusqu'a la longueur cible (pas juste une couleur), donc on
+  // reduit le nombre de manches (3 montee max, 2 descente max). Seules les
+  // erreurs comptent, jamais le temps.
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee');
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [3, 6, 6];
+  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
+
   async function playSequence(seq) {
     setPhase('watching');
     await speakSmart(seq.length === 1 ? 'Regarde bien.' : 'Regarde encore.');
@@ -9708,8 +10002,24 @@ function CoffreSouvenirsScreen({ route, navigation }) {
         .eq('mini_jeu_id', jeu.id)
         .maybeSingle();
 
-      const startRung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      if (!prog) {
+        const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        const { palier } = gradeAndPalierFromRung(base);
+        targetLength.current = targetLengthForPalier(palier);
+        setLoading(false);
+        startNewSequence([]);
+        return;
+      }
+
+      const startRung = Math.min(prog.palier_actuel, gameMaxRung);
       setRung(startRung);
+      setCalibPhase('play');
       const { palier } = gradeAndPalierFromRung(startRung);
       targetLength.current = targetLengthForPalier(palier);
       setLoading(false);
@@ -9717,6 +10027,74 @@ function CoffreSouvenirsScreen({ route, navigation }) {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profil.id]);
+
+  function terminerCalibrage(finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: miniJeuId,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant.
+      }
+    })();
+    setRung(finalRung);
+    errorsTotal.current = 0;
+    retries.current = 0;
+    setCalibPhase('play');
+    const { palier } = gradeAndPalierFromRung(finalRung);
+    targetLength.current = targetLengthForPalier(palier);
+    startNewSequence([]);
+  }
+
+  function handleCalibrationResult(isCorrect) {
+    setCalibRoundIndex((i) => i + 1);
+    errorsTotal.current = 0;
+    retries.current = 0;
+    if (calibStepPhaseRef.current === 'montee') {
+      calibRoundsMonteeRef.current += 1;
+      if (!isCorrect) {
+        calibStepPhaseRef.current = 'descente';
+        calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+        const { palier } = gradeAndPalierFromRung(calibCurrentRungRef.current);
+        targetLength.current = targetLengthForPalier(palier);
+        startNewSequence([]);
+        return;
+      }
+      if (calibRoundsMonteeRef.current >= 3) {
+        terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+        return;
+      }
+      const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+      calibCurrentRungRef.current = Math.min(gameMaxRung, calibCurrentRungRef.current + saut);
+      const { palier } = gradeAndPalierFromRung(calibCurrentRungRef.current);
+      targetLength.current = targetLengthForPalier(palier);
+      startNewSequence([]);
+      return;
+    }
+
+    calibRoundsDescenteRef.current += 1;
+    if (isCorrect) {
+      terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    if (calibRoundsDescenteRef.current >= 2) {
+      terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+    const { palier } = gradeAndPalierFromRung(calibCurrentRungRef.current);
+    targetLength.current = targetLengthForPalier(palier);
+    startNewSequence([]);
+  }
 
   async function finishSession() {
     if (!miniJeuId) return;
@@ -9742,7 +10120,13 @@ function CoffreSouvenirsScreen({ route, navigation }) {
       const nextUserIndex = userIndex + 1;
       if (nextUserIndex === sequence.length) {
         if (sequence.length >= targetLength.current) {
-          setTimeout(finishSession, 500);
+          if (calibPhase === 'calibrating') {
+            const isCorrect = errorsTotal.current === 0;
+            speakSmart(isCorrect ? 'Bravo, séquence terminée !' : 'Bien joué, on continue !');
+            setTimeout(() => handleCalibrationResult(isCorrect), 500);
+          } else {
+            setTimeout(finishSession, 500);
+          }
         } else {
           retries.current = 0;
           setTimeout(() => startNewSequence(sequence), 700);
@@ -9754,7 +10138,11 @@ function CoffreSouvenirsScreen({ route, navigation }) {
       errorsTotal.current += 1;
       retries.current += 1;
       if (retries.current >= 3) {
-        setTimeout(finishSession, 500);
+        if (calibPhase === 'calibrating') {
+          setTimeout(() => handleCalibrationResult(false), 500);
+        } else {
+          setTimeout(finishSession, 500);
+        }
       } else {
         setTimeout(() => playSequence(sequence), 700);
       }
@@ -9779,8 +10167,43 @@ function CoffreSouvenirsScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>🧰 Le Coffre aux Souvenirs</Text>
-        <Text style={styles.roundLabel}>{sequence.length}/{targetLength.current}</Text>
+        <Text style={styles.gameTitle}>
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🧰 Le Coffre aux Souvenirs'}
+        </Text>
+        {calibPhase === 'play' && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Refaire le calibrage ?',
+                "On va refaire quelques séquences pour retrouver le bon niveau. C'est rapide !",
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, on y va !',
+                    onPress: () => {
+                      const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+                      calibCurrentRungRef.current = base;
+                      calibStepPhaseRef.current = 'montee';
+                      calibRoundsMonteeRef.current = 0;
+                      calibRoundsDescenteRef.current = 0;
+                      setCalibRoundIndex(0);
+                      setCalibPhase('calibrating');
+                      const { palier } = gradeAndPalierFromRung(base);
+                      targetLength.current = targetLengthForPalier(palier);
+                      startNewSequence([]);
+                    },
+                  },
+                ]
+              );
+            }}
+            hitSlop={10}
+          >
+            <Text style={{ fontSize: 20 }}>🔄</Text>
+          </Pressable>
+        )}
+        <Text style={styles.roundLabel}>
+          {calibPhase === 'calibrating' ? `Manche ${calibRoundIndex + 1}` : `${sequence.length}/${targetLength.current}`}
+        </Text>
       </View>
 
       <View style={styles.gameCharacter}>
