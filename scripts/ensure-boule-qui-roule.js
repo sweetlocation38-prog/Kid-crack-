@@ -1,13 +1,19 @@
 // Script ponctuel : verifie que le mini-jeu "boule_qui_roule" existe dans
-// la table Supabase mini_jeux, et l'insere sinon. A lancer via le workflow
-// GitHub Actions "Enregistrer un mini-jeu" (pas d'acces reseau direct
-// depuis l'environnement de developpement de Claude, GitHub Actions si).
+// la table Supabase mini_jeux, et l'insere sinon. Utilise la cle
+// service_role (fournie via variable d'environnement, jamais en dur dans
+// le code) pour contourner les policies RLS qui bloquent la cle publique
+// normalement utilisee par l'app.
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = 'https://ljswlkrhsufxbmxwwsol.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_IlVBCZOtS3Qa2wMVa6Eu7Q_lNBiE7ps';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+if (!SERVICE_KEY) {
+  console.error('SUPABASE_SERVICE_ROLE_KEY manquante dans l\'environnement.');
+  process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
 const fs = require('fs');
 

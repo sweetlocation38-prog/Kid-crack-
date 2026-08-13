@@ -22,6 +22,8 @@ jobs:
         run: npm install @supabase/supabase-js --no-save
 
       - name: Lancer le script d'enregistrement
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/ensure-boule-qui-roule.js
 
       - name: Committer le résultat (pour que Claude puisse le lire)
