@@ -11277,7 +11277,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
 //    avant/arriere et un tir depuis la boule (vitesseAvance passe par
 //    une ref modifiable, pas juste une constante figee par age).
 // ============================================================
-const BOULE_PISTE_LARGEUR_RATIO = 0.92;
+const BOULE_PISTE_LARGEUR_RATIO = 0.88;
 const BOULE_TAILLE = 56;
 const BOULE_ITEM_TAILLE_BASE = 64;
 const BOULE_DOUBLE_TAP_FENETRE_MS = 380;
@@ -11345,7 +11345,7 @@ function genererLeurre(valeurCible, mode) {
 function BouleQuiRouleScreen({ navigation }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const pisteLargeur = screenWidth * BOULE_PISTE_LARGEUR_RATIO;
-  const pisteHauteur = screenHeight * 0.66;
+  const pisteHauteur = screenHeight * 0.55;
   const horizonY = pisteHauteur * 0.06;
   const joueurY = pisteHauteur - 60;
   const barreControleGauche = (screenWidth - pisteLargeur) / 2;
@@ -11391,13 +11391,6 @@ function BouleQuiRouleScreen({ navigation }) {
   const conf = reglage ? BOULE_REGLAGES_AGE[reglage] : null;
   const rungEquivalent = reglage ? rungFromGradeAndPalier(conf.niveauContenu, 1) : 1;
   const pausesAutorisees = sequenceCible.length ? Math.round(sequenceCible.length * ratioPausesPourRung(rungEquivalent)) : 0;
-
-  useEffect(() => {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE).catch(() => {});
-    return () => {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
-    };
-  }, []);
 
   function basculerPause() {
     if (termine) return;
