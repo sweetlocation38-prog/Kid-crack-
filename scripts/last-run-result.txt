@@ -1,3 +1,2 @@
-2026-08-13T15:11:24.327Z
-ERREUR LECTURE: Invalid API key
-{"message":"Invalid API key","hint":"Double check your Supabase `anon` or `service_role` API key."}
+2026-08-13T18:46:06.223Z
+CREE AVEC SUCCES: {"id":"decb2e12-efa4-459d-9b6d-c1c528fefa3e","code":"boule_qui_roule","nom":"La Boule qui Roule","competence":"lecture","est_bonus":false}
