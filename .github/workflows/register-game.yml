@@ -1,0 +1,22 @@
+name: Enregistrer un mini-jeu dans Supabase
+
+on:
+  workflow_dispatch:
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installer le client Supabase
+        run: npm install @supabase/supabase-js --no-save
+
+      - name: Lancer le script d'enregistrement
+        run: node scripts/ensure-boule-qui-roule.js
