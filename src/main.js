@@ -11261,25 +11261,21 @@ function ReglagesParentauxScreen({ route, navigation }) {
 // ============================================================
 // PROTOTYPE — La Boule qui Roule
 //
-// 4e refonte (retour de Thierry apres test) :
-//  - PAYSAGE au lieu de portrait, pour un vrai champ de vision "vue de
-//    derriere" digne d'un jeu de course (comme Mario Kart) - reste en
-//    pur 2D avec le meme effet de profondeur pseudo-3D qu'avant, aucun
-//    moteur 3D. expo-screen-orientation est deja une dependance du
-//    projet (utilisee ailleurs, ex. EuropeZoneChallenge), donc CE
-//    changement-la part par simple EAS Update, pas besoin de nouveau
-//    build.
-//  - Plus de "groupes de 3 objets" forcant un choix instantane : les
-//    lettres/chiffres a collecter apparaissent UN A LA FOIS, le suivant
-//    n'apparait qu'une fois le precedent attrape OU rate - laisse le
-//    temps de reflechir, plus adapte notamment aux CM1-CM2 (mots/phrases
-//    plus longs a lire).
-//  - Pieges et pieces toujours disperses aleatoirement (position et
-//    moment), independamment du rythme des lettres/chiffres.
-//  - Saut supprime (juge inutile) : tous les pieges s'evitent desormais
-//    lateralement, plus de type "a sauter".
-//  - Pilotage par inclinaison inchange (deja teste et valide dans son
-//    principe).
+// 5e refonte (retour de Thierry apres test) :
+//  - Retour au pilotage AU DOIGT (l'inclinaison manquait de reactivite),
+//    mais via une barre de controle dediee EN DESSOUS de la zone de jeu
+//    (pas directement sur la boule) : suit le doigt au 1 pour 1, sans
+//    inertie, pour une reactivite maximale, et rien n'est jamais cache
+//    par le doigt puisqu'il reste dans cette bande dediee.
+//  - Systeme de vies : toucher un piege fait perdre une vie ; a la 3e,
+//    on recommence le trajet depuis le debut (rupture volontaire du
+//    principe "jamais puni" par defaut ailleurs dans l'app - decision
+//    explicite de Thierry pour ce jeu precis).
+//  - Vue paysage + perspective pseudo-3D conservees (non remises en
+//    cause cette fois, seule la reactivite du pilotage l'etait).
+//  - Architecture prevue pour accueillir plus tard un controle
+//    avant/arriere et un tir depuis la boule (vitesseAvance passe par
+//    une ref modifiable, pas juste une constante figee par age).
 // ============================================================
 const BOULE_PISTE_LARGEUR_RATIO = 0.92;
 const BOULE_TAILLE = 56;
@@ -11289,20 +11285,16 @@ const BOULE_TAP_MOUVEMENT_MAX = 26;
 const BOULE_TAP_DUREE_MAX_MS = 500;
 const BOULE_DISTANCE_VISIBLE = 560;
 const BOULE_RAYON_COLLISION = 0.11; // proportion de la largeur de piste : marge de tolerance pour "viser" un objet
-
-// Physique du pilotage par inclinaison (inchangee depuis le dernier test).
-const BOULE_SENSIBILITE_INCLINAISON = 5.5;
-const BOULE_FROTTEMENT = 0.9;
-const BOULE_VITESSE_LATERALE_MAX = 3.4;
+const BOULE_VIES_DEPART = 3;
 
 // Temps de reaction voulu (secondes) avant qu'une lettre/un chiffre a
 // collecter n'arrive a hauteur du joueur, une fois le precedent resolu -
 // volontairement genereux, surtout pour les CM1-CM2 (mots/phrases plus
 // longs a lire que de simples lettres).
 const BOULE_REGLAGES_AGE = {
-  ms_gs: { label: 'MS-GS (3-5 ans)', niveauContenu: 'ms', vitesseAvance: 50, tempsReactionCible: 5.5, intervalleDiversMs: 1900, piegeRatio: 0.32, pieceRatio: 0.45, vitesseSupplPiege: [24, 45], pasPossibles: [1] },
-  cp_ce1: { label: 'CP-CE1 (6-7 ans)', niveauContenu: 'cp', vitesseAvance: 78, tempsReactionCible: 6.5, intervalleDiversMs: 1500, piegeRatio: 0.4, pieceRatio: 0.48, vitesseSupplPiege: [38, 68], pasPossibles: [1, 2] },
-  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvance: 105, tempsReactionCible: 8, intervalleDiversMs: 1200, piegeRatio: 0.48, pieceRatio: 0.48, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5] },
+  ms_gs: { label: 'MS-GS (3-5 ans)', niveauContenu: 'ms', vitesseAvance: 50, tempsReactionCible: 5.5, intervalleDiversMs: 1900, piegeRatio: 0.28, pieceRatio: 0.45, vitesseSupplPiege: [24, 45], pasPossibles: [1] },
+  cp_ce1: { label: 'CP-CE1 (6-7 ans)', niveauContenu: 'cp', vitesseAvance: 78, tempsReactionCible: 6.5, intervalleDiversMs: 1500, piegeRatio: 0.34, pieceRatio: 0.48, vitesseSupplPiege: [38, 68], pasPossibles: [1, 2] },
+  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvance: 105, tempsReactionCible: 8, intervalleDiversMs: 1200, piegeRatio: 0.4, pieceRatio: 0.48, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5] },
 };
 
 // Quota de pauses degressif : 50% du nombre d'objets a recolter en tout
@@ -11353,18 +11345,17 @@ function genererLeurre(valeurCible, mode) {
 function BouleQuiRouleScreen({ navigation }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const pisteLargeur = screenWidth * BOULE_PISTE_LARGEUR_RATIO;
-  const pisteHauteur = screenHeight * 0.8;
+  const pisteHauteur = screenHeight * 0.66;
   const horizonY = pisteHauteur * 0.06;
-  const joueurY = pisteHauteur - 70;
+  const joueurY = pisteHauteur - 60;
+  const barreControleGauche = (screenWidth - pisteLargeur) / 2;
 
   const [reglage, setReglage] = useState(null);
   const [mode, setMode] = useState(null);
   const [pret, setPret] = useState(false);
   const [chargement, setChargement] = useState(false);
-  const [capteurDispo, setCapteurDispo] = useState(true);
 
   const [ballXNorm, setBallXNorm] = useState(0.5);
-  const [inclinaisonAffichage, setInclinaisonAffichage] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [distanceParcourue, setDistanceParcourue] = useState(0);
   const [objets, setObjets] = useState([]); // { id, type: 'cible'|'distracteur'|'piege'|'piece', x, distance, valeur?, vitesseSuppl? }
@@ -11373,6 +11364,7 @@ function BouleQuiRouleScreen({ navigation }) {
   const [indexCible, setIndexCible] = useState(0);
   const [score, setScore] = useState(0);
   const [nbPieces, setNbPieces] = useState(0);
+  const [vies, setVies] = useState(BOULE_VIES_DEPART);
   const [message, setMessage] = useState(null);
   const [termine, setTermine] = useState(false);
   const [pausesUtilisees, setPausesUtilisees] = useState(0);
@@ -11383,56 +11375,29 @@ function BouleQuiRouleScreen({ navigation }) {
   indexCibleRef.current = indexCible;
   const sequenceCibleRef = useRef([]);
   sequenceCibleRef.current = sequenceCible;
-
   const ballXNormRef = useRef(0.5);
-  const vitesseLateraleRef = useRef(0);
-  const inclinaisonRef = useRef(0);
-  const inclinaisonBaseRef = useRef(null);
+  // Vitesse d'avancement dans une ref (et pas juste la constante d'age) :
+  // prevu pour qu'un futur controle avant/arriere puisse la modifier
+  // directement sans reecrire la boucle de jeu.
+  const vitesseAvanceRef = useRef(50);
 
   const nextIdRef = useRef(1);
   const dernierSpawnDiversRef = useRef(0);
   const tickRef = useRef(null);
   const touchStartRef = useRef({ x: 0, y: 0, t: 0 });
   const dernierTapRef = useRef(0);
+  const controleTailleRef = useRef({ largeur: 1, gauche: 0 });
 
   const conf = reglage ? BOULE_REGLAGES_AGE[reglage] : null;
   const rungEquivalent = reglage ? rungFromGradeAndPalier(conf.niveauContenu, 1) : 1;
   const pausesAutorisees = sequenceCible.length ? Math.round(sequenceCible.length * ratioPausesPourRung(rungEquivalent)) : 0;
 
-  // Le jeu se joue en paysage, pour un vrai champ de vision "vue de
-  // derriere" - deja utilise ailleurs dans l'app (ex. Monde en Capitales
-  // par zones), aucun module natif supplementaire necessaire.
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE).catch(() => {});
     return () => {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
     };
   }, []);
-
-  useEffect(() => {
-    if (!pret) return;
-    let souscription = null;
-    let lectures = 0;
-    inclinaisonBaseRef.current = null;
-    Accelerometer.setUpdateInterval(50);
-    try {
-      souscription = Accelerometer.addListener(({ x }) => {
-        if (inclinaisonBaseRef.current === null) inclinaisonBaseRef.current = x;
-        inclinaisonBaseRef.current = inclinaisonBaseRef.current * 0.98 + x * 0.02;
-        inclinaisonRef.current = x - inclinaisonBaseRef.current;
-        lectures++;
-      });
-    } catch (e) {
-      setCapteurDispo(false);
-    }
-    const verifDispo = setTimeout(() => {
-      if (lectures === 0) setCapteurDispo(false);
-    }, 900);
-    return () => {
-      souscription?.remove();
-      clearTimeout(verifDispo);
-    };
-  }, [pret]);
 
   function basculerPause() {
     if (termine) return;
@@ -11445,8 +11410,23 @@ function BouleQuiRouleScreen({ navigation }) {
     setIsPaused(true);
   }
 
-  // Plus que la pause a detecter au toucher (le saut a ete supprime) :
-  // un double-tap rapproche bascule la pause, un tap isole ne fait rien.
+  // --- Barre de controle DEDIEE, sous la zone de jeu : suit le doigt au
+  // 1 pour 1 (pas d'inertie) pour une reactivite maximale, et ne cache
+  // jamais rien puisqu'elle est physiquement separee de la route.
+  function onControleDeplacement(pageX) {
+    const { largeur, gauche } = controleTailleRef.current;
+    const relatif = (pageX - gauche) / largeur;
+    const clamped = Math.max(0, Math.min(1, relatif));
+    ballXNormRef.current = clamped;
+    setBallXNorm(clamped);
+  }
+  function onControleGrant(e) {
+    controleTailleRef.current.gauche = barreControleGauche;
+    controleTailleRef.current.largeur = pisteLargeur;
+    onControleDeplacement(e.nativeEvent.pageX);
+  }
+
+  // --- Zone de jeu : ne sert plus qu'a detecter le double-tap (pause).
   function onTouchDebut(e) {
     touchStartRef.current = { x: e.nativeEvent.pageX, y: e.nativeEvent.pageY, t: Date.now() };
   }
@@ -11474,8 +11454,8 @@ function BouleQuiRouleScreen({ navigation }) {
     setMode(modeChoisi);
     setChargement(true);
     setPret(false);
-    setCapteurDispo(true);
     const c = BOULE_REGLAGES_AGE[cleAge];
+    vitesseAvanceRef.current = c.vitesseAvance;
 
     let cible = [];
     if (modeChoisi === 'lettres') {
@@ -11495,10 +11475,10 @@ function BouleQuiRouleScreen({ navigation }) {
     setObjets([]);
     setDistanceParcourue(0);
     ballXNormRef.current = 0.5;
-    vitesseLateraleRef.current = 0;
     setBallXNorm(0.5);
     setScore(0);
     setNbPieces(0);
+    setVies(BOULE_VIES_DEPART);
     setPausesUtilisees(0);
     setMessage(null);
     setIsPaused(false);
@@ -11509,6 +11489,22 @@ function BouleQuiRouleScreen({ navigation }) {
     setPret(true);
   }
 
+  // Perd une vie ; a la 3e, on recommence le trajet depuis le debut -
+  // decision explicite de Thierry pour ce jeu (different du reste de
+  // l'app, qui evite normalement les retours en arriere punitifs).
+  function perdreUneVie() {
+    setVies((v) => {
+      const restant = v - 1;
+      if (restant <= 0) {
+        setMessage({ texte: 'Trop de pièges touchés, on recommence !', ok: false });
+        setTimeout(() => demarrer(reglage, mode), 900);
+        return BOULE_VIES_DEPART;
+      }
+      setMessage({ texte: `Aïe, un piège ! (${restant} vie${restant > 1 ? 's' : ''} restante${restant > 1 ? 's' : ''})`, ok: false });
+      return restant;
+    });
+  }
+
   useEffect(() => {
     if (!pret || termine) return;
     tickRef.current = setInterval(() => {
@@ -11516,26 +11512,14 @@ function BouleQuiRouleScreen({ navigation }) {
       const dt = 0.04;
       const c = conf;
 
-      const acc = inclinaisonRef.current * BOULE_SENSIBILITE_INCLINAISON;
-      vitesseLateraleRef.current = (vitesseLateraleRef.current + acc * dt) * BOULE_FROTTEMENT;
-      vitesseLateraleRef.current = Math.max(-BOULE_VITESSE_LATERALE_MAX, Math.min(BOULE_VITESSE_LATERALE_MAX, vitesseLateraleRef.current));
-      let nouveauX = ballXNormRef.current + vitesseLateraleRef.current * dt;
-      if (nouveauX < 0.03) { nouveauX = 0.03; vitesseLateraleRef.current = 0; }
-      if (nouveauX > 0.97) { nouveauX = 0.97; vitesseLateraleRef.current = 0; }
-      ballXNormRef.current = nouveauX;
-      setBallXNorm(nouveauX);
-      setInclinaisonAffichage(Math.max(-1, Math.min(1, inclinaisonRef.current * 2.5)));
-
       setDistanceParcourue((prevDist) => {
-        const nouvelleDistance = prevDist + c.vitesseAvance * dt;
+        const nouvelleDistance = prevDist + vitesseAvanceRef.current * dt;
         const seuilCollision = BOULE_RAYON_COLLISION;
         const maintenant = Date.now();
 
         setObjets((prevObjets) => {
           let liste = prevObjets;
 
-          // Apparition reactive de LA cible en cours (une seule a la
-          // fois) : la suivante n'apparait qu'une fois celle-ci resolue.
           const aUneCibleActive = liste.some((o) => o.type === 'cible');
           if (!aUneCibleActive && indexCibleRef.current < sequenceCibleRef.current.length) {
             const valeurCible = sequenceCibleRef.current[indexCibleRef.current];
@@ -11545,15 +11529,13 @@ function BouleQuiRouleScreen({ navigation }) {
                 id: nextIdRef.current++,
                 type: 'cible',
                 x: 0.15 + Math.random() * 0.7,
-                distance: nouvelleDistance + c.vitesseAvance * c.tempsReactionCible,
+                distance: nouvelleDistance + vitesseAvanceRef.current * c.tempsReactionCible,
                 valeur: valeurCible,
                 groupeIndex: indexCibleRef.current,
               },
             ];
           }
 
-          // Pieges/pieces/leurres : disperses aleatoirement dans le temps,
-          // independamment du rythme des cibles.
           if (maintenant - dernierSpawnDiversRef.current >= c.intervalleDiversMs) {
             dernierSpawnDiversRef.current = maintenant;
             const roll = Math.random();
@@ -11588,8 +11570,6 @@ function BouleQuiRouleScreen({ navigation }) {
             }
           }
 
-          // Deplacement des pieges (seuls objets a avoir leur propre
-          // vitesse) puis detection des croisements.
           const suivants = [];
           for (const o of liste) {
             const distanceActuelle = o.type === 'piege' ? o.distance - o.vitesseSuppl * dt : o.distance;
@@ -11616,14 +11596,14 @@ function BouleQuiRouleScreen({ navigation }) {
               } else if (o.type === 'distracteur') {
                 if (atteint) setMessage({ texte: 'Pas celui-là, continue à chercher !', ok: false });
               } else if (o.type === 'piege') {
-                if (atteint) setMessage({ texte: 'Aïe, un piège ! On continue.', ok: false });
+                if (atteint) perdreUneVie();
               } else if (o.type === 'piece') {
                 if (atteint) {
                   setNbPieces((n) => n + 1);
                   setMessage({ texte: 'Pièce ramassée !', ok: true });
                 }
               }
-              continue; // traite une seule fois, puis disparait
+              continue;
             }
             suivants.push({ ...o, distance: distanceActuelle });
           }
@@ -11645,7 +11625,7 @@ function BouleQuiRouleScreen({ navigation }) {
         </Pressable>
         <Text style={styles.title}>🔵 Prototype : la Boule qui Roule</Text>
         <Text style={{ textAlign: 'center', color: colors.ink, opacity: 0.7, marginTop: 8, marginBottom: 24, paddingHorizontal: 20 }}>
-          Choisis d'abord la tranche d'âge. Le jeu passe en mode paysage, pilotage en inclinant le téléphone comme un volant.
+          Choisis d'abord la tranche d'âge. Pilotage avec la barre sous la route, 3 vies avant de recommencer.
         </Text>
         {Object.entries(BOULE_REGLAGES_AGE).map(([cle, r]) => (
           <Pressable key={cle} style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => setReglage(cle)}>
@@ -11721,7 +11701,7 @@ function BouleQuiRouleScreen({ navigation }) {
   const ballScreenX = ballXNorm * pisteLargeur;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: 8 }}>
+    <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: 6 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14 }}>
         <Pressable onPress={() => { setReglage(null); setPret(false); }}>
           <Text style={[styles.backLabel, { fontSize: 13 }]}>‹ Retour</Text>
@@ -11729,14 +11709,12 @@ function BouleQuiRouleScreen({ navigation }) {
         <Text style={{ fontWeight: '800', color: colors.mossDeep, fontSize: 14 }}>
           {mode === 'lettres' ? affichageCible : `Cherche : ${affichageCible}`}
         </Text>
-        <Text style={{ fontWeight: '800', color: colors.gold, fontSize: 14 }}>★ {score} 🪙{nbPieces}</Text>
+        <Text style={{ fontWeight: '800', fontSize: 14 }}>
+          <Text style={{ color: colors.gold }}>★ {score} 🪙{nbPieces}</Text>
+          <Text style={{ color: colors.error }}>  {'❤️'.repeat(vies)}</Text>
+        </Text>
       </View>
 
-      {!capteurDispo && (
-        <Text style={{ textAlign: 'center', fontSize: 11, color: colors.error, fontWeight: '700' }}>
-          Capteur d'inclinaison indisponible sur cet appareil.
-        </Text>
-      )}
       {message && (
         <Text style={{ textAlign: 'center', fontSize: 12, fontWeight: '700', color: message.ok ? colors.success : colors.error }}>
           {message.texte}
@@ -11784,15 +11762,6 @@ function BouleQuiRouleScreen({ navigation }) {
           <Text style={{ fontSize: BOULE_TAILLE }}>🔵</Text>
         </View>
 
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 6, alignItems: 'center' }}>
-          <View style={{ width: 90, height: 6, borderRadius: 3, backgroundColor: 'rgba(0,0,0,0.12)' }}>
-            <View style={{
-              position: 'absolute', top: -3, width: 12, height: 12, borderRadius: 6, backgroundColor: colors.mossDeep,
-              left: 45 + inclinaisonAffichage * 39 - 6,
-            }} />
-          </View>
-        </View>
-
         <Text style={{ position: 'absolute', top: 6, right: 10, fontSize: 11, color: colors.ink, opacity: 0.5 }}>
           Pauses : {Math.max(0, pausesAutorisees - pausesUtilisees)} (double-tap)
         </Text>
@@ -11806,6 +11775,22 @@ function BouleQuiRouleScreen({ navigation }) {
             <Text style={{ color: '#fff', fontWeight: '800', marginTop: 6 }}>Pause — touche l'écran pour reprendre</Text>
           </Pressable>
         )}
+      </View>
+
+      {/* Barre de controle dediee, physiquement separee de la route :
+          suit le doigt au 1 pour 1, ne cache jamais la vue de jeu. */}
+      <View
+        collapsable={false}
+        onStartShouldSetResponder={() => true}
+        onMoveShouldSetResponder={() => true}
+        onResponderGrant={onControleGrant}
+        onResponderMove={(e) => onControleDeplacement(e.nativeEvent.pageX)}
+        style={{
+          width: pisteLargeur, height: 46, alignSelf: 'center', marginTop: 6,
+          backgroundColor: '#E4DCC8', borderRadius: 12, justifyContent: 'center',
+        }}
+      >
+        <View style={{ position: 'absolute', left: ballScreenX - 3, top: 4, width: 6, height: 38, borderRadius: 3, backgroundColor: colors.mossDeep }} />
       </View>
     </View>
   );
