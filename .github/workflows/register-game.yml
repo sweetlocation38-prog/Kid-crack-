@@ -3,6 +3,9 @@ name: Enregistrer un mini-jeu dans Supabase
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   register:
     runs-on: ubuntu-latest
