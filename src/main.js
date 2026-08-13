@@ -11288,15 +11288,21 @@ const BOULE_TAP_DUREE_MAX_MS = 500;
 const BOULE_DISTANCE_VISIBLE = 560;
 const BOULE_RAYON_COLLISION = 0.11; // proportion de la largeur de piste : marge de tolerance pour "viser" un objet
 const BOULE_VIES_DEPART = 3;
+const BOULE_VARIATION_VITESSE = 0.15; // vitesse tiree aleatoirement entre -15% et +15% de la moyenne, a chaque trajet
 
 // Temps de reaction voulu (secondes) avant qu'une lettre/un chiffre a
 // collecter n'arrive a hauteur du joueur, une fois le precedent resolu -
 // volontairement genereux, surtout pour les CM1-CM2 (mots/phrases plus
 // longs a lire que de simples lettres).
+//
+// distracteurCoutePV : a partir de CE2-CM2 uniquement (retour de Thierry
+// apres test - "ca fait partie de l'evolution") - attraper un leurre
+// coute une vie, comme un piege. Pour les plus jeunes, se tromper reste
+// sans consequence : trouver la bonne reponse suffit.
 const BOULE_REGLAGES_AGE = {
-  ms_gs: { label: 'MS-GS (3-5 ans)', niveauContenu: 'ms', vitesseAvance: 50, tempsReactionCible: 5.5, intervalleDiversMs: 1900, piegeRatio: 0.28, pieceRatio: 0.45, vitesseSupplPiege: [24, 45], pasPossibles: [1] },
-  cp_ce1: { label: 'CP-CE1 (6-7 ans)', niveauContenu: 'cp', vitesseAvance: 78, tempsReactionCible: 6.5, intervalleDiversMs: 1500, piegeRatio: 0.34, pieceRatio: 0.48, vitesseSupplPiege: [38, 68], pasPossibles: [1, 2] },
-  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvance: 105, tempsReactionCible: 8, intervalleDiversMs: 1200, piegeRatio: 0.4, pieceRatio: 0.48, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5] },
+  ms_gs: { label: 'MS-GS (3-5 ans)', niveauContenu: 'ms', vitesseAvanceMoyenne: 50, tempsReactionCible: 5.5, intervalleDiversMs: 1600, piegeRatio: 0.22, pieceRatio: 0.28, vitesseSupplPiege: [24, 45], pasPossibles: [1], distracteurCoutePV: false },
+  cp_ce1: { label: 'CP-CE1 (6-7 ans)', niveauContenu: 'cp', vitesseAvanceMoyenne: 78, tempsReactionCible: 6.5, intervalleDiversMs: 1300, piegeRatio: 0.28, pieceRatio: 0.3, vitesseSupplPiege: [38, 68], pasPossibles: [1, 2], distracteurCoutePV: false },
+  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvanceMoyenne: 105, tempsReactionCible: 8, intervalleDiversMs: 1000, piegeRatio: 0.32, pieceRatio: 0.3, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5], distracteurCoutePV: true },
 };
 
 // Quota de pauses degressif : 50% du nombre d'objets a recolter en tout
@@ -11504,7 +11510,10 @@ function BouleQuiRouleScreen({ route, navigation }) {
     setChargement(true);
     setPret(false);
     const c = BOULE_REGLAGES_AGE[cleAge];
-    vitesseAvanceRef.current = c.vitesseAvance;
+    // Vitesse tiree aleatoirement entre -15% et +15% de la moyenne, pour
+    // que chaque trajet varie un peu (plutot que 3 paliers figes).
+    const facteurVitesse = 1 + (Math.random() * 2 - 1) * BOULE_VARIATION_VITESSE;
+    vitesseAvanceRef.current = c.vitesseAvanceMoyenne * facteurVitesse;
 
     // En calibrage automatique, on utilise le palier precis de l'enfant
     // (pas juste palier 1) pour le contenu Pont des Lettres.
@@ -11668,6 +11677,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
                 if (atteint) {
                   setScore((s) => s + 1);
                   setMessage({ texte: mode === 'lettres' ? `Bravo, "${o.valeur}" !` : `Bravo, ${o.valeur} !`, ok: true });
+                  if (mode === 'lettres') speakSmart(joinSequenceForSpeech([o.valeur], c.niveauContenu));
                   setTokensReveles((prevTok) => {
                     const copie = prevTok.slice();
                     copie[o.groupeIndex] = o.valeur;
@@ -11682,7 +11692,10 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   return suivant;
                 });
               } else if (o.type === 'distracteur') {
-                if (atteint) setMessage({ texte: 'Pas celui-là, continue à chercher !', ok: false });
+                if (atteint) {
+                  setMessage({ texte: 'Pas celui-là, continue à chercher !', ok: false });
+                  if (c.distracteurCoutePV) perdreUneVie();
+                }
               } else if (o.type === 'piege') {
                 if (atteint) perdreUneVie();
               } else if (o.type === 'piece') {
@@ -11871,7 +11884,11 @@ function BouleQuiRouleScreen({ route, navigation }) {
         })}
 
         <View style={{ position: 'absolute', left: ballScreenX - BOULE_TAILLE / 2, top: joueurY - BOULE_TAILLE / 2 }}>
-          <Text style={{ fontSize: BOULE_TAILLE }}>🔵</Text>
+          {profil ? (
+            <ProfilAvatarDisplay profil={profil} size={BOULE_TAILLE} style={{ borderWidth: 2, borderColor: '#fff' }} />
+          ) : (
+            <Text style={{ fontSize: BOULE_TAILLE }}>🔵</Text>
+          )}
         </View>
 
         <Text style={{ position: 'absolute', top: 6, right: 10, fontSize: 11, color: colors.ink, opacity: 0.5 }}>
