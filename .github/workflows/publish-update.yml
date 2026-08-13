@@ -1,0 +1,32 @@
+name: Publier une mise à jour (EAS Update, rapide, sans build)
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Message décrivant la mise à jour (optionnel)"
+        required: false
+        default: "Mise à jour"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installer les dépendances du projet
+        run: npm install --legacy-peer-deps
+
+      - name: Installer l'outil EAS
+        run: npm install --global eas-cli
+
+      - name: Publier la mise à jour sur le canal "preview"
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: eas update --channel preview --message "${{ github.event.inputs.message }}" --non-interactive
