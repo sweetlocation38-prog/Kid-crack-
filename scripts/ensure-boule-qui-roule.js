@@ -9,6 +9,12 @@ const SUPABASE_KEY = 'sb_publishable_IlVBCZOtS3Qa2wMVa6Eu7Q_lNBiE7ps';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const fs = require('fs');
+
+function ecrireResultat(texte) {
+  fs.writeFileSync('scripts/last-run-result.txt', `${new Date().toISOString()}\n${texte}\n`);
+}
+
 async function main() {
   const { data: existant, error: errLecture } = await supabase
     .from('mini_jeux')
@@ -17,12 +23,12 @@ async function main() {
     .maybeSingle();
 
   if (errLecture) {
-    console.error('Erreur de lecture:', errLecture.message);
-    process.exit(1);
+    ecrireResultat(`ERREUR LECTURE: ${errLecture.message}\n${JSON.stringify(errLecture)}`);
+    process.exit(0); // 0 volontairement : on veut que le commit du resultat se fasse quand meme
   }
 
   if (existant) {
-    console.log('Deja present, rien a faire:', JSON.stringify(existant));
+    ecrireResultat(`DEJA PRESENT: ${JSON.stringify(existant)}`);
     return;
   }
 
@@ -33,11 +39,11 @@ async function main() {
     .maybeSingle();
 
   if (errInsert) {
-    console.error('Erreur insertion:', errInsert.message);
-    process.exit(1);
+    ecrireResultat(`ERREUR INSERTION: ${errInsert.message}\n${JSON.stringify(errInsert)}`);
+    process.exit(0);
   }
 
-  console.log('Cree avec succes:', JSON.stringify(cree));
+  ecrireResultat(`CREE AVEC SUCCES: ${JSON.stringify(cree)}`);
 }
 
 main();

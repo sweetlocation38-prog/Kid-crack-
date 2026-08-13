@@ -20,3 +20,11 @@ jobs:
 
       - name: Lancer le script d'enregistrement
         run: node scripts/ensure-boule-qui-roule.js
+
+      - name: Committer le résultat (pour que Claude puisse le lire)
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add scripts/last-run-result.txt
+          git commit -m "Résultat de l'enregistrement du mini-jeu" || echo "Rien à committer"
+          git push
