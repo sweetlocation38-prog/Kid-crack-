@@ -2350,6 +2350,7 @@ const GAME_ICONS = {
   labyrinthe_grotte: '🌀',
   chemin_dizaines: '🌾',
   barres_luma: '📏',
+  boule_qui_roule: '🔵',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
@@ -2372,6 +2373,7 @@ const GAME_SCREENS = {
   labyrinthe_grotte: 'LabyrintheGrotte',
   chemin_dizaines: 'CheminDizaines',
   barres_luma: 'BarresLuma',
+  boule_qui_roule: 'BouleQuiRoule',
 };
 
 // Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
@@ -11342,7 +11344,29 @@ function genererLeurre(valeurCible, mode) {
   return lettre;
 }
 
-function BouleQuiRouleScreen({ navigation }) {
+function bucketAgeFromGrade(niveau) {
+  if (niveau === 'ms' || niveau === 'gs') return 'ms_gs';
+  if (niveau === 'cp' || niveau === 'ce1') return 'cp_ce1';
+  return 'ce2_cm2';
+}
+
+async function assurerMiniJeuBouleQuiRoule() {
+  try {
+    const { data: existant } = await supabase.from('mini_jeux').select('id').eq('code', 'boule_qui_roule').maybeSingle();
+    if (existant) return existant.id;
+    const { data: cree } = await supabase
+      .from('mini_jeux')
+      .insert({ code: 'boule_qui_roule', nom: 'La Boule qui Roule', competence: 'lecture', est_bonus: false })
+      .select('id')
+      .maybeSingle();
+    return cree?.id ?? null;
+  } catch (e) {
+    return null; // non bloquant : le jeu reste jouable en mode local si l'enregistrement echoue
+  }
+}
+
+function BouleQuiRouleScreen({ route, navigation }) {
+  const profil = route?.params?.profil ?? null;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const pisteLargeur = screenWidth * BOULE_PISTE_LARGEUR_RATIO;
   const pisteHauteur = Math.max(220, screenHeight - 150); // plein ecran : on ne garde que la place pour l'entete et la barre de controle
@@ -11354,6 +11378,38 @@ function BouleQuiRouleScreen({ navigation }) {
   const [mode, setMode] = useState(null);
   const [pret, setPret] = useState(false);
   const [chargement, setChargement] = useState(false);
+
+  // --- Calibrage automatique (uniquement si le jeu est lance depuis la
+  // carte avec un profil - le mode test parental sans profil garde les 3
+  // boutons d'age manuels). ---
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rungActuel, setRungActuel] = useState(null);
+  const [chargementProfil, setChargementProfil] = useState(!!profil);
+
+  useEffect(() => {
+    if (!profil) { setChargementProfil(false); return; }
+    (async () => {
+      const jeuId = await assurerMiniJeuBouleQuiRoule();
+      setMiniJeuId(jeuId);
+      let startRung = rungFromGradeAndPalier(profil.niveau_defaut, 1);
+      if (jeuId) {
+        try {
+          const { data: prog } = await supabase
+            .from('progression')
+            .select('palier_actuel')
+            .eq('profil_id', profil.id)
+            .eq('mini_jeu_id', jeuId)
+            .maybeSingle();
+          if (prog?.palier_actuel) startRung = prog.palier_actuel;
+        } catch (e) {
+          // Non bloquant : on part du niveau scolaire par defaut.
+        }
+      }
+      setRungActuel(startRung);
+      setChargementProfil(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil?.id]);
 
   const [ballXNorm, setBallXNorm] = useState(0.5);
   const [isPaused, setIsPaused] = useState(false);
@@ -11450,9 +11506,15 @@ function BouleQuiRouleScreen({ navigation }) {
     const c = BOULE_REGLAGES_AGE[cleAge];
     vitesseAvanceRef.current = c.vitesseAvance;
 
+    // En calibrage automatique, on utilise le palier precis de l'enfant
+    // (pas juste palier 1) pour le contenu Pont des Lettres.
+    const { palier: palierPrecis } = profil && rungActuel
+      ? gradeAndPalierFromRung(rungActuel)
+      : { palier: 1 };
+
     let cible = [];
     if (modeChoisi === 'lettres') {
-      const contenu = await chargerMotPontDesLettres(c.niveauContenu, 1);
+      const contenu = await chargerMotPontDesLettres(c.niveauContenu, palierPrecis);
       cible = contenu?.sequence ?? ['C', 'H', 'A', 'T'];
       speakSmart(joinSequenceForSpeech(cible, c.niveauContenu));
     } else {
@@ -11497,6 +11559,39 @@ function BouleQuiRouleScreen({ navigation }) {
       return restant;
     });
   }
+
+  // Sauvegarde du calibrage a la fin du trajet (uniquement si le jeu est
+  // rattache a un profil - le mode test manuel ne persiste rien).
+  useEffect(() => {
+    if (!termine || !profil || !miniJeuId || rungActuel == null) return;
+    (async () => {
+      const totalRounds = sequenceCible.length;
+      const erreursTotal = (totalRounds - score) + (BOULE_VIES_DEPART - vies);
+      const wasPerfect = score === totalRounds && vies === BOULE_VIES_DEPART;
+      try {
+        const precomputed = await computeStreakRung({
+          profil, miniJeuId, currentRung: rungActuel, wasPerfect, maxRung: MAX_CONTENT_RUNG,
+          erreursTotal, totalRounds, dureeMoyenneManche: null,
+        });
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: miniJeuId,
+            palier_actuel: precomputed.newRung,
+            details: precomputed.details,
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+        setRungActuel(precomputed.newRung);
+      } catch (e) {
+        // Non bloquant : le trajet reste valable pour l'enfant meme si la
+        // sauvegarde du calibrage echoue.
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [termine]);
 
   useEffect(() => {
     if (!pret || termine) return;
@@ -11609,8 +11704,33 @@ function BouleQuiRouleScreen({ navigation }) {
     return () => clearInterval(tickRef.current);
   }, [pret, termine, conf, mode]);
 
-  // --- Ecran 1 : choix de l'age ---
+  // Calibrage auto : des que le rang est connu, on saute directement a
+  // l'ecran de choix du mode avec la tranche d'age deduite du rang.
+  useEffect(() => {
+    if (profil && !chargementProfil && rungActuel != null && !reglage) {
+      const { niveau } = gradeAndPalierFromRung(rungActuel);
+      setReglage(bucketAgeFromGrade(niveau));
+    }
+  }, [profil, chargementProfil, rungActuel, reglage]);
+
+  if (profil && chargementProfil) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: colors.ink }}>Chargement du niveau…</Text>
+      </View>
+    );
+  }
+
+  // --- Ecran 1 : choix de l'age (uniquement en mode test parental, sans
+  // profil - avec un profil, le rang calibre est utilise directement). ---
   if (!reglage) {
+    if (profil) {
+      return (
+        <View style={styles.center}>
+          <Text style={{ color: colors.ink }}>Chargement…</Text>
+        </View>
+      );
+    }
     return (
       <View style={styles.center}>
         <Pressable onPress={() => navigation.goBack()} style={{ position: 'absolute', top: 44, left: 18 }}>
@@ -11633,7 +11753,7 @@ function BouleQuiRouleScreen({ navigation }) {
   if (!pret && !chargement) {
     return (
       <View style={styles.center}>
-        <Pressable onPress={() => setReglage(null)} style={{ position: 'absolute', top: 44, left: 18 }}>
+        <Pressable onPress={() => (profil ? navigation.goBack() : setReglage(null))} style={{ position: 'absolute', top: 44, left: 18 }}>
           <Text style={styles.backLabel}>‹ Retour</Text>
         </Pressable>
         <Text style={styles.title}>Que veux-tu ramasser ?</Text>
