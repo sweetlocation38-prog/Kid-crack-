@@ -11300,9 +11300,9 @@ const BOULE_VARIATION_VITESSE = 0.15; // vitesse tiree aleatoirement entre -15% 
 // coute une vie, comme un piege. Pour les plus jeunes, se tromper reste
 // sans consequence : trouver la bonne reponse suffit.
 const BOULE_REGLAGES_AGE = {
-  ms_gs: { label: 'MS-GS (3-5 ans)', niveauContenu: 'ms', vitesseAvanceMoyenne: 50, tempsReactionCible: 5.5, intervalleDiversMs: 1600, piegeRatio: 0.22, pieceRatio: 0.28, vitesseSupplPiege: [24, 45], pasPossibles: [1], distracteurCoutePV: false },
-  cp_ce1: { label: 'CP-CE1 (6-7 ans)', niveauContenu: 'cp', vitesseAvanceMoyenne: 78, tempsReactionCible: 6.5, intervalleDiversMs: 1300, piegeRatio: 0.28, pieceRatio: 0.3, vitesseSupplPiege: [38, 68], pasPossibles: [1, 2], distracteurCoutePV: false },
-  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvanceMoyenne: 105, tempsReactionCible: 8, intervalleDiversMs: 1000, piegeRatio: 0.32, pieceRatio: 0.3, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5], distracteurCoutePV: true },
+  ms_gs: { label: 'MS-GS (3-5 ans)', niveauContenu: 'ms', vitesseAvanceMoyenne: 50, tempsReactionCible: 5.5, intervalleDiversMs: 1600, piegeRatio: 0.22, pieceRatio: 0.28, vitesseSupplPiege: [24, 45], pasPossibles: [1], distracteurCoutePV: false, nbLeurresParCible: 2 },
+  cp_ce1: { label: 'CP-CE1 (6-7 ans)', niveauContenu: 'cp', vitesseAvanceMoyenne: 78, tempsReactionCible: 6.5, intervalleDiversMs: 1300, piegeRatio: 0.28, pieceRatio: 0.3, vitesseSupplPiege: [38, 68], pasPossibles: [1, 2], distracteurCoutePV: false, nbLeurresParCible: 3 },
+  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvanceMoyenne: 105, tempsReactionCible: 8, intervalleDiversMs: 1000, piegeRatio: 0.32, pieceRatio: 0.3, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5], distracteurCoutePV: true, nbLeurresParCible: 4 },
 };
 
 // Quota de pauses degressif : 50% du nombre d'objets a recolter en tout
@@ -11617,20 +11617,37 @@ function BouleQuiRouleScreen({ route, navigation }) {
         setObjets((prevObjets) => {
           let liste = prevObjets;
 
+          // Des qu'une nouvelle cible apparait, ses leurres apparaissent
+          // AVEC elle (echelonnes sur le meme trajet d'approche) - sinon
+          // l'enfant peut voir la bonne reponse toute seule, sans rien a
+          // comparer, ce qui rend le jeu trop facile.
           const aUneCibleActive = liste.some((o) => o.type === 'cible');
           if (!aUneCibleActive && indexCibleRef.current < sequenceCibleRef.current.length) {
             const valeurCible = sequenceCibleRef.current[indexCibleRef.current];
-            liste = [
-              ...liste,
+            const distanceCible = nouvelleDistance + vitesseAvanceRef.current * c.tempsReactionCible;
+            const nouveauxObjets = [
               {
                 id: nextIdRef.current++,
                 type: 'cible',
                 x: 0.15 + Math.random() * 0.7,
-                distance: nouvelleDistance + vitesseAvanceRef.current * c.tempsReactionCible,
+                distance: distanceCible,
                 valeur: valeurCible,
                 groupeIndex: indexCibleRef.current,
               },
             ];
+            for (let i = 0; i < c.nbLeurresParCible; i++) {
+              nouveauxObjets.push({
+                id: nextIdRef.current++,
+                type: 'distracteur',
+                x: 0.12 + Math.random() * 0.76,
+                // Reparti sur tout le trajet d'approche (avec une petite marge
+                // au debut pour ne pas apparaitre exactement au meme moment).
+                distance: nouvelleDistance + vitesseAvanceRef.current * (0.8 + Math.random() * (c.tempsReactionCible - 1)),
+                valeur: genererLeurre(valeurCible, mode),
+                groupeIndex: indexCibleRef.current,
+              });
+            }
+            liste = [...liste, ...nouveauxObjets];
           }
 
           if (maintenant - dernierSpawnDiversRef.current >= c.intervalleDiversMs) {
@@ -11648,21 +11665,10 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   vitesseSuppl: vMin + Math.random() * (vMax - vMin),
                 },
               ];
-            } else if (roll < c.piegeRatio + c.pieceRatio) {
+            } else {
               liste = [
                 ...liste,
                 { id: nextIdRef.current++, type: 'piece', x: 0.12 + Math.random() * 0.76, distance: nouvelleDistance + 260 + Math.random() * 220 },
-              ];
-            } else if (indexCibleRef.current < sequenceCibleRef.current.length) {
-              liste = [
-                ...liste,
-                {
-                  id: nextIdRef.current++,
-                  type: 'distracteur',
-                  x: 0.12 + Math.random() * 0.76,
-                  distance: nouvelleDistance + 260 + Math.random() * 220,
-                  valeur: genererLeurre(sequenceCibleRef.current[indexCibleRef.current], mode),
-                },
               ];
             }
           }
