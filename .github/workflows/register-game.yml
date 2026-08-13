@@ -23,7 +23,7 @@ jobs:
 
       - name: Lancer le script d'enregistrement
         env:
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPER_SUPABASE_TOKEN: ${{ secrets.SUPER_SUPABASE_TOKEN }}
         run: node scripts/ensure-boule-qui-roule.js
 
       - name: Committer le résultat (pour que Claude puisse le lire)
