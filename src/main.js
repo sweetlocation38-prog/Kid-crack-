@@ -11277,7 +11277,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
 //    avant/arriere et un tir depuis la boule (vitesseAvance passe par
 //    une ref modifiable, pas juste une constante figee par age).
 // ============================================================
-const BOULE_PISTE_LARGEUR_RATIO = 0.88;
+const BOULE_PISTE_LARGEUR_RATIO = 1;
 const BOULE_TAILLE = 56;
 const BOULE_ITEM_TAILLE_BASE = 64;
 const BOULE_DOUBLE_TAP_FENETRE_MS = 380;
@@ -11345,7 +11345,7 @@ function genererLeurre(valeurCible, mode) {
 function BouleQuiRouleScreen({ navigation }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const pisteLargeur = screenWidth * BOULE_PISTE_LARGEUR_RATIO;
-  const pisteHauteur = screenHeight * 0.55;
+  const pisteHauteur = Math.max(220, screenHeight - 150); // plein ecran : on ne garde que la place pour l'entete et la barre de controle
   const horizonY = pisteHauteur * 0.06;
   const joueurY = pisteHauteur - 60;
   const barreControleGauche = (screenWidth - pisteLargeur) / 2;
@@ -11678,8 +11678,7 @@ function BouleQuiRouleScreen({ navigation }) {
     const p = Math.max(0, Math.min(1, 1 - relative / BOULE_DISTANCE_VISIBLE));
     const easedP = p * p;
     const y = horizonY + (joueurY - horizonY) * easedP;
-    const echelle = 0.28 + 0.95 * easedP;
-    return { relative, p, y, echelle };
+    return { relative, p, y };
   }
 
   const affichageCible = mode === 'lettres'
@@ -11729,7 +11728,7 @@ function BouleQuiRouleScreen({ navigation }) {
 
         {objetsVisibles.map((o) => {
           const x = o.x * pisteLargeur;
-          const taille = BOULE_ITEM_TAILLE_BASE * o.pos.echelle;
+          const taille = BOULE_ITEM_TAILLE_BASE;
           const estCollectible = o.type === 'cible' || o.type === 'distracteur' || o.type === 'piece';
           return (
             <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, alignItems: 'center', justifyContent: 'center' }}>
