@@ -11261,48 +11261,48 @@ function ReglagesParentauxScreen({ route, navigation }) {
 // ============================================================
 // PROTOTYPE — La Boule qui Roule
 //
-// 3e refonte (retour de Thierry : les 3 voies figees etaient trop
-// limitees, objectif "sensation de pilotage" a la Mario Kart / CTR).
-//
-// Changements cles par rapport a la version precedente :
-//  - Plus de 3 voies figees : la boule a une vraie physique de pilotage
-//    (vitesse laterale + inertie + friction), position libre sur toute
-//    la largeur.
-//  - Direction par INCLINAISON DU TELEPHONE (accelerometre) plutot
-//    qu'au doigt - plus proche d'un volant. Necessite le module natif
-//    expo-sensors : CECI EST LE POINT IMPORTANT A RETENIR - contrairement
-//    aux changements precedents, celui-ci ne peut PAS partir par simple
-//    EAS Update, il faut un nouveau build complet une fois (comme convenu,
-//    a ne declencher qu'avec l'accord explicite de Thierry).
-//  - Objets a collecter toujours a position FIXE sur le trajet (inchange,
-//    et toujours compatible avec une future carte reelle), mais en
-//    position laterale LIBRE (plus seulement 3 emplacements) - il faut
-//    viser precisement, comme un point de passage a la Mario Kart.
-//  - Tap = sauter, double-tap = pause : inchange, mais la detection est
-//    plus simple maintenant que le doigt ne sert plus a diriger (plus de
-//    conflit avec un glissement).
+// 4e refonte (retour de Thierry apres test) :
+//  - PAYSAGE au lieu de portrait, pour un vrai champ de vision "vue de
+//    derriere" digne d'un jeu de course (comme Mario Kart) - reste en
+//    pur 2D avec le meme effet de profondeur pseudo-3D qu'avant, aucun
+//    moteur 3D. expo-screen-orientation est deja une dependance du
+//    projet (utilisee ailleurs, ex. EuropeZoneChallenge), donc CE
+//    changement-la part par simple EAS Update, pas besoin de nouveau
+//    build.
+//  - Plus de "groupes de 3 objets" forcant un choix instantane : les
+//    lettres/chiffres a collecter apparaissent UN A LA FOIS, le suivant
+//    n'apparait qu'une fois le precedent attrape OU rate - laisse le
+//    temps de reflechir, plus adapte notamment aux CM1-CM2 (mots/phrases
+//    plus longs a lire).
+//  - Pieges et pieces toujours disperses aleatoirement (position et
+//    moment), independamment du rythme des lettres/chiffres.
+//  - Saut supprime (juge inutile) : tous les pieges s'evitent desormais
+//    lateralement, plus de type "a sauter".
+//  - Pilotage par inclinaison inchange (deja teste et valide dans son
+//    principe).
 // ============================================================
-const BOULE_PISTE_LARGEUR_RATIO = 0.86;
+const BOULE_PISTE_LARGEUR_RATIO = 0.92;
 const BOULE_TAILLE = 56;
 const BOULE_ITEM_TAILLE_BASE = 64;
-const BOULE_SAUT_DUREE_MS = 460;
 const BOULE_DOUBLE_TAP_FENETRE_MS = 380;
 const BOULE_TAP_MOUVEMENT_MAX = 26;
 const BOULE_TAP_DUREE_MAX_MS = 500;
-const BOULE_ESPACEMENT_GROUPE = 300;
 const BOULE_DISTANCE_VISIBLE = 560;
-const BOULE_DISTANCE_DEPART = 380;
 const BOULE_RAYON_COLLISION = 0.11; // proportion de la largeur de piste : marge de tolerance pour "viser" un objet
 
-// Physique du pilotage par inclinaison.
-const BOULE_SENSIBILITE_INCLINAISON = 5.5; // conversion inclinaison -> acceleration laterale
-const BOULE_FROTTEMENT = 0.9; // freinage naturel de la vitesse laterale a chaque tick (glisse/inertie)
-const BOULE_VITESSE_LATERALE_MAX = 3.4; // en proportion de largeur de piste / seconde
+// Physique du pilotage par inclinaison (inchangee depuis le dernier test).
+const BOULE_SENSIBILITE_INCLINAISON = 5.5;
+const BOULE_FROTTEMENT = 0.9;
+const BOULE_VITESSE_LATERALE_MAX = 3.4;
 
+// Temps de reaction voulu (secondes) avant qu'une lettre/un chiffre a
+// collecter n'arrive a hauteur du joueur, une fois le precedent resolu -
+// volontairement genereux, surtout pour les CM1-CM2 (mots/phrases plus
+// longs a lire que de simples lettres).
 const BOULE_REGLAGES_AGE = {
-  ms_gs: { label: 'MS-GS (3-5 ans)', niveauContenu: 'ms', vitesseAvance: 55, piegeRatio: 0.28, tunnelParmiPieges: 0.22, pieceRatio: 0.4, vitesseSupplPiege: [28, 50], pasPossibles: [1] },
-  cp_ce1: { label: 'CP-CE1 (6-7 ans)', niveauContenu: 'cp', vitesseAvance: 85, piegeRatio: 0.4, tunnelParmiPieges: 0.38, pieceRatio: 0.45, vitesseSupplPiege: [42, 75], pasPossibles: [1, 2] },
-  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvance: 118, piegeRatio: 0.5, tunnelParmiPieges: 0.48, pieceRatio: 0.45, vitesseSupplPiege: [58, 105], pasPossibles: [2, 3, 5] },
+  ms_gs: { label: 'MS-GS (3-5 ans)', niveauContenu: 'ms', vitesseAvance: 50, tempsReactionCible: 5.5, intervalleDiversMs: 1900, piegeRatio: 0.32, pieceRatio: 0.45, vitesseSupplPiege: [24, 45], pasPossibles: [1] },
+  cp_ce1: { label: 'CP-CE1 (6-7 ans)', niveauContenu: 'cp', vitesseAvance: 78, tempsReactionCible: 6.5, intervalleDiversMs: 1500, piegeRatio: 0.4, pieceRatio: 0.48, vitesseSupplPiege: [38, 68], pasPossibles: [1, 2] },
+  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvance: 105, tempsReactionCible: 8, intervalleDiversMs: 1200, piegeRatio: 0.48, pieceRatio: 0.48, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5] },
 };
 
 // Quota de pauses degressif : 50% du nombre d'objets a recolter en tout
@@ -11350,74 +11350,12 @@ function genererLeurre(valeurCible, mode) {
   return lettre;
 }
 
-// Construit tout le trajet a l'avance (positions fixes) : un groupe de 3
-// objets (1 cible + 2 leurres, un par voie) pour chaque element de la
-// sequence a collecter, entrecoupe de pieges et de pieces disposes dans
-// les intervalles. Les pieges sont les SEULS objets a avoir leur propre
-// vitesse (vitesseSuppl) ; tout le reste est fixe sur le trajet.
-// Construit tout le trajet a l'avance (positions fixes) : un groupe de 3
-// objets (1 cible + 2 leurres) pour chaque element de la sequence a
-// collecter, entrecoupe de pieges et de pieces. Position laterale LIBRE
-// (xNormalise entre 0 et 1, plus seulement 3 emplacements figes) : il
-// faut viser precisement en pilotant, pas juste "choisir une case".
-function positionsEspacees(n) {
-  const base = [0.22, 0.5, 0.78].slice(0, n);
-  return shuffle(base.map((x) => Math.max(0.1, Math.min(0.9, x + (Math.random() - 0.5) * 0.1))));
-}
-
-function genererNiveau(sequenceCible, mode, conf) {
-  const groupes = [];
-  const obstacles = [];
-  const pieces = [];
-  let idc = 1;
-  let distanceCourante = BOULE_DISTANCE_DEPART;
-
-  sequenceCible.forEach((valeurCible, groupeIndex) => {
-    const positions = positionsEspacees(3);
-    const indexCorrect = Math.floor(Math.random() * 3);
-    positions.forEach((x, i) => {
-      groupes.push({
-        id: idc++,
-        type: i === indexCorrect ? 'cible' : 'distracteur',
-        x,
-        distance: distanceCourante,
-        valeur: i === indexCorrect ? valeurCible : genererLeurre(valeurCible, mode),
-        groupeIndex,
-      });
-    });
-
-    const finIntervalle = distanceCourante + BOULE_ESPACEMENT_GROUPE;
-    if (Math.random() < conf.piegeRatio) {
-      const estSaut = Math.random() < conf.tunnelParmiPieges;
-      const [vMin, vMax] = conf.vitesseSupplPiege;
-      obstacles.push({
-        id: idc++,
-        type: estSaut ? 'piege_saut' : 'piege_voie',
-        x: estSaut ? null : 0.12 + Math.random() * 0.76,
-        distance: distanceCourante + BOULE_ESPACEMENT_GROUPE * (0.3 + Math.random() * 0.3),
-        vitesseSuppl: vMin + Math.random() * (vMax - vMin),
-      });
-    }
-    if (Math.random() < conf.pieceRatio) {
-      pieces.push({
-        id: idc++,
-        type: 'piece',
-        x: 0.12 + Math.random() * 0.76,
-        distance: distanceCourante + BOULE_ESPACEMENT_GROUPE * (0.6 + Math.random() * 0.25),
-      });
-    }
-    distanceCourante = finIntervalle;
-  });
-
-  return { groupes, obstacles, pieces, longueurTotale: distanceCourante };
-}
-
 function BouleQuiRouleScreen({ navigation }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const pisteLargeur = screenWidth * BOULE_PISTE_LARGEUR_RATIO;
-  const pisteHauteur = screenHeight * 0.6;
-  const horizonY = pisteHauteur * 0.07;
-  const joueurY = pisteHauteur - 86;
+  const pisteHauteur = screenHeight * 0.8;
+  const horizonY = pisteHauteur * 0.06;
+  const joueurY = pisteHauteur - 70;
 
   const [reglage, setReglage] = useState(null);
   const [mode, setMode] = useState(null);
@@ -11425,51 +11363,52 @@ function BouleQuiRouleScreen({ navigation }) {
   const [chargement, setChargement] = useState(false);
   const [capteurDispo, setCapteurDispo] = useState(true);
 
-  const [ballXNorm, setBallXNorm] = useState(0.5); // position laterale, 0=bord gauche, 1=bord droit
-  const [inclinaisonAffichage, setInclinaisonAffichage] = useState(0); // -1..1, pour le petit indicateur visuel
-  const [isJumping, setIsJumping] = useState(false);
+  const [ballXNorm, setBallXNorm] = useState(0.5);
+  const [inclinaisonAffichage, setInclinaisonAffichage] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [distanceParcourue, setDistanceParcourue] = useState(0);
-  const [groupes, setGroupes] = useState([]);
-  const [obstacles, setObstacles] = useState([]);
-  const [pieces, setPieces] = useState([]);
+  const [objets, setObjets] = useState([]); // { id, type: 'cible'|'distracteur'|'piege'|'piece', x, distance, valeur?, vitesseSuppl? }
   const [sequenceCible, setSequenceCible] = useState([]);
   const [tokensReveles, setTokensReveles] = useState([]);
-  const [groupesResolus, setGroupesResolus] = useState(0);
+  const [indexCible, setIndexCible] = useState(0);
   const [score, setScore] = useState(0);
   const [nbPieces, setNbPieces] = useState(0);
   const [message, setMessage] = useState(null);
   const [termine, setTermine] = useState(false);
   const [pausesUtilisees, setPausesUtilisees] = useState(0);
 
-  const isJumpingRef = useRef(false);
-  isJumpingRef.current = isJumping;
   const isPausedRef = useRef(false);
   isPausedRef.current = isPaused;
+  const indexCibleRef = useRef(0);
+  indexCibleRef.current = indexCible;
+  const sequenceCibleRef = useRef([]);
+  sequenceCibleRef.current = sequenceCible;
 
-  // Physique de pilotage : position + vitesse laterale (en proportion de
-  // largeur de piste), mises a jour hors state React pour la fluidite
-  // (uniquement synchronisees vers le state a l'affichage).
   const ballXNormRef = useRef(0.5);
   const vitesseLateraleRef = useRef(0);
   const inclinaisonRef = useRef(0);
-  const inclinaisonBaseRef = useRef(null); // calibree au demarrage (orientation "neutre" tenue par l'enfant)
+  const inclinaisonBaseRef = useRef(null);
 
   const nextIdRef = useRef(1);
+  const dernierSpawnDiversRef = useRef(0);
   const tickRef = useRef(null);
-  const jumpAnim = useRef(new Animated.Value(0)).current;
   const touchStartRef = useRef({ x: 0, y: 0, t: 0 });
   const dernierTapRef = useRef(0);
-  const tapTimerRef = useRef(null);
 
   const conf = reglage ? BOULE_REGLAGES_AGE[reglage] : null;
   const rungEquivalent = reglage ? rungFromGradeAndPalier(conf.niveauContenu, 1) : 1;
   const pausesAutorisees = sequenceCible.length ? Math.round(sequenceCible.length * ratioPausesPourRung(rungEquivalent)) : 0;
 
-  // --- Capteur d'inclinaison : ecoute continue pendant qu'une partie est
-  // en cours. Calibre une position "neutre" sur les premieres lectures,
-  // pour que ca marche quelle que soit la facon dont l'enfant tient le
-  // telephone.
+  // Le jeu se joue en paysage, pour un vrai champ de vision "vue de
+  // derriere" - deja utilise ailleurs dans l'app (ex. Monde en Capitales
+  // par zones), aucun module natif supplementaire necessaire.
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE).catch(() => {});
+    return () => {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+    };
+  }, []);
+
   useEffect(() => {
     if (!pret) return;
     let souscription = null;
@@ -11478,11 +11417,7 @@ function BouleQuiRouleScreen({ navigation }) {
     Accelerometer.setUpdateInterval(50);
     try {
       souscription = Accelerometer.addListener(({ x }) => {
-        if (inclinaisonBaseRef.current === null) {
-          inclinaisonBaseRef.current = x;
-        }
-        // Moyenne glissante legere sur la ligne de base, pour absorber une
-        // derive lente sans effacer les mouvements volontaires rapides.
+        if (inclinaisonBaseRef.current === null) inclinaisonBaseRef.current = x;
         inclinaisonBaseRef.current = inclinaisonBaseRef.current * 0.98 + x * 0.02;
         inclinaisonRef.current = x - inclinaisonBaseRef.current;
         lectures++;
@@ -11499,16 +11434,6 @@ function BouleQuiRouleScreen({ navigation }) {
     };
   }, [pret]);
 
-  function faireSauter() {
-    if (isJumpingRef.current || isPausedRef.current || termine) return;
-    setIsJumping(true);
-    jumpAnim.setValue(0);
-    Animated.sequence([
-      Animated.timing(jumpAnim, { toValue: 1, duration: BOULE_SAUT_DUREE_MS / 2, useNativeDriver: true }),
-      Animated.timing(jumpAnim, { toValue: 0, duration: BOULE_SAUT_DUREE_MS / 2, useNativeDriver: true }),
-    ]).start(() => setIsJumping(false));
-  }
-
   function basculerPause() {
     if (termine) return;
     if (isPaused) {
@@ -11520,9 +11445,8 @@ function BouleQuiRouleScreen({ navigation }) {
     setIsPaused(true);
   }
 
-  // Plus de glissement du doigt pour diriger : le responder ne sert plus
-  // qu'a detecter tap (sauter) et double-tap (pause), donc plus de risque
-  // de confusion avec un pilotage au doigt.
+  // Plus que la pause a detecter au toucher (le saut a ete supprime) :
+  // un double-tap rapproche bascule la pause, un tap isole ne fait rien.
   function onTouchDebut(e) {
     touchStartRef.current = { x: e.nativeEvent.pageX, y: e.nativeEvent.pageY, t: Date.now() };
   }
@@ -11538,14 +11462,10 @@ function BouleQuiRouleScreen({ navigation }) {
     }
     const maintenant = Date.now();
     if (maintenant - dernierTapRef.current < BOULE_DOUBLE_TAP_FENETRE_MS) {
-      clearTimeout(tapTimerRef.current);
       dernierTapRef.current = 0;
       basculerPause();
     } else {
       dernierTapRef.current = maintenant;
-      tapTimerRef.current = setTimeout(() => {
-        faireSauter();
-      }, BOULE_DOUBLE_TAP_FENETRE_MS);
     }
   }
 
@@ -11569,13 +11489,10 @@ function BouleQuiRouleScreen({ navigation }) {
       cible = Array.from({ length: nbTermes }, (_, i) => depart + i * pas);
     }
 
-    const niveauGenere = genererNiveau(cible, modeChoisi, c);
     setSequenceCible(cible);
     setTokensReveles(new Array(cible.length).fill(null));
-    setGroupes(niveauGenere.groupes);
-    setObstacles(niveauGenere.obstacles);
-    setPieces(niveauGenere.pieces);
-    setGroupesResolus(0);
+    setIndexCible(0);
+    setObjets([]);
     setDistanceParcourue(0);
     ballXNormRef.current = 0.5;
     vitesseLateraleRef.current = 0;
@@ -11585,9 +11502,9 @@ function BouleQuiRouleScreen({ navigation }) {
     setPausesUtilisees(0);
     setMessage(null);
     setIsPaused(false);
-    setIsJumping(false);
     setTermine(false);
     nextIdRef.current = 1000;
+    dernierSpawnDiversRef.current = Date.now() + 600;
     setChargement(false);
     setPret(true);
   }
@@ -11599,9 +11516,6 @@ function BouleQuiRouleScreen({ navigation }) {
       const dt = 0.04;
       const c = conf;
 
-      // --- Pilotage : inclinaison -> acceleration laterale -> vitesse
-      // (avec frottement) -> position. Donne la sensation d'inertie/glisse
-      // demandee, plutot qu'un deplacement instantane au doigt.
       const acc = inclinaisonRef.current * BOULE_SENSIBILITE_INCLINAISON;
       vitesseLateraleRef.current = (vitesseLateraleRef.current + acc * dt) * BOULE_FROTTEMENT;
       vitesseLateraleRef.current = Math.max(-BOULE_VITESSE_LATERALE_MAX, Math.min(BOULE_VITESSE_LATERALE_MAX, vitesseLateraleRef.current));
@@ -11615,84 +11529,112 @@ function BouleQuiRouleScreen({ navigation }) {
       setDistanceParcourue((prevDist) => {
         const nouvelleDistance = prevDist + c.vitesseAvance * dt;
         const seuilCollision = BOULE_RAYON_COLLISION;
+        const maintenant = Date.now();
 
-        setObstacles((prevO) => {
-          const next = [];
-          for (const o of prevO) {
-            const nouvelleDistanceObstacle = o.distance - o.vitesseSuppl * dt;
-            const relative = nouvelleDistanceObstacle - nouvelleDistance;
-            if (relative <= 0) {
-              if (o.type === 'piege_saut') {
-                if (!isJumpingRef.current) setMessage({ texte: 'Aïe, tu es tombé dans le trou ! On continue.', ok: false });
-              } else if (Math.abs(o.x - ballXNormRef.current) < seuilCollision) {
-                setMessage({ texte: 'Aïe, un piège ! On continue.', ok: false });
-              }
-              continue;
-            }
-            next.push({ ...o, distance: nouvelleDistanceObstacle });
+        setObjets((prevObjets) => {
+          let liste = prevObjets;
+
+          // Apparition reactive de LA cible en cours (une seule a la
+          // fois) : la suivante n'apparait qu'une fois celle-ci resolue.
+          const aUneCibleActive = liste.some((o) => o.type === 'cible');
+          if (!aUneCibleActive && indexCibleRef.current < sequenceCibleRef.current.length) {
+            const valeurCible = sequenceCibleRef.current[indexCibleRef.current];
+            liste = [
+              ...liste,
+              {
+                id: nextIdRef.current++,
+                type: 'cible',
+                x: 0.15 + Math.random() * 0.7,
+                distance: nouvelleDistance + c.vitesseAvance * c.tempsReactionCible,
+                valeur: valeurCible,
+                groupeIndex: indexCibleRef.current,
+              },
+            ];
           }
-          return next;
-        });
 
-        setPieces((prevP) => {
-          const next = [];
-          for (const p of prevP) {
-            const relative = p.distance - nouvelleDistance;
-            if (relative <= 0) {
-              if (Math.abs(p.x - ballXNormRef.current) < seuilCollision) {
-                setNbPieces((n) => n + 1);
-                setMessage({ texte: 'Pièce ramassée !', ok: true });
-              }
-              continue;
+          // Pieges/pieces/leurres : disperses aleatoirement dans le temps,
+          // independamment du rythme des cibles.
+          if (maintenant - dernierSpawnDiversRef.current >= c.intervalleDiversMs) {
+            dernierSpawnDiversRef.current = maintenant;
+            const roll = Math.random();
+            if (roll < c.piegeRatio) {
+              const [vMin, vMax] = c.vitesseSupplPiege;
+              liste = [
+                ...liste,
+                {
+                  id: nextIdRef.current++,
+                  type: 'piege',
+                  x: 0.12 + Math.random() * 0.76,
+                  distance: nouvelleDistance + 260 + Math.random() * 220,
+                  vitesseSuppl: vMin + Math.random() * (vMax - vMin),
+                },
+              ];
+            } else if (roll < c.piegeRatio + c.pieceRatio) {
+              liste = [
+                ...liste,
+                { id: nextIdRef.current++, type: 'piece', x: 0.12 + Math.random() * 0.76, distance: nouvelleDistance + 260 + Math.random() * 220 },
+              ];
+            } else if (indexCibleRef.current < sequenceCibleRef.current.length) {
+              liste = [
+                ...liste,
+                {
+                  id: nextIdRef.current++,
+                  type: 'distracteur',
+                  x: 0.12 + Math.random() * 0.76,
+                  distance: nouvelleDistance + 260 + Math.random() * 220,
+                  valeur: genererLeurre(sequenceCibleRef.current[indexCibleRef.current], mode),
+                },
+              ];
             }
-            next.push(p);
           }
-          return next;
-        });
 
-        setGroupes((prevG) => {
-          const next = [];
-          const groupesTraitesCetteBoucle = new Set();
-          for (const g of prevG) {
-            const relative = g.distance - nouvelleDistance;
+          // Deplacement des pieges (seuls objets a avoir leur propre
+          // vitesse) puis detection des croisements.
+          const suivants = [];
+          for (const o of liste) {
+            const distanceActuelle = o.type === 'piege' ? o.distance - o.vitesseSuppl * dt : o.distance;
+            const relative = distanceActuelle - nouvelleDistance;
             if (relative <= 0) {
-              if (!groupesTraitesCetteBoucle.has(g.groupeIndex)) {
-                const objetsDuGroupe = prevG.filter((x) => x.groupeIndex === g.groupeIndex);
-                const atteint = objetsDuGroupe.find((x) => Math.abs(x.x - ballXNormRef.current) < seuilCollision);
-                groupesTraitesCetteBoucle.add(g.groupeIndex);
+              const atteint = Math.abs(o.x - ballXNormRef.current) < seuilCollision;
+              if (o.type === 'cible') {
                 if (atteint) {
-                  if (atteint.type === 'cible') {
-                    setScore((s) => s + 1);
-                    setMessage({ texte: mode === 'lettres' ? `Bravo, "${atteint.valeur}" !` : `Bravo, ${atteint.valeur} !`, ok: true });
-                    setTokensReveles((prevTok) => {
-                      const copie = prevTok.slice();
-                      copie[g.groupeIndex] = atteint.valeur;
-                      return copie;
-                    });
-                  } else {
-                    setMessage({ texte: 'Pas celui-là, continue à chercher !', ok: false });
-                  }
+                  setScore((s) => s + 1);
+                  setMessage({ texte: mode === 'lettres' ? `Bravo, "${o.valeur}" !` : `Bravo, ${o.valeur} !`, ok: true });
+                  setTokensReveles((prevTok) => {
+                    const copie = prevTok.slice();
+                    copie[o.groupeIndex] = o.valeur;
+                    return copie;
+                  });
                 } else {
                   setMessage({ texte: 'Raté, pas assez précis !', ok: false });
                 }
-                setGroupesResolus((n) => {
+                setIndexCible((n) => {
                   const suivant = n + 1;
-                  if (suivant >= sequenceCible.length) setTermine(true);
+                  if (suivant >= sequenceCibleRef.current.length) setTermine(true);
                   return suivant;
                 });
+              } else if (o.type === 'distracteur') {
+                if (atteint) setMessage({ texte: 'Pas celui-là, continue à chercher !', ok: false });
+              } else if (o.type === 'piege') {
+                if (atteint) setMessage({ texte: 'Aïe, un piège ! On continue.', ok: false });
+              } else if (o.type === 'piece') {
+                if (atteint) {
+                  setNbPieces((n) => n + 1);
+                  setMessage({ texte: 'Pièce ramassée !', ok: true });
+                }
               }
-              continue;
+              continue; // traite une seule fois, puis disparait
             }
-            next.push(g);
+            suivants.push({ ...o, distance: distanceActuelle });
           }
-          return next;
+          return suivants;
         });
 
         return nouvelleDistance;
       });
     }, 40);
     return () => clearInterval(tickRef.current);
-  }, [pret, termine, conf, mode, sequenceCible.length]);
+  }, [pret, termine, conf, mode]);
 
   // --- Ecran 1 : choix de l'age ---
   if (!reglage) {
@@ -11703,7 +11645,7 @@ function BouleQuiRouleScreen({ navigation }) {
         </Pressable>
         <Text style={styles.title}>🔵 Prototype : la Boule qui Roule</Text>
         <Text style={{ textAlign: 'center', color: colors.ink, opacity: 0.7, marginTop: 8, marginBottom: 24, paddingHorizontal: 20 }}>
-          Choisis d'abord la tranche d'âge. Le pilotage se fait en inclinant le téléphone, comme un volant.
+          Choisis d'abord la tranche d'âge. Le jeu passe en mode paysage, pilotage en inclinant le téléphone comme un volant.
         </Text>
         {Object.entries(BOULE_REGLAGES_AGE).map(([cle, r]) => (
           <Pressable key={cle} style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => setReglage(cle)}>
@@ -11763,52 +11705,40 @@ function BouleQuiRouleScreen({ navigation }) {
     const p = Math.max(0, Math.min(1, 1 - relative / BOULE_DISTANCE_VISIBLE));
     const easedP = p * p;
     const y = horizonY + (joueurY - horizonY) * easedP;
-    const largeurVisible = pisteLargeur * (0.12 + 0.88 * easedP); // route qui s'evase du fond vers l'avant
     const echelle = 0.28 + 0.95 * easedP;
-    return { relative, p, y, largeurVisible, echelle };
+    return { relative, p, y, echelle };
   }
 
-  const jumpTranslateY = jumpAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -80] });
   const affichageCible = mode === 'lettres'
     ? tokensReveles.map((t) => (t === null ? '?' : t)).join(' ')
-    : `${sequenceCible[groupesResolus] ?? ''}`;
+    : `${sequenceCible[indexCible] ?? ''}`;
 
-  const objetsVisibles = [
-    ...groupes.map((g) => ({ ...g, categorie: 'groupe' })),
-    ...obstacles.map((o) => ({ ...o, categorie: 'obstacle' })),
-    ...pieces.map((p) => ({ ...p, categorie: 'piece' })),
-  ]
+  const objetsVisibles = objets
     .map((o) => ({ ...o, pos: positionEcran(o.distance) }))
     .filter((o) => o.pos.relative > -20 && o.pos.relative <= BOULE_DISTANCE_VISIBLE)
     .sort((a, b) => b.pos.relative - a.pos.relative);
 
-  const ballLargeurRoute = pisteLargeur * 1.0; // a joueurY, la route occupe toute la largeur disponible
-  const ballScreenX = ballXNorm * ballLargeurRoute;
+  const ballScreenX = ballXNorm * pisteLargeur;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: 44 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 }}>
+    <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: 8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14 }}>
         <Pressable onPress={() => { setReglage(null); setPret(false); }}>
-          <Text style={styles.backLabel}>‹ Retour</Text>
+          <Text style={[styles.backLabel, { fontSize: 13 }]}>‹ Retour</Text>
         </Pressable>
-        <Text style={{ fontWeight: '800', color: colors.mossDeep, fontSize: 16 }}>
+        <Text style={{ fontWeight: '800', color: colors.mossDeep, fontSize: 14 }}>
           {mode === 'lettres' ? affichageCible : `Cherche : ${affichageCible}`}
         </Text>
-        <Text style={{ fontWeight: '800', color: colors.gold, fontSize: 16 }}>★ {score} 🪙{nbPieces}</Text>
+        <Text style={{ fontWeight: '800', color: colors.gold, fontSize: 14 }}>★ {score} 🪙{nbPieces}</Text>
       </View>
 
-      <Text style={{ textAlign: 'center', marginTop: 2, fontSize: 12, color: colors.ink, opacity: 0.55 }}>
-        Incline le téléphone pour piloter · tap = sauter · double-tap = pause · Pauses : {Math.max(0, pausesAutorisees - pausesUtilisees)}
-      </Text>
-
       {!capteurDispo && (
-        <Text style={{ textAlign: 'center', marginTop: 4, fontSize: 12, color: colors.error, fontWeight: '700' }}>
+        <Text style={{ textAlign: 'center', fontSize: 11, color: colors.error, fontWeight: '700' }}>
           Capteur d'inclinaison indisponible sur cet appareil.
         </Text>
       )}
-
       {message && (
-        <Text style={{ textAlign: 'center', marginTop: 4, fontWeight: '700', color: message.ok ? colors.success : colors.error }}>
+        <Text style={{ textAlign: 'center', fontSize: 12, fontWeight: '700', color: message.ok ? colors.success : colors.error }}>
           {message.texte}
         </Text>
       )}
@@ -11819,41 +11749,29 @@ function BouleQuiRouleScreen({ navigation }) {
         onResponderGrant={onTouchDebut}
         onResponderRelease={onTouchFin}
         style={{
-          width: pisteLargeur, height: pisteHauteur, alignSelf: 'center', marginTop: 10,
-          borderRadius: 18, overflow: 'hidden', borderWidth: 2, borderColor: colors.mossSoft,
+          width: pisteLargeur, height: pisteHauteur, alignSelf: 'center', marginTop: 4,
+          borderRadius: 16, overflow: 'hidden', borderWidth: 2, borderColor: colors.mossSoft,
         }}
       >
-        <View style={{ position: 'absolute', left: 0, right: 0, top: 0, height: horizonY + 20, backgroundColor: '#CFEFEA' }} />
-        <View style={{ position: 'absolute', left: 0, right: 0, top: horizonY + 20, bottom: 0, backgroundColor: '#EAF6E4' }} />
+        <View style={{ position: 'absolute', left: 0, right: 0, top: 0, height: horizonY + 16, backgroundColor: '#CFEFEA' }} />
+        <View style={{ position: 'absolute', left: 0, right: 0, top: horizonY + 16, bottom: 0, backgroundColor: '#EAF6E4' }} />
 
         {objetsVisibles.map((o) => {
-          const x = o.x === null ? pisteLargeur / 2 : o.x * pisteLargeur;
+          const x = o.x * pisteLargeur;
           const taille = BOULE_ITEM_TAILLE_BASE * o.pos.echelle;
-          if (o.categorie === 'obstacle' && o.type === 'piege_saut') {
-            const largeur = o.pos.largeurVisible;
-            return (
-              <View
-                key={o.id}
-                style={{
-                  position: 'absolute', left: pisteLargeur / 2 - largeur / 2, top: o.pos.y - taille * 0.22,
-                  width: largeur, height: Math.max(10, taille * 0.42), backgroundColor: '#3D2E4F', borderRadius: 6, opacity: 0.9,
-                }}
-              />
-            );
-          }
-          const estCollectible = o.categorie === 'groupe' || o.categorie === 'piece';
+          const estCollectible = o.type === 'cible' || o.type === 'distracteur' || o.type === 'piece';
           return (
             <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, alignItems: 'center', justifyContent: 'center' }}>
               {estCollectible && (
                 <View style={{
                   position: 'absolute', width: taille, height: taille, borderRadius: taille / 2,
-                  backgroundColor: '#fff', borderWidth: 2.5, borderColor: o.categorie === 'piece' ? colors.gold : colors.mossSoft,
+                  backgroundColor: '#fff', borderWidth: 2.5, borderColor: o.type === 'piece' ? colors.gold : colors.mossSoft,
                 }} />
               )}
-              <Text style={{ fontSize: taille * (o.categorie === 'obstacle' ? 0.75 : 0.5) }}>
-                {o.categorie === 'obstacle' ? '🪨' : o.categorie === 'piece' ? '🪙' : mode === 'lettres' ? '🔤' : '🔢'}
+              <Text style={{ fontSize: taille * (o.type === 'piege' ? 0.75 : 0.5) }}>
+                {o.type === 'piege' ? '🪨' : o.type === 'piece' ? '🪙' : mode === 'lettres' ? '🔤' : '🔢'}
               </Text>
-              {o.categorie === 'groupe' && (
+              {(o.type === 'cible' || o.type === 'distracteur') && (
                 <Text style={{ position: 'absolute', fontSize: taille * 0.42, fontWeight: '800', color: colors.ink }}>
                   {o.valeur}
                 </Text>
@@ -11862,12 +11780,11 @@ function BouleQuiRouleScreen({ navigation }) {
           );
         })}
 
-        <Animated.View style={{ position: 'absolute', left: ballScreenX - BOULE_TAILLE / 2, top: joueurY - BOULE_TAILLE / 2, transform: [{ translateY: jumpTranslateY }] }}>
+        <View style={{ position: 'absolute', left: ballScreenX - BOULE_TAILLE / 2, top: joueurY - BOULE_TAILLE / 2 }}>
           <Text style={{ fontSize: BOULE_TAILLE }}>🔵</Text>
-        </Animated.View>
+        </View>
 
-        {/* Petit indicateur de direction, pour voir que l'inclinaison est bien captee */}
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 8, alignItems: 'center' }}>
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 6, alignItems: 'center' }}>
           <View style={{ width: 90, height: 6, borderRadius: 3, backgroundColor: 'rgba(0,0,0,0.12)' }}>
             <View style={{
               position: 'absolute', top: -3, width: 12, height: 12, borderRadius: 6, backgroundColor: colors.mossDeep,
@@ -11876,13 +11793,17 @@ function BouleQuiRouleScreen({ navigation }) {
           </View>
         </View>
 
+        <Text style={{ position: 'absolute', top: 6, right: 10, fontSize: 11, color: colors.ink, opacity: 0.5 }}>
+          Pauses : {Math.max(0, pausesAutorisees - pausesUtilisees)} (double-tap)
+        </Text>
+
         {isPaused && (
           <Pressable
             onPress={() => setIsPaused(false)}
             style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(58,50,38,0.55)', alignItems: 'center', justifyContent: 'center' }}
           >
-            <Text style={{ fontSize: 40 }}>⏸️</Text>
-            <Text style={{ color: '#fff', fontWeight: '800', marginTop: 8 }}>Pause — touche l'écran pour reprendre</Text>
+            <Text style={{ fontSize: 36 }}>⏸️</Text>
+            <Text style={{ color: '#fff', fontWeight: '800', marginTop: 6 }}>Pause — touche l'écran pour reprendre</Text>
           </Pressable>
         )}
       </View>
