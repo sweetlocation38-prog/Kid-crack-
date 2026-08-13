@@ -10962,6 +10962,13 @@ function ReglagesParentauxScreen({ route, navigation }) {
       </Pressable>
       <Text style={styles.title}>👪 Réglages parentaux</Text>
 
+      <Pressable
+        style={[styles.button, { backgroundColor: '#B3E5FC', marginBottom: 18 }]}
+        onPress={() => navigation.navigate('BouleQuiRoule')}
+      >
+        <Text style={styles.buttonText}>🧪 Tester le prototype : la Boule qui Roule</Text>
+      </Pressable>
+
       <Text style={[styles.label, { marginTop: 4 }]}>👤 Gérer les profils</Text>
       {profils.map((p) => (
         <View key={p.id} style={styles.profilManageBox}>
@@ -11251,6 +11258,223 @@ function ReglagesParentauxScreen({ route, navigation }) {
 }
 
 // ============================================================
+// PROTOTYPE — La Boule qui Roule
+//
+// Etape 1 du chantier (voir discussion avec Thierry) : valider le
+// mecanisme de base avant d'investir dans un contenu pedagogique ou
+// geographique (carte de Sassenage) precis.
+//
+// Principe : la boule avance seule sur une piste verticale, l'enfant la
+// dirige lateralement en glissant le doigt sur l'ecran (pas d'inclinaison
+// pour cette premiere version - plus fiable et testable partout). Des
+// objets tombent depuis le haut : il faut ramasser les chiffres dans
+// l'ordre croissant et eviter les pieges. Volontairement generique
+// (chiffres) pour ce prototype - le contenu pedagogique reel sera
+// decide une fois le principe de jeu valide avec les enfants.
+//
+// Vitesse volontairement lente et REGLABLE A LA MAIN (3 boutons d'age)
+// plutot que branchee sur le calibrage automatique habituel : c'est un
+// test de jouabilite, pas encore une version calibree. Aucune ecriture
+// en base de donnees a ce stade (pas de session Supabase) - purement
+// local, pour rester econome tant que le principe n'est pas valide.
+// ============================================================
+const BOULE_PISTE_LARGEUR_RATIO = 0.86; // portion de l'ecran occupee par la piste
+const BOULE_TAILLE = 46;
+const BOULE_ITEM_TAILLE = 40;
+
+const BOULE_REGLAGES_AGE = {
+  ms_gs: { label: 'MS-GS (3-5 ans)', chuteMs: 3600, intervalleSpawnMs: 2200, cibleMax: 3, piegeRatio: 0.15 },
+  cp_ce1: { label: 'CP-CE1 (6-7 ans)', chuteMs: 2800, intervalleSpawnMs: 1700, cibleMax: 5, piegeRatio: 0.25 },
+  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', chuteMs: 2100, intervalleSpawnMs: 1300, cibleMax: 9, piegeRatio: 0.35 },
+};
+
+function BouleQuiRouleScreen({ navigation }) {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const pisteLargeur = screenWidth * BOULE_PISTE_LARGEUR_RATIO;
+  const pisteGauche = (screenWidth - pisteLargeur) / 2;
+  const pisteHauteur = screenHeight * 0.62;
+
+  const [reglage, setReglage] = useState(null); // cle de BOULE_REGLAGES_AGE, ou null = ecran de choix
+  const [ballX, setBallX] = useState(pisteLargeur / 2);
+  const [items, setItems] = useState([]); // { id, valeur, isPiege, x, y }
+  const [prochainAttendu, setProchainAttendu] = useState(1);
+  const [score, setScore] = useState(0);
+  const [message, setMessage] = useState(null); // petit feedback ephemere, non punitif
+  const [termine, setTermine] = useState(false);
+
+  const ballXRef = useRef(ballX);
+  ballXRef.current = ballX;
+  const nextIdRef = useRef(1);
+  const dernierSpawnRef = useRef(0);
+  const tickRef = useRef(null);
+
+  const conf = reglage ? BOULE_REGLAGES_AGE[reglage] : null;
+
+  // --- Glisser le doigt pour diriger la boule (meme principe que le
+  // glisser-deposer deja utilise dans le labyrinthe : suivi direct du
+  // doigt, pas de zone a viser precisement). ---
+  function onTouchDeplacement(pageX) {
+    const relatif = pageX - pisteGauche;
+    const clamped = Math.max(BOULE_TAILLE / 2, Math.min(pisteLargeur - BOULE_TAILLE / 2, relatif));
+    setBallX(clamped);
+  }
+
+  function demarrer(cle) {
+    setReglage(cle);
+    setBallX(pisteLargeur / 2);
+    setItems([]);
+    setProchainAttendu(1);
+    setScore(0);
+    setMessage(null);
+    setTermine(false);
+    nextIdRef.current = 1;
+    dernierSpawnRef.current = Date.now();
+  }
+
+  // Boucle de jeu : deplace les items vers le bas, en fait apparaitre de
+  // nouveaux, detecte les collisions avec la boule.
+  useEffect(() => {
+    if (!conf || termine) return;
+    tickRef.current = setInterval(() => {
+      const maintenant = Date.now();
+      setItems((prev) => {
+        let next = prev.map((it) => ({ ...it, y: it.y + (pisteHauteur / conf.chuteMs) * 40 }));
+
+        // Nouvel item si l'intervalle est ecoule.
+        if (maintenant - dernierSpawnRef.current >= conf.intervalleSpawnMs) {
+          dernierSpawnRef.current = maintenant;
+          const estPiege = Math.random() < conf.piegeRatio;
+          const valeur = estPiege
+            ? null
+            : Math.min(conf.cibleMax, prochainAttendu + Math.floor(Math.random() * 2)); // le bon chiffre ou le suivant, jamais tres loin
+          next = [
+            ...next,
+            {
+              id: nextIdRef.current++,
+              valeur: estPiege ? null : valeur,
+              isPiege: estPiege,
+              x: BOULE_TAILLE / 2 + Math.random() * (pisteLargeur - BOULE_TAILLE),
+              y: -BOULE_ITEM_TAILLE,
+            },
+          ];
+        }
+
+        // Collision : l'item arrive dans la bande verticale de la boule.
+        const zoneBoulleY = pisteHauteur - 90;
+        const survivants = [];
+        for (const it of next) {
+          if (it.y >= zoneBoulleY && it.y <= zoneBoulleY + 46 && Math.abs(it.x - ballXRef.current) < (BOULE_TAILLE + BOULE_ITEM_TAILLE) / 2.4) {
+            if (it.isPiege) {
+              setMessage({ texte: 'Aïe, un piège ! On continue.', ok: false });
+            } else if (it.valeur === prochainAttendu) {
+              setScore((s) => s + 1);
+              setMessage({ texte: `Bravo, ${it.valeur} !`, ok: true });
+              setProchainAttendu((n) => {
+                const suivant = n + 1;
+                if (suivant > conf.cibleMax) {
+                  setTermine(true);
+                }
+                return suivant;
+              });
+            } else {
+              setMessage({ texte: 'Pas encore celui-là, continue à chercher !', ok: false });
+            }
+            continue; // l'item ramasse/touche disparait, jamais de retour en arriere puni
+          }
+          if (it.y > pisteHauteur + BOULE_ITEM_TAILLE) continue; // sorti de la piste, disparait simplement
+          survivants.push(it);
+        }
+        return survivants;
+      });
+    }, 40);
+    return () => clearInterval(tickRef.current);
+  }, [conf, termine, prochainAttendu, pisteHauteur, pisteLargeur]);
+
+  if (!reglage) {
+    return (
+      <View style={styles.center}>
+        <Pressable onPress={() => navigation.goBack()} style={{ position: 'absolute', top: 44, left: 18 }}>
+          <Text style={styles.backLabel}>‹ Retour</Text>
+        </Pressable>
+        <Text style={styles.title}>🔵 Prototype : la Boule qui Roule</Text>
+        <Text style={{ textAlign: 'center', color: colors.ink, opacity: 0.7, marginTop: 8, marginBottom: 24, paddingHorizontal: 20 }}>
+          Choisis la tranche d'âge pour régler la vitesse, puis fais glisser ton doigt pour diriger la boule et ramasse les chiffres dans l'ordre.
+        </Text>
+        {Object.entries(BOULE_REGLAGES_AGE).map(([cle, r]) => (
+          <Pressable key={cle} style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => demarrer(cle)}>
+            <Text style={styles.buttonText}>{r.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+    );
+  }
+
+  if (termine) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ fontSize: 48 }}>🎉</Text>
+        <Text style={styles.title}>Bravo, tous les chiffres ramassés !</Text>
+        <Text style={{ marginTop: 8, color: colors.ink }}>Score : {score}</Text>
+        <Pressable style={[styles.button, { marginTop: 20, width: 200 }]} onPress={() => demarrer(reglage)}>
+          <Text style={styles.buttonText}>Rejouer</Text>
+        </Pressable>
+        <Pressable style={{ marginTop: 12 }} onPress={() => setReglage(null)}>
+          <Text style={styles.backLabel}>‹ Changer d'âge</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: 44 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 }}>
+        <Pressable onPress={() => setReglage(null)}>
+          <Text style={styles.backLabel}>‹ Retour</Text>
+        </Pressable>
+        <Text style={{ fontWeight: '800', color: colors.mossDeep, fontSize: 16 }}>
+          Cherche : {prochainAttendu}
+        </Text>
+        <Text style={{ fontWeight: '800', color: colors.gold, fontSize: 16 }}>★ {score}</Text>
+      </View>
+
+      {message && (
+        <Text style={{ textAlign: 'center', marginTop: 4, fontWeight: '700', color: message.ok ? colors.success : colors.error }}>
+          {message.texte}
+        </Text>
+      )}
+
+      <View
+        collapsable={false}
+        onStartShouldSetResponder={() => true}
+        onMoveShouldSetResponder={() => true}
+        onResponderGrant={(e) => onTouchDeplacement(e.nativeEvent.pageX)}
+        onResponderMove={(e) => onTouchDeplacement(e.nativeEvent.pageX)}
+        style={{
+          width: pisteLargeur, height: pisteHauteur, alignSelf: 'center', marginTop: 14,
+          backgroundColor: '#EAF6E4', borderRadius: 18, overflow: 'hidden', borderWidth: 2, borderColor: colors.mossSoft,
+        }}
+      >
+        {items.map((it) => (
+          <View key={it.id} style={{ position: 'absolute', left: it.x - BOULE_ITEM_TAILLE / 2, top: it.y }}>
+            <Text style={{ fontSize: BOULE_ITEM_TAILLE * 0.7 }}>
+              {it.isPiege ? '🪨' : `🔢`}
+            </Text>
+            {!it.isPiege && (
+              <Text style={{ position: 'absolute', width: BOULE_ITEM_TAILLE, textAlign: 'center', top: 6, fontSize: 14, fontWeight: '800', color: colors.ink }}>
+                {it.valeur}
+              </Text>
+            )}
+          </View>
+        ))}
+        <View style={{ position: 'absolute', left: ballX - BOULE_TAILLE / 2, top: pisteHauteur - 90 }}>
+          <Text style={{ fontSize: BOULE_TAILLE }}>🔵</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+// ============================================================
 // Navigation racine
 // ============================================================
 const Stack = createNativeStackNavigator();
@@ -11317,6 +11541,7 @@ export default function RootNavigator() {
             <Stack.Screen name="LabyrintheGrotte" component={LabyrintheGrotteScreen} />
             <Stack.Screen name="CheminDizaines" component={CheminDizainesScreen} />
             <Stack.Screen name="BarresLuma" component={BarresLumaScreen} />
+            <Stack.Screen name="BouleQuiRoule" component={BouleQuiRouleScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
