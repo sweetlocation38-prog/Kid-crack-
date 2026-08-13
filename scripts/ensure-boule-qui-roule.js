@@ -6,10 +6,10 @@
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = 'https://ljswlkrhsufxbmxwwsol.supabase.co';
-const SERVICE_KEY = process.env.SUPER_SUPABASE_TOKEN;
+const SERVICE_KEY = process.env.SUPABASE_TOKEN;
 
 if (!SERVICE_KEY) {
-  console.error('SUPER_SUPABASE_TOKEN manquante dans l\'environnement.');
+  console.error('SUPABASE_TOKEN manquante dans l\'environnement.');
   process.exit(1);
 }
 
