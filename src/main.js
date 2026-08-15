@@ -11464,6 +11464,19 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const joueurY = pisteHauteur - 60;
   const barreControleGauche = (screenWidth - pisteLargeur) / 2;
 
+  // Budget de temps de jeu (meme mecanisme que les autres jeux) : on
+  // verifie a chaque fin de trajet, jamais en cours de route, pour ne
+  // jamais couper un enfant en pleine action. En mode test parental (sans
+  // profil), on passe un profil factice illimite - useTimeBudget accede
+  // directement a profil.famille_id sans garde, un vrai null le ferait
+  // planter.
+  const { extraMinutesGranted } = useContext(ExtraTimeContext);
+  const profilPourBudget = profil ?? { id: 'test-local', famille_id: 'test-local', minutes_max_jour: 100000 };
+  const { baseRemaining } = useTimeBudget(profilPourBudget);
+  const liveRemaining = useLiveCountdown(baseRemaining);
+  const effectiveRemaining = profil && baseRemaining != null ? liveRemaining + extraMinutesGranted * 60 : null;
+  const limiteAtteinte = effectiveRemaining != null && effectiveRemaining <= 0;
+
   const [reglage, setReglage] = useState(null);
   const [mode, setMode] = useState(null);
   const [pret, setPret] = useState(false);
@@ -11719,14 +11732,15 @@ function BouleQuiRouleScreen({ route, navigation }) {
       const totalRounds = sequenceCible.length;
       const erreursTotal = (totalRounds - score) + (BOULE_VIES_DEPART - vies);
       const wasPerfect = score === totalRounds && vies === BOULE_VIES_DEPART;
-      // Signale une session difficile (pour permettre au calibrage de
-      // redescendre) : au moins un redemarrage force par manque de vies,
-      // ou moins de la moitie des bonnes reponses trouvees.
-      const wasDifficile = redemarragesRef.current > 0 || (totalRounds > 0 && score / totalRounds < 0.5);
+      // Pas de redescente automatique ici (retour de Thierry : se battre
+      // pour reussir un niveau fait partie de l'apprentissage, ce n'est
+      // pas un probleme en soi). La redescente reste possible mais
+      // uniquement si l'ENFANT la demande lui-meme, via le bouton dedie
+      // (voir demanderNiveauPlusFacile ci-dessous).
       try {
         const precomputed = await computeStreakRung({
           profil, miniJeuId, currentRung: rungActuel, wasPerfect, maxRung: MAX_CONTENT_RUNG,
-          erreursTotal, totalRounds, dureeMoyenneManche: null, wasDifficile,
+          erreursTotal, totalRounds, dureeMoyenneManche: null,
         });
         await supabase.from('progression').upsert(
           {
@@ -11745,6 +11759,41 @@ function BouleQuiRouleScreen({ route, navigation }) {
         // sauvegarde du calibrage echoue.
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [termine]);
+
+  // Demande explicite de l'enfant de redescendre d'un cran - jamais
+  // automatique. Accessible sur l'ecran de pause entre deux trajets.
+  async function demanderNiveauPlusFacile() {
+    if (!profil || !miniJeuId || rungActuel == null) return;
+    const nouveauRung = Math.max(1, rungActuel - 1);
+    setRungActuel(nouveauRung);
+    try {
+      await supabase.from('progression').upsert(
+        { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: nouveauRung },
+        { onConflict: 'profil_id,mini_jeu_id' }
+      );
+    } catch (e) {
+      // Non bloquant.
+    }
+  }
+
+  // Enchainement automatique : un trajet termine (reussi ou non) debouche
+  // directement sur le suivant, sans repasser par un ecran a interagir -
+  // l'enfant sort lui-meme (navigation retour) s'il veut arreter. Seule
+  // exception : le temps de jeu du jour est epuise, auquel cas on
+  // s'arrete et on affiche l'ecran dedie (voir rendu plus bas).
+  useEffect(() => {
+    if (!termine) return;
+    const reussi = sequenceCible.length > 0 && score === sequenceCible.length;
+    const nom = profil ? speechFriendlyName(profil.prenom) : '';
+    const message = reussi
+      ? (profil ? `Bravo ${nom} ! Tu as tout trouvé !` : 'Bravo, tout est trouvé !')
+      : (profil ? `Pas facile cette fois, ${nom}, mais tu progresses ! On continue.` : 'On continue, tu vas y arriver !');
+    speakSmart(message);
+    if (limiteAtteinte) return;
+    const t = setTimeout(() => { demarrer(reglage, mode); }, 2200);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [termine]);
 
@@ -11941,19 +11990,33 @@ function BouleQuiRouleScreen({ route, navigation }) {
   }
 
   if (termine) {
+    const reussi = sequenceCible.length > 0 && score === sequenceCible.length;
+    if (limiteAtteinte) {
+      return (
+        <View style={styles.center}>
+          <Text style={{ fontSize: 40 }}>⏳</Text>
+          <Text style={styles.title}>Temps de jeu terminé</Text>
+          <Text style={{ marginTop: 8, color: colors.ink, textAlign: 'center', paddingHorizontal: 24 }}>
+            Le temps de jeu du jour est terminé. À demain pour une nouvelle aventure !
+          </Text>
+          <Pressable style={[styles.button, { marginTop: 20, width: 200 }]} onPress={() => navigation.goBack()}>
+            <Text style={styles.buttonText}>Retour à la carte</Text>
+          </Pressable>
+        </View>
+      );
+    }
     return (
       <View style={styles.center}>
-        <Text style={{ fontSize: 48 }}>🎉</Text>
-        <Text style={styles.title}>Trajet terminé !</Text>
+        <Text style={{ fontSize: 48 }}>{reussi ? '🎉' : '💪'}</Text>
+        <Text style={styles.title}>{reussi ? 'Bravo !' : 'On continue !'}</Text>
         <Text style={{ marginTop: 8, color: colors.ink }}>
           Ramassés : {score}/{sequenceCible.length} · Pièces : {nbPieces}
         </Text>
-        <Pressable style={[styles.button, { marginTop: 20, width: 200 }]} onPress={() => demarrer(reglage, mode)}>
-          <Text style={styles.buttonText}>Rejouer</Text>
-        </Pressable>
-        <Pressable style={{ marginTop: 12 }} onPress={() => { setReglage(null); setPret(false); }}>
-          <Text style={styles.backLabel}>‹ Changer d'âge/mode</Text>
-        </Pressable>
+        {profil && (
+          <Pressable style={{ marginTop: 22, padding: 8 }} onPress={demanderNiveauPlusFacile}>
+            <Text style={styles.backLabel}>⬇️ Niveau plus facile</Text>
+          </Pressable>
+        )}
       </View>
     );
   }
