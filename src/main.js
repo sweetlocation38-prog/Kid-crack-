@@ -11683,9 +11683,13 @@ function BouleQuiRouleScreen({ route, navigation }) {
     if (modeChoisi === 'chiffres') {
       pasChiffreRef.current = c.pasPossibles[Math.floor(Math.random() * c.pasPossibles.length)];
       compteurChiffreRef.current = pasChiffreRef.current === 1 ? 1 + Math.floor(Math.random() * 3) : pasChiffreRef.current;
+      setChiffreAffiche(compteurChiffreRef.current); // affiche des le debut, pas seulement au premier passage de la boucle
     } else if (modeChoisi === 'lettres') {
       lettresQueueRef.current = [];
       await assurerQueueLettres(c);
+      setChiffreAffiche(null);
+    } else {
+      setChiffreAffiche(null);
     }
 
     setStreakActuelle(0);
@@ -11698,7 +11702,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
     setMessage(null);
     setIsPaused(false);
     setEnonceAffiche('');
-    setChiffreAffiche(null);
     nextIdRef.current = 1000;
     dernierSpawnDiversRef.current = Date.now() + 600;
     setChargement(false);
@@ -12048,14 +12051,17 @@ function BouleQuiRouleScreen({ route, navigation }) {
         <Pressable onPress={() => { setReglage(null); setPret(false); setFinNiveau(null); }}>
           <Text style={[styles.backLabel, { fontSize: 13 }]}>‹ Retour</Text>
         </Pressable>
-        <Text style={{ fontWeight: '800', color: colors.mossDeep, fontSize: 14 }}>
-          {affichageCible ?? `Série : ${streakActuelle}/${conf.objectifStreak}`}
+        <Text style={{ fontWeight: '900', color: colors.mossDeep, fontSize: 17 }}>
+          {affichageCible ?? ' '}
         </Text>
         <Text style={{ fontWeight: '800', fontSize: 14 }}>
           <Text style={{ color: colors.gold }}>★ {score} 🪙{nbPieces}{boucliers > 0 ? ` 🛡️${boucliers}` : ''}</Text>
           <Text style={{ color: colors.error }}>  {'❤️'.repeat(vies)}</Text>
         </Text>
       </View>
+      <Text style={{ textAlign: 'center', fontSize: 12, color: colors.ink, opacity: 0.6, marginTop: 1 }}>
+        Série : {streakActuelle}/{conf.objectifStreak}
+      </Text>
 
       {message && (
         <Text style={{ textAlign: 'center', fontSize: 12, fontWeight: '700', color: message.ok ? colors.success : colors.error }}>
