@@ -11892,6 +11892,11 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
             if (valeurCible != null) {
               if (motParleASonoriser) speakSmart(motParleASonoriser);
+              // Toute la vague (cible + leurres) apparait a LA MEME
+              // distance, comme un vrai groupe synchronise : elle emerge
+              // de l'horizon ensemble, descend ensemble, et disparait
+              // ensemble - plus de leurres qui "popaient" en plein ecran
+              // ou qui trainaient apres que la cible ait ete attrapee.
               const distanceCible = nouvelleDistance + vitesseEffective * c.tempsReactionCible;
               const nouveauxObjets = [
                 { id: nextIdRef.current++, type: 'cible', x: 0.15 + Math.random() * 0.7, distance: distanceCible, valeur: valeurCible },
@@ -11901,7 +11906,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   id: nextIdRef.current++,
                   type: 'distracteur',
                   x: 0.12 + Math.random() * 0.76,
-                  distance: nouvelleDistance + vitesseEffective * (0.8 + Math.random() * (c.tempsReactionCible - 1)),
+                  distance: distanceCible,
                   valeur: genererLeurre(valeurCible, mode),
                 });
               }
