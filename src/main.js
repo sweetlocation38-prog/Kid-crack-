@@ -11544,6 +11544,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
   // Generateurs de contenu "sans fin" (remplacent l'ancienne liste figee).
   const compteurChiffreRef = useRef(0); // prochain nombre a demander, mode chiffres
+  const cibleEnAttenteRef = useRef(null); // { valeur, enonce? } - item pas encore attrape, redemande tel quel tant qu'il n'est pas reussi
   const pasChiffreRef = useRef(1);
   const lettresQueueRef = useRef([]); // { valeur, estDebutMot, motParle }
   const fetchingLettresRef = useRef(false);
@@ -11699,6 +11700,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
     vitesseAvanceRef.current = c.vitesseAvanceMoyenne * facteurVitesse;
     ralentiJusquaRef.current = 0; // le bonus de ralentissement ne survit pas a un nouveau niveau
     blocageJusquaRef.current = 0;
+    cibleEnAttenteRef.current = null;
 
     const { palier: palierPrecis } = gradeAndPalierFromRung(rung);
     palierPrecisRef.current = palierPrecis;
@@ -11812,12 +11814,15 @@ function BouleQuiRouleScreen({ route, navigation }) {
       if (suivant % 30 === 0) {
         ralentiJusquaRef.current = Date.now() + 30000;
         setMessage({ texte: 'Pièce ramassée ! Ralentissement 30s 🐌', ok: true });
+      } else if (suivant % 15 === 0) {
+        // Bouclier moins frequent qu'avant (etait tous les 5, retour de
+        // Thierry : trop present). Verifie avant le %3 pour ne pas etre
+        // masque par la pause bonus (15 est aussi multiple de 3).
+        setBoucliers((b) => b + 1);
+        setMessage({ texte: 'Pièce ramassée ! Bouclier gagné 🛡️', ok: true });
       } else if (suivant % 3 === 0) {
         setPausesBonus((p) => p + 1);
         setMessage({ texte: 'Pièce ramassée ! +1 pause bonus', ok: true });
-      } else if (suivant % 5 === 0) {
-        setBoucliers((b) => b + 1);
-        setMessage({ texte: 'Pièce ramassée ! Bouclier gagné 🛡️', ok: true });
       } else {
         setMessage({ texte: 'Pièce ramassée !', ok: true });
       }
@@ -11872,22 +11877,32 @@ function BouleQuiRouleScreen({ route, navigation }) {
           if (!vaguePrecedenteEncorePresente) {
             let valeurCible = null;
             let motParleASonoriser = null;
-            if (mode === 'lettres') {
+            if (cibleEnAttenteRef.current != null) {
+              // Le tour precedent a ete rate : on redemande EXACTEMENT le
+              // meme item, jamais le suivant - retour de Thierry : pas
+              // d'impasse, on les recupere un apres l'autre.
+              const enAttente = cibleEnAttenteRef.current;
+              valeurCible = enAttente.valeur;
+              if (mode === 'calculs') setEnonceAffiche(enAttente.enonce);
+              if (mode === 'chiffres') setChiffreAffiche(enAttente.valeur);
+            } else if (mode === 'lettres') {
               if (lettresQueueRef.current.length > 0) {
                 const item = lettresQueueRef.current.shift();
                 valeurCible = item.valeur;
                 if (item.estDebutMot) motParleASonoriser = item.motParle;
                 if (lettresQueueRef.current.length < 3) assurerQueueLettres(c);
+                cibleEnAttenteRef.current = { valeur: valeurCible };
               }
             } else if (mode === 'calculs') {
               const { enonce, resultat } = genererCalcul(reglage);
               valeurCible = resultat;
               setEnonceAffiche(enonce);
+              cibleEnAttenteRef.current = { valeur: resultat, enonce };
             } else {
               valeurCible = compteurChiffreRef.current;
-              compteurChiffreRef.current += pasChiffreRef.current;
               setChiffreAffiche(valeurCible);
               motParleASonoriser = `Cherche le nombre ${valeurCible}`;
+              cibleEnAttenteRef.current = { valeur: valeurCible };
             }
 
             if (valeurCible != null) {
@@ -11965,6 +11980,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   setMessage({ texte: mode === 'lettres' ? `Bravo, "${o.valeur}" !` : `Bravo, ${o.valeur} !`, ok: true });
                   if (mode === 'lettres') speakSmart(joinSequenceForSpeech([o.valeur], c.niveauContenu));
                   declencherEffet(o.x, true);
+                  // Reussi : on avance vers l'item SUIVANT (jamais avant).
+                  if (mode === 'chiffres') compteurChiffreRef.current += pasChiffreRef.current;
+                  cibleEnAttenteRef.current = null;
                   setStreakActuelle((prevStreak) => {
                     const nouveau = prevStreak + 1;
                     if (nouveau >= c.objectifStreak) setFinNiveau('victoire');
@@ -11972,8 +11990,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   });
                 } else {
                   // Loupe (pas assez precis, ou bloque par un piege malus) :
-                  // le streak repart a zero mais aucune vie perdue - on
-                  // continue sans interruption.
+                  // le streak repart a zero, MAIS on redemande exactement
+                  // le meme item ensuite (cibleEnAttenteRef pas efface) -
+                  // aucune vie perdue, on continue sans interruption.
                   setMessage({ texte: estBloque ? 'Bloqué, réessaie dans quelques secondes !' : 'Raté, pas assez précis ! On continue.', ok: false });
                   setStreakActuelle(0);
                 }
