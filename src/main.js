@@ -11310,6 +11310,7 @@ const BOULE_TAP_DUREE_MAX_MS = 500;
 const BOULE_DISTANCE_VISIBLE = 560;
 const BOULE_RAYON_COLLISION = 0.075; // resserre (etait 0.11) : retour de Thierry, trop facile de toucher un mauvais nombre par erreur
 const BOULE_VIES_DEPART = 3;
+const BOULE_NIVEAUX_PAR_PARTIE = 5; // au-dela, ecran de fin de partie plutot qu'un enchainement infini de niveaux
 const BOULE_VARIATION_VITESSE = 0.15; // vitesse tiree aleatoirement entre -15% et +15% de la moyenne, a chaque trajet
 
 // Temps de reaction voulu (secondes) avant qu'une lettre/un chiffre a
@@ -11524,6 +11525,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const [distanceParcourue, setDistanceParcourue] = useState(0);
   const [objets, setObjets] = useState([]);
   const [streakActuelle, setStreakActuelle] = useState(0);
+  const [niveauxCompletesAffiche, setNiveauxCompletesAffiche] = useState(0);
   const [enonceAffiche, setEnonceAffiche] = useState('');
   const [chiffreAffiche, setChiffreAffiche] = useState(null);
   const [score, setScore] = useState(0);
@@ -11550,6 +11552,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const fetchingLettresRef = useRef(false);
   const palierPrecisRef = useRef(1);
   const tentativesEchoueesRef = useRef(0); // nb de fois ou les vies ont ete epuisees SUR CE NIVEAU
+  const niveauxCompletesRef = useRef(0); // nb de niveaux reussis d'affilee DANS CETTE PARTIE
 
   const nextIdRef = useRef(1);
   const dernierSpawnDiversRef = useRef(0);
@@ -11736,6 +11739,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
   function demarrerNouvellePartie(cleAge, modeChoisi) {
     tentativesEchoueesRef.current = 0;
+    niveauxCompletesRef.current = 0;
+    setNiveauxCompletesAffiche(0);
     const rung = profil ? rungJeu : rungRepresentatifPourBucket(cleAge);
     if (!profil) setRungJeu(rung);
     initialiserNiveau(cleAge, modeChoisi, rung);
@@ -11841,7 +11846,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
   useEffect(() => {
     if (!finNiveau) return;
     const nom = profil ? speechFriendlyName(profil.prenom) : '';
-    if (finNiveau === 'victoire') {
+    if (finNiveau === 'partie_terminee') {
+      speakSmart(profil ? `Bravo ${nom} ! Partie terminée, tu as réussi ${BOULE_NIVEAUX_PAR_PARTIE} niveaux !` : `Bravo ! Partie terminée, ${BOULE_NIVEAUX_PAR_PARTIE} niveaux réussis !`);
+    } else if (finNiveau === 'victoire') {
       speakSmart(profil ? `Bravo ${nom} ! Niveau supérieur débloqué !` : 'Bravo ! Niveau supérieur débloqué !');
     } else {
       const propose20 = tentativesEchoueesRef.current >= 20;
@@ -11985,7 +11992,11 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   cibleEnAttenteRef.current = null;
                   setStreakActuelle((prevStreak) => {
                     const nouveau = prevStreak + 1;
-                    if (nouveau >= c.objectifStreak) setFinNiveau('victoire');
+                    if (nouveau >= c.objectifStreak) {
+                      niveauxCompletesRef.current += 1;
+                      setNiveauxCompletesAffiche(niveauxCompletesRef.current);
+                      setFinNiveau(niveauxCompletesRef.current >= BOULE_NIVEAUX_PAR_PARTIE ? 'partie_terminee' : 'victoire');
+                    }
                     return nouveau;
                   });
                 } else {
@@ -12105,6 +12116,23 @@ function BouleQuiRouleScreen({ route, navigation }) {
         </View>
       );
     }
+    if (finNiveau === 'partie_terminee') {
+      return (
+        <View style={styles.center}>
+          <Text style={{ fontSize: 52 }}>🏆</Text>
+          <Text style={styles.title}>Partie terminée !</Text>
+          <Text style={{ marginTop: 8, color: colors.ink, textAlign: 'center' }}>
+            {BOULE_NIVEAUX_PAR_PARTIE} niveaux réussis · ★ {score} · 🪙 {nbPieces}
+          </Text>
+          <Pressable style={[styles.button, { marginTop: 22, width: 220 }]} onPress={() => demarrerNouvellePartie(reglage, mode)}>
+            <Text style={styles.buttonText}>Nouvelle partie</Text>
+          </Pressable>
+          <Pressable style={{ marginTop: 14, padding: 8 }} onPress={() => { setReglage(null); setPret(false); setFinNiveau(null); }}>
+            <Text style={styles.backLabel}>‹ Retour à la carte</Text>
+          </Pressable>
+        </View>
+      );
+    }
     const propose20 = finNiveau === 'echec' && tentativesEchoueesRef.current >= 20;
     return (
       <Pressable style={styles.center} onPress={finNiveau === 'victoire' ? passerNiveauSuivant : recommencerMemeNiveau}>
@@ -12163,7 +12191,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
         </Text>
       </View>
       <Text style={{ textAlign: 'center', fontSize: 12, color: colors.ink, opacity: 0.6, marginTop: 1 }}>
-        Série : {streakActuelle}/{conf.objectifStreak}
+        Série : {streakActuelle}/{conf.objectifStreak} · Partie : {niveauxCompletesAffiche}/{BOULE_NIVEAUX_PAR_PARTIE}
       </Text>
 
       {message && (
