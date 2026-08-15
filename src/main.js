@@ -11280,7 +11280,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
 //    une ref modifiable, pas juste une constante figee par age).
 // ============================================================
 const BOULE_PISTE_LARGEUR_RATIO = 1;
-const BOULE_TAILLE = 56;
+const BOULE_TAILLE = 39; // -30% par rapport a la version precedente (56)
 const BOULE_ITEM_TAILLE_BASE = 64;
 const BOULE_DOUBLE_TAP_FENETRE_MS = 380;
 const BOULE_TAP_MOUVEMENT_MAX = 26;
@@ -11311,6 +11311,33 @@ function ratioPausesPourRung(rung) {
   const rungCm1 = rungFromGradeAndPalier('cm1', 1);
   const ratio = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, rungCm1 - 1)));
   return 0.5 * (1 - ratio);
+}
+
+// Interpolation lineaire simple, utilisee pour toutes les difficultes
+// continues ci-dessous.
+function interp(rung, maxRung, debut, fin) {
+  const t = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
+  return debut + (fin - debut) * t;
+}
+
+// Difficulte CONTINUE en fonction du rang exact de l'enfant (et non plus
+// seulement de 3 paliers figes) - retour de Thierry : avec seulement 3
+// paliers, un enfant avance (comme Valerie, dont le rang calibre depasse
+// largement son niveau scolaire nominal) ne voyait plus aucune evolution
+// une fois dans le palier le plus difficile. Ici, ca evolue en continu
+// jusqu'a devenir vraiment difficile au rang maximum.
+function calculerDifficulteDepuisRung(rung) {
+  const max = MAX_CONTENT_RUNG;
+  const rungCe1 = rungFromGradeAndPalier('ce1', 1);
+  return {
+    vitesseAvanceMoyenne: interp(rung, max, 48, 135),
+    tempsReactionCible: interp(rung, max, 7.5, 4.2),
+    nbLeurresParCible: Math.round(interp(rung, max, 2, 6)),
+    piegeRatio: interp(rung, max, 0.2, 0.42),
+    pieceRatio: interp(rung, max, 0.32, 0.22),
+    vitesseSupplPiege: [interp(rung, max, 22, 65), interp(rung, max, 42, 115)],
+    distracteurCoutePV: rung >= rungCe1,
+  };
 }
 
 async function chargerMotPontDesLettres(niveau, palierValue) {
@@ -11426,6 +11453,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const [indexCible, setIndexCible] = useState(0);
   const [score, setScore] = useState(0);
   const [nbPieces, setNbPieces] = useState(0);
+  const [boucliers, setBoucliers] = useState(0); // annule la prochaine perte de vie (gagne via les pieces)
+  const [pausesBonus, setPausesBonus] = useState(0); // pauses supplementaires gagnees via les pieces
   const [vies, setVies] = useState(BOULE_VIES_DEPART);
   const [message, setMessage] = useState(null);
   const [termine, setTermine] = useState(false);
@@ -11450,9 +11479,11 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const dernierTapRef = useRef(0);
   const controleTailleRef = useRef({ largeur: 1, gauche: 0 });
 
-  const conf = reglage ? BOULE_REGLAGES_AGE[reglage] : null;
+  const conf = reglage
+    ? (profil && rungActuel ? { ...BOULE_REGLAGES_AGE[reglage], ...calculerDifficulteDepuisRung(rungActuel) } : BOULE_REGLAGES_AGE[reglage])
+    : null;
   const rungEquivalent = reglage ? rungFromGradeAndPalier(conf.niveauContenu, 1) : 1;
-  const pausesAutorisees = sequenceCible.length ? Math.round(sequenceCible.length * ratioPausesPourRung(rungEquivalent)) : 0;
+  const pausesAutorisees = (sequenceCible.length ? Math.round(sequenceCible.length * ratioPausesPourRung(rungEquivalent)) : 0) + pausesBonus;
 
   function basculerPause() {
     if (termine) return;
@@ -11509,7 +11540,13 @@ function BouleQuiRouleScreen({ route, navigation }) {
     setMode(modeChoisi);
     setChargement(true);
     setPret(false);
-    const c = BOULE_REGLAGES_AGE[cleAge];
+    const base = BOULE_REGLAGES_AGE[cleAge];
+    // En calibrage automatique (profil connu), la difficulte de jeu
+    // (vitesse, leurres, pieges...) suit une courbe CONTINUE calculee sur
+    // le rang exact - plus seulement le palier d'age. Le contenu
+    // pedagogique (mots, pas de comptage) reste lie au palier d'age, la
+    // banque de contenu Pont des Lettres etant elle-meme organisee ainsi.
+    const c = profil && rungActuel ? { ...base, ...calculerDifficulteDepuisRung(rungActuel) } : base;
     // Vitesse tiree aleatoirement entre -15% et +15% de la moyenne, pour
     // que chaque trajet varie un peu (plutot que 3 paliers figes).
     const facteurVitesse = 1 + (Math.random() * 2 - 1) * BOULE_VARIATION_VITESSE;
@@ -11523,13 +11560,21 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
     let cible = [];
     if (modeChoisi === 'lettres') {
-      const contenu = await chargerMotPontDesLettres(c.niveauContenu, palierPrecis);
-      cible = contenu?.sequence ?? ['C', 'H', 'A', 'T'];
-      speakSmart(joinSequenceForSpeech(cible, c.niveauContenu));
+      // Enchaine plusieurs mots a la suite dans la meme partie (plutot
+      // qu'un seul mot puis fin) pour allonger le temps de jeu.
+      const nbMots = cleAge === 'ms_gs' ? 2 : cleAge === 'cp_ce1' ? 2 : 3;
+      const motsSpeech = [];
+      for (let i = 0; i < nbMots; i++) {
+        const contenu = await chargerMotPontDesLettres(c.niveauContenu, palierPrecis);
+        const sequenceMot = contenu?.sequence ?? ['C', 'H', 'A', 'T'];
+        cible = [...cible, ...sequenceMot];
+        motsSpeech.push(joinSequenceForSpeech(sequenceMot, c.niveauContenu));
+      }
+      speakSmart(motsSpeech.join('. '));
     } else {
       const pas = c.pasPossibles[Math.floor(Math.random() * c.pasPossibles.length)];
       const depart = pas === 1 ? 1 + Math.floor(Math.random() * 3) : pas;
-      const nbTermes = cleAge === 'ms_gs' ? 3 : cleAge === 'cp_ce1' ? 5 : 7;
+      const nbTermes = cleAge === 'ms_gs' ? 5 : cleAge === 'cp_ce1' ? 8 : 12;
       cible = Array.from({ length: nbTermes }, (_, i) => depart + i * pas);
     }
 
@@ -11542,6 +11587,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
     setBallXNorm(0.5);
     setScore(0);
     setNbPieces(0);
+    setBoucliers(0);
+    setPausesBonus(0);
     setVies(BOULE_VIES_DEPART);
     setPausesUtilisees(0);
     setMessage(null);
@@ -11557,15 +11604,40 @@ function BouleQuiRouleScreen({ route, navigation }) {
   // decision explicite de Thierry pour ce jeu (different du reste de
   // l'app, qui evite normalement les retours en arriere punitifs).
   function perdreUneVie() {
-    setVies((v) => {
-      const restant = v - 1;
-      if (restant <= 0) {
-        setMessage({ texte: 'Trop de pièges touchés, on recommence !', ok: false });
-        setTimeout(() => demarrer(reglage, mode), 900);
-        return BOULE_VIES_DEPART;
+    setBoucliers((b) => {
+      if (b > 0) {
+        setMessage({ texte: 'Protégé par une pièce !', ok: true });
+        return b - 1;
       }
-      setMessage({ texte: `Aïe, un piège ! (${restant} vie${restant > 1 ? 's' : ''} restante${restant > 1 ? 's' : ''})`, ok: false });
-      return restant;
+      setVies((v) => {
+        const restant = v - 1;
+        if (restant <= 0) {
+          setMessage({ texte: 'Trop de pièges touchés, on recommence !', ok: false });
+          setTimeout(() => demarrer(reglage, mode), 900);
+          return BOULE_VIES_DEPART;
+        }
+        setMessage({ texte: `Aïe, un piège ! (${restant} vie${restant > 1 ? 's' : ''} restante${restant > 1 ? 's' : ''})`, ok: false });
+        return restant;
+      });
+      return 0;
+    });
+  }
+
+  // Chaque piece rapporte un petit bonus : une pause en plus toutes les 3
+  // pieces, un bouclier (annule la prochaine perte de vie) toutes les 5.
+  function ramasserUnePiece() {
+    setNbPieces((n) => {
+      const suivant = n + 1;
+      if (suivant % 3 === 0) {
+        setPausesBonus((p) => p + 1);
+        setMessage({ texte: 'Pièce ramassée ! +1 pause bonus', ok: true });
+      } else if (suivant % 5 === 0) {
+        setBoucliers((b) => b + 1);
+        setMessage({ texte: 'Pièce ramassée ! Bouclier gagné 🛡️', ok: true });
+      } else {
+        setMessage({ texte: 'Pièce ramassée !', ok: true });
+      }
+      return suivant;
     });
   }
 
@@ -11705,10 +11777,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
               } else if (o.type === 'piege') {
                 if (atteint) perdreUneVie();
               } else if (o.type === 'piece') {
-                if (atteint) {
-                  setNbPieces((n) => n + 1);
-                  setMessage({ texte: 'Pièce ramassée !', ok: true });
-                }
+                if (atteint) ramasserUnePiece();
               }
               continue;
             }
@@ -11841,7 +11910,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
           {mode === 'lettres' ? affichageCible : `Cherche : ${affichageCible}`}
         </Text>
         <Text style={{ fontWeight: '800', fontSize: 14 }}>
-          <Text style={{ color: colors.gold }}>★ {score} 🪙{nbPieces}</Text>
+          <Text style={{ color: colors.gold }}>★ {score} 🪙{nbPieces}{boucliers > 0 ? ` 🛡️${boucliers}` : ''}</Text>
           <Text style={{ color: colors.error }}>  {'❤️'.repeat(vies)}</Text>
         </Text>
       </View>
@@ -11868,23 +11937,36 @@ function BouleQuiRouleScreen({ route, navigation }) {
         {objetsVisibles.map((o) => {
           const x = o.x * pisteLargeur;
           const taille = BOULE_ITEM_TAILLE_BASE;
-          const estCollectible = o.type === 'cible' || o.type === 'distracteur' || o.type === 'piece';
+          const estLettreOuChiffre = o.type === 'cible' || o.type === 'distracteur';
+          if (estLettreOuChiffre) {
+            // Pas de cercle ni d'icone ici : juste le chiffre/la lettre,
+            // en gros et en gras avec un contour clair, pour rester
+            // lisible quel que soit le fond derriere (retour de Thierry :
+            // peu visible dans la bulle).
+            return (
+              <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, width: taille, height: taille, alignItems: 'center', justifyContent: 'center' }}>
+                <Text
+                  style={{
+                    fontSize: taille * 0.62, fontWeight: '900', color: colors.mossDeep,
+                    textShadowColor: '#fff', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 6,
+                  }}
+                >
+                  {o.valeur}
+                </Text>
+              </View>
+            );
+          }
           return (
             <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, alignItems: 'center', justifyContent: 'center' }}>
-              {estCollectible && (
+              {o.type === 'piece' && (
                 <View style={{
                   position: 'absolute', width: taille, height: taille, borderRadius: taille / 2,
-                  backgroundColor: '#fff', borderWidth: 2.5, borderColor: o.type === 'piece' ? colors.gold : colors.mossSoft,
+                  backgroundColor: '#fff', borderWidth: 2.5, borderColor: colors.gold,
                 }} />
               )}
               <Text style={{ fontSize: taille * (o.type === 'piege' ? 0.75 : 0.5) }}>
-                {o.type === 'piege' ? '🪨' : o.type === 'piece' ? '🪙' : mode === 'lettres' ? '🔤' : '🔢'}
+                {o.type === 'piege' ? '🪨' : '🪙'}
               </Text>
-              {(o.type === 'cible' || o.type === 'distracteur') && (
-                <Text style={{ position: 'absolute', fontSize: taille * 0.42, fontWeight: '800', color: colors.ink }}>
-                  {o.valeur}
-                </Text>
-              )}
             </View>
           );
         })}
