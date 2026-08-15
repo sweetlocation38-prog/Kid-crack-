@@ -11874,14 +11874,13 @@ function BouleQuiRouleScreen({ route, navigation }) {
         setObjets((prevObjets) => {
           let liste = prevObjets;
 
-          // On attend que TOUTE la vague precedente (la cible ET ses
-          // leurres) ait disparu de l'ecran avant de faire apparaitre la
-          // suivante - retour de Thierry : sinon la nouvelle vague se
-          // melangeait avec les leurres encore a l'ecran de la precedente,
-          // ce qui rendait tout confus et provoquait des mauvaises
-          // captures accidentelles.
-          const vaguePrecedenteEncorePresente = liste.some((o) => o.type === 'cible' || o.type === 'distracteur');
-          if (!vaguePrecedenteEncorePresente) {
+          // La cible SEULE doit etre resolue (attrapee ou ratee) avant
+          // qu'un nouveau "bon" chiffre/lettre apparaisse - les leurres
+          // restants, eux, continuent tranquillement leur chute et ne
+          // bloquent plus rien. Retour de Thierry : des qu'on a le bon,
+          // le suivant peut arriver meme s'il reste des leurres a l'ecran.
+          const cibleEncoreActive = liste.some((o) => o.type === 'cible');
+          if (!cibleEncoreActive) {
             let valeurCible = null;
             let motParleASonoriser = null;
             if (cibleEnAttenteRef.current != null) {
@@ -11914,20 +11913,10 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
             if (valeurCible != null) {
               if (motParleASonoriser) speakSmart(motParleASonoriser);
-              // Toute la vague (cible + leurres) apparait a LA MEME
-              // distance, comme un vrai groupe synchronise : elle emerge
-              // de l'horizon ensemble, descend ensemble, et disparait
-              // ensemble - plus de leurres qui "popaient" en plein ecran
-              // ou qui trainaient apres que la cible ait ete attrapee.
-              // La cible et ses leurres emergent ensemble de l'horizon
-              // (distances proches, jamais plus proches que l'horizon =
-              // pas de "pop" en plein ecran), mais gardent chacun leur
-              // propre distance : si la cible est attrapee en avance, les
-              // leurres restants continuent normalement leur descente
-              // jusqu'a disparaitre en bas, au lieu d'etre coupes net.
-              // La vague suivante n'apparait qu'une fois tout ce petit
-              // monde reellement parti (voir plus haut : condition
-              // vaguePrecedenteEncorePresente).
+              // La cible et ses leurres tombent de facon ETALEE et
+              // ALEATOIRE (jamais tous a la meme distance, jamais colles)
+              // - mais toujours assez loin pour emerger depuis l'horizon,
+              // jamais un "pop" en plein ecran.
               const distanceCible = nouvelleDistance + vitesseEffective * c.tempsReactionCible;
               const nouveauxObjets = [
                 { id: nextIdRef.current++, type: 'cible', x: 0.15 + Math.random() * 0.7, distance: distanceCible, valeur: valeurCible },
@@ -11937,7 +11926,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   id: nextIdRef.current++,
                   type: 'distracteur',
                   x: 0.12 + Math.random() * 0.76,
-                  distance: distanceCible + vitesseEffective * Math.random() * 1.5,
+                  distance: Math.max(nouvelleDistance + BOULE_DISTANCE_VISIBLE * 0.5, distanceCible + vitesseEffective * (Math.random() * 2 - 0.5)),
                   valeur: genererLeurre(valeurCible, mode),
                 });
               }
