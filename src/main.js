@@ -11302,12 +11302,12 @@ function ReglagesParentauxScreen({ route, navigation }) {
 // ============================================================
 const BOULE_PISTE_LARGEUR_RATIO = 1;
 const BOULE_TAILLE = 39; // -30% par rapport a la version precedente (56)
-const BOULE_ITEM_TAILLE_BASE = 64;
+const BOULE_ITEM_TAILLE_BASE = 51; // -20% par rapport a la version precedente (64)
 const BOULE_DOUBLE_TAP_FENETRE_MS = 380;
 const BOULE_TAP_MOUVEMENT_MAX = 26;
 const BOULE_TAP_DUREE_MAX_MS = 500;
 const BOULE_DISTANCE_VISIBLE = 560;
-const BOULE_RAYON_COLLISION = 0.11; // proportion de la largeur de piste : marge de tolerance pour "viser" un objet
+const BOULE_RAYON_COLLISION = 0.075; // resserre (etait 0.11) : retour de Thierry, trop facile de toucher un mauvais nombre par erreur
 const BOULE_VIES_DEPART = 3;
 const BOULE_VARIATION_VITESSE = 0.15; // vitesse tiree aleatoirement entre -15% et +15% de la moyenne, a chaque trajet
 
@@ -11469,6 +11469,22 @@ async function assurerMiniJeuBouleQuiRoule() {
   }
 }
 
+// Petite animation ephemere a la capture d'un chiffre/lettre (bonne ou
+// mauvaise reponse) - se retire elle-meme une fois jouee.
+function EffetCapture({ x, y, bon, onDone }) {
+  const anim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(anim, { toValue: 1, duration: 420, useNativeDriver: true }).start(() => onDone());
+  }, []);
+  const scale = anim.interpolate({ inputRange: [0, 0.3, 1], outputRange: [0.4, 1.15, 1.4] });
+  const opacity = anim.interpolate({ inputRange: [0, 0.7, 1], outputRange: [1, 0.9, 0] });
+  return (
+    <Animated.View style={{ position: 'absolute', left: x - 22, top: y - 22, transform: [{ scale }], opacity }}>
+      <Text style={{ fontSize: 34 }}>{bon ? '✨' : '💢'}</Text>
+    </Animated.View>
+  );
+}
+
 function BouleQuiRouleScreen({ route, navigation }) {
   const profil = route?.params?.profil ?? null;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
@@ -11502,6 +11518,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
   const [ballXNorm, setBallXNorm] = useState(0.5);
   const [isPaused, setIsPaused] = useState(false);
+  const [effets, setEffets] = useState([]); // petites animations a la capture (bonnes/mauvaises)
+  const effetIdRef = useRef(1);
   const [distanceParcourue, setDistanceParcourue] = useState(0);
   const [objets, setObjets] = useState([]);
   const [streakActuelle, setStreakActuelle] = useState(0);
@@ -11694,6 +11712,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
     setStreakActuelle(0);
     setObjets([]);
+    setEffets([]);
     setDistanceParcourue(0);
     ballXNormRef.current = 0.5;
     setBallXNorm(0.5);
@@ -11779,6 +11798,11 @@ function BouleQuiRouleScreen({ route, navigation }) {
       }
       return suivant;
     });
+  }
+
+  function declencherEffet(xNorm, bon) {
+    const id = effetIdRef.current++;
+    setEffets((prev) => [...prev, { id, x: xNorm * pisteLargeur, y: joueurY, bon }]);
   }
 
   // Message de fin de niveau (parle) - victoire ou echec, jamais juste
@@ -11893,6 +11917,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   setScore((s) => s + 1);
                   setMessage({ texte: mode === 'lettres' ? `Bravo, "${o.valeur}" !` : `Bravo, ${o.valeur} !`, ok: true });
                   if (mode === 'lettres') speakSmart(joinSequenceForSpeech([o.valeur], c.niveauContenu));
+                  declencherEffet(o.x, true);
                   setStreakActuelle((prevStreak) => {
                     const nouveau = prevStreak + 1;
                     if (nouveau >= c.objectifStreak) setFinNiveau('victoire');
@@ -11908,6 +11933,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
                 if (atteint) {
                   setMessage({ texte: 'Pas celui-là, continue à chercher !', ok: false });
                   setStreakActuelle(0);
+                  declencherEffet(o.x, false);
                   if (c.distracteurCoutePV) perdreUneVie();
                 }
               } else if (o.type === 'piege') {
@@ -12093,8 +12119,15 @@ function BouleQuiRouleScreen({ route, navigation }) {
           const taille = BOULE_ITEM_TAILLE_BASE;
           const estLettreOuChiffre = o.type === 'cible' || o.type === 'distracteur';
           if (estLettreOuChiffre) {
+            // Le cercle correspond a la vraie zone de contact (pas juste
+            // decoratif) : aide l'enfant a voir precisement ou viser.
+            const diametreZone = BOULE_RAYON_COLLISION * 2 * pisteLargeur;
             return (
               <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, width: taille, height: taille, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{
+                  position: 'absolute', width: diametreZone, height: diametreZone, borderRadius: diametreZone / 2,
+                  borderWidth: 2, borderColor: colors.mossDeep, opacity: 0.45,
+                }} />
                 <Text
                   style={{
                     fontSize: taille * 0.62, fontWeight: '900', color: colors.mossDeep,
@@ -12132,6 +12165,16 @@ function BouleQuiRouleScreen({ route, navigation }) {
         <Text style={{ position: 'absolute', top: 6, right: 10, fontSize: 11, color: colors.ink, opacity: 0.5 }}>
           Pauses : {Math.max(0, pausesAutorisees - pausesUtilisees)} (double-tap)
         </Text>
+
+        {effets.map((e) => (
+          <EffetCapture
+            key={e.id}
+            x={e.x}
+            y={e.y}
+            bon={e.bon}
+            onDone={() => setEffets((prev) => prev.filter((x) => x.id !== e.id))}
+          />
+        ))}
 
         {isPaused && (
           <Pressable
