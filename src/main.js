@@ -11875,69 +11875,50 @@ function BouleQuiRouleScreen({ route, navigation }) {
           let liste = prevObjets;
 
           // La cible SEULE doit etre resolue (attrapee ou ratee) avant
-          // qu'un nouveau "bon" chiffre/lettre apparaisse - les leurres
-          // restants, eux, continuent tranquillement leur chute et ne
-          // bloquent plus rien. Retour de Thierry : des qu'on a le bon,
-          // le suivant peut arriver meme s'il reste des leurres a l'ecran.
-          const cibleEncoreActive = liste.some((o) => o.type === 'cible');
-          if (!cibleEncoreActive) {
-            let valeurCible = null;
-            let motParleASonoriser = null;
-            if (cibleEnAttenteRef.current != null) {
-              // Le tour precedent a ete rate : on redemande EXACTEMENT le
-              // meme item, jamais le suivant - retour de Thierry : pas
-              // d'impasse, on les recupere un apres l'autre.
-              const enAttente = cibleEnAttenteRef.current;
-              valeurCible = enAttente.valeur;
-              if (mode === 'calculs') setEnonceAffiche(enAttente.enonce);
-              if (mode === 'chiffres') setChiffreAffiche(enAttente.valeur);
-            } else if (mode === 'lettres') {
+          // Plus de "vagues groupees" du tout : chaque chiffre/lettre (bon
+          // ou mauvais) tombe indépendamment, a son propre moment
+          // aleatoire - exactement comme la pluie, sur le meme principe
+          // que les pieges/pieces qui fonctionnaient deja comme ca.
+          // On prepare juste la PROCHAINE valeur a chercher (sans la
+          // faire tomber tout de suite) des que la precedente a ete
+          // resolue (attrapee ou definitivement perdue par manque de
+          // vies) - le contenu (mot/calcul/nombre) est genere une fois,
+          // puis reste "en reserve" tant qu'il n'est pas attrape.
+          if (cibleEnAttenteRef.current == null) {
+            if (mode === 'lettres') {
               if (lettresQueueRef.current.length > 0) {
                 const item = lettresQueueRef.current.shift();
-                valeurCible = item.valeur;
-                if (item.estDebutMot) motParleASonoriser = item.motParle;
+                cibleEnAttenteRef.current = { valeur: item.valeur, motParle: item.estDebutMot ? item.motParle : null, annonce: false };
                 if (lettresQueueRef.current.length < 3) assurerQueueLettres(c);
-                cibleEnAttenteRef.current = { valeur: valeurCible };
               }
             } else if (mode === 'calculs') {
               const { enonce, resultat } = genererCalcul(reglage);
-              valeurCible = resultat;
-              setEnonceAffiche(enonce);
-              cibleEnAttenteRef.current = { valeur: resultat, enonce };
+              cibleEnAttenteRef.current = { valeur: resultat, enonce, annonce: false };
             } else {
-              valeurCible = compteurChiffreRef.current;
-              setChiffreAffiche(valeurCible);
-              motParleASonoriser = `Cherche le nombre ${valeurCible}`;
-              cibleEnAttenteRef.current = { valeur: valeurCible };
+              cibleEnAttenteRef.current = { valeur: compteurChiffreRef.current, annonce: false };
             }
-
-            if (valeurCible != null) {
-              if (motParleASonoriser) speakSmart(motParleASonoriser);
-              // La cible et ses leurres tombent de facon ETALEE et
-              // ALEATOIRE (jamais tous a la meme distance, jamais colles)
-              // - mais toujours assez loin pour emerger depuis l'horizon,
-              // jamais un "pop" en plein ecran.
-              const distanceCible = nouvelleDistance + vitesseEffective * c.tempsReactionCible;
-              const nouveauxObjets = [
-                { id: nextIdRef.current++, type: 'cible', x: 0.15 + Math.random() * 0.7, distance: distanceCible, valeur: valeurCible },
-              ];
-              for (let i = 0; i < c.nbLeurresParCible; i++) {
-                nouveauxObjets.push({
-                  id: nextIdRef.current++,
-                  type: 'distracteur',
-                  x: 0.12 + Math.random() * 0.76,
-                  distance: Math.max(nouvelleDistance + BOULE_DISTANCE_VISIBLE * 0.5, distanceCible + vitesseEffective * (Math.random() * 2 - 0.5)),
-                  valeur: genererLeurre(valeurCible, mode),
-                });
-              }
-              liste = [...liste, ...nouveauxObjets];
+            if (cibleEnAttenteRef.current) {
+              if (mode === 'calculs') setEnonceAffiche(cibleEnAttenteRef.current.enonce);
+              if (mode === 'chiffres') setChiffreAffiche(cibleEnAttenteRef.current.valeur);
             }
           }
 
           if (maintenant - dernierSpawnDiversRef.current >= c.intervalleDiversMs) {
             dernierSpawnDiversRef.current = maintenant;
+            const aUneCibleEnVol = liste.some((o) => o.type === 'cible');
+            const peutSpawnerCible = !aUneCibleEnVol && cibleEnAttenteRef.current != null;
             const roll = Math.random();
-            if (roll < c.piegeRatio) {
+            const distanceAleatoire = () => nouvelleDistance + BOULE_DISTANCE_VISIBLE * (0.7 + Math.random() * 0.5);
+
+            if (peutSpawnerCible && roll < 0.3) {
+              const en = cibleEnAttenteRef.current;
+              if (!en.annonce) {
+                if (en.motParle) speakSmart(en.motParle);
+                else if (mode === 'chiffres') speakSmart(`Cherche le nombre ${en.valeur}`);
+                en.annonce = true;
+              }
+              liste = [...liste, { id: nextIdRef.current++, type: 'cible', x: 0.15 + Math.random() * 0.7, distance: distanceAleatoire(), valeur: en.valeur }];
+            } else if (roll < (peutSpawnerCible ? 0.3 : 0) + c.piegeRatio) {
               const [vMin, vMax] = c.vitesseSupplPiege;
               // 3 variantes de piege : le rocher classique (le plus courant),
               // un piege "malus" qui bloque 15s (assez frequent), et un
@@ -11954,10 +11935,21 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   vitesseSuppl: vMin + Math.random() * (vMax - vMin),
                 },
               ];
-            } else {
+            } else if (roll < (peutSpawnerCible ? 0.3 : 0) + c.piegeRatio + c.pieceRatio) {
               liste = [
                 ...liste,
                 { id: nextIdRef.current++, type: 'piece', x: 0.12 + Math.random() * 0.76, distance: nouvelleDistance + 260 + Math.random() * 220 },
+              ];
+            } else if (cibleEnAttenteRef.current != null) {
+              liste = [
+                ...liste,
+                {
+                  id: nextIdRef.current++,
+                  type: 'distracteur',
+                  x: 0.12 + Math.random() * 0.76,
+                  distance: distanceAleatoire(),
+                  valeur: genererLeurre(cibleEnAttenteRef.current.valeur, mode),
+                },
               ];
             }
           }
