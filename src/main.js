@@ -11812,8 +11812,14 @@ function BouleQuiRouleScreen({ route, navigation }) {
         setObjets((prevObjets) => {
           let liste = prevObjets;
 
-          const aUneCibleActive = liste.some((o) => o.type === 'cible');
-          if (!aUneCibleActive) {
+          // On attend que TOUTE la vague precedente (la cible ET ses
+          // leurres) ait disparu de l'ecran avant de faire apparaitre la
+          // suivante - retour de Thierry : sinon la nouvelle vague se
+          // melangeait avec les leurres encore a l'ecran de la precedente,
+          // ce qui rendait tout confus et provoquait des mauvaises
+          // captures accidentelles.
+          const vaguePrecedenteEncorePresente = liste.some((o) => o.type === 'cible' || o.type === 'distracteur');
+          if (!vaguePrecedenteEncorePresente) {
             let valeurCible = null;
             let motParleASonoriser = null;
             if (mode === 'lettres') {
