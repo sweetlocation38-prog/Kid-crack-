@@ -1298,7 +1298,7 @@ const RAPIDE_ENNUI_MIN_SESSIONS_HISTORIQUE = 3; // pas de comparaison fiable ava
 
 async function computeStreakRung({
   profil, miniJeuId, currentRung, wasPerfect, maxRung,
-  erreursTotal, totalRounds, dureeMoyenneManche,
+  erreursTotal, totalRounds, dureeMoyenneManche, wasDifficile,
 }) {
   let prog = null;
   try {
@@ -1382,15 +1382,36 @@ async function computeStreakRung({
     raison = 'rapide_et_bon_une_fois';
   }
 
+  // --- Redescente si l'enfant est en difficulte (nouveau, retour de
+  // Thierry sur Boule qui Roule) ---
+  // Retro-compatible : les autres jeux n'envoient pas "wasDifficile", donc
+  // ce bloc ne change rien a leur comportement (le champ reste a 0).
+  // Volontairement prudent : il faut 2 sessions difficiles DE SUITE pour
+  // redescendre d'un seul cran (pas de chute brutale sur un coup de mou).
+  let echecsConsecutifs = detailsPrec.echecsConsecutifs ?? 0;
+  if (newRung === currentRung) { // ne redescend pas le meme tour qu'une montee
+    if (wasDifficile) {
+      echecsConsecutifs += 1;
+      if (echecsConsecutifs >= 2 && currentRung > 1) {
+        newRung = Math.max(1, currentRung - 1);
+        echecsConsecutifs = 0;
+        raison = 'redescente_difficulte';
+      }
+    } else {
+      echecsConsecutifs = 0;
+    }
+  }
+
   return {
     newRung,
-    direction: newRung > currentRung ? 'up' : 'same',
+    direction: newRung > currentRung ? 'up' : newRung < currentRung ? 'down' : 'same',
     raison,
     details: {
       reussitesConsecutives: newStreak,
       streakRapideBon: newStreakRapideBon,
       tempsMoyenHistorique,
       nbSessionsHistorique,
+      echecsConsecutifs,
     },
   };
 }
@@ -11364,7 +11385,7 @@ async function chargerMotPontDesLettres(niveau, palierValue) {
 }
 
 function genererLeurre(valeurCible, mode) {
-  if (mode === 'chiffres') {
+  if (mode === 'chiffres' || mode === 'calculs') {
     const delta = 1 + Math.floor(Math.random() * 3);
     const candidat = valeurCible + (Math.random() < 0.5 ? -delta : delta);
     return Math.max(0, candidat === valeurCible ? candidat + 1 : candidat);
@@ -11375,6 +11396,42 @@ function genererLeurre(valeurCible, mode) {
     lettre = alphabet[Math.floor(Math.random() * alphabet.length)];
   } while (String(lettre).toUpperCase() === String(valeurCible).toUpperCase());
   return lettre;
+}
+
+// Un petit calcul adapte a la tranche d'age (mode "calculs") : addition
+// simple en MS-GS, addition/soustraction en CP-CE1, addition/soustraction
+///multiplication en CE2-CM2.
+function genererCalcul(cleAge) {
+  const rand = (n) => Math.floor(Math.random() * n);
+  if (cleAge === 'ms_gs') {
+    const a = 1 + rand(4);
+    const b = 1 + rand(4);
+    return { enonce: `${a} + ${b}`, resultat: a + b };
+  }
+  if (cleAge === 'cp_ce1') {
+    if (Math.random() < 0.5) {
+      const a = 1 + rand(9);
+      const b = 1 + rand(9);
+      return { enonce: `${a} + ${b}`, resultat: a + b };
+    }
+    const a = 2 + rand(9);
+    const b = 1 + rand(a - 1);
+    return { enonce: `${a} - ${b}`, resultat: a - b };
+  }
+  const roll = Math.random();
+  if (roll < 0.4) {
+    const a = 5 + rand(20);
+    const b = 5 + rand(20);
+    return { enonce: `${a} + ${b}`, resultat: a + b };
+  }
+  if (roll < 0.75) {
+    const a = 10 + rand(30);
+    const b = 1 + rand(a - 1);
+    return { enonce: `${a} - ${b}`, resultat: a - b };
+  }
+  const a = 2 + rand(9);
+  const b = 2 + rand(9);
+  return { enonce: `${a} × ${b}`, resultat: a * b };
 }
 
 function bucketAgeFromGrade(niveau) {
@@ -11449,6 +11506,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const [distanceParcourue, setDistanceParcourue] = useState(0);
   const [objets, setObjets] = useState([]); // { id, type: 'cible'|'distracteur'|'piege'|'piece', x, distance, valeur?, vitesseSuppl? }
   const [sequenceCible, setSequenceCible] = useState([]);
+  const [enonces, setEnonces] = useState([]); // mode "calculs" uniquement : l'enonce affiche pour chaque cible ("3 + 4")
   const [tokensReveles, setTokensReveles] = useState([]);
   const [indexCible, setIndexCible] = useState(0);
   const [score, setScore] = useState(0);
@@ -11474,6 +11532,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
   const nextIdRef = useRef(1);
   const dernierSpawnDiversRef = useRef(0);
+  const redemarragesRef = useRef(0); // nb de redemarrages internes (vies epuisees) - signale une session difficile
   const tickRef = useRef(null);
   const touchStartRef = useRef({ x: 0, y: 0, t: 0 });
   const dernierTapRef = useRef(0);
@@ -11535,7 +11594,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
     }
   }
 
-  async function demarrer(cleAge, modeChoisi) {
+  async function demarrer(cleAge, modeChoisi, estRedemarrage = false) {
+    if (!estRedemarrage) redemarragesRef.current = 0;
     setReglage(cleAge);
     setMode(modeChoisi);
     setChargement(true);
@@ -11559,6 +11619,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
       : { palier: 1 };
 
     let cible = [];
+    let enoncesCalcul = [];
     if (modeChoisi === 'lettres') {
       // Enchaine plusieurs mots a la suite dans la meme partie (plutot
       // qu'un seul mot puis fin) pour allonger le temps de jeu.
@@ -11571,6 +11632,13 @@ function BouleQuiRouleScreen({ route, navigation }) {
         motsSpeech.push(joinSequenceForSpeech(sequenceMot, c.niveauContenu));
       }
       speakSmart(motsSpeech.join('. '));
+    } else if (modeChoisi === 'calculs') {
+      const nbTermes = cleAge === 'ms_gs' ? 5 : cleAge === 'cp_ce1' ? 8 : 12;
+      for (let i = 0; i < nbTermes; i++) {
+        const { enonce, resultat } = genererCalcul(cleAge);
+        cible.push(resultat);
+        enoncesCalcul.push(enonce);
+      }
     } else {
       const pas = c.pasPossibles[Math.floor(Math.random() * c.pasPossibles.length)];
       const depart = pas === 1 ? 1 + Math.floor(Math.random() * 3) : pas;
@@ -11579,6 +11647,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
     }
 
     setSequenceCible(cible);
+    setEnonces(enoncesCalcul);
     setTokensReveles(new Array(cible.length).fill(null));
     setIndexCible(0);
     setObjets([]);
@@ -11613,7 +11682,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
         const restant = v - 1;
         if (restant <= 0) {
           setMessage({ texte: 'Trop de pièges touchés, on recommence !', ok: false });
-          setTimeout(() => demarrer(reglage, mode), 900);
+          redemarragesRef.current += 1; // sert a signaler une session difficile (voir sauvegarde du calibrage)
+          setTimeout(() => demarrer(reglage, mode, true), 900);
           return BOULE_VIES_DEPART;
         }
         setMessage({ texte: `Aïe, un piège ! (${restant} vie${restant > 1 ? 's' : ''} restante${restant > 1 ? 's' : ''})`, ok: false });
@@ -11649,10 +11719,14 @@ function BouleQuiRouleScreen({ route, navigation }) {
       const totalRounds = sequenceCible.length;
       const erreursTotal = (totalRounds - score) + (BOULE_VIES_DEPART - vies);
       const wasPerfect = score === totalRounds && vies === BOULE_VIES_DEPART;
+      // Signale une session difficile (pour permettre au calibrage de
+      // redescendre) : au moins un redemarrage force par manque de vies,
+      // ou moins de la moitie des bonnes reponses trouvees.
+      const wasDifficile = redemarragesRef.current > 0 || (totalRounds > 0 && score / totalRounds < 0.5);
       try {
         const precomputed = await computeStreakRung({
           profil, miniJeuId, currentRung: rungActuel, wasPerfect, maxRung: MAX_CONTENT_RUNG,
-          erreursTotal, totalRounds, dureeMoyenneManche: null,
+          erreursTotal, totalRounds, dureeMoyenneManche: null, wasDifficile,
         });
         await supabase.from('progression').upsert(
           {
@@ -11851,6 +11925,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
         <Pressable style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => demarrer(reglage, 'chiffres')}>
           <Text style={styles.buttonText}>🔢 Des chiffres (compter)</Text>
         </Pressable>
+        <Pressable style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => demarrer(reglage, 'calculs')}>
+          <Text style={styles.buttonText}>➕ Un calcul (résultat)</Text>
+        </Pressable>
       </View>
     );
   }
@@ -11891,7 +11968,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
   const affichageCible = mode === 'lettres'
     ? tokensReveles.map((t) => (t === null ? '?' : t)).join(' ')
-    : `${sequenceCible[indexCible] ?? ''}`;
+    : mode === 'calculs'
+      ? `${enonces[indexCible] ?? ''} = ?`
+      : `${sequenceCible[indexCible] ?? ''}`;
 
   const objetsVisibles = objets
     .map((o) => ({ ...o, pos: positionEcran(o.distance) }))
@@ -11907,7 +11986,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
           <Text style={[styles.backLabel, { fontSize: 13 }]}>‹ Retour</Text>
         </Pressable>
         <Text style={{ fontWeight: '800', color: colors.mossDeep, fontSize: 14 }}>
-          {mode === 'lettres' ? affichageCible : `Cherche : ${affichageCible}`}
+          {mode === 'lettres' ? affichageCible : mode === 'calculs' ? affichageCible : `Cherche : ${affichageCible}`}
         </Text>
         <Text style={{ fontWeight: '800', fontSize: 14 }}>
           <Text style={{ color: colors.gold }}>★ {score} 🪙{nbPieces}{boucliers > 0 ? ` 🛡️${boucliers}` : ''}</Text>
