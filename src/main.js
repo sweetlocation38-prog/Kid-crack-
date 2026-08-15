@@ -11535,7 +11535,16 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const dernierTapRef = useRef(0);
   const controleTailleRef = useRef({ largeur: 1, gauche: 0 });
 
-  const conf = reglage && rungJeu != null ? { ...BOULE_REGLAGES_AGE[reglage], ...calculerDifficulteDepuisRung(rungJeu) } : null;
+  // IMPORTANT : memoise via useMemo, pas juste recalcule a chaque rendu.
+  // Sans ca, conf est un NOUVEL objet a chaque re-rendu (meme quand rien
+  // ne change reellement) - et comme la boucle de jeu en depend, glisser
+  // le doigt sur la barre de controle (qui redessine l'ecran a chaque
+  // mouvement) faisait s'arreter/redemarrer l'intervalle en boucle,
+  // donnant l'impression que le jeu ralentit au grand complet.
+  const conf = useMemo(
+    () => (reglage && rungJeu != null ? { ...BOULE_REGLAGES_AGE[reglage], ...calculerDifficulteDepuisRung(rungJeu) } : null),
+    [reglage, rungJeu]
+  );
   const pausesAutorisees = conf ? Math.round(conf.objectifStreak * ratioPausesPourRung(rungJeu)) + pausesBonus : 0;
 
   useEffect(() => {
