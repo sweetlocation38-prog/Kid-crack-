@@ -2466,7 +2466,7 @@ function ProgressionGauge({ rung, code }) {
 const CONTINENTS = [
   {
     competence: 'lecture',
-    zone: { left: 0.5, top: 0.6361, width: 0.5, height: 0.2136 },
+    zone: { left: 0.51, top: 0.55, width: 0.47, height: 0.21 },
     labelCourt: 'Lecture',
     paysSlotsFor: { 'pont_des_lettres': { top: '58%', left: '30%' }, 'sons_magiques': { top: '58%', left: '70%' } },
     paysVides: [{ top: '82%', left: '30%' }, { top: '82%', left: '70%' }],
@@ -2485,7 +2485,7 @@ const CONTINENTS = [
   },
   {
     competence: 'maths',
-    zone: { left: 0.5, top: 0.3166, width: 0.5, height: 0.2136 },
+    zone: { left: 0.51, top: 0.29, width: 0.47, height: 0.21 },
     labelCourt: 'Maths',
     paysSlotsFor: { 'pommes_de_luma': { top: '45%', left: '17%' }, 'balance_prairie': { top: '45%', left: '83%' }, 'marche_village': { top: '75%', left: '17%' }, 'cachettes_luma': { top: '75%', left: '83%' }, 'barres_luma': { top: '90%', left: '50%' } },
     paysVides: [],
@@ -2503,7 +2503,7 @@ const CONTINENTS = [
   },
   {
     competence: 'logique',
-    zone: { left: 0.0, top: 0.6361, width: 0.5, height: 0.2136 },
+    zone: { left: 0.02, top: 0.55, width: 0.47, height: 0.21 },
     labelCourt: 'Logique',
     paysSlotsFor: { 'jeu_intrus': { top: '52%', left: '17%' }, 'empreintes_clairiere': { top: '52%', left: '83%' }, 'puzzle_moulin': { top: '73%', left: '17%' }, 'tri_village': { top: '73%', left: '83%' }, 'labyrinthe_grotte': { top: '83%', left: '50%' } },
     paysVides: [],
@@ -2521,7 +2521,7 @@ const CONTINENTS = [
   },
   {
     competence: 'memoire',
-    zone: { left: 0.5, top: 0.0503, width: 0.5, height: 0.2136 },
+    zone: { left: 0.51, top: 0.03, width: 0.47, height: 0.21 },
     labelCourt: 'Mémoire',
     paysSlotsFor: { 'memoire_etoiles': { top: '72%', left: '25%' }, 'coffre_souvenirs': { top: '72%', left: '75%' }, 'ronde_lucioles': { top: '83%', left: '50%' } },
     paysVides: [{ top: '18%', left: '80%' }],
@@ -2539,7 +2539,7 @@ const CONTINENTS = [
   },
   {
     competence: 'geographie',
-    zone: { left: 0.0, top: 0.071, width: 0.5, height: 0.2136 },
+    zone: { left: 0.02, top: 0.03, width: 0.47, height: 0.21 },
     labelCourt: 'Géographie',
     paysSlotsFor: { 'monde_capitales': { top: '55%', left: '50%' } },
     paysVides: [{ top: '40%', left: '25%' }, { top: '78%', left: '65%' }, { top: '68%', left: '20%' }],
@@ -2557,7 +2557,7 @@ const CONTINENTS = [
   },
   {
     competence: 'histoire',
-    zone: { left: 0.12, top: 0.85, width: 0.66, height: 0.15 },
+    zone: { left: 0.15, top: 0.80, width: 0.70, height: 0.19 },
     labelCourt: 'Histoire',
     paysSlotsFor: { 'frise_temps': { top: '66%', left: '78%' } },
     paysVides: [],
@@ -2575,7 +2575,7 @@ const CONTINENTS = [
   },
   {
     competence: 'sciences',
-    zone: { left: 0.0, top: 0.3521, width: 0.5, height: 0.2136 },
+    zone: { left: 0.02, top: 0.29, width: 0.47, height: 0.21 },
     labelCourt: 'Sciences',
     paysSlotsFor: { 'corps_humain': { top: '58%', left: '35%' } },
     paysVides: [{ top: '74%', left: '50%' }, { top: '25%', left: '22%' }, { top: '25%', left: '75%' }],
