@@ -11358,7 +11358,21 @@ function calculerDifficulteDepuisRung(rung) {
     pieceRatio: interp(rung, max, 0.32, 0.22),
     vitesseSupplPiege: [interp(rung, max, 22, 65), interp(rung, max, 42, 115)],
     distracteurCoutePV: rung >= rungCe1,
+    // Nombre de reussites D'AFFILEE necessaires pour passer au niveau
+    // suivant - plus petit pour les jeunes, plus grand pour les plus
+    // grands (retour de Thierry). Progression volontairement rapide vers
+    // la vraie difficulte.
+    objectifStreak: Math.round(interp(rung, max, 5, 14)),
   };
+}
+
+// Rang "represenatif" utilise en mode test manuel (sans profil, donc sans
+// calibrage sauvegarde) - sert de point de depart, puis progresse tout
+// seul en local (non sauvegarde) a chaque niveau reussi.
+function rungRepresentatifPourBucket(cleAge) {
+  if (cleAge === 'ms_gs') return rungFromGradeAndPalier('ms', 1);
+  if (cleAge === 'cp_ce1') return rungFromGradeAndPalier('cp', 1);
+  return rungFromGradeAndPalier('ce2', 1);
 }
 
 async function chargerMotPontDesLettres(niveau, palierValue) {
@@ -11459,17 +11473,14 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const profil = route?.params?.profil ?? null;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const pisteLargeur = screenWidth * BOULE_PISTE_LARGEUR_RATIO;
-  const pisteHauteur = Math.max(220, screenHeight - 150); // plein ecran : on ne garde que la place pour l'entete et la barre de controle
+  const pisteHauteur = Math.max(220, screenHeight - 150);
   const horizonY = pisteHauteur * 0.06;
   const joueurY = pisteHauteur - 60;
   const barreControleGauche = (screenWidth - pisteLargeur) / 2;
 
   // Budget de temps de jeu (meme mecanisme que les autres jeux) : on
-  // verifie a chaque fin de trajet, jamais en cours de route, pour ne
-  // jamais couper un enfant en pleine action. En mode test parental (sans
-  // profil), on passe un profil factice illimite - useTimeBudget accede
-  // directement a profil.famille_id sans garde, un vrai null le ferait
-  // planter.
+  // verifie a chaque fin de niveau, jamais en cours de route, pour ne
+  // jamais couper un enfant en pleine action.
   const { extraMinutesGranted } = useContext(ExtraTimeContext);
   const profilPourBudget = profil ?? { id: 'test-local', famille_id: 'test-local', minutes_max_jour: 100000 };
   const { baseRemaining } = useTimeBudget(profilPourBudget);
@@ -11481,13 +11492,51 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const [mode, setMode] = useState(null);
   const [pret, setPret] = useState(false);
   const [chargement, setChargement] = useState(false);
-
-  // --- Calibrage automatique (uniquement si le jeu est lance depuis la
-  // carte avec un profil - le mode test parental sans profil garde les 3
-  // boutons d'age manuels). ---
-  const [miniJeuId, setMiniJeuId] = useState(null);
-  const [rungActuel, setRungActuel] = useState(null);
   const [chargementProfil, setChargementProfil] = useState(!!profil);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+
+  // Rang unique pilotant toute la difficulte (vitesse, leurres, objectif
+  // de serie...). En calibrage automatique, sauvegarde en base a chaque
+  // niveau reussi ; en mode test manuel, reste local a la session.
+  const [rungJeu, setRungJeu] = useState(null);
+
+  const [ballXNorm, setBallXNorm] = useState(0.5);
+  const [isPaused, setIsPaused] = useState(false);
+  const [distanceParcourue, setDistanceParcourue] = useState(0);
+  const [objets, setObjets] = useState([]);
+  const [streakActuelle, setStreakActuelle] = useState(0);
+  const [enonceAffiche, setEnonceAffiche] = useState('');
+  const [score, setScore] = useState(0);
+  const [nbPieces, setNbPieces] = useState(0);
+  const [boucliers, setBoucliers] = useState(0);
+  const [pausesBonus, setPausesBonus] = useState(0);
+  const [vies, setVies] = useState(BOULE_VIES_DEPART);
+  const [message, setMessage] = useState(null);
+  const [finNiveau, setFinNiveau] = useState(null); // null | 'victoire' | 'echec'
+  const [pausesUtilisees, setPausesUtilisees] = useState(0);
+
+  const isPausedRef = useRef(false);
+  isPausedRef.current = isPaused;
+  const ballXNormRef = useRef(0.5);
+  const vitesseAvanceRef = useRef(50);
+
+  // Generateurs de contenu "sans fin" (remplacent l'ancienne liste figee).
+  const compteurChiffreRef = useRef(0); // prochain nombre a demander, mode chiffres
+  const pasChiffreRef = useRef(1);
+  const lettresQueueRef = useRef([]); // { valeur, estDebutMot, motParle }
+  const fetchingLettresRef = useRef(false);
+  const palierPrecisRef = useRef(1);
+  const tentativesEchoueesRef = useRef(0); // nb de fois ou les vies ont ete epuisees SUR CE NIVEAU
+
+  const nextIdRef = useRef(1);
+  const dernierSpawnDiversRef = useRef(0);
+  const tickRef = useRef(null);
+  const touchStartRef = useRef({ x: 0, y: 0, t: 0 });
+  const dernierTapRef = useRef(0);
+  const controleTailleRef = useRef({ largeur: 1, gauche: 0 });
+
+  const conf = reglage && rungJeu != null ? { ...BOULE_REGLAGES_AGE[reglage], ...calculerDifficulteDepuisRung(rungJeu) } : null;
+  const pausesAutorisees = conf ? Math.round(conf.objectifStreak * ratioPausesPourRung(rungJeu)) + pausesBonus : 0;
 
   useEffect(() => {
     if (!profil) { setChargementProfil(false); return; }
@@ -11508,57 +11557,23 @@ function BouleQuiRouleScreen({ route, navigation }) {
           // Non bloquant : on part du niveau scolaire par defaut.
         }
       }
-      setRungActuel(startRung);
+      setRungJeu(startRung);
       setChargementProfil(false);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profil?.id]);
 
-  const [ballXNorm, setBallXNorm] = useState(0.5);
-  const [isPaused, setIsPaused] = useState(false);
-  const [distanceParcourue, setDistanceParcourue] = useState(0);
-  const [objets, setObjets] = useState([]); // { id, type: 'cible'|'distracteur'|'piege'|'piece', x, distance, valeur?, vitesseSuppl? }
-  const [sequenceCible, setSequenceCible] = useState([]);
-  const [enonces, setEnonces] = useState([]); // mode "calculs" uniquement : l'enonce affiche pour chaque cible ("3 + 4")
-  const [tokensReveles, setTokensReveles] = useState([]);
-  const [indexCible, setIndexCible] = useState(0);
-  const [score, setScore] = useState(0);
-  const [nbPieces, setNbPieces] = useState(0);
-  const [boucliers, setBoucliers] = useState(0); // annule la prochaine perte de vie (gagne via les pieces)
-  const [pausesBonus, setPausesBonus] = useState(0); // pauses supplementaires gagnees via les pieces
-  const [vies, setVies] = useState(BOULE_VIES_DEPART);
-  const [message, setMessage] = useState(null);
-  const [termine, setTermine] = useState(false);
-  const [pausesUtilisees, setPausesUtilisees] = useState(0);
-
-  const isPausedRef = useRef(false);
-  isPausedRef.current = isPaused;
-  const indexCibleRef = useRef(0);
-  indexCibleRef.current = indexCible;
-  const sequenceCibleRef = useRef([]);
-  sequenceCibleRef.current = sequenceCible;
-  const ballXNormRef = useRef(0.5);
-  // Vitesse d'avancement dans une ref (et pas juste la constante d'age) :
-  // prevu pour qu'un futur controle avant/arriere puisse la modifier
-  // directement sans reecrire la boucle de jeu.
-  const vitesseAvanceRef = useRef(50);
-
-  const nextIdRef = useRef(1);
-  const dernierSpawnDiversRef = useRef(0);
-  const redemarragesRef = useRef(0); // nb de redemarrages internes (vies epuisees) - signale une session difficile
-  const tickRef = useRef(null);
-  const touchStartRef = useRef({ x: 0, y: 0, t: 0 });
-  const dernierTapRef = useRef(0);
-  const controleTailleRef = useRef({ largeur: 1, gauche: 0 });
-
-  const conf = reglage
-    ? (profil && rungActuel ? { ...BOULE_REGLAGES_AGE[reglage], ...calculerDifficulteDepuisRung(rungActuel) } : BOULE_REGLAGES_AGE[reglage])
-    : null;
-  const rungEquivalent = reglage ? rungFromGradeAndPalier(conf.niveauContenu, 1) : 1;
-  const pausesAutorisees = (sequenceCible.length ? Math.round(sequenceCible.length * ratioPausesPourRung(rungEquivalent)) : 0) + pausesBonus;
+  // Calibrage auto : des que le rang est connu, on saute directement a
+  // l'ecran de choix du mode avec la tranche d'age deduite du rang.
+  useEffect(() => {
+    if (profil && !chargementProfil && rungJeu != null && !reglage) {
+      const { niveau } = gradeAndPalierFromRung(rungJeu);
+      setReglage(bucketAgeFromGrade(niveau));
+    }
+  }, [profil, chargementProfil, rungJeu, reglage]);
 
   function basculerPause() {
-    if (termine) return;
+    if (finNiveau) return;
     if (isPaused) {
       setIsPaused(false);
       return;
@@ -11568,9 +11583,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
     setIsPaused(true);
   }
 
-  // --- Barre de controle DEDIEE, sous la zone de jeu : suit le doigt au
-  // 1 pour 1 (pas d'inertie) pour une reactivite maximale, et ne cache
-  // jamais rien puisqu'elle est physiquement separee de la route.
   function onControleDeplacement(pageX) {
     const { largeur, gauche } = controleTailleRef.current;
     const relatif = (pageX - gauche) / largeur;
@@ -11584,7 +11596,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
     onControleDeplacement(e.nativeEvent.pageX);
   }
 
-  // --- Zone de jeu : ne sert plus qu'a detecter le double-tap (pause).
   function onTouchDebut(e) {
     touchStartRef.current = { x: e.nativeEvent.pageX, y: e.nativeEvent.pageY, t: Date.now() };
   }
@@ -11607,84 +11618,101 @@ function BouleQuiRouleScreen({ route, navigation }) {
     }
   }
 
-  async function demarrer(cleAge, modeChoisi, estRedemarrage = false) {
-    if (!estRedemarrage) redemarragesRef.current = 0;
+  // Remplit (en tache de fond, sans bloquer) la reserve de lettres a
+  // venir - chaque nouveau mot est prononce au moment ou sa premiere
+  // lettre apparaitra reellement (pas a l'avance).
+  async function assurerQueueLettres(c) {
+    if (fetchingLettresRef.current || lettresQueueRef.current.length >= 3) return;
+    fetchingLettresRef.current = true;
+    try {
+      const contenu = await chargerMotPontDesLettres(c.niveauContenu, palierPrecisRef.current);
+      const sequenceMot = contenu?.sequence ?? ['C', 'H', 'A', 'T'];
+      const motParle = joinSequenceForSpeech(sequenceMot, c.niveauContenu);
+      lettresQueueRef.current = [
+        ...lettresQueueRef.current,
+        ...sequenceMot.map((lettre, i) => ({ valeur: lettre, estDebutMot: i === 0, motParle: i === 0 ? motParle : null })),
+      ];
+    } finally {
+      fetchingLettresRef.current = false;
+    }
+  }
+
+  // Initialise un niveau (nouvelle partie, niveau suivant, ou nouvelle
+  // tentative du meme niveau) - point d'entree unique.
+  async function initialiserNiveau(cleAge, modeChoisi, rung) {
     setReglage(cleAge);
     setMode(modeChoisi);
     setChargement(true);
     setPret(false);
-    const base = BOULE_REGLAGES_AGE[cleAge];
-    // En calibrage automatique (profil connu), la difficulte de jeu
-    // (vitesse, leurres, pieges...) suit une courbe CONTINUE calculee sur
-    // le rang exact - plus seulement le palier d'age. Le contenu
-    // pedagogique (mots, pas de comptage) reste lie au palier d'age, la
-    // banque de contenu Pont des Lettres etant elle-meme organisee ainsi.
-    const c = profil && rungActuel ? { ...base, ...calculerDifficulteDepuisRung(rungActuel) } : base;
-    // Vitesse tiree aleatoirement entre -15% et +15% de la moyenne, pour
-    // que chaque trajet varie un peu (plutot que 3 paliers figes).
+    setFinNiveau(null);
+    const c = { ...BOULE_REGLAGES_AGE[cleAge], ...calculerDifficulteDepuisRung(rung) };
     const facteurVitesse = 1 + (Math.random() * 2 - 1) * BOULE_VARIATION_VITESSE;
     vitesseAvanceRef.current = c.vitesseAvanceMoyenne * facteurVitesse;
 
-    // En calibrage automatique, on utilise le palier precis de l'enfant
-    // (pas juste palier 1) pour le contenu Pont des Lettres.
-    const { palier: palierPrecis } = profil && rungActuel
-      ? gradeAndPalierFromRung(rungActuel)
-      : { palier: 1 };
+    const { palier: palierPrecis } = gradeAndPalierFromRung(rung);
+    palierPrecisRef.current = palierPrecis;
 
-    let cible = [];
-    let enoncesCalcul = [];
-    if (modeChoisi === 'lettres') {
-      // Enchaine plusieurs mots a la suite dans la meme partie (plutot
-      // qu'un seul mot puis fin) pour allonger le temps de jeu.
-      const nbMots = cleAge === 'ms_gs' ? 2 : cleAge === 'cp_ce1' ? 2 : 3;
-      const motsSpeech = [];
-      for (let i = 0; i < nbMots; i++) {
-        const contenu = await chargerMotPontDesLettres(c.niveauContenu, palierPrecis);
-        const sequenceMot = contenu?.sequence ?? ['C', 'H', 'A', 'T'];
-        cible = [...cible, ...sequenceMot];
-        motsSpeech.push(joinSequenceForSpeech(sequenceMot, c.niveauContenu));
-      }
-      speakSmart(motsSpeech.join('. '));
-    } else if (modeChoisi === 'calculs') {
-      const nbTermes = cleAge === 'ms_gs' ? 5 : cleAge === 'cp_ce1' ? 8 : 12;
-      for (let i = 0; i < nbTermes; i++) {
-        const { enonce, resultat } = genererCalcul(cleAge);
-        cible.push(resultat);
-        enoncesCalcul.push(enonce);
-      }
-    } else {
-      const pas = c.pasPossibles[Math.floor(Math.random() * c.pasPossibles.length)];
-      const depart = pas === 1 ? 1 + Math.floor(Math.random() * 3) : pas;
-      const nbTermes = cleAge === 'ms_gs' ? 5 : cleAge === 'cp_ce1' ? 8 : 12;
-      cible = Array.from({ length: nbTermes }, (_, i) => depart + i * pas);
+    if (modeChoisi === 'chiffres') {
+      pasChiffreRef.current = c.pasPossibles[Math.floor(Math.random() * c.pasPossibles.length)];
+      compteurChiffreRef.current = pasChiffreRef.current === 1 ? 1 + Math.floor(Math.random() * 3) : pasChiffreRef.current;
+    } else if (modeChoisi === 'lettres') {
+      lettresQueueRef.current = [];
+      await assurerQueueLettres(c);
     }
 
-    setSequenceCible(cible);
-    setEnonces(enoncesCalcul);
-    setTokensReveles(new Array(cible.length).fill(null));
-    setIndexCible(0);
+    setStreakActuelle(0);
     setObjets([]);
     setDistanceParcourue(0);
     ballXNormRef.current = 0.5;
     setBallXNorm(0.5);
-    setScore(0);
-    setNbPieces(0);
-    setBoucliers(0);
-    setPausesBonus(0);
     setVies(BOULE_VIES_DEPART);
     setPausesUtilisees(0);
     setMessage(null);
     setIsPaused(false);
-    setTermine(false);
+    setEnonceAffiche('');
     nextIdRef.current = 1000;
     dernierSpawnDiversRef.current = Date.now() + 600;
     setChargement(false);
     setPret(true);
   }
 
-  // Perd une vie ; a la 3e, on recommence le trajet depuis le debut -
-  // decision explicite de Thierry pour ce jeu (different du reste de
-  // l'app, qui evite normalement les retours en arriere punitifs).
+  function demarrerNouvellePartie(cleAge, modeChoisi) {
+    tentativesEchoueesRef.current = 0;
+    const rung = profil ? rungJeu : rungRepresentatifPourBucket(cleAge);
+    if (!profil) setRungJeu(rung);
+    initialiserNiveau(cleAge, modeChoisi, rung);
+  }
+
+  function recommencerMemeNiveau() {
+    initialiserNiveau(reglage, mode, rungJeu);
+  }
+
+  function passerNiveauSuivant() {
+    const nouveauRung = Math.min(MAX_CONTENT_RUNG, (rungJeu ?? 1) + 1);
+    tentativesEchoueesRef.current = 0;
+    setRungJeu(nouveauRung);
+    if (profil && miniJeuId) {
+      supabase.from('progression').upsert(
+        { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: nouveauRung },
+        { onConflict: 'profil_id,mini_jeu_id' }
+      ).catch(() => {});
+    }
+    initialiserNiveau(reglage, mode, nouveauRung);
+  }
+
+  function demanderNiveauPlusFacile() {
+    const nouveauRung = Math.max(1, (rungJeu ?? 1) - 1);
+    tentativesEchoueesRef.current = 0;
+    setRungJeu(nouveauRung);
+    if (profil && miniJeuId) {
+      supabase.from('progression').upsert(
+        { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: nouveauRung },
+        { onConflict: 'profil_id,mini_jeu_id' }
+      ).catch(() => {});
+    }
+    initialiserNiveau(reglage, mode, nouveauRung);
+  }
+
   function perdreUneVie() {
     setBoucliers((b) => {
       if (b > 0) {
@@ -11694,10 +11722,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
       setVies((v) => {
         const restant = v - 1;
         if (restant <= 0) {
-          setMessage({ texte: 'Trop de pièges touchés, on recommence !', ok: false });
-          redemarragesRef.current += 1; // sert a signaler une session difficile (voir sauvegarde du calibrage)
-          setTimeout(() => demarrer(reglage, mode, true), 900);
-          return BOULE_VIES_DEPART;
+          tentativesEchoueesRef.current += 1;
+          setFinNiveau('echec');
+          return 0;
         }
         setMessage({ texte: `Aïe, un piège ! (${restant} vie${restant > 1 ? 's' : ''} restante${restant > 1 ? 's' : ''})`, ok: false });
         return restant;
@@ -11706,8 +11733,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
     });
   }
 
-  // Chaque piece rapporte un petit bonus : une pause en plus toutes les 3
-  // pieces, un bouclier (annule la prochaine perte de vie) toutes les 5.
   function ramasserUnePiece() {
     setNbPieces((n) => {
       const suivant = n + 1;
@@ -11724,81 +11749,24 @@ function BouleQuiRouleScreen({ route, navigation }) {
     });
   }
 
-  // Sauvegarde du calibrage a la fin du trajet (uniquement si le jeu est
-  // rattache a un profil - le mode test manuel ne persiste rien).
+  // Message de fin de niveau (parle) - victoire ou echec, jamais juste
+  // "Bravo" sans explication. Pas d'enchainement automatique : l'enfant
+  // relance lui-meme par un tap (voir l'ecran plus bas).
   useEffect(() => {
-    if (!termine || !profil || !miniJeuId || rungActuel == null) return;
-    (async () => {
-      const totalRounds = sequenceCible.length;
-      const erreursTotal = (totalRounds - score) + (BOULE_VIES_DEPART - vies);
-      const wasPerfect = score === totalRounds && vies === BOULE_VIES_DEPART;
-      // Pas de redescente automatique ici (retour de Thierry : se battre
-      // pour reussir un niveau fait partie de l'apprentissage, ce n'est
-      // pas un probleme en soi). La redescente reste possible mais
-      // uniquement si l'ENFANT la demande lui-meme, via le bouton dedie
-      // (voir demanderNiveauPlusFacile ci-dessous).
-      try {
-        const precomputed = await computeStreakRung({
-          profil, miniJeuId, currentRung: rungActuel, wasPerfect, maxRung: MAX_CONTENT_RUNG,
-          erreursTotal, totalRounds, dureeMoyenneManche: null,
-        });
-        await supabase.from('progression').upsert(
-          {
-            profil_id: profil.id,
-            mini_jeu_id: miniJeuId,
-            palier_actuel: precomputed.newRung,
-            details: precomputed.details,
-            temps_reference_secondes: null,
-            echecs_consecutifs: 0,
-          },
-          { onConflict: 'profil_id,mini_jeu_id' }
-        );
-        setRungActuel(precomputed.newRung);
-      } catch (e) {
-        // Non bloquant : le trajet reste valable pour l'enfant meme si la
-        // sauvegarde du calibrage echoue.
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [termine]);
-
-  // Demande explicite de l'enfant de redescendre d'un cran - jamais
-  // automatique. Accessible sur l'ecran de pause entre deux trajets.
-  async function demanderNiveauPlusFacile() {
-    if (!profil || !miniJeuId || rungActuel == null) return;
-    const nouveauRung = Math.max(1, rungActuel - 1);
-    setRungActuel(nouveauRung);
-    try {
-      await supabase.from('progression').upsert(
-        { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: nouveauRung },
-        { onConflict: 'profil_id,mini_jeu_id' }
-      );
-    } catch (e) {
-      // Non bloquant.
-    }
-  }
-
-  // Enchainement automatique : un trajet termine (reussi ou non) debouche
-  // directement sur le suivant, sans repasser par un ecran a interagir -
-  // l'enfant sort lui-meme (navigation retour) s'il veut arreter. Seule
-  // exception : le temps de jeu du jour est epuise, auquel cas on
-  // s'arrete et on affiche l'ecran dedie (voir rendu plus bas).
-  useEffect(() => {
-    if (!termine) return;
-    const reussi = sequenceCible.length > 0 && score === sequenceCible.length;
+    if (!finNiveau) return;
     const nom = profil ? speechFriendlyName(profil.prenom) : '';
-    const message = reussi
-      ? (profil ? `Bravo ${nom} ! Tu as tout trouvé !` : 'Bravo, tout est trouvé !')
-      : (profil ? `Pas facile cette fois, ${nom}, mais tu progresses ! On continue.` : 'On continue, tu vas y arriver !');
-    speakSmart(message);
-    if (limiteAtteinte) return;
-    const t = setTimeout(() => { demarrer(reglage, mode); }, 2200);
-    return () => clearTimeout(t);
+    if (finNiveau === 'victoire') {
+      speakSmart(profil ? `Bravo ${nom} ! Niveau supérieur débloqué !` : 'Bravo ! Niveau supérieur débloqué !');
+    } else {
+      const propose20 = tentativesEchoueesRef.current >= 20;
+      const base = profil ? `Pas facile cette fois, ${nom}, mais tu progresses !` : 'Pas facile cette fois, mais tu progresses !';
+      speakSmart(propose20 ? `${base} Tu peux essayer un niveau plus facile si tu veux.` : base);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [termine]);
+  }, [finNiveau]);
 
   useEffect(() => {
-    if (!pret || termine) return;
+    if (!pret || finNiveau) return;
     tickRef.current = setInterval(() => {
       if (isPausedRef.current) return;
       const dt = 0.04;
@@ -11812,37 +11780,43 @@ function BouleQuiRouleScreen({ route, navigation }) {
         setObjets((prevObjets) => {
           let liste = prevObjets;
 
-          // Des qu'une nouvelle cible apparait, ses leurres apparaissent
-          // AVEC elle (echelonnes sur le meme trajet d'approche) - sinon
-          // l'enfant peut voir la bonne reponse toute seule, sans rien a
-          // comparer, ce qui rend le jeu trop facile.
           const aUneCibleActive = liste.some((o) => o.type === 'cible');
-          if (!aUneCibleActive && indexCibleRef.current < sequenceCibleRef.current.length) {
-            const valeurCible = sequenceCibleRef.current[indexCibleRef.current];
-            const distanceCible = nouvelleDistance + vitesseAvanceRef.current * c.tempsReactionCible;
-            const nouveauxObjets = [
-              {
-                id: nextIdRef.current++,
-                type: 'cible',
-                x: 0.15 + Math.random() * 0.7,
-                distance: distanceCible,
-                valeur: valeurCible,
-                groupeIndex: indexCibleRef.current,
-              },
-            ];
-            for (let i = 0; i < c.nbLeurresParCible; i++) {
-              nouveauxObjets.push({
-                id: nextIdRef.current++,
-                type: 'distracteur',
-                x: 0.12 + Math.random() * 0.76,
-                // Reparti sur tout le trajet d'approche (avec une petite marge
-                // au debut pour ne pas apparaitre exactement au meme moment).
-                distance: nouvelleDistance + vitesseAvanceRef.current * (0.8 + Math.random() * (c.tempsReactionCible - 1)),
-                valeur: genererLeurre(valeurCible, mode),
-                groupeIndex: indexCibleRef.current,
-              });
+          if (!aUneCibleActive) {
+            let valeurCible = null;
+            let motParleASonoriser = null;
+            if (mode === 'lettres') {
+              if (lettresQueueRef.current.length > 0) {
+                const item = lettresQueueRef.current.shift();
+                valeurCible = item.valeur;
+                if (item.estDebutMot) motParleASonoriser = item.motParle;
+                if (lettresQueueRef.current.length < 3) assurerQueueLettres(c);
+              }
+            } else if (mode === 'calculs') {
+              const { enonce, resultat } = genererCalcul(reglage);
+              valeurCible = resultat;
+              setEnonceAffiche(enonce);
+            } else {
+              valeurCible = compteurChiffreRef.current;
+              compteurChiffreRef.current += pasChiffreRef.current;
             }
-            liste = [...liste, ...nouveauxObjets];
+
+            if (valeurCible != null) {
+              if (motParleASonoriser) speakSmart(motParleASonoriser);
+              const distanceCible = nouvelleDistance + vitesseAvanceRef.current * c.tempsReactionCible;
+              const nouveauxObjets = [
+                { id: nextIdRef.current++, type: 'cible', x: 0.15 + Math.random() * 0.7, distance: distanceCible, valeur: valeurCible },
+              ];
+              for (let i = 0; i < c.nbLeurresParCible; i++) {
+                nouveauxObjets.push({
+                  id: nextIdRef.current++,
+                  type: 'distracteur',
+                  x: 0.12 + Math.random() * 0.76,
+                  distance: nouvelleDistance + vitesseAvanceRef.current * (0.8 + Math.random() * (c.tempsReactionCible - 1)),
+                  valeur: genererLeurre(valeurCible, mode),
+                });
+              }
+              liste = [...liste, ...nouveauxObjets];
+            }
           }
 
           if (maintenant - dernierSpawnDiversRef.current >= c.intervalleDiversMs) {
@@ -11879,22 +11853,21 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   setScore((s) => s + 1);
                   setMessage({ texte: mode === 'lettres' ? `Bravo, "${o.valeur}" !` : `Bravo, ${o.valeur} !`, ok: true });
                   if (mode === 'lettres') speakSmart(joinSequenceForSpeech([o.valeur], c.niveauContenu));
-                  setTokensReveles((prevTok) => {
-                    const copie = prevTok.slice();
-                    copie[o.groupeIndex] = o.valeur;
-                    return copie;
+                  setStreakActuelle((prevStreak) => {
+                    const nouveau = prevStreak + 1;
+                    if (nouveau >= c.objectifStreak) setFinNiveau('victoire');
+                    return nouveau;
                   });
                 } else {
-                  setMessage({ texte: 'Raté, pas assez précis !', ok: false });
+                  // Loupe (pas assez precis) : le streak repart a zero mais
+                  // aucune vie perdue - on continue sans interruption.
+                  setMessage({ texte: 'Raté, pas assez précis ! On continue.', ok: false });
+                  setStreakActuelle(0);
                 }
-                setIndexCible((n) => {
-                  const suivant = n + 1;
-                  if (suivant >= sequenceCibleRef.current.length) setTermine(true);
-                  return suivant;
-                });
               } else if (o.type === 'distracteur') {
                 if (atteint) {
                   setMessage({ texte: 'Pas celui-là, continue à chercher !', ok: false });
+                  setStreakActuelle(0);
                   if (c.distracteurCoutePV) perdreUneVie();
                 }
               } else if (o.type === 'piege') {
@@ -11913,18 +11886,10 @@ function BouleQuiRouleScreen({ route, navigation }) {
       });
     }, 40);
     return () => clearInterval(tickRef.current);
-  }, [pret, termine, conf, mode]);
+  }, [pret, finNiveau, conf, mode, reglage]);
 
-  // Calibrage auto : des que le rang est connu, on saute directement a
-  // l'ecran de choix du mode avec la tranche d'age deduite du rang.
-  useEffect(() => {
-    if (profil && !chargementProfil && rungActuel != null && !reglage) {
-      const { niveau } = gradeAndPalierFromRung(rungActuel);
-      setReglage(bucketAgeFromGrade(niveau));
-    }
-  }, [profil, chargementProfil, rungActuel, reglage]);
-
-  if (profil && chargementProfil) {
+  // --- Ecran 1 : choix de l'age (uniquement en mode test parental) ---
+  if (chargementProfil) {
     return (
       <View style={styles.center}>
         <Text style={{ color: colors.ink }}>Chargement du niveau…</Text>
@@ -11932,8 +11897,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
     );
   }
 
-  // --- Ecran 1 : choix de l'age (uniquement en mode test parental, sans
-  // profil - avec un profil, le rang calibre est utilise directement). ---
   if (!reglage) {
     if (profil) {
       return (
@@ -11949,7 +11912,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
         </Pressable>
         <Text style={styles.title}>🔵 Prototype : la Boule qui Roule</Text>
         <Text style={{ textAlign: 'center', color: colors.ink, opacity: 0.7, marginTop: 8, marginBottom: 24, paddingHorizontal: 20 }}>
-          Choisis d'abord la tranche d'âge. Pilotage avec la barre sous la route, 3 vies avant de recommencer.
+          Choisis d'abord la tranche d'âge.
         </Text>
         {Object.entries(BOULE_REGLAGES_AGE).map(([cle, r]) => (
           <Pressable key={cle} style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => setReglage(cle)}>
@@ -11961,20 +11924,20 @@ function BouleQuiRouleScreen({ route, navigation }) {
   }
 
   // --- Ecran 2 : choix du mode ---
-  if (!pret && !chargement) {
+  if (!pret && !chargement && !finNiveau) {
     return (
       <View style={styles.center}>
         <Pressable onPress={() => (profil ? navigation.goBack() : setReglage(null))} style={{ position: 'absolute', top: 44, left: 18 }}>
           <Text style={styles.backLabel}>‹ Retour</Text>
         </Pressable>
         <Text style={styles.title}>Que veux-tu ramasser ?</Text>
-        <Pressable style={[styles.button, { width: 240, marginTop: 16 }]} onPress={() => demarrer(reglage, 'lettres')}>
+        <Pressable style={[styles.button, { width: 240, marginTop: 16 }]} onPress={() => demarrerNouvellePartie(reglage, 'lettres')}>
           <Text style={styles.buttonText}>🔤 Des lettres (un mot)</Text>
         </Pressable>
-        <Pressable style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => demarrer(reglage, 'chiffres')}>
+        <Pressable style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => demarrerNouvellePartie(reglage, 'chiffres')}>
           <Text style={styles.buttonText}>🔢 Des chiffres (compter)</Text>
         </Pressable>
-        <Pressable style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => demarrer(reglage, 'calculs')}>
+        <Pressable style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => demarrerNouvellePartie(reglage, 'calculs')}>
           <Text style={styles.buttonText}>➕ Un calcul (résultat)</Text>
         </Pressable>
       </View>
@@ -11989,8 +11952,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
     );
   }
 
-  if (termine) {
-    const reussi = sequenceCible.length > 0 && score === sequenceCible.length;
+  // --- Ecran de fin de niveau (victoire ou echec) : tap pour relancer ---
+  if (finNiveau) {
     if (limiteAtteinte) {
       return (
         <View style={styles.center}>
@@ -12005,19 +11968,29 @@ function BouleQuiRouleScreen({ route, navigation }) {
         </View>
       );
     }
+    const propose20 = finNiveau === 'echec' && tentativesEchoueesRef.current >= 20;
     return (
-      <View style={styles.center}>
-        <Text style={{ fontSize: 48 }}>{reussi ? '🎉' : '💪'}</Text>
-        <Text style={styles.title}>{reussi ? 'Bravo !' : 'On continue !'}</Text>
+      <Pressable style={styles.center} onPress={finNiveau === 'victoire' ? passerNiveauSuivant : recommencerMemeNiveau}>
+        <Text style={{ fontSize: 48 }}>{finNiveau === 'victoire' ? '🎉' : '💪'}</Text>
+        <Text style={styles.title}>{finNiveau === 'victoire' ? 'Niveau supérieur !' : 'On recommence !'}</Text>
         <Text style={{ marginTop: 8, color: colors.ink }}>
-          Ramassés : {score}/{sequenceCible.length} · Pièces : {nbPieces}
+          Pièces : {nbPieces} {boucliers > 0 ? `· Boucliers : ${boucliers}` : ''}
         </Text>
-        {profil && (
-          <Pressable style={{ marginTop: 22, padding: 8 }} onPress={demanderNiveauPlusFacile}>
-            <Text style={styles.backLabel}>⬇️ Niveau plus facile</Text>
-          </Pressable>
+        {propose20 && (
+          <View style={{ marginTop: 16, backgroundColor: '#FFF3D6', borderRadius: 12, padding: 12, marginHorizontal: 24 }}>
+            <Text style={{ textAlign: 'center', color: colors.ink }}>
+              Ce niveau est difficile. Tu peux essayer un niveau plus facile si tu veux !
+            </Text>
+          </View>
         )}
-      </View>
+        <Text style={{ marginTop: 18, color: colors.ink, opacity: 0.5, fontSize: 12 }}>touche l'écran pour continuer</Text>
+        <Pressable
+          style={{ marginTop: 14, padding: 8 }}
+          onPress={(e) => { e.stopPropagation?.(); demanderNiveauPlusFacile(); }}
+        >
+          <Text style={styles.backLabel}>⬇️ Niveau plus facile</Text>
+        </Pressable>
+      </Pressable>
     );
   }
 
@@ -12029,11 +12002,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
     return { relative, p, y };
   }
 
-  const affichageCible = mode === 'lettres'
-    ? tokensReveles.map((t) => (t === null ? '?' : t)).join(' ')
-    : mode === 'calculs'
-      ? `${enonces[indexCible] ?? ''} = ?`
-      : `${sequenceCible[indexCible] ?? ''}`;
+  const affichageCible = mode === 'calculs' ? `${enonceAffiche} = ?` : null;
 
   const objetsVisibles = objets
     .map((o) => ({ ...o, pos: positionEcran(o.distance) }))
@@ -12045,11 +12014,11 @@ function BouleQuiRouleScreen({ route, navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: 6 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14 }}>
-        <Pressable onPress={() => { setReglage(null); setPret(false); }}>
+        <Pressable onPress={() => { setReglage(null); setPret(false); setFinNiveau(null); }}>
           <Text style={[styles.backLabel, { fontSize: 13 }]}>‹ Retour</Text>
         </Pressable>
         <Text style={{ fontWeight: '800', color: colors.mossDeep, fontSize: 14 }}>
-          {mode === 'lettres' ? affichageCible : mode === 'calculs' ? affichageCible : `Cherche : ${affichageCible}`}
+          {affichageCible ?? `Série : ${streakActuelle}/${conf.objectifStreak}`}
         </Text>
         <Text style={{ fontWeight: '800', fontSize: 14 }}>
           <Text style={{ color: colors.gold }}>★ {score} 🪙{nbPieces}{boucliers > 0 ? ` 🛡️${boucliers}` : ''}</Text>
@@ -12081,10 +12050,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
           const taille = BOULE_ITEM_TAILLE_BASE;
           const estLettreOuChiffre = o.type === 'cible' || o.type === 'distracteur';
           if (estLettreOuChiffre) {
-            // Pas de cercle ni d'icone ici : juste le chiffre/la lettre,
-            // en gros et en gras avec un contour clair, pour rester
-            // lisible quel que soit le fond derriere (retour de Thierry :
-            // peu visible dans la bulle).
             return (
               <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, width: taille, height: taille, alignItems: 'center', justifyContent: 'center' }}>
                 <Text
@@ -12136,8 +12101,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
         )}
       </View>
 
-      {/* Barre de controle dediee, physiquement separee de la route :
-          suit le doigt au 1 pour 1, ne cache jamais la vue de jeu. */}
       <View
         collapsable={false}
         onStartShouldSetResponder={() => true}
