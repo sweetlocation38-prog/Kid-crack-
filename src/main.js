@@ -2557,7 +2557,7 @@ const CONTINENTS = [
   },
   {
     competence: 'histoire',
-    zone: { left: 0.12, top: 0.718, width: 0.66, height: 0.282 },
+    zone: { left: 0.12, top: 0.85, width: 0.66, height: 0.15 },
     labelCourt: 'Histoire',
     paysSlotsFor: { 'frise_temps': { top: '66%', left: '78%' } },
     paysVides: [],
