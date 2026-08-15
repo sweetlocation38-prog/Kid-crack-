@@ -11506,6 +11506,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const [objets, setObjets] = useState([]);
   const [streakActuelle, setStreakActuelle] = useState(0);
   const [enonceAffiche, setEnonceAffiche] = useState('');
+  const [chiffreAffiche, setChiffreAffiche] = useState(null);
   const [score, setScore] = useState(0);
   const [nbPieces, setNbPieces] = useState(0);
   const [boucliers, setBoucliers] = useState(0);
@@ -11534,6 +11535,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const touchStartRef = useRef({ x: 0, y: 0, t: 0 });
   const dernierTapRef = useRef(0);
   const controleTailleRef = useRef({ largeur: 1, gauche: 0 });
+  const dernierRenduBallRef = useRef(0);
 
   // IMPORTANT : memoise via useMemo, pas juste recalcule a chaque rendu.
   // Sans ca, conf est un NOUVEL objet a chaque re-rendu (meme quand rien
@@ -11596,13 +11598,30 @@ function BouleQuiRouleScreen({ route, navigation }) {
     const { largeur, gauche } = controleTailleRef.current;
     const relatif = (pageX - gauche) / largeur;
     const clamped = Math.max(0, Math.min(1, relatif));
+    // Le jeu (collisions, boucle) suit TOUJOURS la reference en temps
+    // reel, sans aucun delai. Seul le redessin visuel (setState, qui
+    // redessine tout l'ecran a chaque appel) est limite a ~30 fois par
+    // seconde : sans ca, chaque micro-mouvement du doigt redessinait
+    // l'ecran en entier, ce qui bloquait tout pendant le glissement.
     ballXNormRef.current = clamped;
-    setBallXNorm(clamped);
+    const maintenant = Date.now();
+    if (maintenant - dernierRenduBallRef.current >= 33) {
+      dernierRenduBallRef.current = maintenant;
+      setBallXNorm(clamped);
+    }
   }
   function onControleGrant(e) {
     controleTailleRef.current.gauche = barreControleGauche;
     controleTailleRef.current.largeur = pisteLargeur;
     onControleDeplacement(e.nativeEvent.pageX);
+  }
+  function onControleRelease(e) {
+    // A la fin du geste, on force un dernier rendu exact (sans attendre
+    // le prochain palier de 33ms) pour que la boule soit bien a la
+    // position finale precise du doigt, jamais en retard visuellement.
+    onControleDeplacement(e.nativeEvent.pageX);
+    dernierRenduBallRef.current = 0;
+    setBallXNorm(ballXNormRef.current);
   }
 
   function onTouchDebut(e) {
@@ -11679,6 +11698,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
     setMessage(null);
     setIsPaused(false);
     setEnonceAffiche('');
+    setChiffreAffiche(null);
     nextIdRef.current = 1000;
     dernierSpawnDiversRef.current = Date.now() + 600;
     setChargement(false);
@@ -11807,6 +11827,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
             } else {
               valeurCible = compteurChiffreRef.current;
               compteurChiffreRef.current += pasChiffreRef.current;
+              setChiffreAffiche(valeurCible);
+              motParleASonoriser = `Cherche le nombre ${valeurCible}`;
             }
 
             if (valeurCible != null) {
@@ -12011,7 +12033,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
     return { relative, p, y };
   }
 
-  const affichageCible = mode === 'calculs' ? `${enonceAffiche} = ?` : null;
+  const affichageCible = mode === 'calculs' ? `${enonceAffiche} = ?` : mode === 'chiffres' ? `Cherche : ${chiffreAffiche ?? ''}` : null;
 
   const objetsVisibles = objets
     .map((o) => ({ ...o, pos: positionEcran(o.distance) }))
@@ -12116,6 +12138,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
         onMoveShouldSetResponder={() => true}
         onResponderGrant={onControleGrant}
         onResponderMove={(e) => onControleDeplacement(e.nativeEvent.pageX)}
+        onResponderRelease={onControleRelease}
         style={{
           width: pisteLargeur, height: 46, alignSelf: 'center', marginTop: 6,
           backgroundColor: '#E4DCC8', borderRadius: 12, justifyContent: 'center',
