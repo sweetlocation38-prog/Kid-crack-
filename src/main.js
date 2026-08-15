@@ -12193,11 +12193,22 @@ function BouleQuiRouleScreen({ route, navigation }) {
           );
         })}
 
-        <View style={{ position: 'absolute', left: ballScreenX - BOULE_TAILLE / 2, top: joueurY - BOULE_TAILLE / 2 }}>
+        <View style={{ position: 'absolute', left: ballScreenX - BOULE_TAILLE / 2, top: joueurY - BOULE_TAILLE / 2, width: BOULE_TAILLE, height: BOULE_TAILLE, alignItems: 'center', justifyContent: 'center' }}>
+          {boucliers > 0 && (
+            <View
+              style={{
+                position: 'absolute', width: BOULE_TAILLE + 14, height: BOULE_TAILLE + 14, borderRadius: (BOULE_TAILLE + 14) / 2,
+                borderWidth: 3, borderColor: '#5EC8F2', backgroundColor: 'rgba(94,200,242,0.18)',
+              }}
+            />
+          )}
           {profil ? (
             <ProfilAvatarDisplay profil={profil} size={BOULE_TAILLE} style={{ borderWidth: 2, borderColor: '#fff' }} />
           ) : (
             <Text style={{ fontSize: BOULE_TAILLE }}>🔵</Text>
+          )}
+          {boucliers > 0 && (
+            <Text style={{ position: 'absolute', top: -8, right: -10, fontSize: 18 }}>🛡️</Text>
           )}
         </View>
 
