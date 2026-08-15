@@ -11303,6 +11303,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
 const BOULE_PISTE_LARGEUR_RATIO = 1;
 const BOULE_TAILLE = 39; // -30% par rapport a la version precedente (56)
 const BOULE_ITEM_TAILLE_BASE = 51; // -20% par rapport a la version precedente (64)
+const BOULE_PIEGE_TAILLE = Math.round(BOULE_ITEM_TAILLE_BASE * 0.8); // -20% supplementaires pour les pieges
 const BOULE_DOUBLE_TAP_FENETRE_MS = 380;
 const BOULE_TAP_MOUVEMENT_MAX = 26;
 const BOULE_TAP_DUREE_MAX_MS = 500;
@@ -11537,7 +11538,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const isPausedRef = useRef(false);
   isPausedRef.current = isPaused;
   const ballXNormRef = useRef(0.5);
-  const vitesseAvanceRef = useRef(50);
+  const vitesseAvanceRef = useRef(50); // vitesse "de base" du niveau (fixee au demarrage)
+  const ralentiJusquaRef = useRef(0); // timestamp : effet "ralentissement" (bonus 30 pieces) actif jusqu'a
+  const blocageJusquaRef = useRef(0); // timestamp : piege "malus" actif jusqu'a (bloque cible/pieces)
 
   // Generateurs de contenu "sans fin" (remplacent l'ancienne liste figee).
   const compteurChiffreRef = useRef(0); // prochain nombre a demander, mode chiffres
@@ -11694,6 +11697,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
     const c = { ...BOULE_REGLAGES_AGE[cleAge], ...calculerDifficulteDepuisRung(rung) };
     const facteurVitesse = 1 + (Math.random() * 2 - 1) * BOULE_VARIATION_VITESSE;
     vitesseAvanceRef.current = c.vitesseAvanceMoyenne * facteurVitesse;
+    ralentiJusquaRef.current = 0; // le bonus de ralentissement ne survit pas a un nouveau niveau
+    blocageJusquaRef.current = 0;
 
     const { palier: palierPrecis } = gradeAndPalierFromRung(rung);
     palierPrecisRef.current = palierPrecis;
@@ -11784,10 +11789,30 @@ function BouleQuiRouleScreen({ route, navigation }) {
     });
   }
 
+  // Piege tres rare : perte immediate et totale, ignore meme les
+  // boucliers (c'est voulu - un vrai coup dur, pas juste une vie en moins).
+  function perdreToutesLesVies() {
+    tentativesEchoueesRef.current += 1;
+    setMessage({ texte: 'Piège fatal !', ok: false });
+    setVies(0);
+    setFinNiveau('echec');
+  }
+
+  // Piege "malus" : bloque la prise en compte des bonnes reponses et des
+  // pieces pendant 15 secondes (pas de perte de vie directe, mais on est
+  // expose aux autres pieges sans pouvoir progresser).
+  function activerBlocage() {
+    blocageJusquaRef.current = Date.now() + 15000;
+    setMessage({ texte: 'Bloqué 15 secondes !', ok: false });
+  }
+
   function ramasserUnePiece() {
     setNbPieces((n) => {
       const suivant = n + 1;
-      if (suivant % 3 === 0) {
+      if (suivant % 30 === 0) {
+        ralentiJusquaRef.current = Date.now() + 30000;
+        setMessage({ texte: 'Pièce ramassée ! Ralentissement 30s 🐌', ok: true });
+      } else if (suivant % 3 === 0) {
         setPausesBonus((p) => p + 1);
         setMessage({ texte: 'Pièce ramassée ! +1 pause bonus', ok: true });
       } else if (suivant % 5 === 0) {
@@ -11829,7 +11854,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
       const c = conf;
 
       setDistanceParcourue((prevDist) => {
-        const nouvelleDistance = prevDist + vitesseAvanceRef.current * dt;
+        const vitesseEffective = vitesseAvanceRef.current * (Date.now() < ralentiJusquaRef.current ? 0.8 : 1);
+        const nouvelleDistance = prevDist + vitesseEffective * dt;
         const seuilCollision = BOULE_RAYON_COLLISION;
         const maintenant = Date.now();
 
@@ -11866,7 +11892,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
             if (valeurCible != null) {
               if (motParleASonoriser) speakSmart(motParleASonoriser);
-              const distanceCible = nouvelleDistance + vitesseAvanceRef.current * c.tempsReactionCible;
+              const distanceCible = nouvelleDistance + vitesseEffective * c.tempsReactionCible;
               const nouveauxObjets = [
                 { id: nextIdRef.current++, type: 'cible', x: 0.15 + Math.random() * 0.7, distance: distanceCible, valeur: valeurCible },
               ];
@@ -11875,7 +11901,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   id: nextIdRef.current++,
                   type: 'distracteur',
                   x: 0.12 + Math.random() * 0.76,
-                  distance: nouvelleDistance + vitesseAvanceRef.current * (0.8 + Math.random() * (c.tempsReactionCible - 1)),
+                  distance: nouvelleDistance + vitesseEffective * (0.8 + Math.random() * (c.tempsReactionCible - 1)),
                   valeur: genererLeurre(valeurCible, mode),
                 });
               }
@@ -11888,11 +11914,16 @@ function BouleQuiRouleScreen({ route, navigation }) {
             const roll = Math.random();
             if (roll < c.piegeRatio) {
               const [vMin, vMax] = c.vitesseSupplPiege;
+              // 3 variantes de piege : le rocher classique (le plus courant),
+              // un piege "malus" qui bloque 15s (assez frequent), et un
+              // piege "mortel" tres rare qui coute toutes les vies d'un coup.
+              const sousRoll = Math.random();
+              const typePiege = sousRoll < 0.04 ? 'piege_mortel' : sousRoll < 0.22 ? 'piege_malus' : 'piege';
               liste = [
                 ...liste,
                 {
                   id: nextIdRef.current++,
-                  type: 'piege',
+                  type: typePiege,
                   x: 0.12 + Math.random() * 0.76,
                   distance: nouvelleDistance + 260 + Math.random() * 220,
                   vitesseSuppl: vMin + Math.random() * (vMax - vMin),
@@ -11908,12 +11939,14 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
           const suivants = [];
           for (const o of liste) {
-            const distanceActuelle = o.type === 'piege' ? o.distance - o.vitesseSuppl * dt : o.distance;
+            const estPiege = o.type === 'piege' || o.type === 'piege_mortel' || o.type === 'piege_malus';
+            const distanceActuelle = estPiege ? o.distance - o.vitesseSuppl * dt : o.distance;
             const relative = distanceActuelle - nouvelleDistance;
             if (relative <= 0) {
               const atteint = Math.abs(o.x - ballXNormRef.current) < seuilCollision;
+              const estBloque = Date.now() < blocageJusquaRef.current;
               if (o.type === 'cible') {
-                if (atteint) {
+                if (atteint && !estBloque) {
                   setScore((s) => s + 1);
                   setMessage({ texte: mode === 'lettres' ? `Bravo, "${o.valeur}" !` : `Bravo, ${o.valeur} !`, ok: true });
                   if (mode === 'lettres') speakSmart(joinSequenceForSpeech([o.valeur], c.niveauContenu));
@@ -11924,9 +11957,10 @@ function BouleQuiRouleScreen({ route, navigation }) {
                     return nouveau;
                   });
                 } else {
-                  // Loupe (pas assez precis) : le streak repart a zero mais
-                  // aucune vie perdue - on continue sans interruption.
-                  setMessage({ texte: 'Raté, pas assez précis ! On continue.', ok: false });
+                  // Loupe (pas assez precis, ou bloque par un piege malus) :
+                  // le streak repart a zero mais aucune vie perdue - on
+                  // continue sans interruption.
+                  setMessage({ texte: estBloque ? 'Bloqué, réessaie dans quelques secondes !' : 'Raté, pas assez précis ! On continue.', ok: false });
                   setStreakActuelle(0);
                 }
               } else if (o.type === 'distracteur') {
@@ -11938,8 +11972,12 @@ function BouleQuiRouleScreen({ route, navigation }) {
                 }
               } else if (o.type === 'piege') {
                 if (atteint) perdreUneVie();
+              } else if (o.type === 'piege_mortel') {
+                if (atteint) perdreToutesLesVies();
+              } else if (o.type === 'piege_malus') {
+                if (atteint) activerBlocage();
               } else if (o.type === 'piece') {
-                if (atteint) ramasserUnePiece();
+                if (atteint && !estBloque) ramasserUnePiece();
               }
               continue;
             }
@@ -12116,7 +12154,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
         {objetsVisibles.map((o) => {
           const x = o.x * pisteLargeur;
-          const taille = BOULE_ITEM_TAILLE_BASE;
+          const estPiegeQuelconque = o.type === 'piege' || o.type === 'piege_mortel' || o.type === 'piege_malus';
+          const taille = estPiegeQuelconque ? BOULE_PIEGE_TAILLE : BOULE_ITEM_TAILLE_BASE;
           const estLettreOuChiffre = o.type === 'cible' || o.type === 'distracteur';
           if (estLettreOuChiffre) {
             // Le cercle correspond a la vraie zone de contact (pas juste
@@ -12147,8 +12186,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   backgroundColor: '#fff', borderWidth: 2.5, borderColor: colors.gold,
                 }} />
               )}
-              <Text style={{ fontSize: taille * (o.type === 'piege' ? 0.75 : 0.5) }}>
-                {o.type === 'piege' ? '🪨' : '🪙'}
+              <Text style={{ fontSize: taille * (estPiegeQuelconque ? 0.75 : 0.5) }}>
+                {o.type === 'piege' ? '🪨' : o.type === 'piege_mortel' ? '💀' : o.type === 'piege_malus' ? '🌀' : '🪙'}
               </Text>
             </View>
           );
