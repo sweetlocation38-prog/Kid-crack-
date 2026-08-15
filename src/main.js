@@ -11897,6 +11897,15 @@ function BouleQuiRouleScreen({ route, navigation }) {
               // de l'horizon ensemble, descend ensemble, et disparait
               // ensemble - plus de leurres qui "popaient" en plein ecran
               // ou qui trainaient apres que la cible ait ete attrapee.
+              // La cible et ses leurres emergent ensemble de l'horizon
+              // (distances proches, jamais plus proches que l'horizon =
+              // pas de "pop" en plein ecran), mais gardent chacun leur
+              // propre distance : si la cible est attrapee en avance, les
+              // leurres restants continuent normalement leur descente
+              // jusqu'a disparaitre en bas, au lieu d'etre coupes net.
+              // La vague suivante n'apparait qu'une fois tout ce petit
+              // monde reellement parti (voir plus haut : condition
+              // vaguePrecedenteEncorePresente).
               const distanceCible = nouvelleDistance + vitesseEffective * c.tempsReactionCible;
               const nouveauxObjets = [
                 { id: nextIdRef.current++, type: 'cible', x: 0.15 + Math.random() * 0.7, distance: distanceCible, valeur: valeurCible },
@@ -11906,7 +11915,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   id: nextIdRef.current++,
                   type: 'distracteur',
                   x: 0.12 + Math.random() * 0.76,
-                  distance: distanceCible,
+                  distance: distanceCible + vitesseEffective * Math.random() * 1.5,
                   valeur: genererLeurre(valeurCible, mode),
                 });
               }
@@ -12170,7 +12179,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
               <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, width: taille, height: taille, alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{
                   position: 'absolute', width: diametreZone, height: diametreZone, borderRadius: diametreZone / 2,
-                  borderWidth: 2, borderColor: colors.mossDeep, opacity: 0.45,
+                  borderWidth: 3, borderColor: colors.mossDeep, opacity: 0.85,
                 }} />
                 <Text
                   style={{
@@ -12202,8 +12211,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
           {boucliers > 0 && (
             <View
               style={{
-                position: 'absolute', width: BOULE_TAILLE + 14, height: BOULE_TAILLE + 14, borderRadius: (BOULE_TAILLE + 14) / 2,
-                borderWidth: 3, borderColor: '#5EC8F2', backgroundColor: 'rgba(94,200,242,0.18)',
+                position: 'absolute', width: BOULE_TAILLE + 20, height: BOULE_TAILLE + 20, borderRadius: (BOULE_TAILLE + 20) / 2,
+                borderWidth: 4, borderColor: '#2FA9E8', backgroundColor: 'rgba(94,200,242,0.30)',
               }}
             />
           )}
@@ -12213,7 +12222,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
             <Text style={{ fontSize: BOULE_TAILLE }}>🔵</Text>
           )}
           {boucliers > 0 && (
-            <Text style={{ position: 'absolute', top: -8, right: -10, fontSize: 18 }}>🛡️</Text>
+            <Text style={{ position: 'absolute', top: -12, right: -14, fontSize: 22 }}>🛡️</Text>
           )}
         </View>
 
