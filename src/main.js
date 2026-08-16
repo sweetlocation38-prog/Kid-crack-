@@ -3232,6 +3232,22 @@ function shuffle(arr) {
   return a;
 }
 
+// Compare une reponse donnee et la bonne reponse attendue - utilise une
+// comparaison NUMERIQUE (avec tolerance) quand les deux valeurs sont des
+// nombres, plutot qu'une comparaison de texte brute. Corrige un vrai bug :
+// String(95) !== String(95.0) par exemple, ce qui pouvait refuser a tort
+// un calcul par ailleurs juste (retour de Thierry sur la Balance de la
+// Prairie). Retombe sur une comparaison texte pour les reponses non
+// numeriques (lettres, mots...), comportement inchange pour ces cas-la.
+function reponsesEquivalentes(value, correct) {
+  const numValue = Number(value);
+  const numCorrect = Number(correct);
+  if (value !== '' && correct !== '' && !Number.isNaN(numValue) && !Number.isNaN(numCorrect)) {
+    return Math.abs(numValue - numCorrect) < 0.005;
+  }
+  return String(value) === String(correct);
+}
+
 // Pour la lecture a voix haute : les lettres/syllabes s'epellent sans espace
 // (CHAT), mais des mots ou des phrases entieres doivent etre separes par un
 // espace, sinon la lecture devient incomprehensible.
@@ -3934,6 +3950,26 @@ function speechFriendlyName(name) {
   return cleaned || 'Champion';
 }
 
+// Construit de vraies phrases pour l'histoire d'un animal debloque, au
+// lieu de juxtaposer les champs bruts (retour de Thierry : "elle vit 3
+// ans", pas juste "3 ans" balance tel quel). Comme il n'existe pas de
+// champ "genre" par animal (100 animaux, feminin/masculin variable), on
+// evite le piege du "il/elle" accorde a l'espece : le sujet "cet animal"
+// (toujours masculin, quel que soit l'animal) sert de pivot neutre, et
+// "il" s'accorde ensuite correctement avec "animal" - jamais faux,
+// jamais besoin de donnee de genre supplementaire.
+function phraseHistoireAnimal(fiche) {
+  if (!fiche) return '';
+  const phrases = [];
+  if (fiche.habitat) phrases.push(`Cet animal vit dans ${fiche.habitat}.`);
+  if (fiche.alimentation) phrases.push(`Il se nourrit de ${fiche.alimentation}.`);
+  if (fiche.fait_amusant) {
+    const dureeVie = String(fiche.fait_amusant).trim().match(/^\d+\s*(ans?|mois|semaines?|jours?)$/i);
+    phrases.push(dureeVie ? `Il vit environ ${fiche.fait_amusant}.` : `Fait amusant : ${fiche.fait_amusant}.`);
+  }
+  return phrases.join(' ');
+}
+
 // ============================================================
 // Musique d'ambiance de fond : joue sur la carte et les sentiers, jamais
 // pendant les jeux (pour laisser la concentration), et se coupe
@@ -4250,9 +4286,7 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
       if (message) await speakSmart(message);
       if (summary?.rankChanged && fiche) {
         const displayName = fiche.nom_affiche || AVATAR_CHAIN[summary.newRank - 1].name;
-        const histoire = [fiche.habitat, fiche.alimentation, fiche.fait_amusant]
-          .filter(Boolean)
-          .join('. ');
+        const histoire = phraseHistoireAnimal(fiche);
         await speakSmart(histoire ? `${displayName}. ${histoire}` : displayName);
       }
       // Jeu bonus de zone : annonce des 40% (et jusqu'a 79%), celebration
@@ -4911,7 +4945,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
 
   function onOptionPress(value) {
     if (!promptData || answered !== null || showSafetyCheck || forcedPause) return;
-    const isCorrect = String(value) === String(promptData.correct);
+    const isCorrect = reponsesEquivalentes(value, promptData.correct);
     const secondesEcoulees = (Date.now() - roundStartedAt.current) / 1000;
     setAnswered(value);
 
@@ -6143,7 +6177,7 @@ function CachettesLumaScreen({ route, navigation }) {
 
   function onOptionPress(value) {
     if (!promptData || answered !== null) return;
-    const isCorrect = String(value) === String(promptData.correct);
+    const isCorrect = reponsesEquivalentes(value, promptData.correct);
     setAnswered(value);
 
     let nextRung = rung;
@@ -6367,7 +6401,7 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
 
   function onOptionPress(value) {
     if (!promptData || answered !== null) return;
-    const isCorrect = String(value) === String(promptData.correct);
+    const isCorrect = reponsesEquivalentes(value, promptData.correct);
     setAnswered(value);
     if (isCorrect) setFeedback('Bravo !');
     // Pas de "Faux" affiche : c'est un test neutre pour trouver le bon
@@ -6741,7 +6775,7 @@ function IndicesJardinScreen({ route, navigation }) {
 
   function onOptionPress(value) {
     if (!mystere || answered !== null) return;
-    const isCorrect = String(value) === String(mystere.cible);
+    const isCorrect = reponsesEquivalentes(value, mystere.cible);
     setAnswered(value);
     if (isCorrect) {
       setFeedback(revealedCount <= 2 ? 'Bravo, trouvé en un rien de temps !' : 'Bravo, tu as trouvé !');
