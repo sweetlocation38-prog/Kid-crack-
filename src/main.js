@@ -13046,7 +13046,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.8)', alignItems: 'center', justifyContent: 'center',
   },
   optionButton: {
-    width: '46%', minHeight: 96, paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20,
+    width: '46%', minHeight: 96, paddingHorizontal: 12, paddingTop: 32, paddingBottom: 10, borderRadius: 20,
     alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
   },
   optionListenBtn: {
