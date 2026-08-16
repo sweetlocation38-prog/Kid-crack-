@@ -3753,7 +3753,7 @@ function PontDesLettresScreen({ route, navigation }) {
                 {!used && (
                   <Pressable
                     style={styles.stoneListenBtn}
-                    onPress={() => speakSmart(token.length <= 2 ? speechFriendlyToken(token) : token)}
+                    onPress={() => (token.length <= 2 ? speakPhonemeOuTexte(token) : speakSmart(token))}
                     hitSlop={8}
                   >
                     <Text style={{ fontSize: 11 }}>🎤</Text>
@@ -4087,6 +4087,68 @@ const LUCIOLES_SOUNDS = {
 
 // Lecture ponctuelle d'un effet sonore (pas en boucle, contrairement a la
 // musique de fond) - se charge et se joue une seule fois.
+// Vrais enregistrements vocaux (Thierry) pour les sons les plus souvent
+// mal prononces par la synthese vocale generique (sons composes, voyelles
+// nasales, groupes de voyelles) - prioritaires sur l'approximation
+// textuelle PHONEME_SPEECH_MAP des qu'ils existent. Le reste des sons
+// continue de passer par la synthese vocale (repli automatique).
+const PHONEME_AUDIO = {
+  ch: require('../assets/sounds/phonemes/ch.m4a'),
+  gn: require('../assets/sounds/phonemes/gn.m4a'),
+  ph: require('../assets/sounds/phonemes/ph.m4a'),
+  qu: require('../assets/sounds/phonemes/qu.m4a'),
+  gu: require('../assets/sounds/phonemes/gu.m4a'),
+  an: require('../assets/sounds/phonemes/an.m4a'),
+  on: require('../assets/sounds/phonemes/on.m4a'),
+  in: require('../assets/sounds/phonemes/in.m4a'),
+  un: require('../assets/sounds/phonemes/un.m4a'),
+  oin: require('../assets/sounds/phonemes/oin.m4a'),
+  ou: require('../assets/sounds/phonemes/ou.m4a'),
+  oi: require('../assets/sounds/phonemes/oi.m4a'),
+  eu: require('../assets/sounds/phonemes/eu.m4a'),
+  au: require('../assets/sounds/phonemes/au.m4a'),
+  ai: require('../assets/sounds/phonemes/ai.m4a'),
+  ill: require('../assets/sounds/phonemes/ill.m4a'),
+  ail: require('../assets/sounds/phonemes/ail.m4a'),
+  eil: require('../assets/sounds/phonemes/eil.m4a'),
+};
+
+// Joue un son (attend la fin de la lecture, contrairement a
+// playSoundEffect qui ne fait que la lancer) - necessaire pour enchainer
+// plusieurs sons a la suite dans le bon ordre (ex: fusionner deux sons).
+function playSoundEffectEtAttendre(source) {
+  return new Promise((resolve) => {
+    (async () => {
+      try {
+        const { sound } = await Audio.Sound.createAsync(source, { volume: 1.0 });
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.didJustFinish) {
+            sound.unloadAsync().catch(() => {});
+            resolve();
+          }
+        });
+        await sound.playAsync();
+      } catch (e) {
+        resolve();
+      }
+    })();
+  });
+}
+
+// Point d'entree a utiliser partout ou un SON ISOLE (pas une phrase) doit
+// etre prononce : utilise le vrai enregistrement s'il existe, sinon
+// retombe sur la synthese vocale (avec l'approximation phonetique
+// existante). Ne jamais utiliser pour des phrases/consignes completes.
+async function speakPhonemeOuTexte(texte) {
+  const cle = String(texte).trim().toLowerCase();
+  const source = PHONEME_AUDIO[cle];
+  if (source) {
+    await playSoundEffectEtAttendre(source);
+  } else {
+    await speakSmart(texte);
+  }
+}
+
 async function playSoundEffect(source) {
   try {
     const { sound } = await Audio.Sound.createAsync(source, { volume: 1.0 });
@@ -4683,11 +4745,11 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       })();
       return () => { cancelled = true; Speech.stop(); };
     }
-    const parts = [promptData.promptText, promptData.speak].filter(Boolean);
+    const parts = [promptData.promptText, ...(Array.isArray(promptData.speak) ? promptData.speak : [promptData.speak])].filter(Boolean);
     (async () => {
       for (const part of parts) {
         if (cancelled) return;
-        await speakSmart(part);
+        await speakPhonemeOuTexte(part);
       }
     })();
     return () => {
@@ -4792,7 +4854,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   }, [profil.id]);
 
   function speak(text) {
-    if (text) speakSmart(text);
+    if (text) speakPhonemeOuTexte(text);
   }
 
   async function finishSession() {
@@ -5209,7 +5271,7 @@ function buildSonsPrompt(d) {
       const correct = d.options.find((o) => o.toLowerCase() === String(d.son).toLowerCase()) ?? d.options[0];
       return {
         promptText: 'Quelle lettre fait ce son ?',
-        speak: speechFriendlyToken(d.son),
+        speak: d.son, // brut : speakPhonemeOuTexte reconnait lui-meme les sons enregistres
         mandatorySpeak: true, // aucune image : le son doit etre entendu
         options: d.options,
         correct,
@@ -5218,7 +5280,7 @@ function buildSonsPrompt(d) {
     case 'fusionner_syllabe':
       return {
         promptText: 'Quelle syllabe fait "' + d.son1 + '" + "' + d.son2 + '" ?',
-        speak: speechFriendlyToken(d.son1) + speechFriendlyToken(d.son2),
+        speak: [d.son1, d.son2], // deux sons bruts, joues l'un apres l'autre
         mandatorySpeak: true, // aucune image : le son doit etre entendu
         options: d.options,
         correct: d.resultat,
