@@ -1,0 +1,4964 @@
+[
+  {
+    "id": "b8b266c6-44d8-4c7f-ac32-946d11685c3f",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chat dort sur le tapis.",
+      "options": [
+        "Sur le tapis",
+        "Dans le jardin",
+        "Sous la table"
+      ],
+      "question": "Où dort le chat ?",
+      "bonne_reponse": "Sur le tapis"
+    }
+  },
+  {
+    "id": "a27049f4-3407-48de-a3c0-2e747d2a0f78",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Léa mange une pomme rouge.",
+      "options": [
+        "Une pomme",
+        "Une poire",
+        "Une banane"
+      ],
+      "question": "Que mange Léa ?",
+      "bonne_reponse": "Une pomme"
+    }
+  },
+  {
+    "id": "601ebd89-425e-4f2e-95f1-24f6b74fb0ee",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chien court dans le parc.",
+      "options": [
+        "Dans le parc",
+        "Dans la maison",
+        "Dans l'eau"
+      ],
+      "question": "Où court le chien ?",
+      "bonne_reponse": "Dans le parc"
+    }
+  },
+  {
+    "id": "b06b7790-0755-4982-bf5b-4b0351ea7190",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Il pleut beaucoup aujourd'hui.",
+      "options": [
+        "Il pleut",
+        "Il neige",
+        "Il fait soleil"
+      ],
+      "question": "Quel temps fait-il ?",
+      "bonne_reponse": "Il pleut"
+    }
+  },
+  {
+    "id": "becdc3fc-d42c-4585-9817-605bd66d3031",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le bébé dort dans son lit.",
+      "options": [
+        "Dans son lit",
+        "Dans la voiture",
+        "Dans le jardin"
+      ],
+      "question": "Où dort le bébé ?",
+      "bonne_reponse": "Dans son lit"
+    }
+  },
+  {
+    "id": "65076101-e07a-4768-b662-b70410b29bc1",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Tom joue au ballon avec son ami. Ils s'amusent bien.",
+      "options": [
+        "Son ami",
+        "Sa sœur",
+        "Son chien"
+      ],
+      "question": "Avec qui joue Tom ?",
+      "bonne_reponse": "Son ami"
+    }
+  },
+  {
+    "id": "010e5b30-1455-4621-b175-576178a2c5dc",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La maîtresse lit une histoire. Les enfants écoutent attentivement.",
+      "options": [
+        "Ils écoutent",
+        "Ils dorment",
+        "Ils crient"
+      ],
+      "question": "Que font les enfants ?",
+      "bonne_reponse": "Ils écoutent"
+    }
+  },
+  {
+    "id": "f14cf95e-8ba4-42d9-bd70-d5aa5a9d893e",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le fermier nourrit ses poules chaque matin. Elles pondent des œufs.",
+      "options": [
+        "Elles pondent des œufs",
+        "Elles volent",
+        "Elles nagent"
+      ],
+      "question": "Que font les poules ?",
+      "bonne_reponse": "Elles pondent des œufs"
+    }
+  },
+  {
+    "id": "e8c4af49-eab1-435e-a010-6c44536ad57c",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Zoé range sa chambre avant de sortir. Elle est fière du résultat.",
+      "options": [
+        "Sa chambre est rangée",
+        "Elle a bien mangé",
+        "Elle a gagné un jeu"
+      ],
+      "question": "Pourquoi Zoé est-elle fière ?",
+      "bonne_reponse": "Sa chambre est rangée"
+    }
+  },
+  {
+    "id": "22187d8d-4f77-4595-a45f-dadee3d336e0",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le bateau quitte le port au lever du soleil. Les pêcheurs sont prêts.",
+      "options": [
+        "Au lever du soleil",
+        "La nuit",
+        "À midi"
+      ],
+      "question": "Quand le bateau part-il ?",
+      "bonne_reponse": "Au lever du soleil"
+    }
+  },
+  {
+    "id": "c4d3fe77-cc5d-41f8-beb7-109f7ab376b2",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Marc a oublié son parapluie. Quand il sort, la pluie tombe fort. Il court se mettre à l'abri.",
+      "options": [
+        "Il n'a pas de parapluie et il pleut",
+        "Il fait une course",
+        "Il a peur du chien"
+      ],
+      "question": "Pourquoi Marc court-il ?",
+      "bonne_reponse": "Il n'a pas de parapluie et il pleut"
+    }
+  },
+  {
+    "id": "d8ee2ebb-793c-4404-b7a0-0a4bd58e46ee",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chat s'approche doucement de la souris. La souris ne bouge pas. Soudain, elle s'enfuit.",
+      "options": [
+        "Elle a vu le chat approcher",
+        "Elle a faim",
+        "Elle veut jouer"
+      ],
+      "question": "Pourquoi la souris s'enfuit-elle ?",
+      "bonne_reponse": "Elle a vu le chat approcher"
+    }
+  },
+  {
+    "id": "52c4f0b2-dcdc-4b29-a4e0-fe99f55eba6e",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Il fait très chaud cet été. Les enfants vont à la piscine. Ils nagent toute l'après-midi.",
+      "options": [
+        "Il fait chaud",
+        "Il pleut",
+        "C'est leur anniversaire"
+      ],
+      "question": "Pourquoi les enfants vont-ils à la piscine ?",
+      "bonne_reponse": "Il fait chaud"
+    }
+  },
+  {
+    "id": "9a4c0f93-65fb-46d7-8e6e-42ffd9fd9748",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Léo n'a pas fait ses devoirs. Le lendemain, il est inquiet en classe. La maîtresse le remarque.",
+      "options": [
+        "Il n'a pas fait ses devoirs",
+        "Il est malade",
+        "Il a perdu son cahier"
+      ],
+      "question": "Pourquoi Léo est-il inquiet ?",
+      "bonne_reponse": "Il n'a pas fait ses devoirs"
+    }
+  },
+  {
+    "id": "e370e39d-7120-47ec-ab04-2271c9108879",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La nuit tombe et les étoiles apparaissent. Le hibou se réveille. Il part chasser dans la forêt.",
+      "options": [
+        "La nuit",
+        "Le matin",
+        "À midi"
+      ],
+      "question": "Quand le hibou se réveille-t-il ?",
+      "bonne_reponse": "La nuit"
+    }
+  },
+  {
+    "id": "a1ad1167-9aec-4539-9a13-3085b8ad012c",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit chat a faim. Il miaule près de son bol vide.",
+      "options": [
+        "Il a faim",
+        "Il a peur",
+        "Il est fatigué"
+      ],
+      "question": "Pourquoi le chat miaule-t-il ?",
+      "bonne_reponse": "Il a faim"
+    }
+  },
+  {
+    "id": "3a2fc987-da13-4a3d-ad18-b5f497a8e46c",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Emma a gagné la course. Elle saute de joie.",
+      "options": [
+        "Elle a gagné",
+        "Elle est tombée",
+        "Elle a perdu"
+      ],
+      "question": "Pourquoi Emma saute-t-elle de joie ?",
+      "bonne_reponse": "Elle a gagné"
+    }
+  },
+  {
+    "id": "02a59f88-1e68-49e3-9491-d87c11550745",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le ciel devient gris. Les gens ouvrent leur parapluie.",
+      "options": [
+        "Il va pleuvoir",
+        "Il va neiger",
+        "Il va faire soleil"
+      ],
+      "question": "Que va-t-il se passer ?",
+      "bonne_reponse": "Il va pleuvoir"
+    }
+  },
+  {
+    "id": "bbe0dbaa-da21-4863-84e4-e73a8dd9fd02",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Paul a beaucoup couru. Il boit de l'eau et respire fort.",
+      "options": [
+        "Il a couru",
+        "Il dort",
+        "Il a froid"
+      ],
+      "question": "Pourquoi Paul respire-t-il fort ?",
+      "bonne_reponse": "Il a couru"
+    }
+  },
+  {
+    "id": "723b8ad3-92d7-406a-b955-58eedf83a5e6",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La bougie s'éteint doucement. La pièce devient sombre.",
+      "options": [
+        "La bougie s'est éteinte",
+        "Il fait jour",
+        "La lampe s'allume"
+      ],
+      "question": "Pourquoi la pièce devient-elle sombre ?",
+      "bonne_reponse": "La bougie s'est éteinte"
+    }
+  },
+  {
+    "id": "19fc7fb7-d117-4cdc-97a9-d2c3647d7299",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Julie n'a pas révisé pour son contrôle. Le jour de l'examen, elle est stressée et n'arrive pas à répondre.",
+      "options": [
+        "Elle n'a pas révisé",
+        "Elle est malade",
+        "Elle a oublié son stylo"
+      ],
+      "question": "Pourquoi Julie est-elle stressée ?",
+      "bonne_reponse": "Elle n'a pas révisé"
+    }
+  },
+  {
+    "id": "d3da82db-e126-4cbb-83ba-7f8ee5a5b4a7",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux pont est fragile. Les habitants du village préfèrent prendre un autre chemin.",
+      "options": [
+        "Il est fragile",
+        "Il est trop long",
+        "Il est fermé"
+      ],
+      "question": "Pourquoi les habitants évitent-ils le pont ?",
+      "bonne_reponse": "Il est fragile"
+    }
+  },
+  {
+    "id": "3402efe7-601e-48bf-a292-da7ea924d663",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Max a planté des graines au printemps. En été, il récolte de belles tomates.",
+      "options": [
+        "Des tomates",
+        "Des pommes",
+        "Des fleurs"
+      ],
+      "question": "Que récolte Max en été ?",
+      "bonne_reponse": "Des tomates"
+    }
+  },
+  {
+    "id": "ba95eaa5-fd67-45b3-acc0-d0ba5a4518d7",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'ours se prépare pour l'hiver. Il mange beaucoup et cherche une grotte.",
+      "options": [
+        "Hiberner",
+        "Nager",
+        "Voler"
+      ],
+      "question": "Que va faire l'ours pendant l'hiver ?",
+      "bonne_reponse": "Hiberner"
+    }
+  },
+  {
+    "id": "7802047d-78ee-4aea-ae59-c774ab611578",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le train a du retard à cause de la neige. Les voyageurs attendent sur le quai.",
+      "options": [
+        "À cause de la neige",
+        "Il est en panne",
+        "Il est trop tôt"
+      ],
+      "question": "Pourquoi le train a-t-il du retard ?",
+      "bonne_reponse": "À cause de la neige"
+    }
+  },
+  {
+    "id": "15f332d8-448e-4987-9645-8e5e81fc9d6a",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Sarah a couru toute la journée sans manger. Le soir, elle se sent faible et a mal à la tête.",
+      "options": [
+        "Elle n'a pas mangé",
+        "Elle a trop dormi",
+        "Elle a trop bu"
+      ],
+      "question": "Pourquoi Sarah se sent-elle faible ?",
+      "bonne_reponse": "Elle n'a pas mangé"
+    }
+  },
+  {
+    "id": "c9335965-b743-4973-8302-984ffde8fce6",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux fermier regarde le ciel inquiet. Sans pluie depuis des semaines, ses cultures commencent à sécher.",
+      "options": [
+        "Le manque de pluie abîme ses cultures",
+        "Il a perdu son chien",
+        "Il n'a plus d'argent"
+      ],
+      "question": "Pourquoi le fermier est-il inquiet ?",
+      "bonne_reponse": "Le manque de pluie abîme ses cultures"
+    }
+  },
+  {
+    "id": "6310a98c-18ac-48f4-a8e8-56fdbab670c3",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le détective examine les traces de pas dans la neige. Elles mènent directement à la vieille maison abandonnée.",
+      "options": [
+        "À la vieille maison",
+        "Au commissariat",
+        "À l'école"
+      ],
+      "question": "Où mènent les traces de pas ?",
+      "bonne_reponse": "À la vieille maison"
+    }
+  },
+  {
+    "id": "1be0069d-a7f0-442d-b039-cebba934de6b",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après des heures de vol, l'avion traverse enfin les nuages. Les passagers aperçoivent la ville illuminée en contrebas.",
+      "options": [
+        "La ville illuminée",
+        "La mer déchaînée",
+        "Un autre avion"
+      ],
+      "question": "Que voient les passagers ?",
+      "bonne_reponse": "La ville illuminée"
+    }
+  },
+  {
+    "id": "3bb16ed8-052c-4fbc-a233-42daf9160441",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chien refuse de manger depuis deux jours. Inquiets, ses maîtres l'emmènent chez le vétérinaire.",
+      "options": [
+        "Il ne mange plus",
+        "Il a grandi",
+        "Il a un nouveau jouet"
+      ],
+      "question": "Pourquoi les maîtres emmènent-ils le chien chez le vétérinaire ?",
+      "bonne_reponse": "Il ne mange plus"
+    }
+  },
+  {
+    "id": "821cd5ec-a876-4d01-bb88-891c5588b7c3",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux fermier observe le ciel avec inquiétude. Depuis trois semaines, aucune goutte de pluie n'est tombée. Ses champs commencent à jaunir.",
+      "options": [
+        "Le manque de pluie assèche ses champs",
+        "Il a perdu ses outils",
+        "Il n'a plus de graines"
+      ],
+      "question": "Pourquoi le fermier est-il inquiet ?",
+      "bonne_reponse": "Le manque de pluie assèche ses champs"
+    }
+  },
+  {
+    "id": "6dbadf33-f5b0-4d99-b9d4-a06bb92c0888",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Léa s'entraîne au piano tous les jours après l'école. Au début, elle faisait beaucoup d'erreurs. Aujourd'hui, elle joue parfaitement sa première mélodie.",
+      "options": [
+        "Elle s'est beaucoup entraînée",
+        "Elle a un nouveau piano",
+        "Son professeur a changé"
+      ],
+      "question": "Pourquoi Léa joue-t-elle bien maintenant ?",
+      "bonne_reponse": "Elle s'est beaucoup entraînée"
+    }
+  },
+  {
+    "id": "be5280b0-27bc-4cb7-8f37-1d86685c8150",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le bateau de pêche rentre plus tôt que d'habitude. Le ciel devient de plus en plus sombre. Les vagues commencent à grossir dangereusement.",
+      "options": [
+        "Une tempête approche",
+        "La pêche est terminée",
+        "Le moteur est cassé"
+      ],
+      "question": "Pourquoi le bateau rentre-t-il tôt ?",
+      "bonne_reponse": "Une tempête approche"
+    }
+  },
+  {
+    "id": "9a2fcc97-0625-48d3-9857-c434f39c2be5",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Max ne trouve plus son chat depuis deux jours. Il colle des affiches dans tout le quartier. Un voisin l'appelle enfin pour lui dire qu'il l'a vu.",
+      "options": [
+        "Il colle des affiches",
+        "Il achète un nouveau chat",
+        "Il déménage"
+      ],
+      "question": "Que fait Max pour retrouver son chat ?",
+      "bonne_reponse": "Il colle des affiches"
+    }
+  },
+  {
+    "id": "2707aae8-4849-4f9e-89bd-458374a5a065",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'usine rejette beaucoup de fumée depuis des années. Les arbres autour deviennent malades. Les habitants demandent des changements aux autorités.",
+      "options": [
+        "La fumée de l'usine les abîme",
+        "Il n'y a pas assez d'eau",
+        "Un insecte les attaque"
+      ],
+      "question": "Pourquoi les arbres sont-ils malades ?",
+      "bonne_reponse": "La fumée de l'usine les abîme"
+    }
+  },
+  {
+    "id": "35883e94-0a3b-4d05-a633-b624a78a5cc5",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le jeune athlète s'entraîne tous les matins avant l'école. Ses amis préfèrent dormir plus longtemps. Le jour de la course, il termine premier.",
+      "options": [
+        "Il s'entraîne régulièrement",
+        "Il a de la chance",
+        "Les autres ne courent pas"
+      ],
+      "question": "Pourquoi l'athlète gagne-t-il la course ?",
+      "bonne_reponse": "Il s'entraîne régulièrement"
+    }
+  },
+  {
+    "id": "a5bdcc8e-b58d-4e2b-9399-7b41c799b8b1",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La rivière déborde après plusieurs jours de pluie intense. L'eau envahit les rues du village. Les habitants montent leurs affaires à l'étage.",
+      "options": [
+        "Il a beaucoup plu",
+        "Il fait très chaud",
+        "Un barrage a été construit"
+      ],
+      "question": "Pourquoi la rivière déborde-t-elle ?",
+      "bonne_reponse": "Il a beaucoup plu"
+    }
+  },
+  {
+    "id": "7e4b0004-73d2-44eb-86cb-c7a63f2c006a",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux libraire connaît chaque livre de sa boutique par cœur. Un enfant timide entre chercher un cadeau pour sa mère. Le libraire lui conseille le livre parfait.",
+      "options": [
+        "Il connaît tous ses livres",
+        "Il est très riche",
+        "Il ferme bientôt sa boutique"
+      ],
+      "question": "Pourquoi le libraire peut-il bien conseiller l'enfant ?",
+      "bonne_reponse": "Il connaît tous ses livres"
+    }
+  },
+  {
+    "id": "9f2de5e2-484f-4373-8b10-96dac19ce157",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chien aboie sans arrêt vers la porte du jardin. Sa maîtresse s'approche pour regarder. Elle découvre un hérisson caché sous les feuilles.",
+      "options": [
+        "Il avait vu le hérisson",
+        "Il avait faim",
+        "Il voulait sortir"
+      ],
+      "question": "Pourquoi le chien aboyait-il ?",
+      "bonne_reponse": "Il avait vu le hérisson"
+    }
+  },
+  {
+    "id": "446d2ac6-0d52-4412-a823-9850d0801b92",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'équipe de secours cherche le randonneur perdu depuis le matin. La nuit commence à tomber sur la montagne. Enfin, ils aperçoivent une lumière au loin.",
+      "options": [
+        "Un randonneur perdu",
+        "Un animal sauvage",
+        "Un trésor caché"
+      ],
+      "question": "Que cherchent les secours ?",
+      "bonne_reponse": "Un randonneur perdu"
+    }
+  },
+  {
+    "id": "c83efa7b-1b6a-433a-8682-e873850bd419",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux moulin ne fonctionne plus depuis la tempête. Les villageois doivent aller moudre leur blé plus loin. Un charpentier propose enfin de le réparer.",
+      "options": [
+        "Une tempête l'a endommagé",
+        "Il est trop vieux",
+        "Personne ne l'utilise"
+      ],
+      "question": "Pourquoi le moulin ne fonctionne-t-il plus ?",
+      "bonne_reponse": "Une tempête l'a endommagé"
+    }
+  },
+  {
+    "id": "df3e24f9-b7b8-479f-b10b-9e44680fed3d",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'astronaute regarde la Terre depuis la station spatiale. Elle semble minuscule et fragile de là-haut. Il ressent une grande émotion en la regardant.",
+      "options": [
+        "Il voit la Terre depuis l'espace",
+        "Il a peur du vide",
+        "Il est malade"
+      ],
+      "question": "Pourquoi l'astronaute est-il ému ?",
+      "bonne_reponse": "Il voit la Terre depuis l'espace"
+    }
+  },
+  {
+    "id": "9a408457-2236-4622-9c24-b43f755ef8b9",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux pommier du jardin ne donne plus de fruits depuis deux ans. Le jardinier décide de le tailler soigneusement. Au printemps suivant, de nouvelles fleurs apparaissent.",
+      "options": [
+        "Il le taille",
+        "Il l'arrose plus",
+        "Il le déplace"
+      ],
+      "question": "Que fait le jardinier pour aider l'arbre ?",
+      "bonne_reponse": "Il le taille"
+    }
+  },
+  {
+    "id": "7bc3b336-5078-45d7-baf2-b8ba02ba9796",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les explorateurs polaires avancent depuis des jours dans le froid glacial. Leurs provisions commencent à manquer. Ils aperçoivent enfin leur camp de base au loin.",
+      "options": [
+        "Leurs provisions diminuent",
+        "Ils ont trop chaud",
+        "Ils sont perdus en ville"
+      ],
+      "question": "Pourquoi les explorateurs sont-ils inquiets ?",
+      "bonne_reponse": "Leurs provisions diminuent"
+    }
+  },
+  {
+    "id": "3bed29dd-4127-4c57-ace2-8ea1da70b11c",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit village organise une grande fête chaque année en été. Cette année, la pluie menace de tout gâcher. Finalement, le soleil revient juste à temps.",
+      "options": [
+        "La pluie",
+        "Le manque de nourriture",
+        "Un incendie"
+      ],
+      "question": "Qu'est-ce qui menaçait la fête ?",
+      "bonne_reponse": "La pluie"
+    }
+  },
+  {
+    "id": "ab144f90-7385-4fe1-a16b-ac341066b561",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit garçon range ses jouets avant le dîner.",
+      "options": [
+        "Il range ses jouets",
+        "Il mange son dîner",
+        "Il regarde la télé"
+      ],
+      "question": "Que fait le garçon ?",
+      "bonne_reponse": "Il range ses jouets"
+    }
+  },
+  {
+    "id": "e28e4a95-6726-4504-a818-3cb7aa4ab4ea",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La girafe mange les feuilles en haut de l'arbre.",
+      "options": [
+        "Des feuilles",
+        "De l'herbe",
+        "Des fruits"
+      ],
+      "question": "Que mange la girafe ?",
+      "bonne_reponse": "Des feuilles"
+    }
+  },
+  {
+    "id": "4b135a78-c329-4240-bfe2-deb280f115d9",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vent souffle et fait tomber le chapeau de Lucas.",
+      "options": [
+        "À cause du vent",
+        "Il est trop petit",
+        "Lucas l'a jeté"
+      ],
+      "question": "Pourquoi le chapeau tombe-t-il ?",
+      "bonne_reponse": "À cause du vent"
+    }
+  },
+  {
+    "id": "daf884aa-eecc-4484-8c00-a215ac4c6871",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La poule pond un œuf tous les matins dans le poulailler.",
+      "options": [
+        "Dans le poulailler",
+        "Dans la rivière",
+        "Dans un arbre"
+      ],
+      "question": "Où la poule pond-elle son œuf ?",
+      "bonne_reponse": "Dans le poulailler"
+    }
+  },
+  {
+    "id": "4822d5b9-4253-49c3-a71f-bd4175d71010",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Il fait nuit, les étoiles brillent dans le ciel.",
+      "options": [
+        "La nuit",
+        "Le matin",
+        "À midi"
+      ],
+      "question": "Quand les étoiles brillent-elles ?",
+      "bonne_reponse": "La nuit"
+    }
+  },
+  {
+    "id": "1acc5e2c-8b0a-492b-bdd0-851d328c7588",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le boulanger sort le pain chaud du four.",
+      "options": [
+        "Du four",
+        "Du frigo",
+        "Du jardin"
+      ],
+      "question": "D'où sort le pain ?",
+      "bonne_reponse": "Du four"
+    }
+  },
+  {
+    "id": "fa61608a-90d9-4613-89cf-3411c030f170",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le lapin creuse un terrier dans le jardin.",
+      "options": [
+        "Un terrier",
+        "Une piscine",
+        "Un puits"
+      ],
+      "question": "Que creuse le lapin ?",
+      "bonne_reponse": "Un terrier"
+    }
+  },
+  {
+    "id": "5922baad-17ba-468e-af7c-595307292af0",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Sophie met son manteau car il fait très froid dehors.",
+      "options": [
+        "Il fait froid",
+        "Il fait chaud",
+        "Elle sort du bain"
+      ],
+      "question": "Pourquoi Sophie met-elle son manteau ?",
+      "bonne_reponse": "Il fait froid"
+    }
+  },
+  {
+    "id": "926e6f3f-6ab9-4ea6-8060-ef64a4dd8e7f",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le pêcheur attrape un gros poisson dans son filet.",
+      "options": [
+        "Un poisson",
+        "Un oiseau",
+        "Une bottine"
+      ],
+      "question": "Que attrape le pêcheur ?",
+      "bonne_reponse": "Un poisson"
+    }
+  },
+  {
+    "id": "2565b5e9-bf8f-4b6a-b5fc-b0cb5a294634",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le clown fait rire tous les enfants du cirque.",
+      "options": [
+        "Le clown",
+        "Le lion",
+        "Le dompteur"
+      ],
+      "question": "Qui fait rire les enfants ?",
+      "bonne_reponse": "Le clown"
+    }
+  },
+  {
+    "id": "cacc6122-cc79-4986-b26d-01c05b1c2cea",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Nina cherche son doudou partout dans sa chambre. Elle finit par le trouver sous son lit.",
+      "options": [
+        "Sous son lit",
+        "Dans l'armoire",
+        "Sous la table"
+      ],
+      "question": "Où Nina trouve-t-elle son doudou ?",
+      "bonne_reponse": "Sous son lit"
+    }
+  },
+  {
+    "id": "2704f35e-489c-4bda-80cb-3a3fd1e6cdbc",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit ourson a faim. Sa maman lui donne du miel bien sucré.",
+      "options": [
+        "Du miel",
+        "Du poisson",
+        "Des baies"
+      ],
+      "question": "Que donne la maman ourse ?",
+      "bonne_reponse": "Du miel"
+    }
+  },
+  {
+    "id": "31791bda-c4eb-4619-9d86-003ac9feb909",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'écureuil cache des noisettes dans un trou d'arbre pour l'hiver.",
+      "options": [
+        "Pour l'hiver",
+        "Pour jouer",
+        "Pour les donner"
+      ],
+      "question": "Pourquoi l'écureuil cache-t-il des noisettes ?",
+      "bonne_reponse": "Pour l'hiver"
+    }
+  },
+  {
+    "id": "21d460af-7b88-4301-9c7c-d02c26084ab3",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit garçon tombe de son vélo. Il pleure un peu puis se relève.",
+      "options": [
+        "Il se relève",
+        "Il reste par terre",
+        "Il rentre en pleurant"
+      ],
+      "question": "Que fait le garçon après être tombé ?",
+      "bonne_reponse": "Il se relève"
+    }
+  },
+  {
+    "id": "b0ccf732-ad28-4a2c-9e91-2a1803c4b63b",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La maîtresse distribue des feuilles de dessin. Les élèves sont ravis.",
+      "options": [
+        "Ravis",
+        "Tristes",
+        "Fatigués"
+      ],
+      "question": "Comment se sentent les élèves ?",
+      "bonne_reponse": "Ravis"
+    }
+  },
+  {
+    "id": "a9fba89c-566a-48af-8f56-1f1a006e453f",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chat grimpe tout en haut de l'arbre. Il n'arrive plus à redescendre.",
+      "options": [
+        "Il ne peut plus descendre",
+        "Il a faim",
+        "Il a perdu sa queue"
+      ],
+      "question": "Quel est le problème du chat ?",
+      "bonne_reponse": "Il ne peut plus descendre"
+    }
+  },
+  {
+    "id": "54cd9f9d-707c-434e-952f-38361d9ba0b4",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le marchand de glaces installe son stand sur la plage bondée.",
+      "options": [
+        "Sur la plage",
+        "Dans la forêt",
+        "À l'école"
+      ],
+      "question": "Où le marchand installe-t-il son stand ?",
+      "bonne_reponse": "Sur la plage"
+    }
+  },
+  {
+    "id": "b5422a7b-c167-475c-b8bd-46740119bc1d",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux tracteur du fermier tombe en panne au milieu du champ.",
+      "options": [
+        "Il tombe en panne",
+        "Il roule vite",
+        "Il est neuf"
+      ],
+      "question": "Que se passe-t-il avec le tracteur ?",
+      "bonne_reponse": "Il tombe en panne"
+    }
+  },
+  {
+    "id": "27b6d3ab-7e2a-49fd-946b-12c0d8e06100",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les canetons suivent leur maman en file bien rangée près de l'étang.",
+      "options": [
+        "Ils suivent leur maman",
+        "Ils nagent seuls",
+        "Ils dorment"
+      ],
+      "question": "Que font les canetons ?",
+      "bonne_reponse": "Ils suivent leur maman"
+    }
+  },
+  {
+    "id": "6458c750-b6c8-4ed2-811a-9a33cb56f3d4",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après la pluie, un magnifique arc-en-ciel apparaît dans le ciel.",
+      "options": [
+        "Après la pluie",
+        "Avant la pluie",
+        "La nuit"
+      ],
+      "question": "Quand apparaît l'arc-en-ciel ?",
+      "bonne_reponse": "Après la pluie"
+    }
+  },
+  {
+    "id": "e1e51228-a462-46c3-8b9a-df9fba28e527",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit chien aboie fort quand un inconnu approche de la maison.",
+      "options": [
+        "Quand un inconnu approche",
+        "Quand il mange",
+        "Quand il dort"
+      ],
+      "question": "Quand le chien aboie-t-il ?",
+      "bonne_reponse": "Quand un inconnu approche"
+    }
+  },
+  {
+    "id": "333e334d-d27c-4750-b625-20eed8027c51",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux jardinier arrose ses tomates tous les soirs. Cette année, la récolte est particulièrement belle.",
+      "options": [
+        "Il arrose regulièrement ses plants",
+        "Il a acheté de nouvelles graines",
+        "Il a un grand jardin"
+      ],
+      "question": "Pourquoi la récolte est-elle belle ?",
+      "bonne_reponse": "Il arrose regulièrement ses plants"
+    }
+  },
+  {
+    "id": "783e2c5b-436a-4d8a-bc58-762d6da7854e",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Léa s'entraîne à nager depuis le début de l'été. Aujourd'hui, elle traverse la piscine sans s'arrêter.",
+      "options": [
+        "Léa a progressé grâce à l'entraînement",
+        "Léa a peur de l'eau",
+        "La piscine est fermée"
+      ],
+      "question": "Que montre cette histoire ?",
+      "bonne_reponse": "Léa a progressé grâce à l'entraînement"
+    }
+  },
+  {
+    "id": "8590b1de-8173-43fa-b74f-3d2030d3e8d2",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chat s'approche du bol de lait renversé. Il regarde autour de lui, l'air inquiet.",
+      "options": [
+        "Il a peut-être fait une bêtise",
+        "Il a trop mangé",
+        "Il veut jouer"
+      ],
+      "question": "Pourquoi le chat semble-t-il inquiet ?",
+      "bonne_reponse": "Il a peut-être fait une bêtise"
+    }
+  },
+  {
+    "id": "a72a913e-492d-4f37-90f6-1e118f5c36ca",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les nuages s'assombrissent rapidement. Les promeneurs pressent le pas vers l'abri le plus proche.",
+      "options": [
+        "Une pluie menace d'arriver",
+        "Il fait déjà nuit",
+        "Ils ont faim"
+      ],
+      "question": "Pourquoi les promeneurs se dépêchent-ils ?",
+      "bonne_reponse": "Une pluie menace d'arriver"
+    }
+  },
+  {
+    "id": "11248796-28e0-4380-927d-f69950f79004",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux chien dort toute la journée près du feu. Il ne joue plus comme avant.",
+      "options": [
+        "Il est devenu vieux et fatigué",
+        "Il est malade",
+        "Il a peur du feu"
+      ],
+      "question": "Que suggère cette histoire sur le chien ?",
+      "bonne_reponse": "Il est devenu vieux et fatigué"
+    }
+  },
+  {
+    "id": "c5f7ba97-72a3-4145-b5d3-40fc65cf8117",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Chaque jour, Tom donne une graine de tournesol à l'oiseau sur son balcon. L'oiseau revient toujours.",
+      "options": [
+        "Il sait qu'il trouvera de la nourriture",
+        "Il est perdu",
+        "Il n'aime pas voler"
+      ],
+      "question": "Pourquoi l'oiseau revient-il chaque jour ?",
+      "bonne_reponse": "Il sait qu'il trouvera de la nourriture"
+    }
+  },
+  {
+    "id": "1938cf69-ac6a-482e-bd24-711a9c4bbe4d",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La rivière est basse cet été. Les poissons se rassemblent dans les rares zones encore profondes.",
+      "options": [
+        "L'eau est basse ailleurs",
+        "Ils jouent ensemble",
+        "Ils ont froid"
+      ],
+      "question": "Pourquoi les poissons se rassemblent-ils ?",
+      "bonne_reponse": "L'eau est basse ailleurs"
+    }
+  },
+  {
+    "id": "080e3b5b-c56b-46d7-8ef5-9eee47196e5f",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Sarah relit son histoire trois fois avant de la rendre à sa maîtresse. Elle veut qu'elle soit parfaite.",
+      "options": [
+        "Elle veut qu'elle soit parfaite",
+        "Elle a oublié ce qu'elle a écrit",
+        "Elle s'ennuie"
+      ],
+      "question": "Pourquoi Sarah relit-elle son histoire ?",
+      "bonne_reponse": "Elle veut qu'elle soit parfaite"
+    }
+  },
+  {
+    "id": "b6435371-f73f-4ba1-a3e4-1022ce3280d7",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le renard observe le poulailler depuis la lisière du bois.",
+      "options": [
+        "À la lisière du bois",
+        "Dans le poulailler",
+        "Dans la rivière"
+      ],
+      "question": "Où se trouve le renard ?",
+      "bonne_reponse": "À la lisière du bois"
+    }
+  },
+  {
+    "id": "f60233dd-5fc3-4ee2-b75f-a75d7fdafb3d",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux camion peine à monter la côte sous le poids du chargement.",
+      "options": [
+        "Le chargement est lourd",
+        "Il n'a plus d'essence",
+        "La route est fermée"
+      ],
+      "question": "Pourquoi le camion peine-t-il ?",
+      "bonne_reponse": "Le chargement est lourd"
+    }
+  },
+  {
+    "id": "ff6a3f0c-974f-42ca-b583-2cf14c04adbe",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Léo range sa collection de timbres par pays, avec beaucoup de soin.",
+      "options": [
+        "Par pays",
+        "Par couleur",
+        "Au hasard"
+      ],
+      "question": "Comment Léo range-t-il ses timbres ?",
+      "bonne_reponse": "Par pays"
+    }
+  },
+  {
+    "id": "7f08b7b4-98b5-4b2e-97b6-ec14e5792b95",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après trois jours de pluie, le soleil brille enfin ce matin.",
+      "options": [
+        "Trois jours",
+        "Une semaine",
+        "Un mois"
+      ],
+      "question": "Depuis quand pleuvait-il ?",
+      "bonne_reponse": "Trois jours"
+    }
+  },
+  {
+    "id": "a73d47ae-90f0-4be5-839f-b490de995620",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'apiculteur récolte le miel avec précaution pour ne pas déranger les abeilles.",
+      "options": [
+        "Du miel",
+        "Des fleurs",
+        "Du pollen à vendre"
+      ],
+      "question": "Que récolte l'apiculteur ?",
+      "bonne_reponse": "Du miel"
+    }
+  },
+  {
+    "id": "2543e772-d039-4943-8ca5-2978b7a47a94",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le funiculaire grimpe lentement jusqu'au sommet de la colline.",
+      "options": [
+        "Au sommet de la colline",
+        "Dans la vallée",
+        "Sous terre"
+      ],
+      "question": "Où va le funiculaire ?",
+      "bonne_reponse": "Au sommet de la colline"
+    }
+  },
+  {
+    "id": "52f5946d-0c18-4def-8c1d-fd55dae03ae4",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le hérisson se roule en boule dès qu'il sent un danger approcher.",
+      "options": [
+        "Il se roule en boule",
+        "Il court très vite",
+        "Il grimpe aux arbres"
+      ],
+      "question": "Que fait le hérisson en danger ?",
+      "bonne_reponse": "Il se roule en boule"
+    }
+  },
+  {
+    "id": "f2d2538f-6468-436b-bb88-49a1a9ba68ed",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La bibliothécaire range les livres rendus sur les étagères, un par un.",
+      "options": [
+        "Elle range les livres",
+        "Elle les vend",
+        "Elle les jette"
+      ],
+      "question": "Que fait la bibliothécaire ?",
+      "bonne_reponse": "Elle range les livres"
+    }
+  },
+  {
+    "id": "02a909ad-9e5f-4abb-95db-b5a07aeb92e6",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit village se prépare pour le marché du dimanche matin.",
+      "options": [
+        "Le dimanche matin",
+        "Le samedi soir",
+        "Tous les jours"
+      ],
+      "question": "Quand a lieu le marché ?",
+      "bonne_reponse": "Le dimanche matin"
+    }
+  },
+  {
+    "id": "f7eb6201-a7d8-4452-9bde-58d3d94e583e",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux phare clignote toutes les dix secondes pour guider les bateaux.",
+      "options": [
+        "Toutes les dix secondes",
+        "Une fois par heure",
+        "Jamais"
+      ],
+      "question": "À quelle fréquence clignote le phare ?",
+      "bonne_reponse": "Toutes les dix secondes"
+    }
+  },
+  {
+    "id": "8e2cb14a-4266-4c32-83fe-9a43f13e0a0f",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Camille s'entraîne au saut en hauteur depuis des semaines. Aujourd'hui, elle bat enfin son record.",
+      "options": [
+        "Elle bat son record",
+        "Elle abandonne le sport",
+        "Elle se blesse"
+      ],
+      "question": "Que réussit Camille aujourd'hui ?",
+      "bonne_reponse": "Elle bat son record"
+    }
+  },
+  {
+    "id": "b46e7301-5480-4d2a-b059-c29dfc2d8a72",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux menuisier façonne le bois avec des outils hérités de son grand-père.",
+      "options": [
+        "De son grand-père",
+        "Il les a achetés neufs",
+        "Il les a fabriqués lui-même"
+      ],
+      "question": "D'où viennent les outils du menuisier ?",
+      "bonne_reponse": "De son grand-père"
+    }
+  },
+  {
+    "id": "04a589f5-eca1-4b08-9b33-e8ee60ef07ef",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La rivière est gelée cet hiver. Les enfants du village y patinent joyeusement.",
+      "options": [
+        "La rivière est gelée",
+        "Il y a une patinoire",
+        "Ils ont des rollers"
+      ],
+      "question": "Pourquoi les enfants peuvent-ils patiner ?",
+      "bonne_reponse": "La rivière est gelée"
+    }
+  },
+  {
+    "id": "23da106c-d93c-44e0-915b-569ca1fad311",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chat noir se cache sous le canapé chaque fois que l'aspirateur démarre.",
+      "options": [
+        "Il a peur de l'aspirateur",
+        "Il veut jouer",
+        "Il a faim"
+      ],
+      "question": "Pourquoi le chat se cache-t-il ?",
+      "bonne_reponse": "Il a peur de l'aspirateur"
+    }
+  },
+  {
+    "id": "3fc75e66-633c-496a-a3f2-c1c8fb7b9dfb",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le fleuve déborde après la fonte des neiges au printemps.",
+      "options": [
+        "La fonte des neiges",
+        "Une tempête d'été",
+        "Un barrage cassé"
+      ],
+      "question": "Pourquoi le fleuve déborde-t-il ?",
+      "bonne_reponse": "La fonte des neiges"
+    }
+  },
+  {
+    "id": "8d7268d0-228f-4920-9308-2974ec32cc8b",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré la fatigue, les alpinistes continuent leur ascension jusqu'au sommet.",
+      "options": [
+        "Ils continuent de grimper",
+        "Ils redescendent",
+        "Ils font une pause"
+      ],
+      "question": "Que font les alpinistes malgré la fatigue ?",
+      "bonne_reponse": "Ils continuent de grimper"
+    }
+  },
+  {
+    "id": "be655122-5ba7-43ad-bb03-e51b8a6730be",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit robot de cuisine mixe rapidement les fruits pour préparer un jus frais.",
+      "options": [
+        "Un jus de fruits",
+        "Une soupe",
+        "Un gâteau"
+      ],
+      "question": "Que prépare le robot de cuisine ?",
+      "bonne_reponse": "Un jus de fruits"
+    }
+  },
+  {
+    "id": "bbd67a29-857f-479c-9eaa-72fdb0f93764",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après une longue sécheresse, les premières gouttes de pluie ravissent les agriculteurs.",
+      "options": [
+        "Il pleut enfin",
+        "Ils vendent leur récolte",
+        "C'est les vacances"
+      ],
+      "question": "Pourquoi les agriculteurs sont-ils ravis ?",
+      "bonne_reponse": "Il pleut enfin"
+    }
+  },
+  {
+    "id": "0941628c-6cdb-4428-8d82-b611d13022f0",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux chat de la ferme chasse toujours les souris malgré son âge.",
+      "options": [
+        "Il chasse les souris",
+        "Il dort tout le temps",
+        "Il ne bouge plus"
+      ],
+      "question": "Que fait le vieux chat malgré son âge ?",
+      "bonne_reponse": "Il chasse les souris"
+    }
+  },
+  {
+    "id": "e11ceeef-02e3-4197-934e-9282a0831d46",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'orchestre répète le même morceau depuis des mois pour le concert de fin d'année.",
+      "options": [
+        "Pour bien jouer au concert",
+        "Ils ont oublié la partition",
+        "Le chef est absent"
+      ],
+      "question": "Pourquoi l'orchestre répète-t-il autant ?",
+      "bonne_reponse": "Pour bien jouer au concert"
+    }
+  },
+  {
+    "id": "803203fb-a3d1-494e-b7b5-c00d7f478e44",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux pêcheur connaît chaque recoin de la rivière. Même dans le brouillard, il retrouve son chemin sans difficulté.",
+      "options": [
+        "Il connaît très bien la rivière",
+        "Il a une carte",
+        "Il suit un autre bateau"
+      ],
+      "question": "Pourquoi le pêcheur ne se perd-il pas dans le brouillard ?",
+      "bonne_reponse": "Il connaît très bien la rivière"
+    }
+  },
+  {
+    "id": "4dcf188a-12bb-4b82-8d15-b165418cd384",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré plusieurs échecs, la jeune scientifique poursuit ses expériences. Elle est convaincue que la solution est proche.",
+      "options": [
+        "Sa persévérance",
+        "Son découragement",
+        "Son indifférence"
+      ],
+      "question": "Que montre l'attitude de la scientifique ?",
+      "bonne_reponse": "Sa persévérance"
+    }
+  },
+  {
+    "id": "0ed779d9-cf11-4a72-9ab2-af8a6c011455",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le glacier recule chaque année un peu plus. Les scientifiques y voient un signal inquiétant pour la planète.",
+      "options": [
+        "C'est un signe du changement climatique",
+        "Le glacier va grandir",
+        "C'est normal en hiver"
+      ],
+      "question": "Pourquoi ce recul inquiète-t-il les scientifiques ?",
+      "bonne_reponse": "C'est un signe du changement climatique"
+    }
+  },
+  {
+    "id": "500af6f5-1195-4deb-bba5-a25cc602d2b6",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le jeune pianiste tremble avant d'entrer sur scène. Dès les premières notes, son trac disparaît.",
+      "options": [
+        "Son trac disparaît",
+        "Il oublie sa musique",
+        "Il quitte la scène"
+      ],
+      "question": "Que se passe-t-il quand il commence à jouer ?",
+      "bonne_reponse": "Son trac disparaît"
+    }
+  },
+  {
+    "id": "36e38e78-9d68-463d-a225-7e0055497345",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après la tempête, les villageois se rassemblent pour réparer ensemble les toits endommagés.",
+      "options": [
+        "Ils réparent les toits ensemble",
+        "Ils quittent le village",
+        "Ils attendent les secours"
+      ],
+      "question": "Que font les villageois après la tempête ?",
+      "bonne_reponse": "Ils réparent les toits ensemble"
+    }
+  },
+  {
+    "id": "29363436-634e-430a-87bb-029ebe6b8ced",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux loup solitaire observe la meute de loin, sans jamais s'approcher.",
+      "options": [
+        "Il vit à l'écart de la meute",
+        "Il dirige la meute",
+        "Il a peur de la nuit"
+      ],
+      "question": "Que suggère le comportement du vieux loup ?",
+      "bonne_reponse": "Il vit à l'écart de la meute"
+    }
+  },
+  {
+    "id": "93846af3-6d14-416f-a30c-4cb6a9984063",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré la pluie battante, les spectateurs restent jusqu'à la fin du match, emmitouflés dans leurs manteaux.",
+      "options": [
+        "Leur passion pour le match",
+        "Leur envie de partir",
+        "Leur indifférence"
+      ],
+      "question": "Que montre l'attitude des spectateurs ?",
+      "bonne_reponse": "Leur passion pour le match"
+    }
+  },
+  {
+    "id": "73cf5d50-fa4b-4d7b-b24b-a8d2b6157eb8",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'abeille butine sans relâche toute la journée, rapportant sans cesse du nectar à la ruche.",
+      "options": [
+        "Sans relâche",
+        "Lentement",
+        "Une seule fois par jour"
+      ],
+      "question": "Comment travaille l'abeille ?",
+      "bonne_reponse": "Sans relâche"
+    }
+  },
+  {
+    "id": "88891a90-4738-47f5-b29f-207159e57f5c",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux capitaine connaît chaque étoile qui guide son navire la nuit.",
+      "options": [
+        "Grâce aux étoiles",
+        "Avec une carte",
+        "Grâce à la lune seule"
+      ],
+      "question": "Comment le capitaine se repère-t-il la nuit ?",
+      "bonne_reponse": "Grâce aux étoiles"
+    }
+  },
+  {
+    "id": "43cb432e-6315-476a-9113-41324f0ef34d",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La jeune apprentie couturière coud sa première robe avec beaucoup d'attention.",
+      "options": [
+        "Une robe",
+        "Un manteau",
+        "Des chaussettes"
+      ],
+      "question": "Que coud l'apprentie couturière ?",
+      "bonne_reponse": "Une robe"
+    }
+  },
+  {
+    "id": "25548994-31a0-4c72-868e-cf4df7aa9a33",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux chêne du village a résisté à plus de deux cents hivers.",
+      "options": [
+        "Plus de deux cents ans",
+        "Dix ans",
+        "Cinquante ans"
+      ],
+      "question": "Depuis combien de temps le chêne existe-t-il ?",
+      "bonne_reponse": "Plus de deux cents ans"
+    }
+  },
+  {
+    "id": "61ef588f-b23d-49ca-8ae4-3460858cf54d",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le potier façonne l'argile humide entre ses mains expertes.",
+      "options": [
+        "De l'argile",
+        "Du bois",
+        "Du métal"
+      ],
+      "question": "Que façonne le potier ?",
+      "bonne_reponse": "De l'argile"
+    }
+  },
+  {
+    "id": "2a7d5195-00d8-449b-8229-63d2a1c54434",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'orage éclate soudainement, obligeant les randonneurs à trouver un abri.",
+      "options": [
+        "Un orage éclate",
+        "Ils sont fatigués",
+        "Il fait nuit"
+      ],
+      "question": "Pourquoi les randonneurs cherchent-ils un abri ?",
+      "bonne_reponse": "Un orage éclate"
+    }
+  },
+  {
+    "id": "5ed94e41-f1e4-4f87-a833-037cb2c25b90",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le jeune mousse apprend à hisser les voiles sous l'œil attentif du capitaine.",
+      "options": [
+        "Il apprend à hisser les voiles",
+        "Il pêche des poissons",
+        "Il répare le mât"
+      ],
+      "question": "Que fait le jeune mousse ?",
+      "bonne_reponse": "Il apprend à hisser les voiles"
+    }
+  },
+  {
+    "id": "0b292d58-fb4b-4f46-9390-df0535465c25",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le renard rusé attend patiemment que les poules quittent le poulailler.",
+      "options": [
+        "Il attend patiemment",
+        "Il attaque tout de suite",
+        "Il fuit"
+      ],
+      "question": "Que fait le renard ?",
+      "bonne_reponse": "Il attend patiemment"
+    }
+  },
+  {
+    "id": "36f63258-d462-4d55-8b04-327769e1d1e3",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'horloger répare la vieille pendule avec des outils minuscules.",
+      "options": [
+        "Une pendule",
+        "Un vélo",
+        "Une lampe"
+      ],
+      "question": "Que répare l'horloger ?",
+      "bonne_reponse": "Une pendule"
+    }
+  },
+  {
+    "id": "0e66de2a-5f73-4735-8b17-bb5580ca72de",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La météorite traverse le ciel nocturne dans une traînée lumineuse.",
+      "options": [
+        "La nuit",
+        "Le matin",
+        "À midi"
+      ],
+      "question": "Quand voit-on la météorite ?",
+      "bonne_reponse": "La nuit"
+    }
+  },
+  {
+    "id": "4de1cd66-0cd9-490b-b42c-5d197f05aa2b",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux mineur descend chaque jour dans les profondeurs de la mine.",
+      "options": [
+        "Sous terre",
+        "En haute mer",
+        "Dans les airs"
+      ],
+      "question": "Où travaille le mineur ?",
+      "bonne_reponse": "Sous terre"
+    }
+  },
+  {
+    "id": "91d023c0-c811-4045-83e7-525262a3482b",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le jeune apprenti forgeron rate son premier fer à cheval. Son maître lui montre patiemment comment corriger son geste.",
+      "options": [
+        "Il aide l'apprenti à progresser",
+        "Il renvoie l'apprenti",
+        "Il refait le travail seul"
+      ],
+      "question": "Que fait le maître forgeron ?",
+      "bonne_reponse": "Il aide l'apprenti à progresser"
+    }
+  },
+  {
+    "id": "911de30d-988d-4be6-9f6b-12166a82a1d5",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La banquise fond plus vite chaque été. Les ours polaires doivent nager de plus en plus loin pour chasser.",
+      "options": [
+        "La banquise fond",
+        "Ils aiment nager",
+        "Il y a plus de poissons"
+      ],
+      "question": "Pourquoi les ours polaires nagent-ils plus loin ?",
+      "bonne_reponse": "La banquise fond"
+    }
+  },
+  {
+    "id": "b1303de5-3e13-4498-8a41-c16bdb37cdd6",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le jeune inventeur teste son cerf-volant motorisé pour la dixième fois. Cette fois, il vole enfin correctement.",
+      "options": [
+        "Sa persévérance a payé",
+        "Il a eu de la chance",
+        "Il a abandonné"
+      ],
+      "question": "Que montre cette histoire sur l'inventeur ?",
+      "bonne_reponse": "Sa persévérance a payé"
+    }
+  },
+  {
+    "id": "34d87f23-d848-4234-8109-13d0d4bed0c9",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux gardien du phare surveille la mer chaque nuit, quel que soit le temps.",
+      "options": [
+        "Il surveille la mer",
+        "Il dort profondément",
+        "Il répare le phare"
+      ],
+      "question": "Que fait le gardien chaque nuit ?",
+      "bonne_reponse": "Il surveille la mer"
+    }
+  },
+  {
+    "id": "4702ee02-127b-4f76-8d2c-dfd1f5651cd5",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La caravane de marchands traverse le désert de nuit pour éviter la chaleur écrasante du jour.",
+      "options": [
+        "Pour éviter la chaleur",
+        "Pour se cacher",
+        "Il n'y a pas de sable la nuit"
+      ],
+      "question": "Pourquoi la caravane voyage-t-elle de nuit ?",
+      "bonne_reponse": "Pour éviter la chaleur"
+    }
+  },
+  {
+    "id": "45851dd5-1b64-4d0e-831c-eed34ae0fe03",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit village de pêcheurs vit au rythme des marées depuis des générations.",
+      "options": [
+        "Les marées",
+        "Les saisons scolaires",
+        "Le marché"
+      ],
+      "question": "Qu'est-ce qui rythme la vie du village ?",
+      "bonne_reponse": "Les marées"
+    }
+  },
+  {
+    "id": "ea32210c-397f-4bab-9d8c-1b2eefe2c068",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux professeur raconte la même histoire chaque année, mais les élèves l'écoutent toujours avec plaisir.",
+      "options": [
+        "Ils l'écoutent toujours avec plaisir",
+        "Ils s'ennuient",
+        "Ils quittent la salle"
+      ],
+      "question": "Comment les élèves réagissent-ils à cette histoire répétée ?",
+      "bonne_reponse": "Ils l'écoutent toujours avec plaisir"
+    }
+  },
+  {
+    "id": "7d8bfe06-d436-4e59-82c4-10839d862749",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'archéologue creuse avec précaution, craignant d'abîmer les vestiges enfouis.",
+      "options": [
+        "Il ne veut pas abîmer les vestiges",
+        "Il a peur du noir",
+        "Il manque d'outils"
+      ],
+      "question": "Pourquoi l'archéologue est-il prudent ?",
+      "bonne_reponse": "Il ne veut pas abîmer les vestiges"
+    }
+  },
+  {
+    "id": "5625a556-8693-4b0b-9a18-31f4046c519e",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré la neige épaisse, le facteur du village continue sa tournée chaque matin.",
+      "options": [
+        "Son dévouement à son travail",
+        "Il déteste la neige",
+        "Il veut rentrer vite"
+      ],
+      "question": "Que montre l'attitude du facteur ?",
+      "bonne_reponse": "Son dévouement à son travail"
+    }
+  },
+  {
+    "id": "7a8834cc-37f5-4565-b007-717f48da4375",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux capitaine refuse de quitter son navire malgré la tempête grandissante. L'équipage le supplie de rejoindre les canots de sauvetage.",
+      "options": [
+        "Son attachement profond à son navire",
+        "Son indifférence au danger",
+        "Sa peur de la mer"
+      ],
+      "question": "Que suggère le comportement du capitaine ?",
+      "bonne_reponse": "Son attachement profond à son navire"
+    }
+  },
+  {
+    "id": "dfa92aa3-925f-4999-b853-ac6e0b46ee81",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La chercheuse travaille depuis dix ans sur le même remède. Ses collègues doutent, mais elle continue sans relâche.",
+      "options": [
+        "Une grande détermination",
+        "Un manque de confiance",
+        "Une décision hâtive"
+      ],
+      "question": "Que montre l'attitude de la chercheuse ?",
+      "bonne_reponse": "Une grande détermination"
+    }
+  },
+  {
+    "id": "0924a1b8-09e1-4fe8-ae84-a50d70e1d736",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux loup de mer raconte des histoires que plus personne ne croit vraiment. Pourtant, les enfants du port adorent l'écouter.",
+      "options": [
+        "Ses histoires les fascinent, vraies ou non",
+        "Il leur donne des bonbons",
+        "Il est leur professeur"
+      ],
+      "question": "Pourquoi les enfants aiment-ils écouter le vieux marin ?",
+      "bonne_reponse": "Ses histoires les fascinent, vraies ou non"
+    }
+  },
+  {
+    "id": "f150a87e-2e8c-4076-a5b8-f32dc03bf22c",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après des années d'efforts silencieux, le jeune athlète monte enfin sur la plus haute marche du podium.",
+      "options": [
+        "La récompense d'un long travail",
+        "Une victoire par chance",
+        "Un abandon final"
+      ],
+      "question": "Que célèbre cette scène ?",
+      "bonne_reponse": "La récompense d'un long travail"
+    }
+  },
+  {
+    "id": "d4074ef0-1fa4-41bf-a47f-ce0a3a569eae",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le glacier qui recouvrait la vallée a presque disparu en une génération, selon les anciens du village.",
+      "options": [
+        "Un changement rapide du paysage",
+        "Une amélioration du climat",
+        "Rien de particulier"
+      ],
+      "question": "Que constatent les anciens du village ?",
+      "bonne_reponse": "Un changement rapide du paysage"
+    }
+  },
+  {
+    "id": "be8e09b5-8acb-4e13-a0fd-fb90fb19cfac",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'apprentie apicultrice a peur des abeilles au début. Après des mois auprès des ruches, elle les manipule sans crainte.",
+      "options": [
+        "Elle a surmonté sa peur avec l'expérience",
+        "Elle a arrêté l'apiculture",
+        "Les abeilles ont changé"
+      ],
+      "question": "Qu'est-ce qui a changé chez l'apprentie ?",
+      "bonne_reponse": "Elle a surmonté sa peur avec l'expérience"
+    }
+  },
+  {
+    "id": "2fa65be6-5ef9-45c8-8f63-a16b92bc6967",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux pont de pierre, construit il y a trois siècles, supporte encore aujourd'hui le passage des voitures.",
+      "options": [
+        "La solidité du pont malgré son âge",
+        "La fragilité du pont",
+        "La modernité du pont"
+      ],
+      "question": "Qu'est-ce qui est remarquable dans cette phrase ?",
+      "bonne_reponse": "La solidité du pont malgré son âge"
+    }
+  },
+  {
+    "id": "128cd1c2-be53-4882-bd36-4317337e1a18",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le hibou dort le jour et chasse la nuit dans la forêt.",
+      "options": [
+        "La nuit",
+        "Le jour",
+        "À midi"
+      ],
+      "question": "Quand le hibou chasse-t-il ?",
+      "bonne_reponse": "La nuit"
+    }
+  },
+  {
+    "id": "cde478a7-9a5a-4258-8580-2091d5e9ae21",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit chat boit son lait tous les matins dans sa gamelle.",
+      "options": [
+        "Du lait",
+        "De l'eau",
+        "Du jus"
+      ],
+      "question": "Que boit le petit chat ?",
+      "bonne_reponse": "Du lait"
+    }
+  },
+  {
+    "id": "dadf56f0-5476-4ca4-b385-37a61cc6edae",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La coccinelle se pose délicatement sur une feuille verte.",
+      "options": [
+        "Sur une feuille",
+        "Sur une pierre",
+        "Dans l'eau"
+      ],
+      "question": "Où se pose la coccinelle ?",
+      "bonne_reponse": "Sur une feuille"
+    }
+  },
+  {
+    "id": "0e9ba46e-3d02-4868-b14d-73348b0e23dc",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit Théo n'aime pas les épinards. Ce soir, il en mange quand même pour faire plaisir à sa maman.",
+      "options": [
+        "Pour faire plaisir à sa maman",
+        "Parce qu'il adore ça",
+        "Il n'a pas le choix"
+      ],
+      "question": "Pourquoi Théo mange-t-il des épinards ?",
+      "bonne_reponse": "Pour faire plaisir à sa maman"
+    }
+  },
+  {
+    "id": "c54eb710-2042-4f35-8efb-146806396183",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vent emporte le cerf-volant de Nora très haut dans le ciel.",
+      "options": [
+        "Il l'emporte haut dans le ciel",
+        "Il le casse",
+        "Il l'empêche de voler"
+      ],
+      "question": "Que fait le vent au cerf-volant ?",
+      "bonne_reponse": "Il l'emporte haut dans le ciel"
+    }
+  },
+  {
+    "id": "cc099323-d467-425c-9659-db4e07b9d9db",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit escargot avance très lentement, mais il finit toujours par arriver où il veut aller.",
+      "options": [
+        "La patience finit par payer",
+        "Il faut aller vite",
+        "L'escargot se perd souvent"
+      ],
+      "question": "Que nous apprend cette histoire ?",
+      "bonne_reponse": "La patience finit par payer"
+    }
+  },
+  {
+    "id": "778ff979-4423-4e1e-b060-dc9f144a97ea",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux moulin à vent tourne lentement au sommet de la colline.",
+      "options": [
+        "Au sommet de la colline",
+        "Dans la vallée",
+        "Près de la rivière"
+      ],
+      "question": "Où se trouve le moulin ?",
+      "bonne_reponse": "Au sommet de la colline"
+    }
+  },
+  {
+    "id": "05a83d92-058c-41bd-8a41-35049f73bfb5",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le petit chevreau suit sa mère de très près dans le pré.",
+      "options": [
+        "Il suit sa mère",
+        "Il joue seul",
+        "Il dort"
+      ],
+      "question": "Que fait le chevreau ?",
+      "bonne_reponse": "Il suit sa mère"
+    }
+  },
+  {
+    "id": "308156bc-b579-4cec-a7f2-3a39cfe7640d",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré son jeune âge, le petit prince gouverne son royaume avec beaucoup de sagesse.",
+      "options": [
+        "Avec sagesse",
+        "Avec cruauté",
+        "Sans intérêt"
+      ],
+      "question": "Comment le petit prince gouverne-t-il ?",
+      "bonne_reponse": "Avec sagesse"
+    }
+  },
+  {
+    "id": "5666972e-3d56-4711-9b05-56b750793d68",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après plusieurs essais ratés, le petit robot arrive enfin à monter les escaliers.",
+      "options": [
+        "La persévérance porte ses fruits",
+        "Le robot est cassé",
+        "Les escaliers sont trop hauts"
+      ],
+      "question": "Que montre cette histoire ?",
+      "bonne_reponse": "La persévérance porte ses fruits"
+    }
+  },
+  {
+    "id": "52f408b5-4691-4003-ad1b-019a6de94eee",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux gardien de phare vit seul depuis vingt ans, mais il ne se sent jamais vraiment seul grâce aux marins qu'il aide chaque nuit.",
+      "options": [
+        "Il aide les marins chaque nuit",
+        "Il a de la famille avec lui",
+        "Il ne sort jamais du phare"
+      ],
+      "question": "Pourquoi le gardien ne se sent-il pas seul ?",
+      "bonne_reponse": "Il aide les marins chaque nuit"
+    }
+  },
+  {
+    "id": "fe01f085-f1b1-4832-91ae-512e88787aee",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le jeune scribe recopie soigneusement chaque mot du vieux manuscrit abîmé.",
+      "options": [
+        "Il recopie un manuscrit",
+        "Il l'écrit de zéro",
+        "Il le brûle"
+      ],
+      "question": "Que fait le scribe ?",
+      "bonne_reponse": "Il recopie un manuscrit"
+    }
+  },
+  {
+    "id": "b096611b-b542-47fe-a8de-a33a39f7802b",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La météo annonçait du soleil, mais un orage surprend finalement les campeurs en pleine nuit.",
+      "options": [
+        "La météo peut se tromper",
+        "Il fait toujours beau la nuit",
+        "Les campeurs ont annulé le voyage"
+      ],
+      "question": "Que montre cette histoire ?",
+      "bonne_reponse": "La météo peut se tromper"
+    }
+  },
+  {
+    "id": "f61357e7-dad5-4ca9-824e-4d63a9140e7c",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux luthier façonne chaque violon avec un soin extrême, sachant qu'un seul instrument peut demander plusieurs mois de travail.",
+      "options": [
+        "Un souci extrême du détail et de la patience",
+        "Il travaille très vite",
+        "Il n'aime pas son métier"
+      ],
+      "question": "Que révèle cette phrase sur le travail du luthier ?",
+      "bonne_reponse": "Un souci extrême du détail et de la patience"
+    }
+  },
+  {
+    "id": "9d0416cc-9892-4ca2-8960-4c8eec81ea1f",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'architecte redessine le plan pour la troisième fois. Rien ne semble jamais parfait à ses yeux.",
+      "options": [
+        "Un grand souci du détail",
+        "Un manque de talent",
+        "Un manque de temps"
+      ],
+      "question": "Que révèle l'attitude de l'architecte ?",
+      "bonne_reponse": "Un grand souci du détail"
+    }
+  },
+  {
+    "id": "abedb12f-5ec2-44ff-a94a-336a37b6970d",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux marin ne prend jamais la mer sans consulter le ciel en premier.",
+      "options": [
+        "Pour anticiper le temps",
+        "Par superstition",
+        "Pour passer le temps"
+      ],
+      "question": "Pourquoi le marin regarde-t-il le ciel ?",
+      "bonne_reponse": "Pour anticiper le temps"
+    }
+  },
+  {
+    "id": "a91ee69f-ca32-44c7-bc5b-c6a96a139b44",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'apicultrice porte toujours un voile épais avant d'approcher les ruches.",
+      "options": [
+        "Pour se protéger des piqûres",
+        "Pour se cacher",
+        "Par tradition uniquement"
+      ],
+      "question": "Pourquoi porte-t-elle ce voile ?",
+      "bonne_reponse": "Pour se protéger des piqûres"
+    }
+  },
+  {
+    "id": "98df8bb4-51d3-41b8-8a3a-8164f18b56de",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux notaire relit chaque contrat trois fois avant de le signer.",
+      "options": [
+        "Sa prudence professionnelle",
+        "Sa lenteur excessive",
+        "Son manque de confiance en lui"
+      ],
+      "question": "Que montre ce comportement ?",
+      "bonne_reponse": "Sa prudence professionnelle"
+    }
+  },
+  {
+    "id": "ba2d9c33-f021-4d09-8832-d335d931f486",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'équipage réduit la voilure dès les premiers signes de vent fort.",
+      "options": [
+        "Pour anticiper le danger",
+        "Pour aller plus vite",
+        "Par habitude sans raison"
+      ],
+      "question": "Pourquoi l'équipage agit-il ainsi ?",
+      "bonne_reponse": "Pour anticiper le danger"
+    }
+  },
+  {
+    "id": "d8497648-bdf2-4d63-bb1d-0bb4ca95ca0d",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux photographe a passé sa vie à immortaliser les tempêtes. Ses proches le trouvent imprudent, mais il affirme n'avoir jamais eu peur.",
+      "options": [
+        "Une passion plus forte que la peur",
+        "Un mépris total du danger",
+        "Un manque d'expérience"
+      ],
+      "question": "Que suggère ce texte sur le photographe ?",
+      "bonne_reponse": "Une passion plus forte que la peur"
+    }
+  },
+  {
+    "id": "11065587-b04d-47ce-92bd-730fb41d5e35",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après avoir perdu son premier procès, la jeune avocate double ses heures de préparation. Elle ne perdra plus jamais un dossier par manque de travail.",
+      "options": [
+        "L'importance de la préparation",
+        "Elle abandonne le métier",
+        "Elle change de spécialité"
+      ],
+      "question": "Que retient l'avocate de son échec ?",
+      "bonne_reponse": "L'importance de la préparation"
+    }
+  },
+  {
+    "id": "99064c8a-29e1-4a15-b78e-2ad4f2ea0e8a",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux chef d'orchestre refuse tout applaudissement avant la toute dernière note. Selon lui, une œuvre ne se juge que dans son ensemble.",
+      "options": [
+        "Elle doit être jugée en entier",
+        "Chaque note compte plus que le reste",
+        "Les applaudissements sont inutiles"
+      ],
+      "question": "Que pense le chef d'orchestre d'une œuvre musicale ?",
+      "bonne_reponse": "Elle doit être jugée en entier"
+    }
+  },
+  {
+    "id": "413a452d-d5d0-41ce-9bfe-16b905dcbce8",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le fermier alterne ses cultures chaque année sur la même parcelle, une méthode héritée de son grand-père.",
+      "options": [
+        "Pour préserver la qualité du sol",
+        "Pour gagner plus d'argent",
+        "Par manque de graines"
+      ],
+      "question": "Pourquoi le fermier alterne-t-il ses cultures ?",
+      "bonne_reponse": "Pour préserver la qualité du sol"
+    }
+  },
+  {
+    "id": "7016239b-5af1-455a-8868-053da68f608e",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré des années d'expérience, le pilote relit systématiquement chaque case de sa checklist avant le décollage.",
+      "options": [
+        "La rigueur ne s'oublie jamais",
+        "Il manque de confiance",
+        "Il a peur de voler"
+      ],
+      "question": "Que montre ce comportement du pilote ?",
+      "bonne_reponse": "La rigueur ne s'oublie jamais"
+    }
+  },
+  {
+    "id": "809246ef-9df6-4b1d-9aba-74185eac0a99",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux restaurateur d'art travaille des semaines sur un seul centimètre carré de peinture. Pour lui, precipiter le geste reviendrait à trahir l'œuvre originale.",
+      "options": [
+        "Un profond respect de l'œuvre d'origine",
+        "Une lenteur inutile",
+        "Un manque de compétence"
+      ],
+      "question": "Que révèle cette approche du restaurateur ?",
+      "bonne_reponse": "Un profond respect de l'œuvre d'origine"
+    }
+  },
+  {
+    "id": "e2e7b05e-1ee5-4eee-90fc-94e3b31c071e",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après avoir longtemps nié le problème, la ville investit enfin massivement dans la gestion de l'eau, alors que les nappes phréatiques continuent de baisser chaque été.",
+      "options": [
+        "Une prise de conscience arrivée tardivement",
+        "Un problème déjà résolu",
+        "Une situation sans gravité"
+      ],
+      "question": "Qu'est-ce que cette phrase suggère sur la situation ?",
+      "bonne_reponse": "Une prise de conscience arrivée tardivement"
+    }
+  },
+  {
+    "id": "a408131a-e0d5-47f5-a30e-f409c7b90a01",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux diplomate choisit toujours ses mots avec une extrême prudence, sachant qu'une phrase mal formulée peut briser des années de confiance.",
+      "options": [
+        "Les mots ont un poids important dans son métier",
+        "Il n'aime pas parler en public",
+        "Il manque de vocabulaire"
+      ],
+      "question": "Pourquoi le diplomate est-il si prudent dans ses paroles ?",
+      "bonne_reponse": "Les mots ont un poids important dans son métier"
+    }
+  },
+  {
+    "id": "b5edd3f7-2bcb-43f3-9c3b-45c8ef04d0f0",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le glacier qui alimentait la vallée en eau potable a perdu la moitié de son volume en trente ans, selon les relevés des scientifiques.",
+      "options": [
+        "Un risque de manque d'eau pour la vallée",
+        "Une amélioration de l'approvisionnement",
+        "Aucun changement notable"
+      ],
+      "question": "Quelle consequence peut-on deduire de cette situation ?",
+      "bonne_reponse": "Un risque de manque d'eau pour la vallée"
+    }
+  },
+  {
+    "id": "80c99d02-454c-430b-85f3-edc54b805587",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux luthier refuse systématiquement les commandes urgentes, préférant perdre un client plutôt que de bâcler un violon.",
+      "options": [
+        "Il privilégie la qualité au profit",
+        "Il n'aime pas travailler",
+        "Il manque de clients"
+      ],
+      "question": "Que nous apprend cette attitude sur le luthier ?",
+      "bonne_reponse": "Il privilégie la qualité au profit"
+    }
+  },
+  {
+    "id": "793047f4-d375-4214-b0f2-8826ae6bb930",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux cartographe dessine des cartes depuis quarante ans, sans jamais avoir quitté son village natal.",
+      "options": [
+        "Il peut cartographier sans avoir voyage",
+        "Il a fait le tour du monde",
+        "Il n'aime pas son metier"
+      ],
+      "question": "Que revele ce texte sur le cartographe ?",
+      "bonne_reponse": "Il peut cartographier sans avoir voyage"
+    }
+  },
+  {
+    "id": "79d9bbe7-8e7d-4861-9e97-b4c11df3d8c0",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La ruche bourdonne sans relache depuis l'aube, chaque abeille rapportant son nectar avant la tombee du jour.",
+      "options": [
+        "Elle rapporte du nectar",
+        "Elle dort toute la journee",
+        "Elle attaque les visiteurs"
+      ],
+      "question": "Que fait chaque abeille ?",
+      "bonne_reponse": "Elle rapporte du nectar"
+    }
+  },
+  {
+    "id": "8af51456-4a20-4fa7-9cbc-7cebf1b10d90",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux pont de pierre grince a chaque passage, mais les ingenieurs assurent qu'il tiendra encore un siecle.",
+      "options": [
+        "Qu'il est encore solide",
+        "Qu'il va s'effondrer bientot",
+        "Qu'il faut le detruire"
+      ],
+      "question": "Que pensent les ingenieurs du pont ?",
+      "bonne_reponse": "Qu'il est encore solide"
+    }
+  },
+  {
+    "id": "04dc4043-6bb2-46b5-ad4e-95bb97bb1083",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Apres avoir echoue vingt fois, l'inventeur modifie un dernier detail. Cette fois, sa machine fonctionne parfaitement.",
+      "options": [
+        "La perseverance finit par payer",
+        "La chance seule explique le succes",
+        "L'inventeur a abandonne trop tot"
+      ],
+      "question": "Que montre cette histoire ?",
+      "bonne_reponse": "La perseverance finit par payer"
+    }
+  },
+  {
+    "id": "28156268-a802-44ab-a0cd-3306a8596c34",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux gardien de nuit connait chaque bruit du batiment, si bien qu'un simple silence inhabituel l'alerte immediatement.",
+      "options": [
+        "Il remarque les silences inhabituels",
+        "Il fait une ronde toutes les heures",
+        "Il utilise des cameras"
+      ],
+      "question": "Comment le gardien detecte-t-il un probleme ?",
+      "bonne_reponse": "Il remarque les silences inhabituels"
+    }
+  },
+  {
+    "id": "0ea6d89e-2873-44bf-baa0-d053a3a4966c",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux traducteur refuse les logiciels automatiques, convaincu qu'une langue porte des nuances qu'une machine ne peut saisir.",
+      "options": [
+        "Il pense qu'ils manquent de nuance",
+        "Il ne sait pas les utiliser",
+        "Ils sont trop chers"
+      ],
+      "question": "Pourquoi le traducteur se mefie-t-il des logiciels ?",
+      "bonne_reponse": "Il pense qu'ils manquent de nuance"
+    }
+  },
+  {
+    "id": "cf36511e-907d-4280-b4d5-6d7427574e1e",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgre des decennies de recherche, le remede reste introuvable. Pourtant, l'equipe scientifique refuse d'abandonner ses travaux.",
+      "options": [
+        "La tenacite face a l'echec",
+        "Le decouragement",
+        "L'indifference aux resultats"
+      ],
+      "question": "Quelle qualite montre l'equipe scientifique ?",
+      "bonne_reponse": "La tenacite face a l'echec"
+    }
+  },
+  {
+    "id": "1cccd541-4bce-4819-81e4-7666820a3172",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le fleuve, autrefois poisson dansant de vie, ne compte plus aujourd'hui qu'une poignee d'especes survivantes.",
+      "options": [
+        "Un declin ecologique important",
+        "Une amelioration de la biodiversite",
+        "Rien n'a change"
+      ],
+      "question": "Que suggere cette description du fleuve ?",
+      "bonne_reponse": "Un declin ecologique important"
+    }
+  },
+  {
+    "id": "67f0d6d4-47f3-487b-932a-58d42f6836bb",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La foret mit longtemps a se remettre de l'incendie, mais vingt ans plus tard, de jeunes arbres recouvrent la colline.",
+      "options": [
+        "La foret a repousse",
+        "La foret a disparu pour toujours",
+        "Un nouvel incendie a eu lieu"
+      ],
+      "question": "Que s'est-il passe vingt ans apres l'incendie ?",
+      "bonne_reponse": "La foret a repousse"
+    }
+  },
+  {
+    "id": "ecebd41c-1ab0-464b-8635-b67059a4e085",
+    "niveau": "cp",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chien court dans le parc.",
+      "options": [
+        "Dans le parc",
+        "Dans la cuisine",
+        "Sur le toit"
+      ],
+      "question": "Où court le chien ?",
+      "bonne_reponse": "Dans le parc"
+    }
+  },
+  {
+    "id": "a1102ff3-be67-422d-8871-faaa5b42a2da",
+    "niveau": "cp",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Papa lit le journal le matin.",
+      "options": [
+        "Le journal",
+        "Un roman",
+        "Une lettre"
+      ],
+      "question": "Que lit papa le matin ?",
+      "bonne_reponse": "Le journal"
+    }
+  },
+  {
+    "id": "5f969e89-f440-4fbc-b171-04eb60ea3976",
+    "niveau": "cp",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La pluie tombe sur le toit.",
+      "options": [
+        "Sur le toit",
+        "Dans la mer",
+        "Sur la table"
+      ],
+      "question": "Où tombe la pluie ?",
+      "bonne_reponse": "Sur le toit"
+    }
+  },
+  {
+    "id": "d8814816-c5e0-4290-9303-182ea2606cdf",
+    "niveau": "cp",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le bébé dort dans son berceau.",
+      "options": [
+        "Dans son berceau",
+        "Sur le canapé",
+        "Dans la voiture"
+      ],
+      "question": "Où dort le bébé ?",
+      "bonne_reponse": "Dans son berceau"
+    }
+  },
+  {
+    "id": "307aa4e0-b37c-4ea5-89b3-3c26f1d78dfd",
+    "niveau": "cp",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vent souffle fort ce soir.",
+      "options": [
+        "Ce soir",
+        "Ce matin",
+        "Cette nuit"
+      ],
+      "question": "Quand le vent souffle-t-il fort ?",
+      "bonne_reponse": "Ce soir"
+    }
+  },
+  {
+    "id": "13691cd3-bc15-4531-b2f2-c3120b5549a4",
+    "niveau": "cp",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le facteur apporte une lettre.",
+      "options": [
+        "Une lettre",
+        "Un colis",
+        "Un journal"
+      ],
+      "question": "Que apporte le facteur ?",
+      "bonne_reponse": "Une lettre"
+    }
+  },
+  {
+    "id": "c05bc7c7-3feb-4e64-ac9d-2d345f6745ee",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Sarah range ses jouets avant de dormir.",
+      "options": [
+        "Avant de dormir",
+        "Après le repas",
+        "Le matin"
+      ],
+      "question": "Quand Sarah range-t-elle ses jouets ?",
+      "bonne_reponse": "Avant de dormir"
+    }
+  },
+  {
+    "id": "b080b684-1a58-4ac4-8a19-b40b989f28cd",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le fermier nourrit les poules à l'aube.",
+      "options": [
+        "À l'aube",
+        "À midi",
+        "Le soir"
+      ],
+      "question": "Quand le fermier nourrit-il les poules ?",
+      "bonne_reponse": "À l'aube"
+    }
+  },
+  {
+    "id": "dd0dc793-b155-44c0-9249-823647a42025",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les enfants construisent un château de sable.",
+      "options": [
+        "Un château de sable",
+        "Une cabane",
+        "Un bonhomme de neige"
+      ],
+      "question": "Que construisent les enfants ?",
+      "bonne_reponse": "Un château de sable"
+    }
+  },
+  {
+    "id": "d138bebd-0100-4d78-804c-8caef4d2326c",
+    "niveau": "ce1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux chêne perd ses feuilles en automne.",
+      "options": [
+        "En automne",
+        "Au printemps",
+        "En été"
+      ],
+      "question": "Quand le chêne perd-il ses feuilles ?",
+      "bonne_reponse": "En automne"
+    }
+  },
+  {
+    "id": "fab8908b-52f2-427b-9e70-cd9bd8f11acd",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le boulanger sort le pain chaud du four.",
+      "options": [
+        "Du four",
+        "Du réfrigérateur",
+        "Du placard"
+      ],
+      "question": "D'où sort le pain ?",
+      "bonne_reponse": "Du four"
+    }
+  },
+  {
+    "id": "bb3ccd4e-9129-4db1-ad29-5fe75b27ee5a",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le pêcheur attend patiemment au bord de la rivière.",
+      "options": [
+        "Au bord de la rivière",
+        "Dans un bateau",
+        "Sur la plage"
+      ],
+      "question": "Où attend le pêcheur ?",
+      "bonne_reponse": "Au bord de la rivière"
+    }
+  },
+  {
+    "id": "0811f5f1-5ed2-469d-9c27-ca0995adb00d",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'orage a fait fuir tous les oiseaux du jardin.",
+      "options": [
+        "À cause de l'orage",
+        "À cause du chat",
+        "À cause du bruit des enfants"
+      ],
+      "question": "Pourquoi les oiseaux ont-ils fui ?",
+      "bonne_reponse": "À cause de l'orage"
+    }
+  },
+  {
+    "id": "d8cfe865-c691-495e-9561-05f33660a816",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré la fatigue, l'alpiniste continua son ascension.",
+      "options": [
+        "Il continue son ascension",
+        "Il redescend",
+        "Il se repose"
+      ],
+      "question": "Que fait l'alpiniste malgré la fatigue ?",
+      "bonne_reponse": "Il continue son ascension"
+    }
+  },
+  {
+    "id": "f5e11429-d0cc-4959-b09a-a6316a2030f9",
+    "niveau": "cp",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le pompier éteint le feu rapidement.",
+      "options": [
+        "Il éteint le feu",
+        "Il allume un feu",
+        "Il dort"
+      ],
+      "question": "Que fait le pompier ?",
+      "bonne_reponse": "Il éteint le feu"
+    }
+  },
+  {
+    "id": "16336f64-74f1-4069-92af-797a7c344226",
+    "niveau": "cp",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La maîtresse écrit au tableau.",
+      "options": [
+        "Au tableau",
+        "Sur une feuille",
+        "Dans un cahier"
+      ],
+      "question": "Où écrit la maîtresse ?",
+      "bonne_reponse": "Au tableau"
+    }
+  },
+  {
+    "id": "13eab539-c5b9-4bf3-b875-f67c5308c4e8",
+    "niveau": "cp",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le poisson nage dans le bocal.",
+      "options": [
+        "Dans le bocal",
+        "Dans la mer",
+        "Dans la baignoire"
+      ],
+      "question": "Où nage le poisson ?",
+      "bonne_reponse": "Dans le bocal"
+    }
+  },
+  {
+    "id": "6e2222b9-d408-4721-9328-087fe7554ef5",
+    "niveau": "ce1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le jardinier arrose les fleurs chaque matin.",
+      "options": [
+        "Chaque matin",
+        "Chaque soir",
+        "Une fois par semaine"
+      ],
+      "question": "Quand le jardinier arrose-t-il les fleurs ?",
+      "bonne_reponse": "Chaque matin"
+    }
+  },
+  {
+    "id": "b017a9bc-11ae-4db9-ad55-8241a973e195",
+    "niveau": "ce1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le capitaine dirigea le navire à travers la tempête.",
+      "options": [
+        "La tempête",
+        "Le brouillard",
+        "La nuit noire"
+      ],
+      "question": "À travers quoi le capitaine dirigea-t-il le navire ?",
+      "bonne_reponse": "La tempête"
+    }
+  },
+  {
+    "id": "ee8b875f-af1f-455d-bcb9-aed84de000a0",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les archéologues découvrirent une cité antique enfouie sous le sable.",
+      "options": [
+        "Sous le sable",
+        "Sous la mer",
+        "Sous la neige"
+      ],
+      "question": "Où était enfouie la cité ?",
+      "bonne_reponse": "Sous le sable"
+    }
+  },
+  {
+    "id": "3884227b-e582-4a43-91dc-268a051bb730",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré les critiques, l'inventeur poursuivit ses recherches.",
+      "options": [
+        "Il poursuit ses recherches",
+        "Il abandonne",
+        "Il change de métier"
+      ],
+      "question": "Que fait l'inventeur malgré les critiques ?",
+      "bonne_reponse": "Il poursuit ses recherches"
+    }
+  },
+  {
+    "id": "7cf993a0-0b4f-402c-bd50-31266e31c00a",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La forêt amazonienne abrite une biodiversité exceptionnelle.",
+      "options": [
+        "Une biodiversité exceptionnelle",
+        "Des déserts",
+        "Des glaciers"
+      ],
+      "question": "Que abrite la forêt amazonienne ?",
+      "bonne_reponse": "Une biodiversité exceptionnelle"
+    }
+  },
+  {
+    "id": "ff505d48-aea2-4611-ac21-a1f0bc6cf623",
+    "niveau": "ce2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'astronaute observa la Terre depuis son hublot.",
+      "options": [
+        "Depuis son hublot",
+        "Depuis un télescope",
+        "Depuis un avion"
+      ],
+      "question": "D'où l'astronaute observa-t-il la Terre ?",
+      "bonne_reponse": "Depuis son hublot"
+    }
+  },
+  {
+    "id": "3bb6a6ed-3763-475f-801a-fc9e34f64dd9",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux marin racontait ses aventures aux enfants du village.",
+      "options": [
+        "Aux enfants du village",
+        "À ses collègues",
+        "À sa famille"
+      ],
+      "question": "À qui le marin racontait-il ses aventures ?",
+      "bonne_reponse": "Aux enfants du village"
+    }
+  },
+  {
+    "id": "f8aa16d8-a37f-421b-8fff-ceb35f699aa5",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La sécheresse menaçait les récoltes de tout le pays.",
+      "options": [
+        "Les récoltes",
+        "Les rivières",
+        "Les montagnes"
+      ],
+      "question": "Que menaçait la sécheresse ?",
+      "bonne_reponse": "Les récoltes"
+    }
+  },
+  {
+    "id": "968e58a8-f3ad-40d0-84ef-7c39affe9459",
+    "niveau": "ce2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le savant passa des années à étudier le comportement des abeilles.",
+      "options": [
+        "Le comportement des abeilles",
+        "Les étoiles",
+        "Les volcans"
+      ],
+      "question": "Que le savant étudia-t-il ?",
+      "bonne_reponse": "Le comportement des abeilles"
+    }
+  },
+  {
+    "id": "09276c5a-12d5-4012-99f9-415d013dcc2c",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré la fatigue accumulée, les coureurs franchirent la ligne d'arrivée.",
+      "options": [
+        "Ils franchirent la ligne d'arrivée",
+        "Ils abandonnèrent la course",
+        "Ils s'arrêtèrent pour se reposer"
+      ],
+      "question": "Que firent les coureurs malgré la fatigue ?",
+      "bonne_reponse": "Ils franchirent la ligne d'arrivée"
+    }
+  },
+  {
+    "id": "4251032b-4b08-4bcb-aa51-dfae35636c9b",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'éruption volcanique surprit les habitants en pleine nuit.",
+      "options": [
+        "En pleine nuit",
+        "Au petit matin",
+        "En plein après-midi"
+      ],
+      "question": "Quand l'éruption surprit-elle les habitants ?",
+      "bonne_reponse": "En pleine nuit"
+    }
+  },
+  {
+    "id": "76ae6d1b-1d6b-433b-8a98-4a4e147b344d",
+    "niveau": "ce2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La navigatrice traversa l'océan seule à bord de son voilier.",
+      "options": [
+        "Seule à bord de son voilier",
+        "En équipage",
+        "En avion"
+      ],
+      "question": "Comment la navigatrice traversa-t-elle l'océan ?",
+      "bonne_reponse": "Seule à bord de son voilier"
+    }
+  },
+  {
+    "id": "3c1a3668-4c3b-4977-832c-b0f558d3cf1f",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Léo range soigneusement ses billes dans une boîte. Il compte chaque bille avec attention.",
+      "options": [
+        "Il les compte",
+        "Il les perd",
+        "Il les jette"
+      ],
+      "question": "Que fait Léo avec ses billes ?",
+      "bonne_reponse": "Il les compte"
+    }
+  },
+  {
+    "id": "d5259b7c-40d0-4bfd-bf8d-abfa0d111302",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le ciel s'assombrit brusquement et le vent se lève. Les feuilles tourbillonnent dans la rue.",
+      "options": [
+        "Une tempête arrive",
+        "Il va faire beau",
+        "La nuit tombe"
+      ],
+      "question": "Que va-t-il probablement se passer ?",
+      "bonne_reponse": "Une tempête arrive"
+    }
+  },
+  {
+    "id": "a8831367-6554-4f26-9fbb-5210a16c4586",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Sarah relit sa copie une troisième fois avant de la rendre à la maîtresse.",
+      "options": [
+        "Pour vérifier ses réponses",
+        "Parce qu'elle s'ennuie",
+        "Pour la déchirer"
+      ],
+      "question": "Pourquoi Sarah relit-elle sa copie ?",
+      "bonne_reponse": "Pour vérifier ses réponses"
+    }
+  },
+  {
+    "id": "d20f8ab0-f73c-4b0f-a205-dfc40a532d0a",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chien aboie fort et tire sur sa laisse en direction du facteur.",
+      "options": [
+        "Il a vu le facteur",
+        "Il a faim",
+        "Il veut dormir"
+      ],
+      "question": "Pourquoi le chien aboie-t-il ?",
+      "bonne_reponse": "Il a vu le facteur"
+    }
+  },
+  {
+    "id": "83999610-6788-47fe-944b-5edc66bb6749",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après le match, les joueurs se serrent la main malgré le score final.",
+      "options": [
+        "Le respect entre équipes",
+        "La colère",
+        "La fatigue"
+      ],
+      "question": "Que montre ce geste des joueurs ?",
+      "bonne_reponse": "Le respect entre équipes"
+    }
+  },
+  {
+    "id": "2b0cf0c1-cc5a-482f-8c32-770a62404552",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Manon éternue trois fois de suite et attrape un mouchoir.",
+      "options": [
+        "Elle est enrhumée",
+        "Elle a soif",
+        "Elle a peur"
+      ],
+      "question": "Que ressent probablement Manon ?",
+      "bonne_reponse": "Elle est enrhumée"
+    }
+  },
+  {
+    "id": "78491c04-e371-4652-b19f-0befa16e7bd3",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'ascenseur reste bloqué entre deux étages. Les gens à l'intérieur appuient sur le bouton d'alarme.",
+      "options": [
+        "Ils demandent de l'aide",
+        "Ils dansent",
+        "Ils dorment"
+      ],
+      "question": "Que font les gens dans l'ascenseur ?",
+      "bonne_reponse": "Ils demandent de l'aide"
+    }
+  },
+  {
+    "id": "3267e37c-f080-4c49-8b2e-8d2da0e3e63f",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le jardinier remarque que ses tomates ont des taches brunes sur les feuilles.",
+      "options": [
+        "Soigner ses plantes",
+        "Planter des fleurs",
+        "Arroser le trottoir"
+      ],
+      "question": "Que va probablement faire le jardinier ?",
+      "bonne_reponse": "Soigner ses plantes"
+    }
+  },
+  {
+    "id": "4162bd0f-90eb-4860-a7d8-963e1cd826ab",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Thomas s'entraîne au piano tous les soirs après ses devoirs.",
+      "options": [
+        "Il est sérieux dans sa pratique",
+        "Il déteste la musique",
+        "Il ne joue jamais"
+      ],
+      "question": "Que peut-on dire de Thomas ?",
+      "bonne_reponse": "Il est sérieux dans sa pratique"
+    }
+  },
+  {
+    "id": "18b9a78d-a208-435e-b935-a257aea3ad69",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La rivière déborde après plusieurs jours de pluie continue.",
+      "options": [
+        "Il a beaucoup plu",
+        "Il fait très chaud",
+        "Les poissons sont nombreux"
+      ],
+      "question": "Pourquoi la rivière déborde-t-elle ?",
+      "bonne_reponse": "Il a beaucoup plu"
+    }
+  },
+  {
+    "id": "dd857ae8-8d7d-47ee-8676-73a35755e8ed",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Camille cherche ses clés partout dans son sac, de plus en plus inquiète.",
+      "options": [
+        "De l'inquiétude",
+        "De la joie",
+        "De l'ennui"
+      ],
+      "question": "Que ressent Camille ?",
+      "bonne_reponse": "De l'inquiétude"
+    }
+  },
+  {
+    "id": "3e2212ba-8f60-4189-bf28-3500164a2be0",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les abeilles quittent la ruche en grand nombre dès les premiers rayons de soleil.",
+      "options": [
+        "Pour butiner les fleurs",
+        "Pour dormir",
+        "Pour se cacher"
+      ],
+      "question": "Pourquoi les abeilles sortent-elles ?",
+      "bonne_reponse": "Pour butiner les fleurs"
+    }
+  },
+  {
+    "id": "05283cad-8eb8-4fa9-bc02-cfde09a34f9b",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le magasin affiche complet une heure avant l'ouverture des soldes.",
+      "options": [
+        "Beaucoup de monde attend",
+        "Le magasin est fermé",
+        "Personne n'est intéressé"
+      ],
+      "question": "Que peut-on en déduire ?",
+      "bonne_reponse": "Beaucoup de monde attend"
+    }
+  },
+  {
+    "id": "86d02c80-172f-408b-9662-ee61dffec799",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Noah met un pull et une écharpe avant de sortir ce matin.",
+      "options": [
+        "Il fait froid",
+        "Il fait très chaud",
+        "Il pleut des cordes"
+      ],
+      "question": "Quel temps fait-il probablement ?",
+      "bonne_reponse": "Il fait froid"
+    }
+  },
+  {
+    "id": "bf053d5f-8be5-4f0d-bb13-6900ffc922a1",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La bibliothécaire chuchote pour rappeler aux enfants de rester silencieux.",
+      "options": [
+        "Dans une bibliothèque",
+        "Dans un stade",
+        "Dans une cuisine"
+      ],
+      "question": "Où se passe cette scène ?",
+      "bonne_reponse": "Dans une bibliothèque"
+    }
+  },
+  {
+    "id": "5291a213-b3e8-4ea2-94ba-637c0a642b4f",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Léo range soigneusement ses billes dans une boîte. Il compte chaque bille avec attention.",
+      "options": [
+        "Il les compte",
+        "Il les perd",
+        "Il les jette"
+      ],
+      "question": "Que fait Léo avec ses billes ?",
+      "bonne_reponse": "Il les compte"
+    }
+  },
+  {
+    "id": "05f99a72-30e7-4262-9dd9-0f907db2651b",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le ciel s'assombrit brusquement et le vent se lève. Les feuilles tourbillonnent dans la rue.",
+      "options": [
+        "Une tempête arrive",
+        "Il va faire beau",
+        "La nuit tombe"
+      ],
+      "question": "Que va-t-il probablement se passer ?",
+      "bonne_reponse": "Une tempête arrive"
+    }
+  },
+  {
+    "id": "1285a0b3-5907-47df-b119-75629dfced8f",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Sarah relit sa copie une troisième fois avant de la rendre à la maîtresse.",
+      "options": [
+        "Pour vérifier ses réponses",
+        "Parce qu'elle s'ennuie",
+        "Pour la déchirer"
+      ],
+      "question": "Pourquoi Sarah relit-elle sa copie ?",
+      "bonne_reponse": "Pour vérifier ses réponses"
+    }
+  },
+  {
+    "id": "3cf4ebea-f689-4721-9255-8d2d3bc53fb0",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chien aboie fort et tire sur sa laisse en direction du facteur.",
+      "options": [
+        "Il a vu le facteur",
+        "Il a faim",
+        "Il veut dormir"
+      ],
+      "question": "Pourquoi le chien aboie-t-il ?",
+      "bonne_reponse": "Il a vu le facteur"
+    }
+  },
+  {
+    "id": "51700fb4-2db7-41da-a420-4eb7a980e087",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après le match, les joueurs se serrent la main malgré le score final.",
+      "options": [
+        "Le respect entre équipes",
+        "La colère",
+        "La fatigue"
+      ],
+      "question": "Que montre ce geste des joueurs ?",
+      "bonne_reponse": "Le respect entre équipes"
+    }
+  },
+  {
+    "id": "9d581ccb-ae8e-4d6f-a667-c7db279619bf",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Manon éternue trois fois de suite et attrape un mouchoir.",
+      "options": [
+        "Elle est enrhumée",
+        "Elle a soif",
+        "Elle a peur"
+      ],
+      "question": "Que ressent probablement Manon ?",
+      "bonne_reponse": "Elle est enrhumée"
+    }
+  },
+  {
+    "id": "d82449bd-bb49-429e-857e-f16a1c296a12",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'ascenseur reste bloqué entre deux étages. Les gens à l'intérieur appuient sur le bouton d'alarme.",
+      "options": [
+        "Ils demandent de l'aide",
+        "Ils dansent",
+        "Ils dorment"
+      ],
+      "question": "Que font les gens dans l'ascenseur ?",
+      "bonne_reponse": "Ils demandent de l'aide"
+    }
+  },
+  {
+    "id": "bf7787dd-83e6-4f51-a331-d49192d46820",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le jardinier remarque que ses tomates ont des taches brunes sur les feuilles.",
+      "options": [
+        "Soigner ses plantes",
+        "Planter des fleurs",
+        "Arroser le trottoir"
+      ],
+      "question": "Que va probablement faire le jardinier ?",
+      "bonne_reponse": "Soigner ses plantes"
+    }
+  },
+  {
+    "id": "0c91a718-96fc-4e82-843b-4b9144f418b7",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Thomas s'entraîne au piano tous les soirs après ses devoirs.",
+      "options": [
+        "Il est sérieux dans sa pratique",
+        "Il déteste la musique",
+        "Il ne joue jamais"
+      ],
+      "question": "Que peut-on dire de Thomas ?",
+      "bonne_reponse": "Il est sérieux dans sa pratique"
+    }
+  },
+  {
+    "id": "37967440-a64a-409a-807b-2196c1ba2ae7",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La rivière déborde après plusieurs jours de pluie continue.",
+      "options": [
+        "Il a beaucoup plu",
+        "Il fait très chaud",
+        "Les poissons sont nombreux"
+      ],
+      "question": "Pourquoi la rivière déborde-t-elle ?",
+      "bonne_reponse": "Il a beaucoup plu"
+    }
+  },
+  {
+    "id": "2a55232c-ec99-4d30-88f3-df1a78364de5",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Camille cherche ses clés partout dans son sac, de plus en plus inquiète.",
+      "options": [
+        "De l'inquiétude",
+        "De la joie",
+        "De l'ennui"
+      ],
+      "question": "Que ressent Camille ?",
+      "bonne_reponse": "De l'inquiétude"
+    }
+  },
+  {
+    "id": "064b4963-ed79-4b75-929b-c6594c6b9072",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les abeilles quittent la ruche en grand nombre dès les premiers rayons de soleil.",
+      "options": [
+        "Pour butiner les fleurs",
+        "Pour dormir",
+        "Pour se cacher"
+      ],
+      "question": "Pourquoi les abeilles sortent-elles ?",
+      "bonne_reponse": "Pour butiner les fleurs"
+    }
+  },
+  {
+    "id": "db2604bd-4632-43cf-8773-5da908366383",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le magasin affiche complet une heure avant l'ouverture des soldes.",
+      "options": [
+        "Beaucoup de monde attend",
+        "Le magasin est fermé",
+        "Personne n'est intéressé"
+      ],
+      "question": "Que peut-on en déduire ?",
+      "bonne_reponse": "Beaucoup de monde attend"
+    }
+  },
+  {
+    "id": "ca3093ba-dd6b-4a4f-81ee-d9a0688c8c65",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Noah met un pull et une écharpe avant de sortir ce matin.",
+      "options": [
+        "Il fait froid",
+        "Il fait très chaud",
+        "Il pleut des cordes"
+      ],
+      "question": "Quel temps fait-il probablement ?",
+      "bonne_reponse": "Il fait froid"
+    }
+  },
+  {
+    "id": "9c36b28f-733e-4ddb-bb12-9955e16a61de",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La bibliothécaire chuchote pour rappeler aux enfants de rester silencieux.",
+      "options": [
+        "Dans une bibliothèque",
+        "Dans un stade",
+        "Dans une cuisine"
+      ],
+      "question": "Où se passe cette scène ?",
+      "bonne_reponse": "Dans une bibliothèque"
+    }
+  },
+  {
+    "id": "90e48b98-0c30-47b5-836b-1d5210d642db",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Léo range soigneusement ses billes dans une boîte. Il compte chaque bille avec attention.",
+      "options": [
+        "Il les compte",
+        "Il les perd",
+        "Il les jette"
+      ],
+      "question": "Que fait Léo avec ses billes ?",
+      "bonne_reponse": "Il les compte"
+    }
+  },
+  {
+    "id": "67141fa4-577e-43c4-9521-a2440ef3ec15",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le ciel s'assombrit brusquement et le vent se lève. Les feuilles tourbillonnent dans la rue.",
+      "options": [
+        "Une tempête arrive",
+        "Il va faire beau",
+        "La nuit tombe"
+      ],
+      "question": "Que va-t-il probablement se passer ?",
+      "bonne_reponse": "Une tempête arrive"
+    }
+  },
+  {
+    "id": "2e916554-356b-499d-9c7a-2b5948d329e1",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Sarah relit sa copie une troisième fois avant de la rendre à la maîtresse.",
+      "options": [
+        "Pour vérifier ses réponses",
+        "Parce qu'elle s'ennuie",
+        "Pour la déchirer"
+      ],
+      "question": "Pourquoi Sarah relit-elle sa copie ?",
+      "bonne_reponse": "Pour vérifier ses réponses"
+    }
+  },
+  {
+    "id": "04e3ed53-b27d-434e-98be-5a77ca9edb8b",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chien aboie fort et tire sur sa laisse en direction du facteur.",
+      "options": [
+        "Il a vu le facteur",
+        "Il a faim",
+        "Il veut dormir"
+      ],
+      "question": "Pourquoi le chien aboie-t-il ?",
+      "bonne_reponse": "Il a vu le facteur"
+    }
+  },
+  {
+    "id": "8d1ee4ce-02a2-45e7-a6f9-276bfc5a110e",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après le match, les joueurs se serrent la main malgré le score final.",
+      "options": [
+        "Le respect entre équipes",
+        "La colère",
+        "La fatigue"
+      ],
+      "question": "Que montre ce geste des joueurs ?",
+      "bonne_reponse": "Le respect entre équipes"
+    }
+  },
+  {
+    "id": "fbc27f4f-7067-458f-b12f-fda82686c6e0",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Manon éternue trois fois de suite et attrape un mouchoir.",
+      "options": [
+        "Elle est enrhumée",
+        "Elle a soif",
+        "Elle a peur"
+      ],
+      "question": "Que ressent probablement Manon ?",
+      "bonne_reponse": "Elle est enrhumée"
+    }
+  },
+  {
+    "id": "8bd76904-af2b-4b46-9326-e2555ac10b03",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'ascenseur reste bloqué entre deux étages. Les gens à l'intérieur appuient sur le bouton d'alarme.",
+      "options": [
+        "Ils demandent de l'aide",
+        "Ils dansent",
+        "Ils dorment"
+      ],
+      "question": "Que font les gens dans l'ascenseur ?",
+      "bonne_reponse": "Ils demandent de l'aide"
+    }
+  },
+  {
+    "id": "83570c11-5e68-44d2-8b1c-f93d27bb5ee7",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le jardinier remarque que ses tomates ont des taches brunes sur les feuilles.",
+      "options": [
+        "Soigner ses plantes",
+        "Planter des fleurs",
+        "Arroser le trottoir"
+      ],
+      "question": "Que va probablement faire le jardinier ?",
+      "bonne_reponse": "Soigner ses plantes"
+    }
+  },
+  {
+    "id": "766fa9fe-6d80-4d13-a5ff-3b6392dfbe2e",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Thomas s'entraîne au piano tous les soirs après ses devoirs.",
+      "options": [
+        "Il est sérieux dans sa pratique",
+        "Il déteste la musique",
+        "Il ne joue jamais"
+      ],
+      "question": "Que peut-on dire de Thomas ?",
+      "bonne_reponse": "Il est sérieux dans sa pratique"
+    }
+  },
+  {
+    "id": "029d1a55-8d85-413f-999e-5ddab7393bc7",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La rivière déborde après plusieurs jours de pluie continue.",
+      "options": [
+        "Il a beaucoup plu",
+        "Il fait très chaud",
+        "Les poissons sont nombreux"
+      ],
+      "question": "Pourquoi la rivière déborde-t-elle ?",
+      "bonne_reponse": "Il a beaucoup plu"
+    }
+  },
+  {
+    "id": "f5bb6654-5c85-4456-af39-35987b9a8fd4",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Camille cherche ses clés partout dans son sac, de plus en plus inquiète.",
+      "options": [
+        "De l'inquiétude",
+        "De la joie",
+        "De l'ennui"
+      ],
+      "question": "Que ressent Camille ?",
+      "bonne_reponse": "De l'inquiétude"
+    }
+  },
+  {
+    "id": "c2fb3949-7af2-421d-ba5e-11db83f779ea",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les abeilles quittent la ruche en grand nombre dès les premiers rayons de soleil.",
+      "options": [
+        "Pour butiner les fleurs",
+        "Pour dormir",
+        "Pour se cacher"
+      ],
+      "question": "Pourquoi les abeilles sortent-elles ?",
+      "bonne_reponse": "Pour butiner les fleurs"
+    }
+  },
+  {
+    "id": "2a2616b2-204f-4f9a-8532-358d2d343c7c",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le magasin affiche complet une heure avant l'ouverture des soldes.",
+      "options": [
+        "Beaucoup de monde attend",
+        "Le magasin est fermé",
+        "Personne n'est intéressé"
+      ],
+      "question": "Que peut-on en déduire ?",
+      "bonne_reponse": "Beaucoup de monde attend"
+    }
+  },
+  {
+    "id": "653a8bd4-97e2-462c-9ace-0f5b34eb128f",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Noah met un pull et une écharpe avant de sortir ce matin.",
+      "options": [
+        "Il fait froid",
+        "Il fait très chaud",
+        "Il pleut des cordes"
+      ],
+      "question": "Quel temps fait-il probablement ?",
+      "bonne_reponse": "Il fait froid"
+    }
+  },
+  {
+    "id": "3980dad8-3bea-4899-968b-36816b3e7276",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La bibliothécaire chuchote pour rappeler aux enfants de rester silencieux.",
+      "options": [
+        "Dans une bibliothèque",
+        "Dans un stade",
+        "Dans une cuisine"
+      ],
+      "question": "Où se passe cette scène ?",
+      "bonne_reponse": "Dans une bibliothèque"
+    }
+  },
+  {
+    "id": "4e2c413a-5c10-4b34-bb1b-1a86cd7c5f27",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré des heures d'entraînement, l'athlète termine la course en dernière position. Elle serre les poings mais garde le sourire.",
+      "options": [
+        "Une bonne mentalité malgré l'échec",
+        "De la tricherie",
+        "De l'indifférence totale"
+      ],
+      "question": "Que montre l'attitude de l'athlète ?",
+      "bonne_reponse": "Une bonne mentalité malgré l'échec"
+    }
+  },
+  {
+    "id": "09f37e89-84b1-48a3-acb4-edd202964d4e",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chercheur relit ses notes pour la dixième fois, cherchant l'erreur qui explique ce résultat inattendu.",
+      "options": [
+        "Comprendre un résultat surprenant",
+        "Abandonner ses recherches",
+        "Publier sans vérifier"
+      ],
+      "question": "Que cherche à faire le chercheur ?",
+      "bonne_reponse": "Comprendre un résultat surprenant"
+    }
+  },
+  {
+    "id": "62a3b54b-418f-41dd-82c9-c694ae937c08",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux pont en bois grince à chaque pas et certaines planches semblent fragiles.",
+      "options": [
+        "De la prudence",
+        "Une grande confiance",
+        "De l'ennui"
+      ],
+      "question": "Que ressent-on probablement en traversant ce pont ?",
+      "bonne_reponse": "De la prudence"
+    }
+  },
+  {
+    "id": "7773160a-1b9d-46ce-a248-b9c54b3c67d7",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'équipe applaudit longuement leur capitaine, qui vient d'annoncer son départ à la retraite.",
+      "options": [
+        "Pour honorer leur capitaine",
+        "Parce qu'ils sont en colère",
+        "Parce que le match commence"
+      ],
+      "question": "Pourquoi l'équipe applaudit-elle ?",
+      "bonne_reponse": "Pour honorer leur capitaine"
+    }
+  },
+  {
+    "id": "65d91bbb-4f32-4564-9b7d-1e9be7a2eea0",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le détective observe attentivement les traces de pas avant d'entrer dans la pièce.",
+      "options": [
+        "Il analyse des indices",
+        "Il nettoie la pièce",
+        "Il se repose"
+      ],
+      "question": "Que fait le détective ?",
+      "bonne_reponse": "Il analyse des indices"
+    }
+  },
+  {
+    "id": "0b940a53-9d39-4c69-a82a-76aaa1b3f264",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après plusieurs refus, l'entrepreneuse obtient enfin un financement pour son projet.",
+      "options": [
+        "Elle a persévéré",
+        "Elle a abandonné vite",
+        "Elle n'a jamais essayé"
+      ],
+      "question": "Que peut-on dire de l'entrepreneuse ?",
+      "bonne_reponse": "Elle a persévéré"
+    }
+  },
+  {
+    "id": "d6512130-c88b-41a6-af95-a5c58c73d81b",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le glacier recule chaque année un peu plus, révélant des roches jamais vues depuis des siècles.",
+      "options": [
+        "Il fond progressivement",
+        "Il grandit rapidement",
+        "Il reste identique"
+      ],
+      "question": "Que se passe-t-il avec ce glacier ?",
+      "bonne_reponse": "Il fond progressivement"
+    }
+  },
+  {
+    "id": "f3c256df-ee54-4dac-993c-c4349c0489cb",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La salle se tait soudainement quand le juge entre et s'installe à son bureau.",
+      "options": [
+        "Dans un tribunal",
+        "Dans un parc",
+        "Dans une piscine"
+      ],
+      "question": "Où se déroule cette scène ?",
+      "bonne_reponse": "Dans un tribunal"
+    }
+  },
+  {
+    "id": "bd2365ef-d91e-4a3a-ad7f-557fcdb9b04b",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'astronaute vérifie une dernière fois chaque bouton avant le décollage prévu dans dix minutes.",
+      "options": [
+        "Une vérification minutieuse",
+        "Une pause déjeuner",
+        "Un jeu vidéo"
+      ],
+      "question": "Que fait l'astronaute ?",
+      "bonne_reponse": "Une vérification minutieuse"
+    }
+  },
+  {
+    "id": "6bfad4df-44da-483e-87ec-a18fa63df0fa",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré la fatigue visible sur son visage, l'infirmière prend le temps de sourire à chaque patient.",
+      "options": [
+        "Un grand professionnalisme",
+        "Un manque d'intérêt",
+        "De la colère"
+      ],
+      "question": "Que montre le comportement de l'infirmière ?",
+      "bonne_reponse": "Un grand professionnalisme"
+    }
+  },
+  {
+    "id": "37e8c055-4c6c-4f63-8e05-86c9e2f77264",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les négociations durent depuis trois jours sans qu'aucun accord ne soit trouvé entre les deux pays.",
+      "options": [
+        "Elles sont difficiles",
+        "Elles sont terminées avec succès",
+        "Elles n'ont jamais commencé"
+      ],
+      "question": "Que peut-on dire de ces négociations ?",
+      "bonne_reponse": "Elles sont difficiles"
+    }
+  },
+  {
+    "id": "974e6719-c7fe-4f49-960e-a8c07a66b54e",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux marin raconte la même histoire de tempête à chaque nouveau visiteur du port.",
+      "options": [
+        "Il aime partager ses souvenirs",
+        "Il déteste parler",
+        "Il ne connaît aucune histoire"
+      ],
+      "question": "Que peut-on dire du marin ?",
+      "bonne_reponse": "Il aime partager ses souvenirs"
+    }
+  },
+  {
+    "id": "4e75d9ac-4d54-4d85-9b68-4ee97db9f010",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La forêt, autrefois dense, ne compte plus que quelques arbres isolés au milieu des champs.",
+      "options": [
+        "Elle a été largement déboisée",
+        "Elle a doublé de taille",
+        "Rien n'a changé"
+      ],
+      "question": "Que s'est-il passé dans cette forêt ?",
+      "bonne_reponse": "Elle a été largement déboisée"
+    }
+  },
+  {
+    "id": "46845685-d875-4c1e-9226-b6342f4f8f7c",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le pianiste ferme les yeux et laisse ses doigts glisser sur les touches sans hésiter.",
+      "options": [
+        "Une grande maîtrise du piano",
+        "Un débutant complet",
+        "Une erreur de partition"
+      ],
+      "question": "Que suggère cette description ?",
+      "bonne_reponse": "Une grande maîtrise du piano"
+    }
+  },
+  {
+    "id": "5aec46ea-376b-42ad-a4d5-e4052326d34f",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré des heures d'entraînement, l'athlète termine la course en dernière position. Elle serre les poings mais garde le sourire.",
+      "options": [
+        "Une bonne mentalité malgré l'échec",
+        "De la tricherie",
+        "De l'indifférence totale"
+      ],
+      "question": "Que montre l'attitude de l'athlète ?",
+      "bonne_reponse": "Une bonne mentalité malgré l'échec"
+    }
+  },
+  {
+    "id": "03ba018a-1701-4bb4-8436-18929fe103d5",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chercheur relit ses notes pour la dixième fois, cherchant l'erreur qui explique ce résultat inattendu.",
+      "options": [
+        "Comprendre un résultat surprenant",
+        "Abandonner ses recherches",
+        "Publier sans vérifier"
+      ],
+      "question": "Que cherche à faire le chercheur ?",
+      "bonne_reponse": "Comprendre un résultat surprenant"
+    }
+  },
+  {
+    "id": "0765f137-1dd4-4e1c-a520-82e50ce16ec1",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux pont en bois grince à chaque pas et certaines planches semblent fragiles.",
+      "options": [
+        "De la prudence",
+        "Une grande confiance",
+        "De l'ennui"
+      ],
+      "question": "Que ressent-on probablement en traversant ce pont ?",
+      "bonne_reponse": "De la prudence"
+    }
+  },
+  {
+    "id": "d1585ac5-9083-4134-af67-4b361091d886",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'équipe applaudit longuement leur capitaine, qui vient d'annoncer son départ à la retraite.",
+      "options": [
+        "Pour honorer leur capitaine",
+        "Parce qu'ils sont en colère",
+        "Parce que le match commence"
+      ],
+      "question": "Pourquoi l'équipe applaudit-elle ?",
+      "bonne_reponse": "Pour honorer leur capitaine"
+    }
+  },
+  {
+    "id": "f83ae041-6bef-472c-ae6f-7b3b24ba070e",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le détective observe attentivement les traces de pas avant d'entrer dans la pièce.",
+      "options": [
+        "Il analyse des indices",
+        "Il nettoie la pièce",
+        "Il se repose"
+      ],
+      "question": "Que fait le détective ?",
+      "bonne_reponse": "Il analyse des indices"
+    }
+  },
+  {
+    "id": "bd29aa15-bfa0-4918-a647-cd6adac20f11",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après plusieurs refus, l'entrepreneuse obtient enfin un financement pour son projet.",
+      "options": [
+        "Elle a persévéré",
+        "Elle a abandonné vite",
+        "Elle n'a jamais essayé"
+      ],
+      "question": "Que peut-on dire de l'entrepreneuse ?",
+      "bonne_reponse": "Elle a persévéré"
+    }
+  },
+  {
+    "id": "60b2f420-c6af-4e79-89d2-628940c6a486",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le glacier recule chaque année un peu plus, révélant des roches jamais vues depuis des siècles.",
+      "options": [
+        "Il fond progressivement",
+        "Il grandit rapidement",
+        "Il reste identique"
+      ],
+      "question": "Que se passe-t-il avec ce glacier ?",
+      "bonne_reponse": "Il fond progressivement"
+    }
+  },
+  {
+    "id": "a470e966-449e-461f-bdbd-c7b572d9b39e",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La salle se tait soudainement quand le juge entre et s'installe à son bureau.",
+      "options": [
+        "Dans un tribunal",
+        "Dans un parc",
+        "Dans une piscine"
+      ],
+      "question": "Où se déroule cette scène ?",
+      "bonne_reponse": "Dans un tribunal"
+    }
+  },
+  {
+    "id": "d76d3130-fcd2-4a8c-b7b7-4c1fdbbdabac",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'astronaute vérifie une dernière fois chaque bouton avant le décollage prévu dans dix minutes.",
+      "options": [
+        "Une vérification minutieuse",
+        "Une pause déjeuner",
+        "Un jeu vidéo"
+      ],
+      "question": "Que fait l'astronaute ?",
+      "bonne_reponse": "Une vérification minutieuse"
+    }
+  },
+  {
+    "id": "e5bfa016-27fa-40df-990a-c10892b6ae71",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré la fatigue visible sur son visage, l'infirmière prend le temps de sourire à chaque patient.",
+      "options": [
+        "Un grand professionnalisme",
+        "Un manque d'intérêt",
+        "De la colère"
+      ],
+      "question": "Que montre le comportement de l'infirmière ?",
+      "bonne_reponse": "Un grand professionnalisme"
+    }
+  },
+  {
+    "id": "9f6b9d49-93ed-414c-9c72-2281d25137d2",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les négociations durent depuis trois jours sans qu'aucun accord ne soit trouvé entre les deux pays.",
+      "options": [
+        "Elles sont difficiles",
+        "Elles sont terminées avec succès",
+        "Elles n'ont jamais commencé"
+      ],
+      "question": "Que peut-on dire de ces négociations ?",
+      "bonne_reponse": "Elles sont difficiles"
+    }
+  },
+  {
+    "id": "101288e6-3fc7-4909-be71-d2efd82a42d9",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux marin raconte la même histoire de tempête à chaque nouveau visiteur du port.",
+      "options": [
+        "Il aime partager ses souvenirs",
+        "Il déteste parler",
+        "Il ne connaît aucune histoire"
+      ],
+      "question": "Que peut-on dire du marin ?",
+      "bonne_reponse": "Il aime partager ses souvenirs"
+    }
+  },
+  {
+    "id": "d0c36352-2927-4026-bc73-e3d723d42f06",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La forêt, autrefois dense, ne compte plus que quelques arbres isolés au milieu des champs.",
+      "options": [
+        "Elle a été largement déboisée",
+        "Elle a doublé de taille",
+        "Rien n'a changé"
+      ],
+      "question": "Que s'est-il passé dans cette forêt ?",
+      "bonne_reponse": "Elle a été largement déboisée"
+    }
+  },
+  {
+    "id": "e0ee307e-f40c-4556-9c5f-0cd717a81502",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le pianiste ferme les yeux et laisse ses doigts glisser sur les touches sans hésiter.",
+      "options": [
+        "Une grande maîtrise du piano",
+        "Un débutant complet",
+        "Une erreur de partition"
+      ],
+      "question": "Que suggère cette description ?",
+      "bonne_reponse": "Une grande maîtrise du piano"
+    }
+  },
+  {
+    "id": "fa5a3884-df90-4182-a3ae-cb538da1b9a1",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré des heures d'entraînement, l'athlète termine la course en dernière position. Elle serre les poings mais garde le sourire.",
+      "options": [
+        "Une bonne mentalité malgré l'échec",
+        "De la tricherie",
+        "De l'indifférence totale"
+      ],
+      "question": "Que montre l'attitude de l'athlète ?",
+      "bonne_reponse": "Une bonne mentalité malgré l'échec"
+    }
+  },
+  {
+    "id": "7bc11ed6-9c8f-45c7-9feb-9f8dda3e0197",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chercheur relit ses notes pour la dixième fois, cherchant l'erreur qui explique ce résultat inattendu.",
+      "options": [
+        "Comprendre un résultat surprenant",
+        "Abandonner ses recherches",
+        "Publier sans vérifier"
+      ],
+      "question": "Que cherche à faire le chercheur ?",
+      "bonne_reponse": "Comprendre un résultat surprenant"
+    }
+  },
+  {
+    "id": "9c051701-6296-4772-9590-ec7225ab961c",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux pont en bois grince à chaque pas et certaines planches semblent fragiles.",
+      "options": [
+        "De la prudence",
+        "Une grande confiance",
+        "De l'ennui"
+      ],
+      "question": "Que ressent-on probablement en traversant ce pont ?",
+      "bonne_reponse": "De la prudence"
+    }
+  },
+  {
+    "id": "0c6d7ee2-83f9-45a2-aee2-739c3277be77",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'équipe applaudit longuement leur capitaine, qui vient d'annoncer son départ à la retraite.",
+      "options": [
+        "Pour honorer leur capitaine",
+        "Parce qu'ils sont en colère",
+        "Parce que le match commence"
+      ],
+      "question": "Pourquoi l'équipe applaudit-elle ?",
+      "bonne_reponse": "Pour honorer leur capitaine"
+    }
+  },
+  {
+    "id": "c5937da7-c90f-4dcd-a7b2-36e3bc590eaa",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le détective observe attentivement les traces de pas avant d'entrer dans la pièce.",
+      "options": [
+        "Il analyse des indices",
+        "Il nettoie la pièce",
+        "Il se repose"
+      ],
+      "question": "Que fait le détective ?",
+      "bonne_reponse": "Il analyse des indices"
+    }
+  },
+  {
+    "id": "23bbed46-8edc-43d2-9a19-0ec49f431204",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Après plusieurs refus, l'entrepreneuse obtient enfin un financement pour son projet.",
+      "options": [
+        "Elle a persévéré",
+        "Elle a abandonné vite",
+        "Elle n'a jamais essayé"
+      ],
+      "question": "Que peut-on dire de l'entrepreneuse ?",
+      "bonne_reponse": "Elle a persévéré"
+    }
+  },
+  {
+    "id": "b4388a38-477f-4a95-b005-9ca99319df03",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le glacier recule chaque année un peu plus, révélant des roches jamais vues depuis des siècles.",
+      "options": [
+        "Il fond progressivement",
+        "Il grandit rapidement",
+        "Il reste identique"
+      ],
+      "question": "Que se passe-t-il avec ce glacier ?",
+      "bonne_reponse": "Il fond progressivement"
+    }
+  },
+  {
+    "id": "2106a99e-77dc-49c0-a4e4-68d3d7c90711",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La salle se tait soudainement quand le juge entre et s'installe à son bureau.",
+      "options": [
+        "Dans un tribunal",
+        "Dans un parc",
+        "Dans une piscine"
+      ],
+      "question": "Où se déroule cette scène ?",
+      "bonne_reponse": "Dans un tribunal"
+    }
+  },
+  {
+    "id": "8eed0ad0-9452-4724-ab43-3a6abf713afb",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'astronaute vérifie une dernière fois chaque bouton avant le décollage prévu dans dix minutes.",
+      "options": [
+        "Une vérification minutieuse",
+        "Une pause déjeuner",
+        "Un jeu vidéo"
+      ],
+      "question": "Que fait l'astronaute ?",
+      "bonne_reponse": "Une vérification minutieuse"
+    }
+  },
+  {
+    "id": "d1c6d0d1-3871-4a97-9bbb-0d53dbb4af2d",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Malgré la fatigue visible sur son visage, l'infirmière prend le temps de sourire à chaque patient.",
+      "options": [
+        "Un grand professionnalisme",
+        "Un manque d'intérêt",
+        "De la colère"
+      ],
+      "question": "Que montre le comportement de l'infirmière ?",
+      "bonne_reponse": "Un grand professionnalisme"
+    }
+  },
+  {
+    "id": "daaf574b-ba29-4942-a554-351171f50a68",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les négociations durent depuis trois jours sans qu'aucun accord ne soit trouvé entre les deux pays.",
+      "options": [
+        "Elles sont difficiles",
+        "Elles sont terminées avec succès",
+        "Elles n'ont jamais commencé"
+      ],
+      "question": "Que peut-on dire de ces négociations ?",
+      "bonne_reponse": "Elles sont difficiles"
+    }
+  },
+  {
+    "id": "886d68ea-747f-45f4-b71e-c17e4a6b3826",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le vieux marin raconte la même histoire de tempête à chaque nouveau visiteur du port.",
+      "options": [
+        "Il aime partager ses souvenirs",
+        "Il déteste parler",
+        "Il ne connaît aucune histoire"
+      ],
+      "question": "Que peut-on dire du marin ?",
+      "bonne_reponse": "Il aime partager ses souvenirs"
+    }
+  },
+  {
+    "id": "f4d057f8-19bb-4876-a24d-aaf2666b7afa",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La forêt, autrefois dense, ne compte plus que quelques arbres isolés au milieu des champs.",
+      "options": [
+        "Elle a été largement déboisée",
+        "Elle a doublé de taille",
+        "Rien n'a changé"
+      ],
+      "question": "Que s'est-il passé dans cette forêt ?",
+      "bonne_reponse": "Elle a été largement déboisée"
+    }
+  },
+  {
+    "id": "800c3e23-be3e-4d23-a59c-1abb9d9f3a99",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le pianiste ferme les yeux et laisse ses doigts glisser sur les touches sans hésiter.",
+      "options": [
+        "Une grande maîtrise du piano",
+        "Un débutant complet",
+        "Une erreur de partition"
+      ],
+      "question": "Que suggère cette description ?",
+      "bonne_reponse": "Une grande maîtrise du piano"
+    }
+  },
+  {
+    "id": "8e911f87-1106-4c60-a744-bed77b6de508",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le chat dort toute la journée sur le canapé du salon.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : le chat dort sur le canapé ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "2af4f2c4-16de-4e23-b529-4b7741c2c6b0",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les poissons respirent grâce à leurs branchies sous l'eau.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les poissons respirent avec des poumons ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "fac61e6d-14bf-472b-a9b7-371b20aef5a9",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le printemps arrive juste après l'hiver, avec des fleurs qui poussent partout.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : le printemps vient après l'été ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "bdf8af68-0a35-4d09-8052-997a1f321d8b",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les abeilles fabriquent du miel dans leur ruche pendant l'été.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les abeilles fabriquent du miel ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "0206f961-29b4-4d46-8497-0a9c0bd2236c",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La lune brille très fort le jour, comme un deuxième soleil.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : la lune brille le jour comme le soleil ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "609c50fd-fba8-47f5-b13b-f36af71dc255",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les élèves rangent leurs affaires avant de sortir en récréation.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les élèves rangent avant la récréation ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "39797401-8b1f-40a9-90fc-4bb7e31e61c0",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Un triangle a quatre côtés bien égaux entre eux.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : un triangle a quatre côtés ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "12db878d-d8a2-4c48-a96d-2e0ae3e480d6",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les manchots vivent dans les régions les plus froides de la planète.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les manchots vivent dans le désert chaud ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "f7f522de-f70d-46e9-8cd0-3528be965424",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le boulanger prépare le pain très tôt, avant le lever du soleil.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : le boulanger travaille tôt le matin ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "7c6de2b8-0af1-42f6-a8c8-441500218127",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les feuilles des arbres tombent surtout pendant l'automne.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les feuilles tombent au printemps ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "c19da9b2-3568-487a-884f-d16b6b18a96f",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Un chien a besoin de sortir se promener régulièrement chaque jour.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : un chien n'a jamais besoin de sortir ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "f685c2c8-4547-41cc-be17-d9669aa151aa",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'eau se transforme en glace quand il fait très froid.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : l'eau gèle quand il fait très froid ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "a943d647-590d-4bde-b44a-7fcf565b2d65",
+    "niveau": "cm1",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La girafe a un très long cou qui lui permet d'atteindre les hautes branches.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : la girafe a un cou très court ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "793e95d2-9677-48e7-b2ac-53fb07ba1ed9",
+    "niveau": "cm1",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les jours de la semaine sont toujours dans le même ordre.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : l'ordre des jours change chaque semaine ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "494edf26-b915-44cd-9de0-8a66fb7da5d4",
+    "niveau": "cm1",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Un cube a six faces carrées identiques.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : un cube a six faces ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "bfbd6a8b-f2b7-4f55-acbc-54bb75b9cf10",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les volcans peuvent rester endormis pendant des centaines d'années avant de se réveiller.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : un volcan endormi ne peut jamais se réveiller ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "c6e68287-960a-4b15-bc6c-94ebff7981e7",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "L'eau bout à cent degrés au niveau de la mer.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : l'eau bout à cent degrés au niveau de la mer ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "337fa702-3e3f-41ee-932c-07092e61d4a1",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les étoiles que nous voyons la nuit sont en réalité très proches de la Terre.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les étoiles visibles la nuit sont très proches de la Terre ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "f8a6da15-8aab-4e4e-944d-76d86906770c",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le cœur humain pompe le sang dans tout le corps sans jamais s'arrêter.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : le cœur pompe le sang dans le corps ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "e3eaff35-1a7f-4598-b7ce-a1eddeeed41a",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les glaciers reculent de plus en plus à cause du réchauffement climatique.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les glaciers grandissent à cause du réchauffement ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "5ad90833-08d1-48fb-9460-faef89f55c84",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Une phrase doit toujours contenir un verbe conjugué.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : une phrase peut ne contenir aucun verbe conjugué ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "10d9f86e-70b2-408b-b7d6-b84b4db91fca",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les dauphins communiquent entre eux grâce à des sons qu'ils émettent sous l'eau.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les dauphins ne communiquent jamais entre eux ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "8cfdea46-658e-429b-9c9f-bfd7388f6887",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "La Terre met environ un an pour faire le tour du soleil.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : la Terre tourne autour du soleil en un an environ ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "7e4efc77-2117-4f6a-91c1-ec57e9fb58a7",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les araignées possèdent huit pattes, contrairement aux insectes qui en ont six.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les araignées ont six pattes comme les insectes ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "6f19269b-28b0-4321-99b7-c859ec9caaea",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Un triangle rectangle possède un angle droit.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : un triangle rectangle a un angle droit ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "9f515ad1-f2e3-4143-897d-70764d5adb9e",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les chercheurs testent longuement un vaccin avant de le distribuer au public.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : un vaccin est distribué sans aucun test ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "e9de4ebb-e252-4c27-8534-546e6b4b3fd6",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Le fer est un métal qui peut rouiller au contact de l'eau et de l'air.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : le fer peut rouiller à l'air libre ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "2266a7ba-2e30-471e-b30f-3214c642ea4f",
+    "niveau": "cm2",
+    "palier": 1,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les fleuves se jettent généralement dans la mer ou dans l'océan.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les fleuves se jettent toujours dans une autre rivière ?",
+      "bonne_reponse": "Faux"
+    }
+  },
+  {
+    "id": "28c9f290-cd43-45ce-aaf4-40dd36b46510",
+    "niveau": "cm2",
+    "palier": 2,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Un mot au pluriel désigne toujours plusieurs éléments.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : le pluriel désigne plusieurs éléments ?",
+      "bonne_reponse": "Vrai"
+    }
+  },
+  {
+    "id": "211798ec-6009-49db-afb9-a0f03fcada8d",
+    "niveau": "cm2",
+    "palier": 3,
+    "donnees": {
+      "etape": "comprehension",
+      "texte": "Les ours polaires vivent principalement dans les régions les plus froides du globe.",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "question": "Vrai ou faux : les ours polaires vivent dans les régions tropicales ?",
+      "bonne_reponse": "Faux"
+    }
+  }
+]
