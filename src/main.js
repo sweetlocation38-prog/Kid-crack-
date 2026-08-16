@@ -5063,6 +5063,17 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       setFeedback('Essaie encore !');
       maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
 
+      // Pour les manches de comprehension (texte a lire) : on ne donne
+      // jamais la reponse d'emblee dans l'histoire (l'enfant doit d'abord
+      // comprendre par lui-meme), mais un indice l'invite a relire des la
+      // premiere erreur, plutot que de le laisser bloque - retour de
+      // Thierry, option "comprendre d'abord, indice si besoin".
+      if (promptData?.texteAffiche && errorsThisRound.current === 1) {
+        setTimeout(() => {
+          speakSmart('Indice : réécoute bien l\'histoire, la réponse s\'y trouve.');
+        }, 400);
+      }
+
       // Fenetre glissante des 4 dernieres manches : on detecte le motif
       // "beaucoup de reponses fausses ET tres rapides" plutot qu'une simple
       // suite, pour tolerer une erreur isolee sans declencher a tort.
