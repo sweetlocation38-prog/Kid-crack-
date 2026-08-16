@@ -713,6 +713,17 @@ function avatarRankFor(niveauGlobal) {
   return Math.min(100, Math.max(1, Math.floor((niveauGlobal ?? 0) / 10) + 1));
 }
 
+// Acces protege a AVATAR_CHAIN : un rang hors limites (0, negatif, ou au
+// dela des 100 avatars) faisait planter l'app net (accès a .name/.code
+// sur undefined). Ne devrait normalement jamais arriver (avatarRankFor
+// est deja borne), mais summary.newRank peut venir d'un autre calcul -
+// on se protege quoi qu'il arrive plutot que de faire planter le jeu en
+// fin de session.
+function avatarChainAt(rank) {
+  const index = Math.min(AVATAR_CHAIN.length, Math.max(1, rank ?? 1)) - 1;
+  return AVATAR_CHAIN[index] ?? AVATAR_CHAIN[0];
+}
+
 function avatarLabelFor(niveauGlobal) {
   const a = AVATAR_CHAIN[avatarRankFor(niveauGlobal) - 1];
   return a.emoji + ' ' + a.name;
@@ -4282,22 +4293,29 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
     // Enchaine : d'abord le message d'encouragement, puis, si un nouvel
     // avatar vient d'etre debloque, son nom et sa petite histoire en
     // autoplay complet (aucune action requise de l'enfant).
+    // Protege par un try/catch : cet enchainement ne doit JAMAIS faire
+    // planter l'ecran de fin de session, quoi qu'il arrive.
     (async () => {
-      if (message) await speakSmart(message);
-      if (summary?.rankChanged && fiche) {
-        const displayName = fiche.nom_affiche || AVATAR_CHAIN[summary.newRank - 1].name;
-        const histoire = phraseHistoireAnimal(fiche);
-        await speakSmart(histoire ? `${displayName}. ${histoire}` : displayName);
-      }
-      // Jeu bonus de zone : annonce des 40% (et jusqu'a 79%), celebration
-      // specifique au moment ou il vient tout juste de se debloquer (80%).
-      const bz = summary?.bonusZone;
-      if (bz?.competence) {
-        if (bz.unlocked) {
-          await speakSmart('Bravo ! Tu viens de débloquer un nouveau jeu bonus, va vite le découvrir sur la carte !');
-        } else if (!bz.dejaDebloque && bz.percent >= 0.4) {
-          await speakSmart('Continue comme ça, un nouveau jeu va bientôt se débloquer !');
+      try {
+        if (message) await speakSmart(message);
+        if (summary?.rankChanged && fiche) {
+          const displayName = fiche.nom_affiche || avatarChainAt(summary.newRank).name;
+          const histoire = phraseHistoireAnimal(fiche);
+          await speakSmart(histoire ? `${displayName}. ${histoire}` : displayName);
         }
+        // Jeu bonus de zone : annonce des 40% (et jusqu'a 79%), celebration
+        // specifique au moment ou il vient tout juste de se debloquer (80%).
+        const bz = summary?.bonusZone;
+        if (bz?.competence) {
+          if (bz.unlocked) {
+            await speakSmart('Bravo ! Tu viens de débloquer un nouveau jeu bonus, va vite le découvrir sur la carte !');
+          } else if (!bz.dejaDebloque && bz.percent >= 0.4) {
+            await speakSmart('Continue comme ça, un nouveau jeu va bientôt se débloquer !');
+          }
+        }
+      } catch (e) {
+        // Non bloquant : l'ecran de fin de session reste utilisable meme
+        // si l'annonce vocale a echoue pour une raison imprevue.
       }
     })();
 
@@ -4353,12 +4371,12 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
         <PopIn delay={150} style={styles.rankUpBox}>
           <Text style={styles.rankUpTitle}>Nouvel avatar débloqué !</Text>
           <Image
-            source={AVATAR_IMAGES[AVATAR_CHAIN[summary.newRank - 1].code]}
+            source={AVATAR_IMAGES[avatarChainAt(summary.newRank).code]}
             style={styles.rankUpPhoto}
             resizeMode="cover"
           />
           <Text style={styles.rankUpAvatar}>
-            {fiche?.nom_affiche || AVATAR_CHAIN[summary.newRank - 1].name}
+            {fiche?.nom_affiche || avatarChainAt(summary.newRank).name}
           </Text>
           <Pressable style={styles.listenButton} onPress={stopSpeechAndUnduck}>
             <Text style={styles.listenText}>🔇 Couper le son</Text>
