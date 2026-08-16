@@ -1,0 +1,39 @@
+name: Lancer un script de contenu Supabase
+
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: "Chemin du script a executer (ex: scripts/fetch-comprehension-content.js)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installer le client Supabase
+        run: npm install @supabase/supabase-js --no-save
+
+      - name: Lancer le script
+        env:
+          SUPABASE_TOKEN: ${{ secrets.SUPABASE_TOKEN }}
+        run: node "${{ github.event.inputs.script }}"
+
+      - name: Committer les résultats
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add scripts/
+          git commit -m "Résultat du script de contenu" || echo "Rien à committer"
+          git push
