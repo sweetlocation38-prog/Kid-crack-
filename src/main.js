@@ -7239,6 +7239,40 @@ function targetPiecesForPalier(palier) {
 }
 
 const PUZZLE_REWARDS = ['🦋', '🌈', '🎨', '🚀', '🏰', '🌻', '🦄', '🐉', '⛵', '🎪'];
+
+// Sequences ordonnees pour le mode "associations" du Puzzle du Moulin :
+// toucher les etapes dans le bon ordre logique/chronologique, plutot que
+// des nombres. Melange de courtes (3-4 etapes) et longues (6-9 etapes) -
+// les longues ne sont proposees qu'a partir du CE2 (voir puzzleModesDisponibles).
+const PUZZLE_ASSOCIATIONS = [
+  ['Œuf', 'Poussin', 'Poule'],
+  ['Œuf', 'Têtard', 'Grenouille'],
+  ['Chenille', 'Cocon', 'Papillon'],
+  ['Graine', 'Pousse', 'Fleur'],
+  ['Matin', 'Midi', 'Soir'],
+  ['Printemps', 'Été', 'Automne', 'Hiver'],
+  ['Bébé', 'Enfant', 'Adolescent', 'Adulte'],
+  ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
+  ['Réveil', 'Petit-déjeuner', 'École', 'Déjeuner', 'Après-midi', 'Goûter', 'Dîner', 'Coucher'],
+  ['Graine', 'Racine', 'Tige', 'Feuilles', 'Fleur', 'Fruit'],
+  ['Œuf', 'Chenille', 'Chrysalide', 'Papillon'],
+  ['Bébé', 'Enfant', 'Adolescent', 'Adulte', 'Personne âgée'],
+];
+
+// Quels modes sont debloques a un rang donne - retour de Thierry : le
+// puzzle doit s'enrichir avec le niveau (comptage a sauts, suites,
+// calculs de plus en plus avances, associations logiques), pas rester
+// un simple comptage de 1 en 1 du debut a la fin.
+function puzzleModesDisponibles(rung) {
+  const modes = ['compte_1'];
+  if (rung >= rungFromGradeAndPalier('cp', 1)) modes.push('compte_sauts', 'associations');
+  if (rung >= rungFromGradeAndPalier('ce1', 1)) modes.push('suites_additives', 'calcul_addition');
+  if (rung >= rungFromGradeAndPalier('ce2', 1)) modes.push('calcul_soustraction');
+  if (rung >= rungFromGradeAndPalier('cm1', 1)) modes.push('calcul_multiplication');
+  if (rung >= rungFromGradeAndPalier('cm2', 1)) modes.push('calcul_division');
+  return modes;
+}
+
 // ============================================================
 // Le Labyrinthe de la Grotte (zone "logique") - etape 2 : vrai labyrinthe
 // avec embranchements et impasses (algorithme classique "recursive
@@ -9323,6 +9357,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
   const [pieces, setPieces] = useState([]);
   const [nextExpected, setNextExpected] = useState(1);
+  const [consigneActuelle, setConsigneActuelle] = useState("Touche les pièces dans l'ordre, du numéro 1 au dernier !");
   const [wrongFlash, setWrongFlash] = useState(null);
   const [sessionDone, setSessionDone] = useState(false);
   const [sessionSummary, setSessionSummary] = useState(null);
@@ -9349,10 +9384,74 @@ function PuzzleMoulinScreen({ route, navigation }) {
     setLoading(true);
     const { palier } = gradeAndPalierFromRung(currentRung);
     const n = targetPiecesForPalier(palier);
-    totalPieces.current = n;
-    setPieces(shuffle(Array.from({ length: n }, (_, i) => i + 1)));
+    const modesDispo = puzzleModesDisponibles(currentRung);
+    const mode = modesDispo[Math.floor(Math.random() * modesDispo.length)];
+
+    let items = []; // { id: rang correct (1..N), display: ce qui est affiche sur la piece }
+    let consigne = "Touche les pièces dans l'ordre, du numéro 1 au dernier !";
+
+    if (mode === 'compte_sauts') {
+      const pasOptions = currentRung >= rungFromGradeAndPalier('ce2', 1) ? [3, 4, 10] : [2, 5];
+      const pas = pasOptions[Math.floor(Math.random() * pasOptions.length)];
+      items = Array.from({ length: n }, (_, i) => ({ id: i + 1, display: String(pas + i * pas) }));
+      consigne = `Touche les nombres dans l'ordre, en comptant de ${pas} en ${pas} !`;
+    } else if (mode === 'suites_additives') {
+      const pas = 3 + Math.floor(Math.random() * 7); // 3 a 9
+      const depart = 3 + Math.floor(Math.random() * 10); // 3 a 12
+      items = Array.from({ length: n }, (_, i) => ({ id: i + 1, display: String(depart + i * pas) }));
+      consigne = `On part de ${depart} et on ajoute ${pas} à chaque fois. Trouve l'ordre !`;
+    } else if (mode.startsWith('calcul_')) {
+      const nbTermes = Math.min(n, 8); // au-dela, trouver 8+ resultats distincts devient difficile a generer
+      const genererCalcul = () => {
+        if (mode === 'calcul_addition') {
+          const a = 1 + Math.floor(Math.random() * 20);
+          const b = 1 + Math.floor(Math.random() * 20);
+          return { display: `${a} + ${b}`, valeur: a + b };
+        }
+        if (mode === 'calcul_soustraction') {
+          const a = 10 + Math.floor(Math.random() * 40);
+          const b = 1 + Math.floor(Math.random() * (a - 1));
+          return { display: `${a} - ${b}`, valeur: a - b };
+        }
+        if (mode === 'calcul_multiplication') {
+          const a = 2 + Math.floor(Math.random() * 9);
+          const b = 2 + Math.floor(Math.random() * 9);
+          return { display: `${a} × ${b}`, valeur: a * b };
+        }
+        // Division : on part du resultat pour garantir une division exacte.
+        const resultat = 2 + Math.floor(Math.random() * 10);
+        const diviseur = 2 + Math.floor(Math.random() * 9);
+        return { display: `${resultat * diviseur} ÷ ${diviseur}`, valeur: resultat };
+      };
+      const valeursVues = new Set();
+      const calculs = [];
+      let tentatives = 0;
+      while (calculs.length < nbTermes && tentatives < 300) {
+        tentatives += 1;
+        const c = genererCalcul();
+        if (valeursVues.has(c.valeur)) continue;
+        valeursVues.add(c.valeur);
+        calculs.push(c);
+      }
+      calculs.sort((a, b) => a.valeur - b.valeur);
+      items = calculs.map((c, i) => ({ id: i + 1, display: c.display }));
+      consigne = "Touche les calculs dans l'ordre, du plus petit résultat au plus grand !";
+    } else if (mode === 'associations') {
+      const longuesAutorisees = currentRung >= rungFromGradeAndPalier('ce2', 1);
+      const candidats = PUZZLE_ASSOCIATIONS.filter((seq) => longuesAutorisees || seq.length <= 4);
+      const seq = candidats[Math.floor(Math.random() * candidats.length)];
+      items = seq.map((mot, i) => ({ id: i + 1, display: mot }));
+      consigne = 'Touche les mots dans le bon ordre !';
+    } else {
+      // compte_1 : comportement d'origine, toujours disponible.
+      items = Array.from({ length: n }, (_, i) => ({ id: i + 1, display: String(i + 1) }));
+    }
+
+    totalPieces.current = items.length;
+    setPieces(shuffle(items));
     setNextExpected(1);
-    speakSmart("Touche les pièces dans l'ordre, du numéro 1 au dernier !");
+    setConsigneActuelle(consigne);
+    speakSmart(consigne);
     setLoading(false);
   }, []);
 
@@ -9577,30 +9676,32 @@ function PuzzleMoulinScreen({ route, navigation }) {
 
       <View style={styles.promptZone}>
         <Text style={{ fontSize: 48, opacity: Math.max(0.15, progress / totalPieces.current) }}>{reward}</Text>
-        <Text style={styles.promptText}>Touche les pièces dans l'ordre, du numéro 1 au dernier !</Text>
+        <Text style={styles.promptText}>{consigneActuelle}</Text>
         <Pressable
           style={styles.listenButton}
-          onPress={() => speakSmart("Touche les pièces dans l'ordre, du numéro 1 au dernier !")}
+          onPress={() => speakSmart(consigneActuelle)}
         >
           <Text style={styles.listenText}>🎤 Écouter</Text>
         </Pressable>
       </View>
 
       <View style={styles.puzzleGrid}>
-        {pieces.map((num) => {
-          const done = num < nextExpected;
+        {pieces.map((item) => {
+          const done = item.id < nextExpected;
           return (
             <Pressable
-              key={num}
+              key={item.id}
               style={[
                 styles.puzzlePiece,
                 done && styles.puzzlePieceDone,
-                wrongFlash === num && styles.puzzlePieceWrong,
+                wrongFlash === item.id && styles.puzzlePieceWrong,
               ]}
               disabled={done}
-              onPress={() => onPiecePress(num)}
+              onPress={() => onPiecePress(item.id)}
             >
-              <Text style={styles.puzzlePieceText}>{done ? '✓' : num}</Text>
+              <Text style={[styles.puzzlePieceText, { fontSize: done ? 20 : Math.max(11, 20 - Math.max(0, String(item.display).length - 3) * 1.6) }]} numberOfLines={2}>
+                {done ? '✓' : item.display}
+              </Text>
             </Pressable>
           );
         })}
@@ -12772,12 +12873,13 @@ const styles = StyleSheet.create({
   },
   puzzleGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginTop: 10 },
   puzzlePiece: {
-    width: 64, height: 64, borderRadius: 14, backgroundColor: colors.sand,
+    minWidth: 64, height: 64, borderRadius: 14, backgroundColor: colors.sand,
     alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
+    paddingHorizontal: 8,
   },
   puzzlePieceDone: { backgroundColor: colors.success, borderColor: colors.success },
   puzzlePieceWrong: { backgroundColor: colors.error, borderColor: colors.error },
-  puzzlePieceText: { fontSize: 20, fontWeight: '800', color: '#fff' },
+  puzzlePieceText: { fontSize: 20, fontWeight: '800', color: '#fff', textAlign: 'center' },
   friseTrack: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6, marginVertical: 8 },
   friseDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.sand },
   friseDotDone: { backgroundColor: colors.mossSoft },
