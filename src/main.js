@@ -3243,20 +3243,64 @@ function shuffle(arr) {
   return a;
 }
 
+// Groupes de graphies qui se PRONONCENT PAREIL en francais (retour de
+// Thierry sur Sons Magiques : "O"/"EAU", "C"/"K"/"QU", "F"/"PH",
+// "TION"/"SION" sonnent identiques - les proposer comme des choix
+// distincts dans un exercice d'ecoute est injuste, quelle que soit
+// l'orthographe choisie par l'enfant, c'est le meme son a l'oreille).
+const GROUPES_PHONETIQUEMENT_EQUIVALENTS = [
+  ['o', 'au', 'eau'],
+  ['c', 'k', 'qu'],
+  ['f', 'ph'],
+  ['s', 'ss'],
+  ['tion', 'sion'],
+  ['in', 'ain', 'ein', 'yn', 'ym', 'im'],
+  ['an', 'en', 'am', 'em'],
+  ['on', 'om'],
+  ['e', 'ai', 'ei'],
+];
+
+function grapheEquivalent(a, b) {
+  const na = String(a).trim().toLowerCase();
+  const nb = String(b).trim().toLowerCase();
+  if (na === nb) return true;
+  return GROUPES_PHONETIQUEMENT_EQUIVALENTS.some((g) => g.includes(na) && g.includes(nb));
+}
+
+// Retire les leurres phonetiquement equivalents a la bonne reponse. Si ca
+// laisse moins de 2 options (cas rare mais reel : "C"/"K"/"QU" sonnent
+// TOUS pareil, filtrer ne laisse alors que la bonne reponse seule), on
+// complete avec des lettres de secours clairement differentes plutot que
+// de revenir aux leurres trompeurs d'origine.
+const POOL_LEURRES_SECOURS = ['l', 'm', 'r', 'v', 't', 'n', 'p', 'b', 'd', 'j'];
+function filtrerLeurresEquivalents(options, correct) {
+  const filtrees = options.filter((o) => o === correct || !grapheEquivalent(o, correct));
+  if (filtrees.length >= 2) return filtrees;
+  const resultat = [...filtrees];
+  const dejaPresents = new Set(resultat.map((o) => String(o).toLowerCase()));
+  for (const candidat of shuffle(POOL_LEURRES_SECOURS)) {
+    if (resultat.length >= Math.max(2, options.length)) break;
+    if (dejaPresents.has(candidat) || grapheEquivalent(candidat, correct)) continue;
+    resultat.push(candidat);
+    dejaPresents.add(candidat);
+  }
+  return resultat;
+}
+
 // Compare une reponse donnee et la bonne reponse attendue - utilise une
 // comparaison NUMERIQUE (avec tolerance) quand les deux valeurs sont des
 // nombres, plutot qu'une comparaison de texte brute. Corrige un vrai bug :
 // String(95) !== String(95.0) par exemple, ce qui pouvait refuser a tort
 // un calcul par ailleurs juste (retour de Thierry sur la Balance de la
-// Prairie). Retombe sur une comparaison texte pour les reponses non
-// numeriques (lettres, mots...), comportement inchange pour ces cas-la.
+// Prairie). Retombe sur une comparaison texte (avec equivalence
+// phonetique) pour les reponses non numeriques (lettres, mots...).
 function reponsesEquivalentes(value, correct) {
   const numValue = Number(value);
   const numCorrect = Number(correct);
   if (value !== '' && correct !== '' && !Number.isNaN(numValue) && !Number.isNaN(numCorrect)) {
     return Math.abs(numValue - numCorrect) < 0.005;
   }
-  return String(value) === String(correct);
+  return String(value) === String(correct) || grapheEquivalent(value, correct);
 }
 
 // Pour la lecture a voix haute : les lettres/syllabes s'epellent sans espace
@@ -5350,22 +5394,27 @@ function buildSonsPrompt(d) {
       };
     case 'fusionner': {
       const correct = d.options.find((o) => o.toLowerCase() === String(d.son).toLowerCase()) ?? d.options[0];
+      // Retire les leurres qui sonnent EXACTEMENT pareil que la bonne
+      // reponse (ex: proposer "O" et "EAU" en meme temps n'a pas de sens,
+      // c'est le meme son) - retour de Thierry. Complete avec des lettres
+      // de secours si besoin (voir filtrerLeurresEquivalents).
       return {
         promptText: 'Quelle lettre fait ce son ?',
         speak: d.son, // brut : speakPhonemeOuTexte reconnait lui-meme les sons enregistres
         mandatorySpeak: true, // aucune image : le son doit etre entendu
-        options: d.options,
+        options: filtrerLeurresEquivalents(d.options, correct),
         correct,
       };
     }
-    case 'fusionner_syllabe':
+    case 'fusionner_syllabe': {
       return {
         promptText: 'Quelle syllabe fait "' + d.son1 + '" + "' + d.son2 + '" ?',
         speak: [d.son1, d.son2], // deux sons bruts, joues l'un apres l'autre
         mandatorySpeak: true, // aucune image : le son doit etre entendu
-        options: d.options,
+        options: filtrerLeurresEquivalents(d.options, d.resultat),
         correct: d.resultat,
       };
+    }
     case 'manipuler': {
       const instruction = d.instruction === 'enlever'
         ? 'Dis "' + d.mot_depart + '" sans le son "' + d.son_cible + '"'
@@ -9798,7 +9847,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
               disabled={done}
               onPress={() => onPiecePress(item.id)}
             >
-              <Text style={[styles.puzzlePieceText, { fontSize: done ? 20 : Math.max(11, 20 - Math.max(0, String(item.display).length - 3) * 1.6) }]} numberOfLines={2}>
+              <Text style={[styles.puzzlePieceText, { fontSize: done ? 28 : Math.max(15, 28 - Math.max(0, String(item.display).length - 3) * 1.8) }]} numberOfLines={2}>
                 {done ? '✓' : item.display}
               </Text>
             </Pressable>
@@ -12970,15 +13019,15 @@ const styles = StyleSheet.create({
     position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: 11,
     backgroundColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center',
   },
-  puzzleGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginTop: 10 },
+  puzzleGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, justifyContent: 'center', marginTop: 10, paddingHorizontal: 6 },
   puzzlePiece: {
-    minWidth: 64, height: 64, borderRadius: 14, backgroundColor: colors.sand,
+    minWidth: 96, height: 92, borderRadius: 16, backgroundColor: colors.sand,
     alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
-    paddingHorizontal: 8,
+    paddingHorizontal: 12, flexGrow: 1, maxWidth: '46%',
   },
   puzzlePieceDone: { backgroundColor: colors.success, borderColor: colors.success },
   puzzlePieceWrong: { backgroundColor: colors.error, borderColor: colors.error },
-  puzzlePieceText: { fontSize: 20, fontWeight: '800', color: '#fff', textAlign: 'center' },
+  puzzlePieceText: { fontSize: 28, fontWeight: '800', color: '#fff', textAlign: 'center' },
   friseTrack: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6, marginVertical: 8 },
   friseDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.sand },
   friseDotDone: { backgroundColor: colors.mossSoft },
