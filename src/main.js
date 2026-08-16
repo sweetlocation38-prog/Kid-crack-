@@ -11323,9 +11323,9 @@ const BOULE_VARIATION_VITESSE = 0.15; // vitesse tiree aleatoirement entre -15% 
 // coute une vie, comme un piege. Pour les plus jeunes, se tromper reste
 // sans consequence : trouver la bonne reponse suffit.
 const BOULE_REGLAGES_AGE = {
-  ms_gs: { label: 'MS-GS (3-5 ans)', niveauContenu: 'ms', vitesseAvanceMoyenne: 50, tempsReactionCible: 5.5, intervalleDiversMs: 1600, piegeRatio: 0.22, pieceRatio: 0.28, vitesseSupplPiege: [24, 45], pasPossibles: [1], distracteurCoutePV: false, nbLeurresParCible: 2 },
-  cp_ce1: { label: 'CP-CE1 (6-7 ans)', niveauContenu: 'cp', vitesseAvanceMoyenne: 78, tempsReactionCible: 6.5, intervalleDiversMs: 1300, piegeRatio: 0.28, pieceRatio: 0.3, vitesseSupplPiege: [38, 68], pasPossibles: [1, 2], distracteurCoutePV: false, nbLeurresParCible: 3 },
-  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvanceMoyenne: 105, tempsReactionCible: 8, intervalleDiversMs: 1000, piegeRatio: 0.32, pieceRatio: 0.3, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5], distracteurCoutePV: true, nbLeurresParCible: 4 },
+  ms_gs: { label: 'MS-GS (3-5 ans)', niveauContenu: 'ms', vitesseAvanceMoyenne: 50, tempsReactionCible: 5.5, intervalleDiversMs: 750, piegeRatio: 0.22, pieceRatio: 0.28, vitesseSupplPiege: [24, 45], pasPossibles: [1], distracteurCoutePV: false, nbLeurresParCible: 2 },
+  cp_ce1: { label: 'CP-CE1 (6-7 ans)', niveauContenu: 'cp', vitesseAvanceMoyenne: 78, tempsReactionCible: 6.5, intervalleDiversMs: 600, piegeRatio: 0.28, pieceRatio: 0.3, vitesseSupplPiege: [38, 68], pasPossibles: [1, 2], distracteurCoutePV: false, nbLeurresParCible: 3 },
+  ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvanceMoyenne: 105, tempsReactionCible: 8, intervalleDiversMs: 450, piegeRatio: 0.32, pieceRatio: 0.3, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5], distracteurCoutePV: true, nbLeurresParCible: 4 },
 };
 
 // Quota de pauses degressif : 50% du nombre d'objets a recolter en tout
@@ -11555,7 +11555,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const niveauxCompletesRef = useRef(0); // nb de niveaux reussis d'affilee DANS CETTE PARTIE
 
   const nextIdRef = useRef(1);
-  const dernierSpawnDiversRef = useRef(0);
+  const prochainSpawnDiversRef = useRef(0); // timestamp du prochain lacher individuel (aleatoire, jamais fixe)
   const tickRef = useRef(null);
   const touchStartRef = useRef({ x: 0, y: 0, t: 0 });
   const dernierTapRef = useRef(0);
@@ -11732,7 +11732,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
     setIsPaused(false);
     setEnonceAffiche('');
     nextIdRef.current = 1000;
-    dernierSpawnDiversRef.current = Date.now() + 600;
+    prochainSpawnDiversRef.current = Date.now() + 600;
     setChargement(false);
     setPret(true);
   }
@@ -11903,12 +11903,22 @@ function BouleQuiRouleScreen({ route, navigation }) {
             }
           }
 
-          if (maintenant - dernierSpawnDiversRef.current >= c.intervalleDiversMs) {
-            dernierSpawnDiversRef.current = maintenant;
+          // Chaque chiffre/lettre est lache SEUL, jamais en groupe : le
+          // prochain instant de lacher est tire aleatoirement a chaque
+          // fois (et non a intervalle fixe), pour eviter tout effet de
+          // "paquet" - retour de Thierry : c'etait le vrai probleme, pas
+          // la position. Position et vitesse totalement libres, sans
+          // contrainte de voie/couloir.
+          if (maintenant >= prochainSpawnDiversRef.current) {
+            prochainSpawnDiversRef.current = maintenant + c.intervalleDiversMs * (0.4 + Math.random() * 1.2);
             const aUneCibleEnVol = liste.some((o) => o.type === 'cible');
             const peutSpawnerCible = !aUneCibleEnVol && cibleEnAttenteRef.current != null;
             const roll = Math.random();
-            const distanceAleatoire = () => nouvelleDistance + BOULE_DISTANCE_VISIBLE * (0.7 + Math.random() * 0.5);
+            // Vitesse propre a CHAQUE chiffre/lettre (comme les pieges) :
+            // certains tombent plus vite que d'autres, jamais tous a
+            // l'identique - donne le vrai effet de pluie demande.
+            const vitesseProprePourItem = () => vitesseEffective * (0.15 + Math.random() * 0.45);
+            const positionLibre = () => 0.1 + Math.random() * 0.8;
 
             if (peutSpawnerCible && roll < 0.3) {
               const en = cibleEnAttenteRef.current;
@@ -11917,7 +11927,11 @@ function BouleQuiRouleScreen({ route, navigation }) {
                 else if (mode === 'chiffres') speakSmart(`Cherche le nombre ${en.valeur}`);
                 en.annonce = true;
               }
-              liste = [...liste, { id: nextIdRef.current++, type: 'cible', x: 0.15 + Math.random() * 0.7, distance: distanceAleatoire(), valeur: en.valeur }];
+              liste = [...liste, {
+                id: nextIdRef.current++, type: 'cible', x: positionLibre(),
+                distance: nouvelleDistance + BOULE_DISTANCE_VISIBLE, valeur: en.valeur,
+                vitesseSuppl: vitesseProprePourItem(),
+              }];
             } else if (roll < (peutSpawnerCible ? 0.3 : 0) + c.piegeRatio) {
               const [vMin, vMax] = c.vitesseSupplPiege;
               // 3 variantes de piege : le rocher classique (le plus courant),
@@ -11930,7 +11944,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
                 {
                   id: nextIdRef.current++,
                   type: typePiege,
-                  x: 0.12 + Math.random() * 0.76,
+                  x: positionLibre(),
                   distance: nouvelleDistance + 260 + Math.random() * 220,
                   vitesseSuppl: vMin + Math.random() * (vMax - vMin),
                 },
@@ -11938,26 +11952,24 @@ function BouleQuiRouleScreen({ route, navigation }) {
             } else if (roll < (peutSpawnerCible ? 0.3 : 0) + c.piegeRatio + c.pieceRatio) {
               liste = [
                 ...liste,
-                { id: nextIdRef.current++, type: 'piece', x: 0.12 + Math.random() * 0.76, distance: nouvelleDistance + 260 + Math.random() * 220 },
+                { id: nextIdRef.current++, type: 'piece', x: positionLibre(), distance: nouvelleDistance + 260 + Math.random() * 220 },
               ];
             } else if (cibleEnAttenteRef.current != null) {
-              liste = [
-                ...liste,
-                {
-                  id: nextIdRef.current++,
-                  type: 'distracteur',
-                  x: 0.12 + Math.random() * 0.76,
-                  distance: distanceAleatoire(),
-                  valeur: genererLeurre(cibleEnAttenteRef.current.valeur, mode),
-                },
-              ];
+              liste = [...liste, {
+                id: nextIdRef.current++, type: 'distracteur', x: positionLibre(),
+                distance: nouvelleDistance + BOULE_DISTANCE_VISIBLE, valeur: genererLeurre(cibleEnAttenteRef.current.valeur, mode),
+                vitesseSuppl: vitesseProprePourItem(),
+              }];
             }
           }
 
           const suivants = [];
           for (const o of liste) {
-            const estPiege = o.type === 'piege' || o.type === 'piege_mortel' || o.type === 'piege_malus';
-            const distanceActuelle = estPiege ? o.distance - o.vitesseSuppl * dt : o.distance;
+            // Pieges ET chiffres/lettres ont chacun leur propre vitesse
+            // (vitesseSuppl), en plus de l'avancee de la boule - c'est ce
+            // qui donne le vrai effet de pluie a vitesses variees.
+            const aVitessePropre = o.vitesseSuppl != null;
+            const distanceActuelle = aVitessePropre ? o.distance - o.vitesseSuppl * dt : o.distance;
             const relative = distanceActuelle - nouvelleDistance;
             if (relative <= 0) {
               const atteint = Math.abs(o.x - ballXNormRef.current) < seuilCollision;
