@@ -3240,15 +3240,47 @@ function shuffle(arr) {
 // ce qui est trompeur pour l'apprentissage de la lecture. On remplace donc
 // les consonnes isolees par une orthographe approximative qui force la
 // bonne prononciation a l'oral, sans jamais toucher a ce qui est affiche.
+//
+// Complete pour couvrir aussi les sons composes (digrammes/trigrammes) :
+// sans ca, "ch" etait epele lettre par lettre ("c" - "h") au lieu d'etre
+// prononce comme un seul son "che" - meme souci pour les voyelles nasales
+// (an, on, in...) et les groupes vocaliques (ou, oi, eu...). Le plus long
+// token correspondant est cherche en priorite (voir speechFriendlyToken)
+// pour qu'un mot contenant "ch" ou "an" utilise le bon groupe plutot que
+// de retomber sur les lettres separees.
 const PHONEME_SPEECH_MAP = {
+  // Consonnes isolees (son, pas le nom de la lettre)
   b: 'beu', c: 'keu', d: 'deu', f: 'feu', g: 'gueu', j: 'jeu', k: 'keu',
   l: 'leu', m: 'meu', n: 'neu', p: 'peu', q: 'keu', r: 'reu', s: 'seu',
   t: 'teu', v: 'veu', w: 'oueu', x: 'kseu', z: 'zeu', y: 'i',
+  // Digrammes/trigrammes consonantiques
+  ch: 'che', gn: 'gne', ph: 'fe', qu: 'ke', gu: 'gue',
+  // Voyelles nasales
+  an: 'an', en: 'an', am: 'an', em: 'an',
+  on: 'on', om: 'on',
+  in: 'in', im: 'in', ain: 'in', aim: 'in', ein: 'in', yn: 'in', ym: 'in',
+  un: 'un', um: 'un',
+  oin: 'ouin', ien: 'ien',
+  // Groupes vocaliques
+  ou: 'ou', oi: 'oi', oy: 'oi', eu: 'eu', oeu: 'eu', œu: 'eu',
+  au: 'o', eau: 'o', ai: 'è', ei: 'è',
+  ill: 'ille', ail: 'aille', eil: 'eille',
 };
 
 function speechFriendlyToken(token) {
   const lower = String(token).toLowerCase();
-  return PHONEME_SPEECH_MAP[lower] ?? token;
+  if (PHONEME_SPEECH_MAP[lower] != null) return PHONEME_SPEECH_MAP[lower];
+  // Le token entier ne correspond a rien de connu (probablement un mot ou
+  // un groupe non repertorie) : on tente de reconnaitre un digramme/
+  // trigramme au DEBUT du token (le plus long en priorite), pour au moins
+  // bien prononcer son amorce, plutot que de tout laisser tel quel.
+  const cles = Object.keys(PHONEME_SPEECH_MAP).sort((a, b) => b.length - a.length);
+  for (const cle of cles) {
+    if (lower.startsWith(cle)) {
+      return PHONEME_SPEECH_MAP[cle] + lower.slice(cle.length);
+    }
+  }
+  return token;
 }
 
 function joinSequenceForSpeech(sequence, niveau) {
