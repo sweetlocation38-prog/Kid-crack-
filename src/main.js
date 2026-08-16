@@ -5718,9 +5718,16 @@ function EmpreintesClairiereScreen({ route, navigation }) {
 // regardant la balance.
 // ============================================================
 function buildEquilibrePrompt(d) {
+  // Si un poids est deja pose de l'autre cote (d.droit_connu), on le dit
+  // explicitement - retour de Thierry : sinon rien n'indique a l'enfant
+  // pourquoi ses poids ajoutes ne doivent pas forcement faire le total
+  // affiche a gauche (le poids deja la n'etait meme pas visible avant).
+  const texte = d.droit_connu > 0
+    ? `Il y a déjà ${formatPoidsValeur(d.droit_connu)} posé de l'autre côté. Ajoute des poids pour équilibrer la balance !`
+    : 'Choisis des poids pour équilibrer la balance !';
   return {
-    promptText: 'Choisis des poids pour équilibrer la balance !',
-    speak: 'Choisis des poids pour équilibrer la balance !',
+    promptText: texte,
+    speak: texte,
     mandatorySpeak: true,
     gauche: d.gauche,
     droitConnu: d.droit_connu,
@@ -5884,13 +5891,24 @@ function BalanceVisual({ promptData, onOptionPress, answered }) {
 
         <View style={{ flex: 1, alignItems: 'center' }}>
           <View style={[styles.balanceAssiette, { borderColor: palette[4], justifyContent: 'flex-end' }]}>
-            {poses.length === 0 ? (
+            {poses.length === 0 && !promptData.droitConnu ? (
               <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.5 }}>vide</Text>
             ) : (
               <View style={{ width: '100%', alignItems: 'center' }}>
                 {poses.map((v, i) => (
                   <TrancheEmpilee key={i} valeur={v} toutesDenominations={denominations} disabled={answered !== null} onPress={() => retirerPoids(i)} palette={palette} />
                 ))}
+                {promptData.droitConnu > 0 && (
+                  <View style={{
+                    width: '86%', borderRadius: 6, backgroundColor: '#8A8A8A',
+                    alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.2)',
+                    marginTop: 2, paddingVertical: 4,
+                  }}>
+                    <Text style={{ fontWeight: '800', color: '#fff', fontSize: 11 }}>
+                      🔒 déjà là : {formatPoidsValeur(promptData.droitConnu)}
+                    </Text>
+                  </View>
+                )}
               </View>
             )}
           </View>
