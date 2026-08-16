@@ -4158,6 +4158,35 @@ const PHONEME_AUDIO = {
   ill: require('../assets/sounds/phonemes/ill.m4a'),
   ail: require('../assets/sounds/phonemes/ail.m4a'),
   eil: require('../assets/sounds/phonemes/eil.m4a'),
+  // Consonnes isolees (remplacent l'approximation textuelle "beu/keu/..."
+  // par un vrai enregistrement, la ou il existe).
+  c: require('../assets/sounds/phonemes/c.m4a'),
+  d: require('../assets/sounds/phonemes/d.m4a'),
+  f: require('../assets/sounds/phonemes/f.m4a'),
+  g: require('../assets/sounds/phonemes/g.m4a'),
+  j: require('../assets/sounds/phonemes/j.m4a'),
+  k: require('../assets/sounds/phonemes/k.m4a'),
+  l: require('../assets/sounds/phonemes/l.m4a'),
+  m: require('../assets/sounds/phonemes/m.m4a'),
+  n: require('../assets/sounds/phonemes/n.m4a'),
+  p: require('../assets/sounds/phonemes/p.m4a'),
+  q: require('../assets/sounds/phonemes/q.m4a'),
+  r: require('../assets/sounds/phonemes/r.m4a'),
+  s: require('../assets/sounds/phonemes/s.m4a'),
+  t: require('../assets/sounds/phonemes/t.m4a'),
+  v: require('../assets/sounds/phonemes/v.m4a'),
+  x: require('../assets/sounds/phonemes/x.m4a'),
+  z: require('../assets/sounds/phonemes/z.m4a'),
+  // Voyelles isolees.
+  e: require('../assets/sounds/phonemes/e.m4a'),
+  i: require('../assets/sounds/phonemes/i.m4a'),
+  o: require('../assets/sounds/phonemes/o.m4a'),
+  a: require('../assets/sounds/phonemes/a.m4a'),
+  u: require('../assets/sounds/phonemes/u.m4a'),
+  y: require('../assets/sounds/phonemes/y.m4a'),
+  // Consonnes restantes.
+  b: require('../assets/sounds/phonemes/b.m4a'),
+  w: require('../assets/sounds/phonemes/w.m4a'),
 };
 
 // Joue un son (attend la fin de la lecture, contrairement a
@@ -12243,7 +12272,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
                 if (atteint && !estBloque) {
                   setScore((s) => s + 1);
                   setMessage({ texte: mode === 'lettres' ? `Bravo, "${o.valeur}" !` : `Bravo, ${o.valeur} !`, ok: true });
-                  if (mode === 'lettres') speakSmart(joinSequenceForSpeech([o.valeur], c.niveauContenu));
+                  if (mode === 'lettres') speakPhonemeOuTexte(o.valeur);
                   declencherEffet(o.x, true);
                   // Reussi : on avance vers l'item SUIVANT (jamais avant).
                   if (mode === 'chiffres') compteurChiffreRef.current += pasChiffreRef.current;
