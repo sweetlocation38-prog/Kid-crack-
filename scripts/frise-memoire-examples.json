@@ -1,0 +1,3470 @@
+{
+  "frise_temps": {
+    "total": 395,
+    "exemples": {
+      "ms-p1": {
+        "count": 22,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Oeuf",
+                "icon": "🥚",
+                "annee": 1
+              },
+              {
+                "nom": "Chenille",
+                "icon": "🐛",
+                "annee": 2
+              },
+              {
+                "nom": "Papillon",
+                "icon": "🦋",
+                "annee": 3
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Bébé",
+                "icon": "👶",
+                "annee": 1
+              },
+              {
+                "nom": "Enfant",
+                "icon": "🧒",
+                "annee": 2
+              },
+              {
+                "nom": "Adulte",
+                "icon": "🧑",
+                "annee": 3
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Matin",
+                "icon": "🌅",
+                "annee": 1
+              },
+              {
+                "nom": "Midi",
+                "icon": "☀️",
+                "annee": 2
+              },
+              {
+                "nom": "Nuit",
+                "icon": "🌙",
+                "annee": 3
+              }
+            ]
+          }
+        ]
+      },
+      "ms-p2": {
+        "count": 19,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Graine",
+                "icon": "🌱",
+                "annee": 1
+              },
+              {
+                "nom": "Pousse",
+                "icon": "🌿",
+                "annee": 2
+              },
+              {
+                "nom": "Arbre",
+                "icon": "🌳",
+                "annee": 3
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Oeuf",
+                "icon": "🥚",
+                "annee": 1
+              },
+              {
+                "nom": "Poussin",
+                "icon": "🐣",
+                "annee": 2
+              },
+              {
+                "nom": "Poule",
+                "icon": "🐔",
+                "annee": 3
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Hiver",
+                "icon": "❄️",
+                "annee": 1
+              },
+              {
+                "nom": "Printemps",
+                "icon": "🌸",
+                "annee": 2
+              },
+              {
+                "nom": "Été",
+                "icon": "☀️",
+                "annee": 3
+              }
+            ]
+          }
+        ]
+      },
+      "ms-p3": {
+        "count": 19,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Nouvelle lune",
+                "icon": "🌑",
+                "annee": 1
+              },
+              {
+                "nom": "Demi-lune",
+                "icon": "🌓",
+                "annee": 2
+              },
+              {
+                "nom": "Pleine lune",
+                "icon": "🌕",
+                "annee": 3
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Semis",
+                "icon": "🌱",
+                "annee": 1
+              },
+              {
+                "nom": "Fleur",
+                "icon": "🌷",
+                "annee": 2
+              },
+              {
+                "nom": "Fruit",
+                "icon": "🍎",
+                "annee": 3
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Chantier",
+                "icon": "🚧",
+                "annee": 1
+              },
+              {
+                "nom": "Construction",
+                "icon": "🏗️",
+                "annee": 2
+              },
+              {
+                "nom": "Maison",
+                "icon": "🏠",
+                "annee": 3
+              }
+            ]
+          }
+        ]
+      },
+      "gs-p1": {
+        "count": 20,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Lundi",
+                "icon": "1️⃣",
+                "annee": 1
+              },
+              {
+                "nom": "Mardi",
+                "icon": "2️⃣",
+                "annee": 2
+              },
+              {
+                "nom": "Mercredi",
+                "icon": "3️⃣",
+                "annee": 3
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Janvier",
+                "icon": "❄️",
+                "annee": 1
+              },
+              {
+                "nom": "Juillet",
+                "icon": "☀️",
+                "annee": 2
+              },
+              {
+                "nom": "Décembre",
+                "icon": "🎄",
+                "annee": 3
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Petit-déjeuner",
+                "icon": "🥐",
+                "annee": 1
+              },
+              {
+                "nom": "Déjeuner",
+                "icon": "🍽️",
+                "annee": 2
+              },
+              {
+                "nom": "Dîner",
+                "icon": "🍲",
+                "annee": 3
+              }
+            ]
+          }
+        ]
+      },
+      "gs-p2": {
+        "count": 19,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Naissance",
+                "icon": "👶",
+                "annee": 1
+              },
+              {
+                "nom": "École",
+                "icon": "🎒",
+                "annee": 2
+              },
+              {
+                "nom": "Travail",
+                "icon": "💼",
+                "annee": 3
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Terrain vide",
+                "icon": "🟫",
+                "annee": 1
+              },
+              {
+                "nom": "Fondations",
+                "icon": "🧱",
+                "annee": 2
+              },
+              {
+                "nom": "Maison",
+                "icon": "🏠",
+                "annee": 3
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Bourgeon",
+                "icon": "🌱",
+                "annee": 1
+              },
+              {
+                "nom": "Bouton",
+                "icon": "🌿",
+                "annee": 2
+              },
+              {
+                "nom": "Fleur",
+                "icon": "🌺",
+                "annee": 3
+              }
+            ]
+          }
+        ]
+      },
+      "gs-p3": {
+        "count": 18,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Printemps",
+                "icon": "🌸",
+                "annee": 1
+              },
+              {
+                "nom": "Été",
+                "icon": "☀️",
+                "annee": 2
+              },
+              {
+                "nom": "Automne",
+                "icon": "🍂",
+                "annee": 3
+              },
+              {
+                "nom": "Hiver",
+                "icon": "❄️",
+                "annee": 4
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Réveil",
+                "icon": "⏰",
+                "annee": 1
+              },
+              {
+                "nom": "École",
+                "icon": "🎒",
+                "annee": 2
+              },
+              {
+                "nom": "Goûter",
+                "icon": "🍪",
+                "annee": 3
+              },
+              {
+                "nom": "Coucher",
+                "icon": "🛏️",
+                "annee": 4
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Graine",
+                "icon": "🌰",
+                "annee": 1
+              },
+              {
+                "nom": "Pousse",
+                "icon": "🌱",
+                "annee": 2
+              },
+              {
+                "nom": "Jeune arbre",
+                "icon": "🌿",
+                "annee": 3
+              },
+              {
+                "nom": "Grand arbre",
+                "icon": "🌳",
+                "annee": 4
+              }
+            ]
+          }
+        ]
+      },
+      "cp-p1": {
+        "count": 19,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Dinosaures",
+                "icon": "🦕",
+                "annee": 1
+              },
+              {
+                "nom": "Hommes préhistoriques",
+                "icon": "🗿",
+                "annee": 2
+              },
+              {
+                "nom": "Pyramides d'Égypte",
+                "icon": "🔺",
+                "annee": 3
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 4
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Peinture des grottes",
+                "icon": "🎨",
+                "annee": 1
+              },
+              {
+                "nom": "Invention de la roue",
+                "icon": "⚙️",
+                "annee": 2
+              },
+              {
+                "nom": "Châteaux forts",
+                "icon": "🏰",
+                "annee": 3
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 4
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Chevaliers",
+                "icon": "🛡️",
+                "annee": 1
+              },
+              {
+                "nom": "Bateaux à voile",
+                "icon": "⛵",
+                "annee": 2
+              },
+              {
+                "nom": "Trains à vapeur",
+                "icon": "🚂",
+                "annee": 3
+              },
+              {
+                "nom": "Avions",
+                "icon": "✈️",
+                "annee": 4
+              }
+            ]
+          }
+        ]
+      },
+      "cp-p2": {
+        "count": 19,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Pyramides d'Égypte",
+                "icon": "🔺",
+                "annee": 1
+              },
+              {
+                "nom": "Empire romain",
+                "icon": "🏛️",
+                "annee": 2
+              },
+              {
+                "nom": "Moyen Âge",
+                "icon": "🏰",
+                "annee": 3
+              },
+              {
+                "nom": "Époque moderne",
+                "icon": "🏙️",
+                "annee": 4
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Bougie",
+                "icon": "🕯️",
+                "annee": 1
+              },
+              {
+                "nom": "Lampe à huile",
+                "icon": "🪔",
+                "annee": 2
+              },
+              {
+                "nom": "Ampoule électrique",
+                "icon": "💡",
+                "annee": 3
+              },
+              {
+                "nom": "Lampe LED",
+                "icon": "🔦",
+                "annee": 4
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Pigeon voyageur",
+                "icon": "🐦",
+                "annee": 1
+              },
+              {
+                "nom": "Télégraphe",
+                "icon": "📡",
+                "annee": 2
+              },
+              {
+                "nom": "Téléphone",
+                "icon": "☎️",
+                "annee": 3
+              },
+              {
+                "nom": "Smartphone",
+                "icon": "📱",
+                "annee": 4
+              }
+            ]
+          }
+        ]
+      },
+      "cp-p3": {
+        "count": 14,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Dinosaures",
+                "icon": "🦕",
+                "annee": 1
+              },
+              {
+                "nom": "Premiers hommes",
+                "icon": "🗿",
+                "annee": 2
+              },
+              {
+                "nom": "Pyramides",
+                "icon": "🔺",
+                "annee": 3
+              },
+              {
+                "nom": "Chevaliers",
+                "icon": "🛡️",
+                "annee": 4
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 5
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Charrette à cheval",
+                "icon": "🐴",
+                "annee": 1
+              },
+              {
+                "nom": "Diligence",
+                "icon": "🐎",
+                "annee": 2
+              },
+              {
+                "nom": "Train à vapeur",
+                "icon": "🚂",
+                "annee": 3
+              },
+              {
+                "nom": "Voiture",
+                "icon": "🚗",
+                "annee": 4
+              },
+              {
+                "nom": "Fusée",
+                "icon": "🚀",
+                "annee": 5
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Feu de bois",
+                "icon": "🔥",
+                "annee": 1
+              },
+              {
+                "nom": "Bougie",
+                "icon": "🕯️",
+                "annee": 2
+              },
+              {
+                "nom": "Lampe à gaz",
+                "icon": "💡",
+                "annee": 3
+              },
+              {
+                "nom": "Électricité",
+                "icon": "⚡",
+                "annee": 4
+              },
+              {
+                "nom": "Panneaux solaires",
+                "icon": "🔆",
+                "annee": 5
+              }
+            ]
+          }
+        ]
+      },
+      "ce1-p1": {
+        "count": 20,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Pyramides d'Égypte",
+                "icon": "🔺",
+                "annee": -2500
+              },
+              {
+                "nom": "Jeux Olympiques antiques",
+                "icon": "🏛️",
+                "annee": -776
+              },
+              {
+                "nom": "Empire romain",
+                "icon": "🏛️",
+                "annee": 100
+              },
+              {
+                "nom": "Moyen Âge",
+                "icon": "🏰",
+                "annee": 1000
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Invention de la roue",
+                "icon": "⚙️",
+                "annee": -3500
+              },
+              {
+                "nom": "Invention de l'écriture",
+                "icon": "📜",
+                "annee": -3200
+              },
+              {
+                "nom": "Construction des pyramides",
+                "icon": "🔺",
+                "annee": -2500
+              },
+              {
+                "nom": "Fondation de Rome",
+                "icon": "🏛️",
+                "annee": -753
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Hommes préhistoriques",
+                "icon": "🗿",
+                "annee": -30000
+              },
+              {
+                "nom": "Peintures rupestres",
+                "icon": "🎨",
+                "annee": -15000
+              },
+              {
+                "nom": "Débuts de l'agriculture",
+                "icon": "🌾",
+                "annee": -8000
+              },
+              {
+                "nom": "Premières villes",
+                "icon": "🏘️",
+                "annee": -3000
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      },
+      "ce1-p2": {
+        "count": 18,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Empire romain",
+                "icon": "🏛️",
+                "annee": 100
+              },
+              {
+                "nom": "Charlemagne",
+                "icon": "👑",
+                "annee": 800
+              },
+              {
+                "nom": "Châteaux forts",
+                "icon": "🏰",
+                "annee": 1200
+              },
+              {
+                "nom": "Découverte de l'Amérique",
+                "icon": "⛵",
+                "annee": 1492
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Chevaliers du Moyen Âge",
+                "icon": "🛡️",
+                "annee": 1200
+              },
+              {
+                "nom": "Découverte de l'Amérique",
+                "icon": "⛵",
+                "annee": 1492
+              },
+              {
+                "nom": "Révolution française",
+                "icon": "🗼",
+                "annee": 1789
+              },
+              {
+                "nom": "Invention du train",
+                "icon": "🚂",
+                "annee": 1825
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Invention de l'imprimerie",
+                "icon": "📖",
+                "annee": 1450
+              },
+              {
+                "nom": "Découverte de l'Amérique",
+                "icon": "⛵",
+                "annee": 1492
+              },
+              {
+                "nom": "Révolution française",
+                "icon": "🗼",
+                "annee": 1789
+              },
+              {
+                "nom": "Invention de la photographie",
+                "icon": "📷",
+                "annee": 1826
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      },
+      "ce1-p3": {
+        "count": 16,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Révolution française",
+                "icon": "🗼",
+                "annee": 1789
+              },
+              {
+                "nom": "Invention du train",
+                "icon": "🚂",
+                "annee": 1825
+              },
+              {
+                "nom": "Invention de l'ampoule",
+                "icon": "💡",
+                "annee": 1879
+              },
+              {
+                "nom": "Premier vol des frères Wright",
+                "icon": "✈️",
+                "annee": 1903
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Invention du téléphone",
+                "icon": "☎️",
+                "annee": 1876
+              },
+              {
+                "nom": "Premier vol des frères Wright",
+                "icon": "✈️",
+                "annee": 1903
+              },
+              {
+                "nom": "Première télévision",
+                "icon": "📺",
+                "annee": 1927
+              },
+              {
+                "nom": "Marche sur la Lune",
+                "icon": "🌕",
+                "annee": 1969
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Première voiture",
+                "icon": "🚗",
+                "annee": 1886
+              },
+              {
+                "nom": "Premier vol des frères Wright",
+                "icon": "✈️",
+                "annee": 1903
+              },
+              {
+                "nom": "Marche sur la Lune",
+                "icon": "🌕",
+                "annee": 1969
+              },
+              {
+                "nom": "Invention d'Internet",
+                "icon": "💻",
+                "annee": 1990
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      },
+      "ce2-p1": {
+        "count": 19,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Invention de l'écriture",
+                "icon": "📜",
+                "annee": -3200
+              },
+              {
+                "nom": "Construction des pyramides",
+                "icon": "🔺",
+                "annee": -2500
+              },
+              {
+                "nom": "Jeux Olympiques antiques",
+                "icon": "🏛️",
+                "annee": -776
+              },
+              {
+                "nom": "Fondation de Rome",
+                "icon": "🏛️",
+                "annee": -753
+              },
+              {
+                "nom": "Chute de l'Empire romain",
+                "icon": "⚔️",
+                "annee": 476
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Charlemagne couronné empereur",
+                "icon": "👑",
+                "annee": 800
+              },
+              {
+                "nom": "Construction des cathédrales",
+                "icon": "⛪",
+                "annee": 1200
+              },
+              {
+                "nom": "Guerre de Cent Ans",
+                "icon": "⚔️",
+                "annee": 1337
+              },
+              {
+                "nom": "Invention de l'imprimerie",
+                "icon": "📖",
+                "annee": 1450
+              },
+              {
+                "nom": "Découverte de l'Amérique",
+                "icon": "⛵",
+                "annee": 1492
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Règne de Louis XIV",
+                "icon": "👑",
+                "annee": 1643
+              },
+              {
+                "nom": "Révolution française",
+                "icon": "🗼",
+                "annee": 1789
+              },
+              {
+                "nom": "Napoléon empereur",
+                "icon": "🎖️",
+                "annee": 1804
+              },
+              {
+                "nom": "Invention du train",
+                "icon": "🚂",
+                "annee": 1825
+              },
+              {
+                "nom": "Invention de l'ampoule",
+                "icon": "💡",
+                "annee": 1879
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      },
+      "ce2-p2": {
+        "count": 18,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Invention du téléphone",
+                "icon": "☎️",
+                "annee": 1876
+              },
+              {
+                "nom": "Invention de l'automobile",
+                "icon": "🚗",
+                "annee": 1886
+              },
+              {
+                "nom": "Premier vol des frères Wright",
+                "icon": "✈️",
+                "annee": 1903
+              },
+              {
+                "nom": "Première Guerre mondiale",
+                "icon": "⚔️",
+                "annee": 1914
+              },
+              {
+                "nom": "Seconde Guerre mondiale",
+                "icon": "⚔️",
+                "annee": 1939
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Première télévision",
+                "icon": "📺",
+                "annee": 1927
+              },
+              {
+                "nom": "Seconde Guerre mondiale",
+                "icon": "⚔️",
+                "annee": 1939
+              },
+              {
+                "nom": "Premier ordinateur",
+                "icon": "🖥️",
+                "annee": 1946
+              },
+              {
+                "nom": "Marche sur la Lune",
+                "icon": "🌕",
+                "annee": 1969
+              },
+              {
+                "nom": "Invention d'Internet",
+                "icon": "💻",
+                "annee": 1990
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Fin de la Seconde Guerre mondiale",
+                "icon": "🕊️",
+                "annee": 1945
+              },
+              {
+                "nom": "Premier satellite (Spoutnik)",
+                "icon": "🛰️",
+                "annee": 1957
+              },
+              {
+                "nom": "Marche sur la Lune",
+                "icon": "🌕",
+                "annee": 1969
+              },
+              {
+                "nom": "Premier téléphone portable",
+                "icon": "📱",
+                "annee": 1983
+              },
+              {
+                "nom": "Invention d'Internet",
+                "icon": "💻",
+                "annee": 1990
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      },
+      "ce2-p3": {
+        "count": 15,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Invention de la roue",
+                "icon": "⚙️",
+                "annee": -3500
+              },
+              {
+                "nom": "Construction des pyramides",
+                "icon": "🔺",
+                "annee": -2500
+              },
+              {
+                "nom": "Fondation de Rome",
+                "icon": "🏛️",
+                "annee": -753
+              },
+              {
+                "nom": "Chute de l'Empire romain",
+                "icon": "⚔️",
+                "annee": 476
+              },
+              {
+                "nom": "Découverte de l'Amérique",
+                "icon": "⛵",
+                "annee": 1492
+              },
+              {
+                "nom": "Révolution française",
+                "icon": "🗼",
+                "annee": 1789
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Guerre de Cent Ans",
+                "icon": "⚔️",
+                "annee": 1337
+              },
+              {
+                "nom": "Découverte de l'Amérique",
+                "icon": "⛵",
+                "annee": 1492
+              },
+              {
+                "nom": "Révolution française",
+                "icon": "🗼",
+                "annee": 1789
+              },
+              {
+                "nom": "Invention du train",
+                "icon": "🚂",
+                "annee": 1825
+              },
+              {
+                "nom": "Première Guerre mondiale",
+                "icon": "⚔️",
+                "annee": 1914
+              },
+              {
+                "nom": "Marche sur la Lune",
+                "icon": "🌕",
+                "annee": 1969
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Napoléon empereur",
+                "icon": "🎖️",
+                "annee": 1804
+              },
+              {
+                "nom": "Invention du téléphone",
+                "icon": "☎️",
+                "annee": 1876
+              },
+              {
+                "nom": "Premier vol des frères Wright",
+                "icon": "✈️",
+                "annee": 1903
+              },
+              {
+                "nom": "Seconde Guerre mondiale",
+                "icon": "⚔️",
+                "annee": 1939
+              },
+              {
+                "nom": "Marche sur la Lune",
+                "icon": "🌕",
+                "annee": 1969
+              },
+              {
+                "nom": "Invention d'Internet",
+                "icon": "💻",
+                "annee": 1990
+              }
+            ]
+          }
+        ]
+      },
+      "cm1-p1": {
+        "count": 20,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Fondation d'Athènes antique",
+                "icon": "🏛️",
+                "annee": -800
+              },
+              {
+                "nom": "Jeux Olympiques antiques",
+                "icon": "🏃",
+                "annee": -776
+              },
+              {
+                "nom": "Fondation de Rome",
+                "icon": "🐺",
+                "annee": -753
+              },
+              {
+                "nom": "Naissance de Jésus-Christ (repère)",
+                "icon": "⭐",
+                "annee": 0
+              },
+              {
+                "nom": "Chute de l'Empire romain",
+                "icon": "⚔️",
+                "annee": 476
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Sacre de Clovis",
+                "icon": "👑",
+                "annee": 496
+              },
+              {
+                "nom": "Charlemagne couronné empereur",
+                "icon": "👑",
+                "annee": 800
+              },
+              {
+                "nom": "Construction de Notre-Dame de Paris",
+                "icon": "⛪",
+                "annee": 1163
+              },
+              {
+                "nom": "Guerre de Cent Ans",
+                "icon": "⚔️",
+                "annee": 1337
+              },
+              {
+                "nom": "Jeanne d'Arc délivre Orléans",
+                "icon": "🛡️",
+                "annee": 1429
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Invention de l'imprimerie",
+                "icon": "📖",
+                "annee": 1450
+              },
+              {
+                "nom": "Christophe Colomb découvre l'Amérique",
+                "icon": "⛵",
+                "annee": 1492
+              },
+              {
+                "nom": "François Ier fait construire Chambord",
+                "icon": "🏰",
+                "annee": 1519
+              },
+              {
+                "nom": "Règne de Louis XIV",
+                "icon": "👑",
+                "annee": 1643
+              },
+              {
+                "nom": "Construction du château de Versailles",
+                "icon": "🏰",
+                "annee": 1682
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      },
+      "cm1-p2": {
+        "count": 20,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Inauguration de la Tour Eiffel",
+                "icon": "🗼",
+                "annee": 1889
+              },
+              {
+                "nom": "Premier film projeté en public",
+                "icon": "🎥",
+                "annee": 1895
+              },
+              {
+                "nom": "Marie Curie reçoit le prix Nobel",
+                "icon": "⚛️",
+                "annee": 1903
+              },
+              {
+                "nom": "Naufrage du Titanic",
+                "icon": "🚢",
+                "annee": 1912
+              },
+              {
+                "nom": "Début de la Première Guerre mondiale",
+                "icon": "⚔️",
+                "annee": 1914
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Fondation de Marseille par les Grecs",
+                "icon": "⛵",
+                "annee": -600
+              },
+              {
+                "nom": "Vercingétorix contre Jules César",
+                "icon": "⚔️",
+                "annee": -52
+              },
+              {
+                "nom": "La Gaule devient romaine",
+                "icon": "🏛️",
+                "annee": -50
+              },
+              {
+                "nom": "Construction du pont du Gard",
+                "icon": "🏛️",
+                "annee": 50
+              },
+              {
+                "nom": "Invasions barbares en Gaule",
+                "icon": "⚔️",
+                "annee": 400
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Hugues Capet devient roi de France",
+                "icon": "👑",
+                "annee": 987
+              },
+              {
+                "nom": "Guillaume le Conquérant envahit l'Angleterre",
+                "icon": "⚔️",
+                "annee": 1066
+              },
+              {
+                "nom": "Construction du Mont-Saint-Michel",
+                "icon": "⛪",
+                "annee": 1023
+              },
+              {
+                "nom": "Saint Louis part en croisade",
+                "icon": "⚔️",
+                "annee": 1248
+              },
+              {
+                "nom": "Début de la Guerre de Cent Ans",
+                "icon": "⚔️",
+                "annee": 1337
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      },
+      "cm1-p3": {
+        "count": 20,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Premiers hominidés en Afrique",
+                "icon": "🦴",
+                "annee": -3000000
+              },
+              {
+                "nom": "Maîtrise du feu par l'homme préhistorique",
+                "icon": "🔥",
+                "annee": -400000
+              },
+              {
+                "nom": "Apparition de l'Homo sapiens",
+                "icon": "🧍",
+                "annee": -300000
+              },
+              {
+                "nom": "Premières peintures rupestres (Lascaux)",
+                "icon": "🎨",
+                "annee": -17000
+              },
+              {
+                "nom": "Invention de l'agriculture",
+                "icon": "🌾",
+                "annee": -10000
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Invention de l'écriture cunéiforme",
+                "icon": "📜",
+                "annee": -3300
+              },
+              {
+                "nom": "Code d'Hammurabi en Mésopotamie",
+                "icon": "📜",
+                "annee": -1750
+              },
+              {
+                "nom": "Règne de Ramsès II en Égypte",
+                "icon": "👑",
+                "annee": -1279
+              },
+              {
+                "nom": "Guerre de Troie (légende)",
+                "icon": "⚔️",
+                "annee": -1200
+              },
+              {
+                "nom": "Fondation de Carthage",
+                "icon": "⛵",
+                "annee": -814
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Traité de Verdun (partage de l'empire de Charlemagne)",
+                "icon": "📜",
+                "annee": 843
+              },
+              {
+                "nom": "Les Vikings s'installent en Normandie",
+                "icon": "🛶",
+                "annee": 911
+              },
+              {
+                "nom": "Première croisade vers Jérusalem",
+                "icon": "⚔️",
+                "annee": 1096
+              },
+              {
+                "nom": "Fondation de la Sorbonne à Paris",
+                "icon": "🎓",
+                "annee": 1257
+              },
+              {
+                "nom": "Grande peste noire en Europe",
+                "icon": "☠️",
+                "annee": 1347
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      },
+      "cm2-p1": {
+        "count": 20,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Traité de Verdun partage l'empire carolingien",
+                "icon": "📜",
+                "annee": 843
+              },
+              {
+                "nom": "Hugues Capet fonde la dynastie capétienne",
+                "icon": "👑",
+                "annee": 987
+              },
+              {
+                "nom": "Première croisade",
+                "icon": "⚔️",
+                "annee": 1096
+              },
+              {
+                "nom": "Philippe Auguste bat l'Angleterre à Bouvines",
+                "icon": "⚔️",
+                "annee": 1214
+              },
+              {
+                "nom": "Début de la Guerre de Cent Ans",
+                "icon": "⚔️",
+                "annee": 1337
+              },
+              {
+                "nom": "Fin de la Guerre de Cent Ans",
+                "icon": "🕊️",
+                "annee": 1453
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Début de la Renaissance italienne",
+                "icon": "🎨",
+                "annee": 1400
+              },
+              {
+                "nom": "Christophe Colomb découvre l'Amérique",
+                "icon": "⛵",
+                "annee": 1492
+              },
+              {
+                "nom": "François Ier monte sur le trône",
+                "icon": "👑",
+                "annee": 1515
+              },
+              {
+                "nom": "Réforme protestante de Luther",
+                "icon": "📜",
+                "annee": 1517
+              },
+              {
+                "nom": "Édit de Nantes d'Henri IV",
+                "icon": "📜",
+                "annee": 1598
+              },
+              {
+                "nom": "Début du règne personnel de Louis XIV",
+                "icon": "👑",
+                "annee": 1661
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Convocation des États généraux de 1789",
+                "icon": "📜",
+                "annee": 1789
+              },
+              {
+                "nom": "Prise de la Bastille",
+                "icon": "🏰",
+                "annee": 1789
+              },
+              {
+                "nom": "Proclamation de la Première République",
+                "icon": "🇫🇷",
+                "annee": 1792
+              },
+              {
+                "nom": "Exécution de Louis XVI",
+                "icon": "⚔️",
+                "annee": 1793
+              },
+              {
+                "nom": "Napoléon sacré empereur",
+                "icon": "👑",
+                "annee": 1804
+              },
+              {
+                "nom": "Défaite de Waterloo",
+                "icon": "⚔️",
+                "annee": 1815
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      },
+      "cm2-p2": {
+        "count": 20,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Traité de Verdun",
+                "icon": "📜",
+                "annee": 843
+              },
+              {
+                "nom": "Couronnement d'Hugues Capet",
+                "icon": "👑",
+                "annee": 987
+              },
+              {
+                "nom": "Bataille de Bouvines",
+                "icon": "⚔️",
+                "annee": 1214
+              },
+              {
+                "nom": "Début de la Guerre de Cent Ans",
+                "icon": "⚔️",
+                "annee": 1337
+              },
+              {
+                "nom": "Jeanne d'Arc délivre Orléans",
+                "icon": "🛡️",
+                "annee": 1429
+              },
+              {
+                "nom": "Fin de la Guerre de Cent Ans",
+                "icon": "🕊️",
+                "annee": 1453
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Massacre de la Saint-Barthélemy",
+                "icon": "⚔️",
+                "annee": 1572
+              },
+              {
+                "nom": "Édit de Nantes",
+                "icon": "📜",
+                "annee": 1598
+              },
+              {
+                "nom": "Révocation de l'Édit de Nantes",
+                "icon": "📜",
+                "annee": 1685
+              },
+              {
+                "nom": "Guerre de Sept Ans",
+                "icon": "⚔️",
+                "annee": 1756
+              },
+              {
+                "nom": "Indépendance des États-Unis reconnue",
+                "icon": "🇺🇸",
+                "annee": 1783
+              },
+              {
+                "nom": "Convocation des États généraux",
+                "icon": "📜",
+                "annee": 1789
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Fête de la Fédération",
+                "icon": "🇫🇷",
+                "annee": 1790
+              },
+              {
+                "nom": "Proclamation de la Première République",
+                "icon": "🇫🇷",
+                "annee": 1792
+              },
+              {
+                "nom": "La Terreur",
+                "icon": "⚔️",
+                "annee": 1793
+              },
+              {
+                "nom": "Coup d'État du 18 Brumaire",
+                "icon": "⚔️",
+                "annee": 1799
+              },
+              {
+                "nom": "Code civil des Français",
+                "icon": "📜",
+                "annee": 1804
+              },
+              {
+                "nom": "Victoire d'Austerlitz",
+                "icon": "⚔️",
+                "annee": 1805
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      },
+      "cm2-p3": {
+        "count": 20,
+        "echantillon": [
+          {
+            "evenements": [
+              {
+                "nom": "Premiers hominidés en Afrique",
+                "icon": "🦴",
+                "annee": -3000000
+              },
+              {
+                "nom": "Maîtrise du feu",
+                "icon": "🔥",
+                "annee": -400000
+              },
+              {
+                "nom": "Apparition de l'Homo sapiens",
+                "icon": "🧍",
+                "annee": -300000
+              },
+              {
+                "nom": "Peintures rupestres de Lascaux",
+                "icon": "🎨",
+                "annee": -17000
+              },
+              {
+                "nom": "Début de l'agriculture (néolithique)",
+                "icon": "🌾",
+                "annee": -10000
+              },
+              {
+                "nom": "Invention de l'écriture",
+                "icon": "📜",
+                "annee": -3200
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Construction des pyramides d'Égypte",
+                "icon": "🔺",
+                "annee": -2500
+              },
+              {
+                "nom": "Code d'Hammurabi en Mésopotamie",
+                "icon": "📜",
+                "annee": -1750
+              },
+              {
+                "nom": "Règne de Ramsès II",
+                "icon": "👑",
+                "annee": -1279
+              },
+              {
+                "nom": "Guerre de Troie (légende)",
+                "icon": "⚔️",
+                "annee": -1200
+              },
+              {
+                "nom": "Fondation de Carthage",
+                "icon": "⛵",
+                "annee": -814
+              },
+              {
+                "nom": "Cléopâtre, dernière reine d'Égypte",
+                "icon": "👑",
+                "annee": -51
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          },
+          {
+            "evenements": [
+              {
+                "nom": "Vercingétorix résiste à Jules César",
+                "icon": "⚔️",
+                "annee": -52
+              },
+              {
+                "nom": "La Gaule devient romaine",
+                "icon": "🏛️",
+                "annee": -50
+              },
+              {
+                "nom": "Construction du pont du Gard",
+                "icon": "🏛️",
+                "annee": 50
+              },
+              {
+                "nom": "Invasions barbares en Gaule",
+                "icon": "⚔️",
+                "annee": 400
+              },
+              {
+                "nom": "Sacre de Clovis, roi des Francs",
+                "icon": "👑",
+                "annee": 496
+              },
+              {
+                "nom": "Charlemagne couronné empereur",
+                "icon": "👑",
+                "annee": 800
+              },
+              {
+                "nom": "Aujourd'hui",
+                "icon": "🏙️",
+                "annee": 2026
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "memoire_etoiles": {
+    "total": 413,
+    "exemples": {
+      "ms-p1": {
+        "count": 21,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "CHAT",
+                "emoji": "🐱"
+              },
+              {
+                "mot": "LAPIN",
+                "emoji": "🐰"
+              },
+              {
+                "mot": "SOLEIL",
+                "emoji": "☀️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "OURS",
+                "emoji": "🐻"
+              },
+              {
+                "mot": "BALLON",
+                "emoji": "🎈"
+              },
+              {
+                "mot": "LUNE",
+                "emoji": "🌙"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "COCHON",
+                "emoji": "🐷"
+              },
+              {
+                "mot": "POULE",
+                "emoji": "🐔"
+              },
+              {
+                "mot": "GRENOUILLE",
+                "emoji": "🐸"
+              }
+            ]
+          }
+        ]
+      },
+      "ms-p2": {
+        "count": 20,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "CHAT",
+                "emoji": "🐱"
+              },
+              {
+                "mot": "LAPIN",
+                "emoji": "🐰"
+              },
+              {
+                "mot": "SOLEIL",
+                "emoji": "☀️"
+              },
+              {
+                "mot": "MAISON",
+                "emoji": "🏠"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "OURS",
+                "emoji": "🐻"
+              },
+              {
+                "mot": "BALLON",
+                "emoji": "🎈"
+              },
+              {
+                "mot": "LUNE",
+                "emoji": "🌙"
+              },
+              {
+                "mot": "POMME",
+                "emoji": "🍎"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "COCHON",
+                "emoji": "🐷"
+              },
+              {
+                "mot": "POULE",
+                "emoji": "🐔"
+              },
+              {
+                "mot": "GRENOUILLE",
+                "emoji": "🐸"
+              },
+              {
+                "mot": "ESCARGOT",
+                "emoji": "🐌"
+              }
+            ]
+          }
+        ]
+      },
+      "ms-p3": {
+        "count": 19,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "CHAT",
+                "emoji": "🐱"
+              },
+              {
+                "mot": "LAPIN",
+                "emoji": "🐰"
+              },
+              {
+                "mot": "SOLEIL",
+                "emoji": "☀️"
+              },
+              {
+                "mot": "MAISON",
+                "emoji": "🏠"
+              },
+              {
+                "mot": "POMME",
+                "emoji": "🍎"
+              },
+              {
+                "mot": "LUNE",
+                "emoji": "🌙"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "OURS",
+                "emoji": "🐻"
+              },
+              {
+                "mot": "BALLON",
+                "emoji": "🎈"
+              },
+              {
+                "mot": "ETOILE",
+                "emoji": "⭐"
+              },
+              {
+                "mot": "ARBRE",
+                "emoji": "🌳"
+              },
+              {
+                "mot": "FLEUR",
+                "emoji": "🌸"
+              },
+              {
+                "mot": "POISSON",
+                "emoji": "🐟"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "COCHON",
+                "emoji": "🐷"
+              },
+              {
+                "mot": "POULE",
+                "emoji": "🐔"
+              },
+              {
+                "mot": "GRENOUILLE",
+                "emoji": "🐸"
+              },
+              {
+                "mot": "ESCARGOT",
+                "emoji": "🐌"
+              },
+              {
+                "mot": "HIBOU",
+                "emoji": "🦉"
+              },
+              {
+                "mot": "ECUREUIL",
+                "emoji": "🐿️"
+              }
+            ]
+          }
+        ]
+      },
+      "gs-p1": {
+        "count": 19,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "BANANE",
+                "emoji": "🍌"
+              },
+              {
+                "mot": "VELO",
+                "emoji": "🚲"
+              },
+              {
+                "mot": "ROBOT",
+                "emoji": "🤖"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PANDA",
+                "emoji": "🐼"
+              },
+              {
+                "mot": "TIGRE",
+                "emoji": "🐯"
+              },
+              {
+                "mot": "ZEBRE",
+                "emoji": "🦓"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PARESSEUX",
+                "emoji": "🦥"
+              },
+              {
+                "mot": "FLAMANT",
+                "emoji": "🦩"
+              },
+              {
+                "mot": "HERISSON",
+                "emoji": "🦔"
+              }
+            ]
+          }
+        ]
+      },
+      "gs-p2": {
+        "count": 18,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "BANANE",
+                "emoji": "🍌"
+              },
+              {
+                "mot": "VELO",
+                "emoji": "🚲"
+              },
+              {
+                "mot": "ROBOT",
+                "emoji": "🤖"
+              },
+              {
+                "mot": "TORTUE",
+                "emoji": "🐢"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PANDA",
+                "emoji": "🐼"
+              },
+              {
+                "mot": "TIGRE",
+                "emoji": "🐯"
+              },
+              {
+                "mot": "ZEBRE",
+                "emoji": "🦓"
+              },
+              {
+                "mot": "SINGE",
+                "emoji": "🐒"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PARESSEUX",
+                "emoji": "🦥"
+              },
+              {
+                "mot": "FLAMANT",
+                "emoji": "🦩"
+              },
+              {
+                "mot": "HERISSON",
+                "emoji": "🦔"
+              },
+              {
+                "mot": "BLAIREAU",
+                "emoji": "🦡"
+              }
+            ]
+          }
+        ]
+      },
+      "gs-p3": {
+        "count": 18,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "BANANE",
+                "emoji": "🍌"
+              },
+              {
+                "mot": "VELO",
+                "emoji": "🚲"
+              },
+              {
+                "mot": "ROBOT",
+                "emoji": "🤖"
+              },
+              {
+                "mot": "TORTUE",
+                "emoji": "🐢"
+              },
+              {
+                "mot": "NUAGE",
+                "emoji": "☁️"
+              },
+              {
+                "mot": "OURSON",
+                "emoji": "🐻"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PANDA",
+                "emoji": "🐼"
+              },
+              {
+                "mot": "TIGRE",
+                "emoji": "🐯"
+              },
+              {
+                "mot": "ZEBRE",
+                "emoji": "🦓"
+              },
+              {
+                "mot": "SINGE",
+                "emoji": "🐒"
+              },
+              {
+                "mot": "GIRAFE",
+                "emoji": "🦒"
+              },
+              {
+                "mot": "CANARD",
+                "emoji": "🦆"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PARESSEUX",
+                "emoji": "🦥"
+              },
+              {
+                "mot": "FLAMANT",
+                "emoji": "🦩"
+              },
+              {
+                "mot": "HERISSON",
+                "emoji": "🦔"
+              },
+              {
+                "mot": "BLAIREAU",
+                "emoji": "🦡"
+              },
+              {
+                "mot": "MOUFETTE",
+                "emoji": "🦨"
+              },
+              {
+                "mot": "LOUTRE",
+                "emoji": "🦦"
+              }
+            ]
+          }
+        ]
+      },
+      "cp-p1": {
+        "count": 17,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "DINOSAURE",
+                "emoji": "🦕"
+              },
+              {
+                "mot": "PAPILLON",
+                "emoji": "🦋"
+              },
+              {
+                "mot": "CROCODILE",
+                "emoji": "🐊"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "ELEPHANT",
+                "emoji": "🐘"
+              },
+              {
+                "mot": "KANGOUROU",
+                "emoji": "🦘"
+              },
+              {
+                "mot": "PIRATE",
+                "emoji": "🏴‍☠️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "REQUIN",
+                "emoji": "🦈"
+              },
+              {
+                "mot": "POULPE",
+                "emoji": "🐙"
+              },
+              {
+                "mot": "CALMAR",
+                "emoji": "🦑"
+              }
+            ]
+          }
+        ]
+      },
+      "cp-p2": {
+        "count": 17,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "DINOSAURE",
+                "emoji": "🦕"
+              },
+              {
+                "mot": "PAPILLON",
+                "emoji": "🦋"
+              },
+              {
+                "mot": "CROCODILE",
+                "emoji": "🐊"
+              },
+              {
+                "mot": "HELICOPTERE",
+                "emoji": "🚁"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "ELEPHANT",
+                "emoji": "🐘"
+              },
+              {
+                "mot": "KANGOUROU",
+                "emoji": "🦘"
+              },
+              {
+                "mot": "PIRATE",
+                "emoji": "🏴‍☠️"
+              },
+              {
+                "mot": "ORDINATEUR",
+                "emoji": "💻"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "REQUIN",
+                "emoji": "🦈"
+              },
+              {
+                "mot": "POULPE",
+                "emoji": "🐙"
+              },
+              {
+                "mot": "CALMAR",
+                "emoji": "🦑"
+              },
+              {
+                "mot": "HOMARD",
+                "emoji": "🦞"
+              }
+            ]
+          }
+        ]
+      },
+      "cp-p3": {
+        "count": 16,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "DINOSAURE",
+                "emoji": "🦕"
+              },
+              {
+                "mot": "PAPILLON",
+                "emoji": "🦋"
+              },
+              {
+                "mot": "CROCODILE",
+                "emoji": "🐊"
+              },
+              {
+                "mot": "HELICOPTERE",
+                "emoji": "🚁"
+              },
+              {
+                "mot": "ANANAS",
+                "emoji": "🍍"
+              },
+              {
+                "mot": "TOBOGGAN",
+                "emoji": "🎢"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "ELEPHANT",
+                "emoji": "🐘"
+              },
+              {
+                "mot": "KANGOUROU",
+                "emoji": "🦘"
+              },
+              {
+                "mot": "PIRATE",
+                "emoji": "🏴‍☠️"
+              },
+              {
+                "mot": "ORDINATEUR",
+                "emoji": "💻"
+              },
+              {
+                "mot": "HIPPOPOTAME",
+                "emoji": "🦛"
+              },
+              {
+                "mot": "VIOLONCELLE",
+                "emoji": "🎻"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "REQUIN",
+                "emoji": "🦈"
+              },
+              {
+                "mot": "POULPE",
+                "emoji": "🐙"
+              },
+              {
+                "mot": "CALMAR",
+                "emoji": "🦑"
+              },
+              {
+                "mot": "HOMARD",
+                "emoji": "🦞"
+              },
+              {
+                "mot": "POISSON-BALLON",
+                "emoji": "🐡"
+              },
+              {
+                "mot": "PHOQUE",
+                "emoji": "🦭"
+              }
+            ]
+          }
+        ]
+      },
+      "ce1-p1": {
+        "count": 19,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "RIVIERE",
+                "emoji": "🏞️"
+              },
+              {
+                "mot": "MONTAGNE",
+                "emoji": "⛰️"
+              },
+              {
+                "mot": "FORET",
+                "emoji": "🌲"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "TEMPETE",
+                "emoji": "🌪️"
+              },
+              {
+                "mot": "ARC-EN-CIEL",
+                "emoji": "🌈"
+              },
+              {
+                "mot": "ETOILE",
+                "emoji": "⭐"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "TOURNESOL",
+                "emoji": "🌻"
+              },
+              {
+                "mot": "CHAMPIGNON",
+                "emoji": "🍄"
+              },
+              {
+                "mot": "BLE",
+                "emoji": "🌾"
+              }
+            ]
+          }
+        ]
+      },
+      "ce1-p2": {
+        "count": 18,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "RIVIERE",
+                "emoji": "🏞️"
+              },
+              {
+                "mot": "MONTAGNE",
+                "emoji": "⛰️"
+              },
+              {
+                "mot": "FORET",
+                "emoji": "🌲"
+              },
+              {
+                "mot": "VOLCAN",
+                "emoji": "🌋"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "TEMPETE",
+                "emoji": "🌪️"
+              },
+              {
+                "mot": "ARC-EN-CIEL",
+                "emoji": "🌈"
+              },
+              {
+                "mot": "ETOILE",
+                "emoji": "⭐"
+              },
+              {
+                "mot": "COMETE",
+                "emoji": "☄️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "TOURNESOL",
+                "emoji": "🌻"
+              },
+              {
+                "mot": "CHAMPIGNON",
+                "emoji": "🍄"
+              },
+              {
+                "mot": "BLE",
+                "emoji": "🌾"
+              },
+              {
+                "mot": "CACTUS",
+                "emoji": "🌵"
+              }
+            ]
+          }
+        ]
+      },
+      "ce1-p3": {
+        "count": 16,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "RIVIERE",
+                "emoji": "🏞️"
+              },
+              {
+                "mot": "MONTAGNE",
+                "emoji": "⛰️"
+              },
+              {
+                "mot": "FORET",
+                "emoji": "🌲"
+              },
+              {
+                "mot": "VOLCAN",
+                "emoji": "🌋"
+              },
+              {
+                "mot": "DESERT",
+                "emoji": "🏜️"
+              },
+              {
+                "mot": "OCEAN",
+                "emoji": "🌊"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "TEMPETE",
+                "emoji": "🌪️"
+              },
+              {
+                "mot": "ARC-EN-CIEL",
+                "emoji": "🌈"
+              },
+              {
+                "mot": "ETOILE",
+                "emoji": "⭐"
+              },
+              {
+                "mot": "COMETE",
+                "emoji": "☄️"
+              },
+              {
+                "mot": "GALAXIE",
+                "emoji": "🌌"
+              },
+              {
+                "mot": "PLANETE",
+                "emoji": "🪐"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "TOURNESOL",
+                "emoji": "🌻"
+              },
+              {
+                "mot": "CHAMPIGNON",
+                "emoji": "🍄"
+              },
+              {
+                "mot": "BLE",
+                "emoji": "🌾"
+              },
+              {
+                "mot": "CACTUS",
+                "emoji": "🌵"
+              },
+              {
+                "mot": "ERABLE",
+                "emoji": "🍁"
+              },
+              {
+                "mot": "PALMIER",
+                "emoji": "🌴"
+              }
+            ]
+          }
+        ]
+      },
+      "ce2-p2": {
+        "count": 18,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "TEMPLE",
+                "emoji": "🏛️"
+              },
+              {
+                "mot": "STATUE",
+                "emoji": "🗿"
+              },
+              {
+                "mot": "POTERIE",
+                "emoji": "⚱️"
+              },
+              {
+                "mot": "PARCHEMIN",
+                "emoji": "📜"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "SATURNE",
+                "emoji": "🪐"
+              },
+              {
+                "mot": "LUNE",
+                "emoji": "🌙"
+              },
+              {
+                "mot": "COMETE",
+                "emoji": "☄️"
+              },
+              {
+                "mot": "GALAXIE",
+                "emoji": "🌌"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PHOTOSYNTHESE",
+                "emoji": "🌿"
+              },
+              {
+                "mot": "ECOSYSTEME",
+                "emoji": "🌳"
+              },
+              {
+                "mot": "BIODIVERSITE",
+                "emoji": "🦋"
+              },
+              {
+                "mot": "POLLINISATION",
+                "emoji": "🐝"
+              }
+            ]
+          }
+        ]
+      },
+      "ce2-p1": {
+        "count": 18,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "TEMPLE",
+                "emoji": "🏛️"
+              },
+              {
+                "mot": "STATUE",
+                "emoji": "🗿"
+              },
+              {
+                "mot": "POTERIE",
+                "emoji": "⚱️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "SATURNE",
+                "emoji": "🪐"
+              },
+              {
+                "mot": "LUNE",
+                "emoji": "🌙"
+              },
+              {
+                "mot": "COMETE",
+                "emoji": "☄️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "CONSTITUTION",
+                "emoji": "📜"
+              },
+              {
+                "mot": "DEMOCRATIE",
+                "emoji": "🗳️"
+              },
+              {
+                "mot": "REVOLUTION",
+                "emoji": "⚔️"
+              },
+              {
+                "mot": "REPUBLIQUE",
+                "emoji": "🏛️"
+              }
+            ]
+          }
+        ]
+      },
+      "ce2-p3": {
+        "count": 15,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "TEMPLE",
+                "emoji": "🏛️"
+              },
+              {
+                "mot": "STATUE",
+                "emoji": "🗿"
+              },
+              {
+                "mot": "POTERIE",
+                "emoji": "⚱️"
+              },
+              {
+                "mot": "PARCHEMIN",
+                "emoji": "📜"
+              },
+              {
+                "mot": "AMPHORE",
+                "emoji": "🏺"
+              },
+              {
+                "mot": "PIOCHE",
+                "emoji": "⛏️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "SATURNE",
+                "emoji": "🪐"
+              },
+              {
+                "mot": "LUNE",
+                "emoji": "🌙"
+              },
+              {
+                "mot": "COMETE",
+                "emoji": "☄️"
+              },
+              {
+                "mot": "GALAXIE",
+                "emoji": "🌌"
+              },
+              {
+                "mot": "SATELLITE",
+                "emoji": "🛰️"
+              },
+              {
+                "mot": "FUSEE",
+                "emoji": "🚀"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "GRAVITE",
+                "emoji": "🍎"
+              },
+              {
+                "mot": "APESANTEUR",
+                "emoji": "🧑‍🚀"
+              },
+              {
+                "mot": "ORBITE",
+                "emoji": "🪐"
+              },
+              {
+                "mot": "ROTATION",
+                "emoji": "🌍"
+              }
+            ]
+          }
+        ]
+      },
+      "cm1-p1": {
+        "count": 28,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "CHIMIE",
+                "emoji": "⚗️"
+              },
+              {
+                "mot": "GENETIQUE",
+                "emoji": "🧬"
+              },
+              {
+                "mot": "TELESCOPE",
+                "emoji": "🔭"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "CHATEAU",
+                "emoji": "🏰"
+              },
+              {
+                "mot": "EPEE",
+                "emoji": "⚔️"
+              },
+              {
+                "mot": "BOUCLIER",
+                "emoji": "🛡️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "POMPIER",
+                "emoji": "🧑‍🚒"
+              },
+              {
+                "mot": "MEDECIN",
+                "emoji": "🧑‍⚕️"
+              },
+              {
+                "mot": "FERMIER",
+                "emoji": "🧑‍🌾"
+              },
+              {
+                "mot": "CUISINIER",
+                "emoji": "🧑‍🍳"
+              },
+              {
+                "mot": "PROFESSEUR",
+                "emoji": "🧑‍🏫"
+              }
+            ]
+          }
+        ]
+      },
+      "cm1-p2": {
+        "count": 28,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "CHIMIE",
+                "emoji": "⚗️"
+              },
+              {
+                "mot": "GENETIQUE",
+                "emoji": "🧬"
+              },
+              {
+                "mot": "TELESCOPE",
+                "emoji": "🔭"
+              },
+              {
+                "mot": "RADIOGRAPHIE",
+                "emoji": "🩻"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "CHATEAU",
+                "emoji": "🏰"
+              },
+              {
+                "mot": "EPEE",
+                "emoji": "⚔️"
+              },
+              {
+                "mot": "BOUCLIER",
+                "emoji": "🛡️"
+              },
+              {
+                "mot": "COURONNE",
+                "emoji": "👑"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "POMPIER",
+                "emoji": "🧑‍🚒"
+              },
+              {
+                "mot": "MEDECIN",
+                "emoji": "🧑‍⚕️"
+              },
+              {
+                "mot": "FERMIER",
+                "emoji": "🧑‍🌾"
+              },
+              {
+                "mot": "CUISINIER",
+                "emoji": "🧑‍🍳"
+              },
+              {
+                "mot": "PROFESSEUR",
+                "emoji": "🧑‍🏫"
+              },
+              {
+                "mot": "MECANICIEN",
+                "emoji": "🧑‍🔧"
+              }
+            ]
+          }
+        ]
+      },
+      "cm1-p3": {
+        "count": 28,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "CHIMIE",
+                "emoji": "⚗️"
+              },
+              {
+                "mot": "GENETIQUE",
+                "emoji": "🧬"
+              },
+              {
+                "mot": "TELESCOPE",
+                "emoji": "🔭"
+              },
+              {
+                "mot": "RADIOGRAPHIE",
+                "emoji": "🩻"
+              },
+              {
+                "mot": "MICROBE",
+                "emoji": "🦠"
+              },
+              {
+                "mot": "LABORATOIRE",
+                "emoji": "🧫"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "CHATEAU",
+                "emoji": "🏰"
+              },
+              {
+                "mot": "EPEE",
+                "emoji": "⚔️"
+              },
+              {
+                "mot": "BOUCLIER",
+                "emoji": "🛡️"
+              },
+              {
+                "mot": "COURONNE",
+                "emoji": "👑"
+              },
+              {
+                "mot": "DESTRIER",
+                "emoji": "🐎"
+              },
+              {
+                "mot": "ARBALETE",
+                "emoji": "🏹"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "POMPIER",
+                "emoji": "🧑‍🚒"
+              },
+              {
+                "mot": "MEDECIN",
+                "emoji": "🧑‍⚕️"
+              },
+              {
+                "mot": "FERMIER",
+                "emoji": "🧑‍🌾"
+              },
+              {
+                "mot": "CUISINIER",
+                "emoji": "🧑‍🍳"
+              },
+              {
+                "mot": "PROFESSEUR",
+                "emoji": "🧑‍🏫"
+              },
+              {
+                "mot": "MECANICIEN",
+                "emoji": "🧑‍🔧"
+              },
+              {
+                "mot": "SCIENTIFIQUE",
+                "emoji": "🧑‍🔬"
+              },
+              {
+                "mot": "PILOTE",
+                "emoji": "🧑‍✈️"
+              }
+            ]
+          }
+        ]
+      },
+      "cm2-p1": {
+        "count": 20,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "MICROSCOPE",
+                "emoji": "🔬"
+              },
+              {
+                "mot": "TELESCOPE",
+                "emoji": "🔭"
+              },
+              {
+                "mot": "AIMANT",
+                "emoji": "🧲"
+              },
+              {
+                "mot": "PILE",
+                "emoji": "🔋"
+              },
+              {
+                "mot": "AMPOULE",
+                "emoji": "💡"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PILE",
+                "emoji": "🔋"
+              },
+              {
+                "mot": "AMPOULE",
+                "emoji": "💡"
+              },
+              {
+                "mot": "ENGRENAGE",
+                "emoji": "⚙️"
+              },
+              {
+                "mot": "ROBOT",
+                "emoji": "🤖"
+              },
+              {
+                "mot": "SATELLITE",
+                "emoji": "🛰️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PYRAMIDE",
+                "emoji": "🔺"
+              },
+              {
+                "mot": "CHATEAU FORT",
+                "emoji": "🏰"
+              },
+              {
+                "mot": "TEMPLE",
+                "emoji": "🛕"
+              },
+              {
+                "mot": "STATUE",
+                "emoji": "🗿"
+              },
+              {
+                "mot": "PARCHEMIN",
+                "emoji": "📜"
+              }
+            ]
+          }
+        ]
+      },
+      "cm2-p2": {
+        "count": 20,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "MICROSCOPE",
+                "emoji": "🔬"
+              },
+              {
+                "mot": "TELESCOPE",
+                "emoji": "🔭"
+              },
+              {
+                "mot": "AIMANT",
+                "emoji": "🧲"
+              },
+              {
+                "mot": "PILE",
+                "emoji": "🔋"
+              },
+              {
+                "mot": "AMPOULE",
+                "emoji": "💡"
+              },
+              {
+                "mot": "ENGRENAGE",
+                "emoji": "⚙️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "AIMANT",
+                "emoji": "🧲"
+              },
+              {
+                "mot": "PILE",
+                "emoji": "🔋"
+              },
+              {
+                "mot": "AMPOULE",
+                "emoji": "💡"
+              },
+              {
+                "mot": "ENGRENAGE",
+                "emoji": "⚙️"
+              },
+              {
+                "mot": "ROBOT",
+                "emoji": "🤖"
+              },
+              {
+                "mot": "SATELLITE",
+                "emoji": "🛰️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PYRAMIDE",
+                "emoji": "🔺"
+              },
+              {
+                "mot": "CHATEAU FORT",
+                "emoji": "🏰"
+              },
+              {
+                "mot": "TEMPLE",
+                "emoji": "🛕"
+              },
+              {
+                "mot": "STATUE",
+                "emoji": "🗿"
+              },
+              {
+                "mot": "PARCHEMIN",
+                "emoji": "📜"
+              },
+              {
+                "mot": "COURONNE",
+                "emoji": "👑"
+              }
+            ]
+          }
+        ]
+      },
+      "cm2-p3": {
+        "count": 20,
+        "echantillon": [
+          {
+            "paires": [
+              {
+                "mot": "MICROSCOPE",
+                "emoji": "🔬"
+              },
+              {
+                "mot": "TELESCOPE",
+                "emoji": "🔭"
+              },
+              {
+                "mot": "AIMANT",
+                "emoji": "🧲"
+              },
+              {
+                "mot": "PILE",
+                "emoji": "🔋"
+              },
+              {
+                "mot": "AMPOULE",
+                "emoji": "💡"
+              },
+              {
+                "mot": "ENGRENAGE",
+                "emoji": "⚙️"
+              },
+              {
+                "mot": "ROBOT",
+                "emoji": "🤖"
+              },
+              {
+                "mot": "SATELLITE",
+                "emoji": "🛰️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "PYRAMIDE",
+                "emoji": "🔺"
+              },
+              {
+                "mot": "CHATEAU FORT",
+                "emoji": "🏰"
+              },
+              {
+                "mot": "TEMPLE",
+                "emoji": "🛕"
+              },
+              {
+                "mot": "STATUE",
+                "emoji": "🗿"
+              },
+              {
+                "mot": "PARCHEMIN",
+                "emoji": "📜"
+              },
+              {
+                "mot": "COURONNE",
+                "emoji": "👑"
+              },
+              {
+                "mot": "BOUCLIER",
+                "emoji": "🛡️"
+              },
+              {
+                "mot": "EPEE",
+                "emoji": "⚔️"
+              }
+            ]
+          },
+          {
+            "paires": [
+              {
+                "mot": "OURAGAN",
+                "emoji": "🌀"
+              },
+              {
+                "mot": "SECHERESSE",
+                "emoji": "🏜️"
+              },
+              {
+                "mot": "INONDATION",
+                "emoji": "🌊"
+              },
+              {
+                "mot": "AVALANCHE",
+                "emoji": "🏔️"
+              },
+              {
+                "mot": "ERUPTION",
+                "emoji": "🌋"
+              },
+              {
+                "mot": "SEISME",
+                "emoji": "〰️"
+              },
+              {
+                "mot": "TORNADE",
+                "emoji": "🌪️"
+              },
+              {
+                "mot": "ARC-EN-CIEL",
+                "emoji": "🌈"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
