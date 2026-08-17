@@ -1,0 +1,9411 @@
+{
+  "frise_temps": {
+    "ms-2": [
+      {
+        "evenements": [
+          {
+            "nom": "Graine",
+            "icon": "🌱",
+            "annee": 1
+          },
+          {
+            "nom": "Pousse",
+            "icon": "🌿",
+            "annee": 2
+          },
+          {
+            "nom": "Arbre",
+            "icon": "🌳",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Oeuf",
+            "icon": "🥚",
+            "annee": 1
+          },
+          {
+            "nom": "Poussin",
+            "icon": "🐣",
+            "annee": 2
+          },
+          {
+            "nom": "Poule",
+            "icon": "🐔",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Hiver",
+            "icon": "❄️",
+            "annee": 1
+          },
+          {
+            "nom": "Printemps",
+            "icon": "🌸",
+            "annee": 2
+          },
+          {
+            "nom": "Été",
+            "icon": "☀️",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Ballon gonflé",
+            "icon": "🎈",
+            "annee": 1
+          },
+          {
+            "nom": "Ballon crevé",
+            "icon": "💥",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Glaçon",
+            "icon": "🧊",
+            "annee": 1
+          },
+          {
+            "nom": "Eau",
+            "icon": "💧",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Nuit",
+            "icon": "🌙",
+            "annee": 1
+          },
+          {
+            "nom": "Aube",
+            "icon": "🌅",
+            "annee": 2
+          },
+          {
+            "nom": "Jour",
+            "icon": "☀️",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Têtard",
+            "icon": "🐸",
+            "annee": 1
+          },
+          {
+            "nom": "Grenouille",
+            "icon": "🐸",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bourgeon",
+            "icon": "🌿",
+            "annee": 1
+          },
+          {
+            "nom": "Feuille verte",
+            "icon": "🍃",
+            "annee": 2
+          },
+          {
+            "nom": "Feuille qui tombe",
+            "icon": "🍂",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Assiette pleine",
+            "icon": "🍽️",
+            "annee": 1
+          },
+          {
+            "nom": "Assiette vide",
+            "icon": "🍽️",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Semaine qui commence",
+            "icon": "📅",
+            "annee": 1
+          },
+          {
+            "nom": "Weekend",
+            "icon": "🎉",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Habits sales",
+            "icon": "🧦",
+            "annee": 1
+          },
+          {
+            "nom": "Lavage",
+            "icon": "🧺",
+            "annee": 2
+          },
+          {
+            "nom": "Habits propres",
+            "icon": "👕",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Cheveux longs",
+            "icon": "💇",
+            "annee": 1
+          },
+          {
+            "nom": "Coupe de cheveux",
+            "icon": "✂️",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Assiette pleine de légumes",
+            "icon": "🥕",
+            "annee": 1
+          },
+          {
+            "nom": "Assiette presque vide",
+            "icon": "🍽️",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Papier blanc",
+            "icon": "📄",
+            "annee": 1
+          },
+          {
+            "nom": "Dessin en cours",
+            "icon": "🖍️",
+            "annee": 2
+          },
+          {
+            "nom": "Dessin fini",
+            "icon": "🎨",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Yaourt fermé",
+            "icon": "🥛",
+            "annee": 1
+          },
+          {
+            "nom": "Yaourt ouvert",
+            "icon": "🥄",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Puzzle en boîte",
+            "icon": "📦",
+            "annee": 1
+          },
+          {
+            "nom": "Pièces éparpillées",
+            "icon": "🧩",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Table débarrassée",
+            "icon": "🪑",
+            "annee": 1
+          },
+          {
+            "nom": "Table mise",
+            "icon": "🍽️",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Riz cru",
+            "icon": "🍚",
+            "annee": 1
+          },
+          {
+            "nom": "Cuisson",
+            "icon": "🍲",
+            "annee": 2
+          },
+          {
+            "nom": "Riz cuit",
+            "icon": "🍚",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Escargot sort de sa coquille",
+            "icon": "🐌",
+            "annee": 1
+          },
+          {
+            "nom": "Escargot se déplace",
+            "icon": "🐌",
+            "annee": 2
+          }
+        ]
+      }
+    ],
+    "ms-3": [
+      {
+        "evenements": [
+          {
+            "nom": "Nouvelle lune",
+            "icon": "🌑",
+            "annee": 1
+          },
+          {
+            "nom": "Demi-lune",
+            "icon": "🌓",
+            "annee": 2
+          },
+          {
+            "nom": "Pleine lune",
+            "icon": "🌕",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Semis",
+            "icon": "🌱",
+            "annee": 1
+          },
+          {
+            "nom": "Fleur",
+            "icon": "🌷",
+            "annee": 2
+          },
+          {
+            "nom": "Fruit",
+            "icon": "🍎",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chantier",
+            "icon": "🚧",
+            "annee": 1
+          },
+          {
+            "nom": "Construction",
+            "icon": "🏗️",
+            "annee": 2
+          },
+          {
+            "nom": "Maison",
+            "icon": "🏠",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Pomme verte",
+            "icon": "🍏",
+            "annee": 1
+          },
+          {
+            "nom": "Pomme mûre",
+            "icon": "🍎",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bain",
+            "icon": "🛁",
+            "annee": 1
+          },
+          {
+            "nom": "Pyjama",
+            "icon": "👕",
+            "annee": 2
+          },
+          {
+            "nom": "Dodo",
+            "icon": "😴",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Réveil",
+            "icon": "⏰",
+            "annee": 1
+          },
+          {
+            "nom": "Petit-déjeuner",
+            "icon": "🥣",
+            "annee": 2
+          },
+          {
+            "nom": "École",
+            "icon": "🎒",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Pâte à gâteau",
+            "icon": "🥣",
+            "annee": 1
+          },
+          {
+            "nom": "Cuisson",
+            "icon": "🔥",
+            "annee": 2
+          },
+          {
+            "nom": "Gâteau",
+            "icon": "🎂",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Graine de tournesol",
+            "icon": "🌻",
+            "annee": 1
+          },
+          {
+            "nom": "Tige",
+            "icon": "🌱",
+            "annee": 2
+          },
+          {
+            "nom": "Tournesol",
+            "icon": "🌻",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Craie neuve",
+            "icon": "🖍️",
+            "annee": 1
+          },
+          {
+            "nom": "Craie usée",
+            "icon": "🖍️",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Dent qui bouge",
+            "icon": "🦷",
+            "annee": 1
+          },
+          {
+            "nom": "Dent tombée",
+            "icon": "😬",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Graine de haricot",
+            "icon": "🫘",
+            "annee": 1
+          },
+          {
+            "nom": "Petite pousse",
+            "icon": "🌱",
+            "annee": 2
+          },
+          {
+            "nom": "Plante de haricots",
+            "icon": "🌿",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Valise vide",
+            "icon": "🧳",
+            "annee": 1
+          },
+          {
+            "nom": "Valise pleine",
+            "icon": "👕",
+            "annee": 2
+          },
+          {
+            "nom": "Départ en voyage",
+            "icon": "✈️",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Voiture propre",
+            "icon": "🚗",
+            "annee": 1
+          },
+          {
+            "nom": "Voiture sale",
+            "icon": "🚙",
+            "annee": 2
+          },
+          {
+            "nom": "Lavage",
+            "icon": "🧽",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Ballon rond",
+            "icon": "⚽",
+            "annee": 1
+          },
+          {
+            "nom": "Coup de pied",
+            "icon": "🦶",
+            "annee": 2
+          },
+          {
+            "nom": "But marqué",
+            "icon": "🥅",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Livre fermé",
+            "icon": "📕",
+            "annee": 1
+          },
+          {
+            "nom": "Livre ouvert",
+            "icon": "📖",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Fenêtre fermée",
+            "icon": "🪟",
+            "annee": 1
+          },
+          {
+            "nom": "Fenêtre ouverte",
+            "icon": "🌬️",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Jouet neuf",
+            "icon": "🧸",
+            "annee": 1
+          },
+          {
+            "nom": "Jouet cassé",
+            "icon": "💔",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Puzzle simple commencé",
+            "icon": "🧩",
+            "annee": 1
+          },
+          {
+            "nom": "Puzzle presque fini",
+            "icon": "🧩",
+            "annee": 2
+          },
+          {
+            "nom": "Puzzle complet",
+            "icon": "🖼️",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Peinture fraîche",
+            "icon": "🎨",
+            "annee": 1
+          },
+          {
+            "nom": "Peinture qui sèche",
+            "icon": "🖼️",
+            "annee": 2
+          }
+        ]
+      }
+    ],
+    "gs-2": [
+      {
+        "evenements": [
+          {
+            "nom": "Naissance",
+            "icon": "👶",
+            "annee": 1
+          },
+          {
+            "nom": "École",
+            "icon": "🎒",
+            "annee": 2
+          },
+          {
+            "nom": "Travail",
+            "icon": "💼",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Terrain vide",
+            "icon": "🟫",
+            "annee": 1
+          },
+          {
+            "nom": "Fondations",
+            "icon": "🧱",
+            "annee": 2
+          },
+          {
+            "nom": "Maison",
+            "icon": "🏠",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bourgeon",
+            "icon": "🌱",
+            "annee": 1
+          },
+          {
+            "nom": "Bouton",
+            "icon": "🌿",
+            "annee": 2
+          },
+          {
+            "nom": "Fleur",
+            "icon": "🌺",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Blé",
+            "icon": "🌾",
+            "annee": 1
+          },
+          {
+            "nom": "Farine",
+            "icon": "🌾",
+            "annee": 2
+          },
+          {
+            "nom": "Pain",
+            "icon": "🍞",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Raisin",
+            "icon": "🍇",
+            "annee": 1
+          },
+          {
+            "nom": "Pressage",
+            "icon": "🧺",
+            "annee": 2
+          },
+          {
+            "nom": "Jus de raisin",
+            "icon": "🧃",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Lait",
+            "icon": "🥛",
+            "annee": 1
+          },
+          {
+            "nom": "Beurre",
+            "icon": "🧈",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Arbre planté",
+            "icon": "🌱",
+            "annee": 1
+          },
+          {
+            "nom": "Petit arbre",
+            "icon": "🌳",
+            "annee": 2
+          },
+          {
+            "nom": "Grand arbre",
+            "icon": "🌲",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Coquille",
+            "icon": "🥚",
+            "annee": 1
+          },
+          {
+            "nom": "Fissure",
+            "icon": "🐣",
+            "annee": 2
+          },
+          {
+            "nom": "Poussin sort",
+            "icon": "🐤",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bois brut",
+            "icon": "🪵",
+            "annee": 1
+          },
+          {
+            "nom": "Sculpture en cours",
+            "icon": "🔨",
+            "annee": 2
+          },
+          {
+            "nom": "Statue finie",
+            "icon": "🗿",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bougie neuve",
+            "icon": "🕯️",
+            "annee": 1
+          },
+          {
+            "nom": "Bougie mi-consumée",
+            "icon": "🕯️",
+            "annee": 2
+          },
+          {
+            "nom": "Bougie éteinte",
+            "icon": "💨",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Ballon dégonflé",
+            "icon": "🎈",
+            "annee": 1
+          },
+          {
+            "nom": "Gonflage",
+            "icon": "💨",
+            "annee": 2
+          },
+          {
+            "nom": "Ballon gonflé",
+            "icon": "🎈",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Enfant qui rampe",
+            "icon": "🧎",
+            "annee": 1
+          },
+          {
+            "nom": "Premiers pas",
+            "icon": "🚶",
+            "annee": 2
+          },
+          {
+            "nom": "Enfant qui court",
+            "icon": "🏃",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Puzzle en pièces",
+            "icon": "🧩",
+            "annee": 1
+          },
+          {
+            "nom": "Puzzle à moitié fait",
+            "icon": "🧩",
+            "annee": 2
+          },
+          {
+            "nom": "Puzzle terminé",
+            "icon": "🖼️",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Baignoire vide",
+            "icon": "🛁",
+            "annee": 1
+          },
+          {
+            "nom": "Remplissage",
+            "icon": "🚿",
+            "annee": 2
+          },
+          {
+            "nom": "Bain moussant",
+            "icon": "🫧",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Roche solide",
+            "icon": "🪨",
+            "annee": 1
+          },
+          {
+            "nom": "Érosion par l'eau",
+            "icon": "💧",
+            "annee": 2
+          },
+          {
+            "nom": "Sable formé",
+            "icon": "🏖️",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Sac de billes plein",
+            "icon": "🔮",
+            "annee": 1
+          },
+          {
+            "nom": "Partie de billes",
+            "icon": "🎯",
+            "annee": 2
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Idée de dessin",
+            "icon": "💭",
+            "annee": 1
+          },
+          {
+            "nom": "Croquis rapide",
+            "icon": "✏️",
+            "annee": 2
+          },
+          {
+            "nom": "Coloriage",
+            "icon": "🖍️",
+            "annee": 3
+          },
+          {
+            "nom": "Oeuvre terminée",
+            "icon": "🎨",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bois sec",
+            "icon": "🪵",
+            "annee": 1
+          },
+          {
+            "nom": "Étincelle",
+            "icon": "✨",
+            "annee": 2
+          },
+          {
+            "nom": "Feu de camp",
+            "icon": "🔥",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Pâte à crêpe préparée",
+            "icon": "🥣",
+            "annee": 1
+          },
+          {
+            "nom": "Cuisson dans la poêle",
+            "icon": "🍳",
+            "annee": 2
+          },
+          {
+            "nom": "Crêpe retournée",
+            "icon": "🥞",
+            "annee": 3
+          }
+        ]
+      }
+    ],
+    "gs-3": [
+      {
+        "evenements": [
+          {
+            "nom": "Printemps",
+            "icon": "🌸",
+            "annee": 1
+          },
+          {
+            "nom": "Été",
+            "icon": "☀️",
+            "annee": 2
+          },
+          {
+            "nom": "Automne",
+            "icon": "🍂",
+            "annee": 3
+          },
+          {
+            "nom": "Hiver",
+            "icon": "❄️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Réveil",
+            "icon": "⏰",
+            "annee": 1
+          },
+          {
+            "nom": "École",
+            "icon": "🎒",
+            "annee": 2
+          },
+          {
+            "nom": "Goûter",
+            "icon": "🍪",
+            "annee": 3
+          },
+          {
+            "nom": "Coucher",
+            "icon": "🛏️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Graine",
+            "icon": "🌰",
+            "annee": 1
+          },
+          {
+            "nom": "Pousse",
+            "icon": "🌱",
+            "annee": 2
+          },
+          {
+            "nom": "Jeune arbre",
+            "icon": "🌿",
+            "annee": 3
+          },
+          {
+            "nom": "Grand arbre",
+            "icon": "🌳",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Coton",
+            "icon": "☁️",
+            "annee": 1
+          },
+          {
+            "nom": "Fil",
+            "icon": "🧵",
+            "annee": 2
+          },
+          {
+            "nom": "Tissu",
+            "icon": "🧶",
+            "annee": 3
+          },
+          {
+            "nom": "Vêtement",
+            "icon": "👕",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Miel dans la ruche",
+            "icon": "🍯",
+            "annee": 1
+          },
+          {
+            "nom": "Récolte",
+            "icon": "🧺",
+            "annee": 2
+          },
+          {
+            "nom": "Pot de miel",
+            "icon": "🍯",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bois coupé",
+            "icon": "🪵",
+            "annee": 1
+          },
+          {
+            "nom": "Planches",
+            "icon": "🪵",
+            "annee": 2
+          },
+          {
+            "nom": "Meuble",
+            "icon": "🪑",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Sable",
+            "icon": "🏖️",
+            "annee": 1
+          },
+          {
+            "nom": "Château fort",
+            "icon": "🏰",
+            "annee": 2
+          },
+          {
+            "nom": "Vague",
+            "icon": "🌊",
+            "annee": 3
+          },
+          {
+            "nom": "Château détruit",
+            "icon": "💦",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Pâte",
+            "icon": "🍕",
+            "annee": 1
+          },
+          {
+            "nom": "Garniture",
+            "icon": "🍅",
+            "annee": 2
+          },
+          {
+            "nom": "Cuisson",
+            "icon": "🔥",
+            "annee": 3
+          },
+          {
+            "nom": "Pizza",
+            "icon": "🍕",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Tomate verte",
+            "icon": "🍅",
+            "annee": 1
+          },
+          {
+            "nom": "Tomate qui mûrit",
+            "icon": "🍅",
+            "annee": 2
+          },
+          {
+            "nom": "Sauce tomate",
+            "icon": "🍝",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Graine de citrouille",
+            "icon": "🎃",
+            "annee": 1
+          },
+          {
+            "nom": "Tige rampante",
+            "icon": "🌿",
+            "annee": 2
+          },
+          {
+            "nom": "Grosse citrouille",
+            "icon": "🎃",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Neige qui tombe",
+            "icon": "🌨️",
+            "annee": 1
+          },
+          {
+            "nom": "Sol enneigé",
+            "icon": "❄️",
+            "annee": 2
+          },
+          {
+            "nom": "Fonte au soleil",
+            "icon": "💧",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Marée basse",
+            "icon": "🏖️",
+            "annee": 1
+          },
+          {
+            "nom": "Marée montante",
+            "icon": "🌊",
+            "annee": 2
+          },
+          {
+            "nom": "Marée haute",
+            "icon": "🌊",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Piste de neige lisse",
+            "icon": "⛄",
+            "annee": 1
+          },
+          {
+            "nom": "Bonhomme de neige commencé",
+            "icon": "⚪",
+            "annee": 2
+          },
+          {
+            "nom": "Bonhomme de neige fini",
+            "icon": "⛄",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Terre labourée",
+            "icon": "🚜",
+            "annee": 1
+          },
+          {
+            "nom": "Semis",
+            "icon": "🌱",
+            "annee": 2
+          },
+          {
+            "nom": "Champ de blé mûr",
+            "icon": "🌾",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Ampoule éteinte",
+            "icon": "💡",
+            "annee": 1
+          },
+          {
+            "nom": "Interrupteur actionné",
+            "icon": "🔘",
+            "annee": 2
+          },
+          {
+            "nom": "Ampoule allumée",
+            "icon": "💡",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Grain de café vert",
+            "icon": "🌱",
+            "annee": 1
+          },
+          {
+            "nom": "Torréfaction",
+            "icon": "🔥",
+            "annee": 2
+          },
+          {
+            "nom": "Café moulu",
+            "icon": "☕",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Enveloppe vide",
+            "icon": "✉️",
+            "annee": 1
+          },
+          {
+            "nom": "Lettre écrite",
+            "icon": "📝",
+            "annee": 2
+          },
+          {
+            "nom": "Lettre postée",
+            "icon": "📮",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Fil à pêche lancé",
+            "icon": "🎣",
+            "annee": 1
+          },
+          {
+            "nom": "Attente patiente",
+            "icon": "⏳",
+            "annee": 2
+          },
+          {
+            "nom": "Poisson attrapé",
+            "icon": "🐟",
+            "annee": 3
+          }
+        ]
+      }
+    ],
+    "cp-1": [
+      {
+        "evenements": [
+          {
+            "nom": "Dinosaures",
+            "icon": "🦕",
+            "annee": 1
+          },
+          {
+            "nom": "Hommes préhistoriques",
+            "icon": "🗿",
+            "annee": 2
+          },
+          {
+            "nom": "Pyramides d'Égypte",
+            "icon": "🔺",
+            "annee": 3
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Peinture des grottes",
+            "icon": "🎨",
+            "annee": 1
+          },
+          {
+            "nom": "Invention de la roue",
+            "icon": "⚙️",
+            "annee": 2
+          },
+          {
+            "nom": "Châteaux forts",
+            "icon": "🏰",
+            "annee": 3
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chevaliers",
+            "icon": "🛡️",
+            "annee": 1
+          },
+          {
+            "nom": "Bateaux à voile",
+            "icon": "⛵",
+            "annee": 2
+          },
+          {
+            "nom": "Trains à vapeur",
+            "icon": "🚂",
+            "annee": 3
+          },
+          {
+            "nom": "Avions",
+            "icon": "✈️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Graine plantée",
+            "icon": "🌰",
+            "annee": 1
+          },
+          {
+            "nom": "Arrosage",
+            "icon": "💧",
+            "annee": 2
+          },
+          {
+            "nom": "Pousse",
+            "icon": "🌱",
+            "annee": 3
+          },
+          {
+            "nom": "Récolte",
+            "icon": "🥕",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Naissance",
+            "icon": "👶",
+            "annee": 1
+          },
+          {
+            "nom": "Maternelle",
+            "icon": "🎨",
+            "annee": 2
+          },
+          {
+            "nom": "Primaire",
+            "icon": "📚",
+            "annee": 3
+          },
+          {
+            "nom": "Collège",
+            "icon": "🎓",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Idée",
+            "icon": "💡",
+            "annee": 1
+          },
+          {
+            "nom": "Dessin des plans",
+            "icon": "📐",
+            "annee": 2
+          },
+          {
+            "nom": "Construction",
+            "icon": "🏗️",
+            "annee": 3
+          },
+          {
+            "nom": "Maison finie",
+            "icon": "🏠",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chenille",
+            "icon": "🐛",
+            "annee": 1
+          },
+          {
+            "nom": "Cocon",
+            "icon": "🪱",
+            "annee": 2
+          },
+          {
+            "nom": "Chrysalide",
+            "icon": "🦋",
+            "annee": 3
+          },
+          {
+            "nom": "Papillon",
+            "icon": "🦋",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Coton récolté",
+            "icon": "☁️",
+            "annee": 1
+          },
+          {
+            "nom": "Filature",
+            "icon": "🧵",
+            "annee": 2
+          },
+          {
+            "nom": "Tissage",
+            "icon": "🧶",
+            "annee": 3
+          },
+          {
+            "nom": "Chemise",
+            "icon": "👕",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Pierre brute",
+            "icon": "🪨",
+            "annee": 1
+          },
+          {
+            "nom": "Taille",
+            "icon": "🔨",
+            "annee": 2
+          },
+          {
+            "nom": "Diamant poli",
+            "icon": "💎",
+            "annee": 3
+          },
+          {
+            "nom": "Bague",
+            "icon": "💍",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Oeuf de dinosaure",
+            "icon": "🥚",
+            "annee": 1
+          },
+          {
+            "nom": "Bébé dinosaure",
+            "icon": "🦕",
+            "annee": 2
+          },
+          {
+            "nom": "Dinosaure adulte",
+            "icon": "🦖",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Minerai extrait",
+            "icon": "⛏️",
+            "annee": 1
+          },
+          {
+            "nom": "Fonte du métal",
+            "icon": "🔥",
+            "annee": 2
+          },
+          {
+            "nom": "Barre de métal",
+            "icon": "🪙",
+            "annee": 3
+          },
+          {
+            "nom": "Objet fini",
+            "icon": "🔧",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Nuage se forme",
+            "icon": "☁️",
+            "annee": 1
+          },
+          {
+            "nom": "Nuage grossit",
+            "icon": "⛈️",
+            "annee": 2
+          },
+          {
+            "nom": "Orage éclate",
+            "icon": "⚡",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Vigne en fleurs",
+            "icon": "🌸",
+            "annee": 1
+          },
+          {
+            "nom": "Raisins verts",
+            "icon": "🍇",
+            "annee": 2
+          },
+          {
+            "nom": "Vendanges",
+            "icon": "🧺",
+            "annee": 3
+          },
+          {
+            "nom": "Jus de raisin",
+            "icon": "🧃",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Olives sur l'arbre",
+            "icon": "🫒",
+            "annee": 1
+          },
+          {
+            "nom": "Récolte des olives",
+            "icon": "🧺",
+            "annee": 2
+          },
+          {
+            "nom": "Pressage",
+            "icon": "⚙️",
+            "annee": 3
+          },
+          {
+            "nom": "Huile d'olive",
+            "icon": "🫙",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Nuage de vapeur",
+            "icon": "♨️",
+            "annee": 1
+          },
+          {
+            "nom": "Condensation",
+            "icon": "💧",
+            "annee": 2
+          },
+          {
+            "nom": "Pluie",
+            "icon": "🌧️",
+            "annee": 3
+          },
+          {
+            "nom": "Rivière",
+            "icon": "🏞️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Cocon de papillon",
+            "icon": "🪱",
+            "annee": 1
+          },
+          {
+            "nom": "Émergence",
+            "icon": "🦋",
+            "annee": 2
+          },
+          {
+            "nom": "Premier vol",
+            "icon": "🦋",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bourgeon fermé au printemps",
+            "icon": "🌱",
+            "annee": 1
+          },
+          {
+            "nom": "Bourgeon qui s'ouvre",
+            "icon": "🌿",
+            "annee": 2
+          },
+          {
+            "nom": "Feuilles développées",
+            "icon": "🍃",
+            "annee": 3
+          },
+          {
+            "nom": "Arbre en pleine floraison",
+            "icon": "🌸",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Lave en fusion",
+            "icon": "🌋",
+            "annee": 1
+          },
+          {
+            "nom": "Refroidissement",
+            "icon": "🌡️",
+            "annee": 2
+          },
+          {
+            "nom": "Roche volcanique",
+            "icon": "🪨",
+            "annee": 3
+          },
+          {
+            "nom": "Terre fertile",
+            "icon": "🌱",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Idée de spectacle",
+            "icon": "💡",
+            "annee": 1
+          },
+          {
+            "nom": "Répétitions",
+            "icon": "🎭",
+            "annee": 2
+          },
+          {
+            "nom": "Costumes prêts",
+            "icon": "👗",
+            "annee": 3
+          },
+          {
+            "nom": "Représentation finale",
+            "icon": "🎬",
+            "annee": 4
+          }
+        ]
+      }
+    ],
+    "cp-2": [
+      {
+        "evenements": [
+          {
+            "nom": "Pyramides d'Égypte",
+            "icon": "🔺",
+            "annee": 1
+          },
+          {
+            "nom": "Empire romain",
+            "icon": "🏛️",
+            "annee": 2
+          },
+          {
+            "nom": "Moyen Âge",
+            "icon": "🏰",
+            "annee": 3
+          },
+          {
+            "nom": "Époque moderne",
+            "icon": "🏙️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bougie",
+            "icon": "🕯️",
+            "annee": 1
+          },
+          {
+            "nom": "Lampe à huile",
+            "icon": "🪔",
+            "annee": 2
+          },
+          {
+            "nom": "Ampoule électrique",
+            "icon": "💡",
+            "annee": 3
+          },
+          {
+            "nom": "Lampe LED",
+            "icon": "🔦",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Pigeon voyageur",
+            "icon": "🐦",
+            "annee": 1
+          },
+          {
+            "nom": "Télégraphe",
+            "icon": "📡",
+            "annee": 2
+          },
+          {
+            "nom": "Téléphone",
+            "icon": "☎️",
+            "annee": 3
+          },
+          {
+            "nom": "Smartphone",
+            "icon": "📱",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Arbre coupé",
+            "icon": "🌲",
+            "annee": 1
+          },
+          {
+            "nom": "Scierie",
+            "icon": "🪚",
+            "annee": 2
+          },
+          {
+            "nom": "Planches",
+            "icon": "🪵",
+            "annee": 3
+          },
+          {
+            "nom": "Table finie",
+            "icon": "🪑",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Vache",
+            "icon": "🐄",
+            "annee": 1
+          },
+          {
+            "nom": "Traite",
+            "icon": "🥛",
+            "annee": 2
+          },
+          {
+            "nom": "Fromagerie",
+            "icon": "🧀",
+            "annee": 3
+          },
+          {
+            "nom": "Fromage",
+            "icon": "🧀",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Mine de fer",
+            "icon": "⛏️",
+            "annee": 1
+          },
+          {
+            "nom": "Fonderie",
+            "icon": "🔥",
+            "annee": 2
+          },
+          {
+            "nom": "Usine",
+            "icon": "🏭",
+            "annee": 3
+          },
+          {
+            "nom": "Voiture",
+            "icon": "🚗",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Coquillage",
+            "icon": "🐚",
+            "annee": 1
+          },
+          {
+            "nom": "Perle",
+            "icon": "⚪",
+            "annee": 2
+          },
+          {
+            "nom": "Bijou",
+            "icon": "💍",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Poussin",
+            "icon": "🐤",
+            "annee": 1
+          },
+          {
+            "nom": "Jeune poule",
+            "icon": "🐓",
+            "annee": 2
+          },
+          {
+            "nom": "Poule adulte",
+            "icon": "🐔",
+            "annee": 3
+          },
+          {
+            "nom": "Oeufs pondus",
+            "icon": "🥚",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Vers à soie",
+            "icon": "🐛",
+            "annee": 1
+          },
+          {
+            "nom": "Cocon de soie",
+            "icon": "🧵",
+            "annee": 2
+          },
+          {
+            "nom": "Tissage",
+            "icon": "🧶",
+            "annee": 3
+          },
+          {
+            "nom": "Robe de soie",
+            "icon": "👗",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Terrain vide",
+            "icon": "🏗️",
+            "annee": 1
+          },
+          {
+            "nom": "Fondations",
+            "icon": "🧱",
+            "annee": 2
+          },
+          {
+            "nom": "Structure",
+            "icon": "🏗️",
+            "annee": 3
+          },
+          {
+            "nom": "Immeuble fini",
+            "icon": "🏢",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Coton dans le champ",
+            "icon": "☁️",
+            "annee": 1
+          },
+          {
+            "nom": "Récolte",
+            "icon": "🧺",
+            "annee": 2
+          },
+          {
+            "nom": "Filage",
+            "icon": "🧵",
+            "annee": 3
+          },
+          {
+            "nom": "T-shirt",
+            "icon": "👕",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Feuille blanche",
+            "icon": "📄",
+            "annee": 1
+          },
+          {
+            "nom": "Croquis",
+            "icon": "✏️",
+            "annee": 2
+          },
+          {
+            "nom": "Peinture",
+            "icon": "🖌️",
+            "annee": 3
+          },
+          {
+            "nom": "Tableau exposé",
+            "icon": "🖼️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Larve de coccinelle",
+            "icon": "🐛",
+            "annee": 1
+          },
+          {
+            "nom": "Nymphe",
+            "icon": "🪱",
+            "annee": 2
+          },
+          {
+            "nom": "Coccinelle jeune",
+            "icon": "🐞",
+            "annee": 3
+          },
+          {
+            "nom": "Coccinelle adulte",
+            "icon": "🐞",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Ver à soie mange",
+            "icon": "🐛",
+            "annee": 1
+          },
+          {
+            "nom": "Cocon tissé",
+            "icon": "🧵",
+            "annee": 2
+          },
+          {
+            "nom": "Fil dévidé",
+            "icon": "🧶",
+            "annee": 3
+          },
+          {
+            "nom": "Écharpe de soie",
+            "icon": "🧣",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Cellule unique",
+            "icon": "🦠",
+            "annee": 1
+          },
+          {
+            "nom": "Division cellulaire",
+            "icon": "🔬",
+            "annee": 2
+          },
+          {
+            "nom": "Embryon",
+            "icon": "🥚",
+            "annee": 3
+          },
+          {
+            "nom": "Organisme complet",
+            "icon": "🐣",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bougie d'anniversaire allumée",
+            "icon": "🕯️",
+            "annee": 1
+          },
+          {
+            "nom": "Souffle",
+            "icon": "💨",
+            "annee": 2
+          },
+          {
+            "nom": "Bougies éteintes",
+            "icon": "🎂",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Cacao récolté",
+            "icon": "🌰",
+            "annee": 1
+          },
+          {
+            "nom": "Fermentation",
+            "icon": "🫘",
+            "annee": 2
+          },
+          {
+            "nom": "Broyage",
+            "icon": "⚙️",
+            "annee": 3
+          },
+          {
+            "nom": "Tablette de chocolat",
+            "icon": "🍫",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Nuage de sauterelles",
+            "icon": "🦗",
+            "annee": 1
+          },
+          {
+            "nom": "Champ ravagé",
+            "icon": "🌾",
+            "annee": 2
+          },
+          {
+            "nom": "Récolte perdue",
+            "icon": "😢",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Roche calcaire",
+            "icon": "🪨",
+            "annee": 1
+          },
+          {
+            "nom": "Infiltration d'eau",
+            "icon": "💧",
+            "annee": 2
+          },
+          {
+            "nom": "Formation de grotte",
+            "icon": "🕳️",
+            "annee": 3
+          },
+          {
+            "nom": "Stalactites formées",
+            "icon": "🧊",
+            "annee": 4
+          }
+        ]
+      }
+    ],
+    "cp-3": [
+      {
+        "evenements": [
+          {
+            "nom": "Dinosaures",
+            "icon": "🦕",
+            "annee": 1
+          },
+          {
+            "nom": "Premiers hommes",
+            "icon": "🗿",
+            "annee": 2
+          },
+          {
+            "nom": "Pyramides",
+            "icon": "🔺",
+            "annee": 3
+          },
+          {
+            "nom": "Chevaliers",
+            "icon": "🛡️",
+            "annee": 4
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 5
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Charrette à cheval",
+            "icon": "🐴",
+            "annee": 1
+          },
+          {
+            "nom": "Diligence",
+            "icon": "🐎",
+            "annee": 2
+          },
+          {
+            "nom": "Train à vapeur",
+            "icon": "🚂",
+            "annee": 3
+          },
+          {
+            "nom": "Voiture",
+            "icon": "🚗",
+            "annee": 4
+          },
+          {
+            "nom": "Fusée",
+            "icon": "🚀",
+            "annee": 5
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Feu de bois",
+            "icon": "🔥",
+            "annee": 1
+          },
+          {
+            "nom": "Bougie",
+            "icon": "🕯️",
+            "annee": 2
+          },
+          {
+            "nom": "Lampe à gaz",
+            "icon": "💡",
+            "annee": 3
+          },
+          {
+            "nom": "Électricité",
+            "icon": "⚡",
+            "annee": 4
+          },
+          {
+            "nom": "Panneaux solaires",
+            "icon": "🔆",
+            "annee": 5
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Canne à sucre",
+            "icon": "🎋",
+            "annee": 1
+          },
+          {
+            "nom": "Pressage",
+            "icon": "🧃",
+            "annee": 2
+          },
+          {
+            "nom": "Raffinage",
+            "icon": "⚗️",
+            "annee": 3
+          },
+          {
+            "nom": "Sucre",
+            "icon": "🍬",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Argile extraite",
+            "icon": "🟤",
+            "annee": 1
+          },
+          {
+            "nom": "Modelage",
+            "icon": "🏺",
+            "annee": 2
+          },
+          {
+            "nom": "Cuisson au four",
+            "icon": "🔥",
+            "annee": 3
+          },
+          {
+            "nom": "Vase",
+            "icon": "🏺",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Café en grains verts",
+            "icon": "🌱",
+            "annee": 1
+          },
+          {
+            "nom": "Torréfaction",
+            "icon": "🔥",
+            "annee": 2
+          },
+          {
+            "nom": "Mouture",
+            "icon": "☕",
+            "annee": 3
+          },
+          {
+            "nom": "Tasse de café",
+            "icon": "☕",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Mouton",
+            "icon": "🐑",
+            "annee": 1
+          },
+          {
+            "nom": "Tonte",
+            "icon": "✂️",
+            "annee": 2
+          },
+          {
+            "nom": "Laine filée",
+            "icon": "🧶",
+            "annee": 3
+          },
+          {
+            "nom": "Pull",
+            "icon": "🧥",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Pétrole extrait",
+            "icon": "🛢️",
+            "annee": 1
+          },
+          {
+            "nom": "Raffinerie",
+            "icon": "🏭",
+            "annee": 2
+          },
+          {
+            "nom": "Essence",
+            "icon": "⛽",
+            "annee": 3
+          },
+          {
+            "nom": "Voiture roule",
+            "icon": "🚗",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Vache laitière",
+            "icon": "🐄",
+            "annee": 1
+          },
+          {
+            "nom": "Traite",
+            "icon": "🥛",
+            "annee": 2
+          },
+          {
+            "nom": "Fermentation",
+            "icon": "🧀",
+            "annee": 3
+          },
+          {
+            "nom": "Fromage affiné",
+            "icon": "🧀",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Coquille d'huître",
+            "icon": "🦪",
+            "annee": 1
+          },
+          {
+            "nom": "Grain de sable",
+            "icon": "⏳",
+            "annee": 2
+          },
+          {
+            "nom": "Perle qui se forme",
+            "icon": "⚪",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Mine de charbon",
+            "icon": "⛏️",
+            "annee": 1
+          },
+          {
+            "nom": "Wagon de charbon",
+            "icon": "🚂",
+            "annee": 2
+          },
+          {
+            "nom": "Usine à vapeur",
+            "icon": "🏭",
+            "annee": 3
+          },
+          {
+            "nom": "Électricité produite",
+            "icon": "⚡",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bois abattu",
+            "icon": "🪓",
+            "annee": 1
+          },
+          {
+            "nom": "Transport en scierie",
+            "icon": "🚚",
+            "annee": 2
+          },
+          {
+            "nom": "Planches sciées",
+            "icon": "🪵",
+            "annee": 3
+          },
+          {
+            "nom": "Meuble assemblé",
+            "icon": "🪑",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Champ labouré",
+            "icon": "🚜",
+            "annee": 1
+          },
+          {
+            "nom": "Graines semées",
+            "icon": "🌱",
+            "annee": 2
+          },
+          {
+            "nom": "Épis mûrs",
+            "icon": "🌾",
+            "annee": 3
+          },
+          {
+            "nom": "Moisson",
+            "icon": "🚜",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Vent léger",
+            "icon": "🍃",
+            "annee": 1
+          },
+          {
+            "nom": "Vent qui forcit",
+            "icon": "💨",
+            "annee": 2
+          },
+          {
+            "nom": "Tempête",
+            "icon": "🌪️",
+            "annee": 3
+          },
+          {
+            "nom": "Accalmie",
+            "icon": "🌤️",
+            "annee": 4
+          }
+        ]
+      }
+    ],
+    "ce1-2": [
+      {
+        "evenements": [
+          {
+            "nom": "Empire romain",
+            "icon": "🏛️",
+            "annee": 100
+          },
+          {
+            "nom": "Charlemagne",
+            "icon": "👑",
+            "annee": 800
+          },
+          {
+            "nom": "Châteaux forts",
+            "icon": "🏰",
+            "annee": 1200
+          },
+          {
+            "nom": "Découverte de l'Amérique",
+            "icon": "⛵",
+            "annee": 1492
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chevaliers du Moyen Âge",
+            "icon": "🛡️",
+            "annee": 1200
+          },
+          {
+            "nom": "Découverte de l'Amérique",
+            "icon": "⛵",
+            "annee": 1492
+          },
+          {
+            "nom": "Révolution française",
+            "icon": "🗼",
+            "annee": 1789
+          },
+          {
+            "nom": "Invention du train",
+            "icon": "🚂",
+            "annee": 1825
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Invention de l'imprimerie",
+            "icon": "📖",
+            "annee": 1450
+          },
+          {
+            "nom": "Découverte de l'Amérique",
+            "icon": "⛵",
+            "annee": 1492
+          },
+          {
+            "nom": "Révolution française",
+            "icon": "🗼",
+            "annee": 1789
+          },
+          {
+            "nom": "Invention de la photographie",
+            "icon": "📷",
+            "annee": 1826
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Papyrus",
+            "icon": "📜",
+            "annee": 1
+          },
+          {
+            "nom": "Parchemin",
+            "icon": "📃",
+            "annee": 2
+          },
+          {
+            "nom": "Papier",
+            "icon": "📄",
+            "annee": 3
+          },
+          {
+            "nom": "Écran",
+            "icon": "💻",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Feu de bois",
+            "icon": "🔥",
+            "annee": 1
+          },
+          {
+            "nom": "Charbon",
+            "icon": "⚫",
+            "annee": 2
+          },
+          {
+            "nom": "Électricité",
+            "icon": "⚡",
+            "annee": 3
+          },
+          {
+            "nom": "Énergie solaire",
+            "icon": "☀️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Grotte",
+            "icon": "🕳️",
+            "annee": 1
+          },
+          {
+            "nom": "Cabane en bois",
+            "icon": "🛖",
+            "annee": 2
+          },
+          {
+            "nom": "Maison en pierre",
+            "icon": "🏠",
+            "annee": 3
+          },
+          {
+            "nom": "Immeuble",
+            "icon": "🏢",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chasse à pied",
+            "icon": "🏹",
+            "annee": 1
+          },
+          {
+            "nom": "Agriculture",
+            "icon": "🌾",
+            "annee": 2
+          },
+          {
+            "nom": "Marché",
+            "icon": "🧺",
+            "annee": 3
+          },
+          {
+            "nom": "Supermarché",
+            "icon": "🛒",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Dessin sur pierre",
+            "icon": "🪨",
+            "annee": 1
+          },
+          {
+            "nom": "Écriture hiéroglyphe",
+            "icon": "𓂀",
+            "annee": 2
+          },
+          {
+            "nom": "Alphabet",
+            "icon": "🔤",
+            "annee": 3
+          },
+          {
+            "nom": "Ordinateur",
+            "icon": "💻",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chasse aux mammouths",
+            "icon": "🦣",
+            "annee": 1
+          },
+          {
+            "nom": "Élevage",
+            "icon": "🐄",
+            "annee": 2
+          },
+          {
+            "nom": "Boucherie",
+            "icon": "🥩",
+            "annee": 3
+          },
+          {
+            "nom": "Supermarché",
+            "icon": "🛒",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Char à boeufs",
+            "icon": "🐂",
+            "annee": 1
+          },
+          {
+            "nom": "Diligence à chevaux",
+            "icon": "🐴",
+            "annee": 2
+          },
+          {
+            "nom": "Automobile ancienne",
+            "icon": "🚗",
+            "annee": 3
+          },
+          {
+            "nom": "Voiture moderne",
+            "icon": "🚙",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Message oral",
+            "icon": "🗣️",
+            "annee": 1
+          },
+          {
+            "nom": "Lettre écrite",
+            "icon": "✉️",
+            "annee": 2
+          },
+          {
+            "nom": "Télégramme",
+            "icon": "📡",
+            "annee": 3
+          },
+          {
+            "nom": "Message instantané",
+            "icon": "📱",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Encre et plume",
+            "icon": "🖋️",
+            "annee": 1
+          },
+          {
+            "nom": "Stylo à bille",
+            "icon": "🖊️",
+            "annee": 2
+          },
+          {
+            "nom": "Machine à écrire",
+            "icon": "⌨️",
+            "annee": 3
+          },
+          {
+            "nom": "Clavier d'ordinateur",
+            "icon": "💻",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Abaque antique",
+            "icon": "🧮",
+            "annee": 1
+          },
+          {
+            "nom": "Calculatrice mécanique",
+            "icon": "⚙️",
+            "annee": 2
+          },
+          {
+            "nom": "Calculatrice électronique",
+            "icon": "🔢",
+            "annee": 3
+          },
+          {
+            "nom": "Ordinateur",
+            "icon": "💻",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Fondation d'une ville antique",
+            "icon": "🏛️",
+            "annee": 1
+          },
+          {
+            "nom": "Développement urbain",
+            "icon": "🏘️",
+            "annee": 2
+          },
+          {
+            "nom": "Expansion moderne",
+            "icon": "🏙️",
+            "annee": 3
+          },
+          {
+            "nom": "Mégalopole",
+            "icon": "🌆",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premières cartes de géographie",
+            "icon": "🗺️",
+            "annee": 1
+          },
+          {
+            "nom": "Expéditions maritimes",
+            "icon": "⛵",
+            "annee": 2
+          },
+          {
+            "nom": "Cartographie précise",
+            "icon": "🧭",
+            "annee": 3
+          },
+          {
+            "nom": "Satellites GPS",
+            "icon": "🛰️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Berger avec troupeau",
+            "icon": "🐑",
+            "annee": 1
+          },
+          {
+            "nom": "Enclos permanent",
+            "icon": "🏡",
+            "annee": 2
+          },
+          {
+            "nom": "Élevage industriel",
+            "icon": "🚜",
+            "annee": 3
+          },
+          {
+            "nom": "Élevage de précision",
+            "icon": "📡",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chasse à la lance",
+            "icon": "🗡️",
+            "annee": 1
+          },
+          {
+            "nom": "Arc et flèches",
+            "icon": "🏹",
+            "annee": 2
+          },
+          {
+            "nom": "Fusil de chasse",
+            "icon": "🔫",
+            "annee": 3
+          },
+          {
+            "nom": "Photographie animalière",
+            "icon": "📷",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers refuges naturels",
+            "icon": "🕳️",
+            "annee": 1
+          },
+          {
+            "nom": "Huttes de branches",
+            "icon": "🛖",
+            "annee": 2
+          },
+          {
+            "nom": "Maisons en pierre",
+            "icon": "🏠",
+            "annee": 3
+          },
+          {
+            "nom": "Gratte-ciels",
+            "icon": "🏙️",
+            "annee": 4
+          }
+        ]
+      }
+    ],
+    "ce1-3": [
+      {
+        "evenements": [
+          {
+            "nom": "Révolution française",
+            "icon": "🗼",
+            "annee": 1789
+          },
+          {
+            "nom": "Invention du train",
+            "icon": "🚂",
+            "annee": 1825
+          },
+          {
+            "nom": "Invention de l'ampoule",
+            "icon": "💡",
+            "annee": 1879
+          },
+          {
+            "nom": "Premier vol des frères Wright",
+            "icon": "✈️",
+            "annee": 1903
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Invention du téléphone",
+            "icon": "☎️",
+            "annee": 1876
+          },
+          {
+            "nom": "Premier vol des frères Wright",
+            "icon": "✈️",
+            "annee": 1903
+          },
+          {
+            "nom": "Première télévision",
+            "icon": "📺",
+            "annee": 1927
+          },
+          {
+            "nom": "Marche sur la Lune",
+            "icon": "🌕",
+            "annee": 1969
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Première voiture",
+            "icon": "🚗",
+            "annee": 1886
+          },
+          {
+            "nom": "Premier vol des frères Wright",
+            "icon": "✈️",
+            "annee": 1903
+          },
+          {
+            "nom": "Marche sur la Lune",
+            "icon": "🌕",
+            "annee": 1969
+          },
+          {
+            "nom": "Invention d'Internet",
+            "icon": "💻",
+            "annee": 1990
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chevalier",
+            "icon": "⚔️",
+            "annee": 1
+          },
+          {
+            "nom": "Soldat avec fusil",
+            "icon": "🔫",
+            "annee": 2
+          },
+          {
+            "nom": "Char d'assaut",
+            "icon": "🚚",
+            "annee": 3
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bateau à rames",
+            "icon": "🚣",
+            "annee": 1
+          },
+          {
+            "nom": "Voilier",
+            "icon": "⛵",
+            "annee": 2
+          },
+          {
+            "nom": "Bateau à vapeur",
+            "icon": "🚢",
+            "annee": 3
+          },
+          {
+            "nom": "Paquebot moderne",
+            "icon": "🛳️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Ballon à air chaud",
+            "icon": "🎈",
+            "annee": 1
+          },
+          {
+            "nom": "Dirigeable",
+            "icon": "🛸",
+            "annee": 2
+          },
+          {
+            "nom": "Avion à hélice",
+            "icon": "✈️",
+            "annee": 3
+          },
+          {
+            "nom": "Avion à réaction",
+            "icon": "✈️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Signal de fumée",
+            "icon": "💨",
+            "annee": 1
+          },
+          {
+            "nom": "Pigeon voyageur",
+            "icon": "🐦",
+            "annee": 2
+          },
+          {
+            "nom": "Radio",
+            "icon": "📻",
+            "annee": 3
+          },
+          {
+            "nom": "Internet",
+            "icon": "🌐",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Sablier",
+            "icon": "⏳",
+            "annee": 1
+          },
+          {
+            "nom": "Cadran solaire",
+            "icon": "☀️",
+            "annee": 2
+          },
+          {
+            "nom": "Horloge mécanique",
+            "icon": "🕰️",
+            "annee": 3
+          },
+          {
+            "nom": "Montre connectée",
+            "icon": "⌚",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chasse à l'arc",
+            "icon": "🏹",
+            "annee": 1
+          },
+          {
+            "nom": "Domestication",
+            "icon": "🐕",
+            "annee": 2
+          },
+          {
+            "nom": "Élevage organisé",
+            "icon": "🐄",
+            "annee": 3
+          },
+          {
+            "nom": "Ferme moderne",
+            "icon": "🚜",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Radeau de bois",
+            "icon": "🪵",
+            "annee": 1
+          },
+          {
+            "nom": "Barque à rames",
+            "icon": "🚣",
+            "annee": 2
+          },
+          {
+            "nom": "Voilier",
+            "icon": "⛵",
+            "annee": 3
+          },
+          {
+            "nom": "Paquebot",
+            "icon": "🛳️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Sceau royal",
+            "icon": "🖋️",
+            "annee": 1
+          },
+          {
+            "nom": "Parlement",
+            "icon": "🏛️",
+            "annee": 2
+          },
+          {
+            "nom": "Constitution écrite",
+            "icon": "📜",
+            "annee": 3
+          },
+          {
+            "nom": "Élections modernes",
+            "icon": "🗳️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Signal de fumée tribal",
+            "icon": "💨",
+            "annee": 1
+          },
+          {
+            "nom": "Cor de chasse",
+            "icon": "📯",
+            "annee": 2
+          },
+          {
+            "nom": "Cloche du village",
+            "icon": "🔔",
+            "annee": 3
+          },
+          {
+            "nom": "Alarme moderne",
+            "icon": "🚨",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premier bateau à voile",
+            "icon": "⛵",
+            "annee": 1
+          },
+          {
+            "nom": "Grandes découvertes",
+            "icon": "🗺️",
+            "annee": 2
+          },
+          {
+            "nom": "Navire à vapeur",
+            "icon": "🚢",
+            "annee": 3
+          },
+          {
+            "nom": "Porte-conteneurs",
+            "icon": "🚢",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers médecins de village",
+            "icon": "🌿",
+            "annee": 1
+          },
+          {
+            "nom": "Chirurgiens barbiers",
+            "icon": "✂️",
+            "annee": 2
+          },
+          {
+            "nom": "Hôpitaux modernes",
+            "icon": "🏥",
+            "annee": 3
+          },
+          {
+            "nom": "Chirurgie robotique",
+            "icon": "🤖",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers marchés locaux",
+            "icon": "🧺",
+            "annee": 1
+          },
+          {
+            "nom": "Routes commerciales",
+            "icon": "🐫",
+            "annee": 2
+          },
+          {
+            "nom": "Commerce maritime",
+            "icon": "🚢",
+            "annee": 3
+          },
+          {
+            "nom": "Commerce mondial numérique",
+            "icon": "🌐",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Marche à pied uniquement",
+            "icon": "🚶",
+            "annee": 1
+          },
+          {
+            "nom": "Domestication du cheval",
+            "icon": "🐴",
+            "annee": 2
+          },
+          {
+            "nom": "Invention du vélo",
+            "icon": "🚲",
+            "annee": 3
+          },
+          {
+            "nom": "Trottinette électrique",
+            "icon": "🛴",
+            "annee": 4
+          }
+        ]
+      }
+    ],
+    "ce2-1": [
+      {
+        "evenements": [
+          {
+            "nom": "Invention de l'écriture",
+            "icon": "📜",
+            "annee": -3200
+          },
+          {
+            "nom": "Construction des pyramides",
+            "icon": "🔺",
+            "annee": -2500
+          },
+          {
+            "nom": "Jeux Olympiques antiques",
+            "icon": "🏛️",
+            "annee": -776
+          },
+          {
+            "nom": "Fondation de Rome",
+            "icon": "🏛️",
+            "annee": -753
+          },
+          {
+            "nom": "Chute de l'Empire romain",
+            "icon": "⚔️",
+            "annee": 476
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Charlemagne couronné empereur",
+            "icon": "👑",
+            "annee": 800
+          },
+          {
+            "nom": "Construction des cathédrales",
+            "icon": "⛪",
+            "annee": 1200
+          },
+          {
+            "nom": "Guerre de Cent Ans",
+            "icon": "⚔️",
+            "annee": 1337
+          },
+          {
+            "nom": "Invention de l'imprimerie",
+            "icon": "📖",
+            "annee": 1450
+          },
+          {
+            "nom": "Découverte de l'Amérique",
+            "icon": "⛵",
+            "annee": 1492
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Règne de Louis XIV",
+            "icon": "👑",
+            "annee": 1643
+          },
+          {
+            "nom": "Révolution française",
+            "icon": "🗼",
+            "annee": 1789
+          },
+          {
+            "nom": "Napoléon empereur",
+            "icon": "🎖️",
+            "annee": 1804
+          },
+          {
+            "nom": "Invention du train",
+            "icon": "🚂",
+            "annee": 1825
+          },
+          {
+            "nom": "Invention de l'ampoule",
+            "icon": "💡",
+            "annee": 1879
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chasseurs-cueilleurs",
+            "icon": "🏹",
+            "annee": 1
+          },
+          {
+            "nom": "Sédentarisation",
+            "icon": "🌾",
+            "annee": 2
+          },
+          {
+            "nom": "Premières villes",
+            "icon": "🏛️",
+            "annee": 3
+          },
+          {
+            "nom": "Empires",
+            "icon": "👑",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Écriture cunéiforme",
+            "icon": "📜",
+            "annee": 1
+          },
+          {
+            "nom": "Alphabet phénicien",
+            "icon": "🔤",
+            "annee": 2
+          },
+          {
+            "nom": "Imprimerie",
+            "icon": "🖨️",
+            "annee": 3
+          },
+          {
+            "nom": "Internet",
+            "icon": "🌐",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Pierre taillée",
+            "icon": "🪨",
+            "annee": 1
+          },
+          {
+            "nom": "Bronze",
+            "icon": "🔶",
+            "annee": 2
+          },
+          {
+            "nom": "Fer",
+            "icon": "⚙️",
+            "annee": 3
+          },
+          {
+            "nom": "Acier",
+            "icon": "🔩",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Monarchie absolue",
+            "icon": "👑",
+            "annee": 1
+          },
+          {
+            "nom": "Révolution",
+            "icon": "⚔️",
+            "annee": 2
+          },
+          {
+            "nom": "République",
+            "icon": "🏛️",
+            "annee": 3
+          },
+          {
+            "nom": "Démocratie moderne",
+            "icon": "🗳️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Radio",
+            "icon": "📻",
+            "annee": 1
+          },
+          {
+            "nom": "Télévision",
+            "icon": "📺",
+            "annee": 2
+          },
+          {
+            "nom": "Ordinateur",
+            "icon": "💻",
+            "annee": 3
+          },
+          {
+            "nom": "Smartphone",
+            "icon": "📱",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Pigeon voyageur",
+            "icon": "🐦",
+            "annee": 1
+          },
+          {
+            "nom": "Poste à cheval",
+            "icon": "🐴",
+            "annee": 2
+          },
+          {
+            "nom": "Courrier postal moderne",
+            "icon": "📮",
+            "annee": 3
+          },
+          {
+            "nom": "Email instantané",
+            "icon": "📧",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Grotte préhistorique",
+            "icon": "🕳️",
+            "annee": 1
+          },
+          {
+            "nom": "Cabane néolithique",
+            "icon": "🛖",
+            "annee": 2
+          },
+          {
+            "nom": "Maison antique",
+            "icon": "🏛️",
+            "annee": 3
+          },
+          {
+            "nom": "Immeuble contemporain",
+            "icon": "🏙️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chasseurs-cueilleurs nomades",
+            "icon": "🏹",
+            "annee": 1
+          },
+          {
+            "nom": "Premiers villages",
+            "icon": "🏘️",
+            "annee": 2
+          },
+          {
+            "nom": "Cités-états",
+            "icon": "🏛️",
+            "annee": 3
+          },
+          {
+            "nom": "Nations modernes",
+            "icon": "🌍",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers alphabets",
+            "icon": "🔤",
+            "annee": 1
+          },
+          {
+            "nom": "Grammaire codifiée",
+            "icon": "📖",
+            "annee": 2
+          },
+          {
+            "nom": "Dictionnaires imprimés",
+            "icon": "📚",
+            "annee": 3
+          },
+          {
+            "nom": "Traduction automatique",
+            "icon": "🤖",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Cabane de pêcheur",
+            "icon": "🛖",
+            "annee": 1
+          },
+          {
+            "nom": "Village côtier",
+            "icon": "🏘️",
+            "annee": 2
+          },
+          {
+            "nom": "Port marchand",
+            "icon": "⚓",
+            "annee": 3
+          },
+          {
+            "nom": "Métropole portuaire",
+            "icon": "🏙️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Rites funéraires anciens",
+            "icon": "⚱️",
+            "annee": 1
+          },
+          {
+            "nom": "Pyramides égyptiennes",
+            "icon": "🔺",
+            "annee": 2
+          },
+          {
+            "nom": "Mausolées",
+            "icon": "🏛️",
+            "annee": 3
+          },
+          {
+            "nom": "Cimetières modernes",
+            "icon": "⚰️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premières cités-états grecques",
+            "icon": "🏛️",
+            "annee": 1
+          },
+          {
+            "nom": "Démocratie athénienne",
+            "icon": "🗳️",
+            "annee": 2
+          },
+          {
+            "nom": "République romaine",
+            "icon": "🏛️",
+            "annee": 3
+          },
+          {
+            "nom": "Démocraties modernes",
+            "icon": "🌍",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Fondation de Rome",
+            "icon": "🐺",
+            "annee": 1
+          },
+          {
+            "nom": "République romaine",
+            "icon": "🏛️",
+            "annee": 2
+          },
+          {
+            "nom": "Empire romain",
+            "icon": "👑",
+            "annee": 3
+          },
+          {
+            "nom": "Chute de Rome",
+            "icon": "⚔️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers instruments de musique en os",
+            "icon": "🦴",
+            "annee": 1
+          },
+          {
+            "nom": "Instruments à cordes anciens",
+            "icon": "🎻",
+            "annee": 2
+          },
+          {
+            "nom": "Orchestre symphonique",
+            "icon": "🎼",
+            "annee": 3
+          },
+          {
+            "nom": "Musique électronique",
+            "icon": "🎹",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Écriture cunéiforme sumérienne",
+            "icon": "📜",
+            "annee": 1
+          },
+          {
+            "nom": "Hiéroglyphes égyptiens",
+            "icon": "𓂀",
+            "annee": 2
+          },
+          {
+            "nom": "Alphabet phénicien",
+            "icon": "🔤",
+            "annee": 3
+          },
+          {
+            "nom": "Écriture numérique",
+            "icon": "⌨️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers calculs sur les doigts",
+            "icon": "🖐️",
+            "annee": 1
+          },
+          {
+            "nom": "Abaque antique",
+            "icon": "🧮",
+            "annee": 2
+          },
+          {
+            "nom": "Calculatrice de poche",
+            "icon": "🔢",
+            "annee": 3
+          },
+          {
+            "nom": "Superordinateur",
+            "icon": "💻",
+            "annee": 4
+          }
+        ]
+      }
+    ],
+    "ce2-2": [
+      {
+        "evenements": [
+          {
+            "nom": "Invention du téléphone",
+            "icon": "☎️",
+            "annee": 1876
+          },
+          {
+            "nom": "Invention de l'automobile",
+            "icon": "🚗",
+            "annee": 1886
+          },
+          {
+            "nom": "Premier vol des frères Wright",
+            "icon": "✈️",
+            "annee": 1903
+          },
+          {
+            "nom": "Première Guerre mondiale",
+            "icon": "⚔️",
+            "annee": 1914
+          },
+          {
+            "nom": "Seconde Guerre mondiale",
+            "icon": "⚔️",
+            "annee": 1939
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Première télévision",
+            "icon": "📺",
+            "annee": 1927
+          },
+          {
+            "nom": "Seconde Guerre mondiale",
+            "icon": "⚔️",
+            "annee": 1939
+          },
+          {
+            "nom": "Premier ordinateur",
+            "icon": "🖥️",
+            "annee": 1946
+          },
+          {
+            "nom": "Marche sur la Lune",
+            "icon": "🌕",
+            "annee": 1969
+          },
+          {
+            "nom": "Invention d'Internet",
+            "icon": "💻",
+            "annee": 1990
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Fin de la Seconde Guerre mondiale",
+            "icon": "🕊️",
+            "annee": 1945
+          },
+          {
+            "nom": "Premier satellite (Spoutnik)",
+            "icon": "🛰️",
+            "annee": 1957
+          },
+          {
+            "nom": "Marche sur la Lune",
+            "icon": "🌕",
+            "annee": 1969
+          },
+          {
+            "nom": "Premier téléphone portable",
+            "icon": "📱",
+            "annee": 1983
+          },
+          {
+            "nom": "Invention d'Internet",
+            "icon": "💻",
+            "annee": 1990
+          },
+          {
+            "nom": "Aujourd'hui",
+            "icon": "🏙️",
+            "annee": 2026
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Bateau à voile",
+            "icon": "⛵",
+            "annee": 1
+          },
+          {
+            "nom": "Machine à vapeur",
+            "icon": "🚂",
+            "annee": 2
+          },
+          {
+            "nom": "Moteur à essence",
+            "icon": "🚗",
+            "annee": 3
+          },
+          {
+            "nom": "Fusée",
+            "icon": "🚀",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chasse",
+            "icon": "🏹",
+            "annee": 1
+          },
+          {
+            "nom": "Élevage",
+            "icon": "🐄",
+            "annee": 2
+          },
+          {
+            "nom": "Agriculture mécanisée",
+            "icon": "🚜",
+            "annee": 3
+          },
+          {
+            "nom": "Agriculture biologique",
+            "icon": "🌱",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers hommes sur Terre",
+            "icon": "🦴",
+            "annee": 1
+          },
+          {
+            "nom": "Premiers pas sur la Lune",
+            "icon": "🌕",
+            "annee": 2
+          },
+          {
+            "nom": "Station spatiale",
+            "icon": "🛰️",
+            "annee": 3
+          },
+          {
+            "nom": "Mission vers Mars",
+            "icon": "🔴",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Trocs",
+            "icon": "🤝",
+            "annee": 1
+          },
+          {
+            "nom": "Pièces de monnaie",
+            "icon": "🪙",
+            "annee": 2
+          },
+          {
+            "nom": "Billets",
+            "icon": "💵",
+            "annee": 3
+          },
+          {
+            "nom": "Paiement sans contact",
+            "icon": "💳",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Théâtre antique",
+            "icon": "🎭",
+            "annee": 1
+          },
+          {
+            "nom": "Cinéma muet",
+            "icon": "🎬",
+            "annee": 2
+          },
+          {
+            "nom": "Télévision couleur",
+            "icon": "📺",
+            "annee": 3
+          },
+          {
+            "nom": "Streaming",
+            "icon": "📱",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Feu de camp",
+            "icon": "🔥",
+            "annee": 1
+          },
+          {
+            "nom": "Four à bois",
+            "icon": "🍞",
+            "annee": 2
+          },
+          {
+            "nom": "Four électrique",
+            "icon": "🔌",
+            "annee": 3
+          },
+          {
+            "nom": "Four à micro-ondes",
+            "icon": "📡",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Papyrus égyptien",
+            "icon": "📜",
+            "annee": 1
+          },
+          {
+            "nom": "Parchemin médiéval",
+            "icon": "📃",
+            "annee": 2
+          },
+          {
+            "nom": "Livre imprimé",
+            "icon": "📖",
+            "annee": 3
+          },
+          {
+            "nom": "Livre numérique",
+            "icon": "📱",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Roue en pierre",
+            "icon": "⚙️",
+            "annee": 1
+          },
+          {
+            "nom": "Roue en bois cerclée",
+            "icon": "🛞",
+            "annee": 2
+          },
+          {
+            "nom": "Pneu en caoutchouc",
+            "icon": "🚗",
+            "annee": 3
+          },
+          {
+            "nom": "Roue autonome",
+            "icon": "🤖",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Cheval de trait",
+            "icon": "🐴",
+            "annee": 1
+          },
+          {
+            "nom": "Locomotive à vapeur",
+            "icon": "🚂",
+            "annee": 2
+          },
+          {
+            "nom": "Voiture à essence",
+            "icon": "🚗",
+            "annee": 3
+          },
+          {
+            "nom": "Voiture électrique autonome",
+            "icon": "🔋",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Marché au troc",
+            "icon": "🤝",
+            "annee": 1
+          },
+          {
+            "nom": "Première monnaie",
+            "icon": "🪙",
+            "annee": 2
+          },
+          {
+            "nom": "Banque royale",
+            "icon": "🏦",
+            "annee": 3
+          },
+          {
+            "nom": "Paiement numérique",
+            "icon": "💳",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Chasse collective préhistorique",
+            "icon": "🏹",
+            "annee": 1
+          },
+          {
+            "nom": "Agriculture néolithique",
+            "icon": "🌾",
+            "annee": 2
+          },
+          {
+            "nom": "Révolution industrielle",
+            "icon": "🏭",
+            "annee": 3
+          },
+          {
+            "nom": "Agriculture de précision",
+            "icon": "🛰️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premières routes pavées romaines",
+            "icon": "🛣️",
+            "annee": 1
+          },
+          {
+            "nom": "Routes royales",
+            "icon": "🐴",
+            "annee": 2
+          },
+          {
+            "nom": "Autoroutes goudronnées",
+            "icon": "🛣️",
+            "annee": 3
+          },
+          {
+            "nom": "Routes intelligentes",
+            "icon": "🚗",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers vêtements en peau",
+            "icon": "🦌",
+            "annee": 1
+          },
+          {
+            "nom": "Tissage manuel",
+            "icon": "🧵",
+            "annee": 2
+          },
+          {
+            "nom": "Machine à coudre",
+            "icon": "🪡",
+            "annee": 3
+          },
+          {
+            "nom": "Mode durable",
+            "icon": "♻️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers abris de fortune",
+            "icon": "🕳️",
+            "annee": 1
+          },
+          {
+            "nom": "Constructions en torchis",
+            "icon": "🧱",
+            "annee": 2
+          },
+          {
+            "nom": "Architecture en béton",
+            "icon": "🏢",
+            "annee": 3
+          },
+          {
+            "nom": "Bâtiments écologiques",
+            "icon": "🌱",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premières peintures rupestres",
+            "icon": "🎨",
+            "annee": 1
+          },
+          {
+            "nom": "Fresques antiques",
+            "icon": "🖼️",
+            "annee": 2
+          },
+          {
+            "nom": "Peinture à l'huile",
+            "icon": "🖌️",
+            "annee": 3
+          },
+          {
+            "nom": "Art numérique",
+            "icon": "💻",
+            "annee": 4
+          }
+        ]
+      }
+    ],
+    "ce2-3": [
+      {
+        "evenements": [
+          {
+            "nom": "Invention de la roue",
+            "icon": "⚙️",
+            "annee": -3500
+          },
+          {
+            "nom": "Construction des pyramides",
+            "icon": "🔺",
+            "annee": -2500
+          },
+          {
+            "nom": "Fondation de Rome",
+            "icon": "🏛️",
+            "annee": -753
+          },
+          {
+            "nom": "Chute de l'Empire romain",
+            "icon": "⚔️",
+            "annee": 476
+          },
+          {
+            "nom": "Découverte de l'Amérique",
+            "icon": "⛵",
+            "annee": 1492
+          },
+          {
+            "nom": "Révolution française",
+            "icon": "🗼",
+            "annee": 1789
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Guerre de Cent Ans",
+            "icon": "⚔️",
+            "annee": 1337
+          },
+          {
+            "nom": "Découverte de l'Amérique",
+            "icon": "⛵",
+            "annee": 1492
+          },
+          {
+            "nom": "Révolution française",
+            "icon": "🗼",
+            "annee": 1789
+          },
+          {
+            "nom": "Invention du train",
+            "icon": "🚂",
+            "annee": 1825
+          },
+          {
+            "nom": "Première Guerre mondiale",
+            "icon": "⚔️",
+            "annee": 1914
+          },
+          {
+            "nom": "Marche sur la Lune",
+            "icon": "🌕",
+            "annee": 1969
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Napoléon empereur",
+            "icon": "🎖️",
+            "annee": 1804
+          },
+          {
+            "nom": "Invention du téléphone",
+            "icon": "☎️",
+            "annee": 1876
+          },
+          {
+            "nom": "Premier vol des frères Wright",
+            "icon": "✈️",
+            "annee": 1903
+          },
+          {
+            "nom": "Seconde Guerre mondiale",
+            "icon": "⚔️",
+            "annee": 1939
+          },
+          {
+            "nom": "Marche sur la Lune",
+            "icon": "🌕",
+            "annee": 1969
+          },
+          {
+            "nom": "Invention d'Internet",
+            "icon": "💻",
+            "annee": 1990
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Empire romain",
+            "icon": "🏛️",
+            "annee": 1
+          },
+          {
+            "nom": "Chute de l'empire",
+            "icon": "⚔️",
+            "annee": 2
+          },
+          {
+            "nom": "Moyen Âge",
+            "icon": "🏰",
+            "annee": 3
+          },
+          {
+            "nom": "Renaissance",
+            "icon": "🎨",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Cheval de guerre",
+            "icon": "🐴",
+            "annee": 1
+          },
+          {
+            "nom": "Canon",
+            "icon": "💣",
+            "annee": 2
+          },
+          {
+            "nom": "Avion de chasse",
+            "icon": "✈️",
+            "annee": 3
+          },
+          {
+            "nom": "Satellite militaire",
+            "icon": "🛰️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers médecins",
+            "icon": "⚕️",
+            "annee": 1
+          },
+          {
+            "nom": "Découverte des microbes",
+            "icon": "🔬",
+            "annee": 2
+          },
+          {
+            "nom": "Vaccins",
+            "icon": "💉",
+            "annee": 3
+          },
+          {
+            "nom": "Chirurgie robotisée",
+            "icon": "🤖",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Esclavage",
+            "icon": "⛓️",
+            "annee": 1
+          },
+          {
+            "nom": "Abolition",
+            "icon": "📜",
+            "annee": 2
+          },
+          {
+            "nom": "Droits civiques",
+            "icon": "✊",
+            "annee": 3
+          },
+          {
+            "nom": "Égalité (en progrès)",
+            "icon": "🤝",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premières cartes routières",
+            "icon": "🗺️",
+            "annee": 1
+          },
+          {
+            "nom": "Boussole",
+            "icon": "🧭",
+            "annee": 2
+          },
+          {
+            "nom": "GPS",
+            "icon": "📡",
+            "annee": 3
+          },
+          {
+            "nom": "Carte sur smartphone",
+            "icon": "📱",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Étoiles observées à l'œil nu",
+            "icon": "👁️",
+            "annee": 1
+          },
+          {
+            "nom": "Premières lunettes astronomiques",
+            "icon": "🔭",
+            "annee": 2
+          },
+          {
+            "nom": "Télescope spatial",
+            "icon": "🛰️",
+            "annee": 3
+          },
+          {
+            "nom": "Sonde interstellaire",
+            "icon": "🚀",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers médicaments naturels",
+            "icon": "🌿",
+            "annee": 1
+          },
+          {
+            "nom": "Chimie pharmaceutique",
+            "icon": "⚗️",
+            "annee": 2
+          },
+          {
+            "nom": "Antibiotiques",
+            "icon": "💊",
+            "annee": 3
+          },
+          {
+            "nom": "Médecine personnalisée",
+            "icon": "🧬",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premier vol des frères Wright",
+            "icon": "✈️",
+            "annee": 1
+          },
+          {
+            "nom": "Avion à hélice",
+            "icon": "🛩️",
+            "annee": 2
+          },
+          {
+            "nom": "Avion à réaction",
+            "icon": "✈️",
+            "annee": 3
+          },
+          {
+            "nom": "Vol supersonique",
+            "icon": "🚀",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers calendriers lunaires",
+            "icon": "🌙",
+            "annee": 1
+          },
+          {
+            "nom": "Calendrier solaire",
+            "icon": "☀️",
+            "annee": 2
+          },
+          {
+            "nom": "Calendrier grégorien",
+            "icon": "📅",
+            "annee": 3
+          },
+          {
+            "nom": "Calendrier numérique",
+            "icon": "📱",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers ponts en bois",
+            "icon": "🌉",
+            "annee": 1
+          },
+          {
+            "nom": "Ponts en pierre romains",
+            "icon": "🏛️",
+            "annee": 2
+          },
+          {
+            "nom": "Ponts en acier",
+            "icon": "🌉",
+            "annee": 3
+          },
+          {
+            "nom": "Ponts suspendus modernes",
+            "icon": "🌉",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Signaux de fumée amérindiens",
+            "icon": "💨",
+            "annee": 1
+          },
+          {
+            "nom": "Poste à cheval",
+            "icon": "🐴",
+            "annee": 2
+          },
+          {
+            "nom": "Télégraphe électrique",
+            "icon": "📡",
+            "annee": 3
+          },
+          {
+            "nom": "Communication satellite",
+            "icon": "🛰️",
+            "annee": 4
+          }
+        ]
+      },
+      {
+        "evenements": [
+          {
+            "nom": "Premiers remèdes de plantes",
+            "icon": "🌿",
+            "annee": 1
+          },
+          {
+            "nom": "Médecine antique grecque",
+            "icon": "⚕️",
+            "annee": 2
+          },
+          {
+            "nom": "Découverte des antibiotiques",
+            "icon": "💊",
+            "annee": 3
+          },
+          {
+            "nom": "Thérapie génique",
+            "icon": "🧬",
+            "annee": 4
+          }
+        ]
+      }
+    ]
+  },
+  "memoire_etoiles": {
+    "ms-3": [
+      {
+        "paires": [
+          {
+            "mot": "CHAT",
+            "emoji": "🐱"
+          },
+          {
+            "mot": "LAPIN",
+            "emoji": "🐰"
+          },
+          {
+            "mot": "SOLEIL",
+            "emoji": "☀️"
+          },
+          {
+            "mot": "MAISON",
+            "emoji": "🏠"
+          },
+          {
+            "mot": "POMME",
+            "emoji": "🍎"
+          },
+          {
+            "mot": "LUNE",
+            "emoji": "🌙"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "OURS",
+            "emoji": "🐻"
+          },
+          {
+            "mot": "BALLON",
+            "emoji": "🎈"
+          },
+          {
+            "mot": "ETOILE",
+            "emoji": "⭐"
+          },
+          {
+            "mot": "ARBRE",
+            "emoji": "🌳"
+          },
+          {
+            "mot": "FLEUR",
+            "emoji": "🌸"
+          },
+          {
+            "mot": "POISSON",
+            "emoji": "🐟"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "COCHON",
+            "emoji": "🐷"
+          },
+          {
+            "mot": "POULE",
+            "emoji": "🐔"
+          },
+          {
+            "mot": "GRENOUILLE",
+            "emoji": "🐸"
+          },
+          {
+            "mot": "ESCARGOT",
+            "emoji": "🐌"
+          },
+          {
+            "mot": "HIBOU",
+            "emoji": "🦉"
+          },
+          {
+            "mot": "ECUREUIL",
+            "emoji": "🐿️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ECUREUIL",
+            "emoji": "🐿️"
+          },
+          {
+            "mot": "CANARD",
+            "emoji": "🦆"
+          },
+          {
+            "mot": "CHEVAL",
+            "emoji": "🐴"
+          },
+          {
+            "mot": "MINOU",
+            "emoji": "🐈"
+          },
+          {
+            "mot": "PORCELET",
+            "emoji": "🐖"
+          },
+          {
+            "mot": "CHIOT",
+            "emoji": "🐕‍🦺"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CANARD",
+            "emoji": "🦆"
+          },
+          {
+            "mot": "GATEAU",
+            "emoji": "🎂"
+          },
+          {
+            "mot": "ARBRE",
+            "emoji": "🌳"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ABEILLE",
+            "emoji": "🐝"
+          },
+          {
+            "mot": "COEUR",
+            "emoji": "❤️"
+          },
+          {
+            "mot": "CLE",
+            "emoji": "🔑"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "POMPIER",
+            "emoji": "🚒"
+          },
+          {
+            "mot": "POLICIER",
+            "emoji": "🚓"
+          },
+          {
+            "mot": "AMBULANCE",
+            "emoji": "🚑"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "NEIGE",
+            "emoji": "❄️"
+          },
+          {
+            "mot": "BONHOMME DE NEIGE",
+            "emoji": "⛄"
+          },
+          {
+            "mot": "LUGE",
+            "emoji": "🛷"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BOUGIE",
+            "emoji": "🕯️"
+          },
+          {
+            "mot": "CADEAU",
+            "emoji": "🎁"
+          },
+          {
+            "mot": "GATEAU",
+            "emoji": "🎂"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "DENTISTE",
+            "emoji": "🦷"
+          },
+          {
+            "mot": "DOCTEUR",
+            "emoji": "👨‍⚕️"
+          },
+          {
+            "mot": "HOPITAL",
+            "emoji": "🏥"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PLAGE",
+            "emoji": "🏖️"
+          },
+          {
+            "mot": "VAGUE",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "COQUILLAGE",
+            "emoji": "🐚"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BALLON DE FOOT",
+            "emoji": "⚽"
+          },
+          {
+            "mot": "RAQUETTE",
+            "emoji": "🎾"
+          },
+          {
+            "mot": "VELO",
+            "emoji": "🚲"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MIEL",
+            "emoji": "🍯"
+          },
+          {
+            "mot": "FROMAGE",
+            "emoji": "🧀"
+          },
+          {
+            "mot": "OEUF",
+            "emoji": "🥚"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TORTUE",
+            "emoji": "🐢"
+          },
+          {
+            "mot": "ESCARGOT",
+            "emoji": "🐌"
+          },
+          {
+            "mot": "GRENOUILLE",
+            "emoji": "🐸"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MASQUE",
+            "emoji": "🎭"
+          },
+          {
+            "mot": "COSTUME",
+            "emoji": "🦸"
+          },
+          {
+            "mot": "CAPE",
+            "emoji": "🧥"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "SIFFLET",
+            "emoji": "📯"
+          },
+          {
+            "mot": "MEDAILLE",
+            "emoji": "🏅"
+          },
+          {
+            "mot": "TROPHEE",
+            "emoji": "🏆"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CERF-VOLANT",
+            "emoji": "🪁"
+          },
+          {
+            "mot": "VENT",
+            "emoji": "💨"
+          },
+          {
+            "mot": "CIEL",
+            "emoji": "🌤️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BROSSE A DENTS",
+            "emoji": "🪥"
+          },
+          {
+            "mot": "DENTIFRICE",
+            "emoji": "🧴"
+          },
+          {
+            "mot": "VERRE D'EAU",
+            "emoji": "🥛"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ASSIETTE CREUSE",
+            "emoji": "🍜"
+          },
+          {
+            "mot": "BAGUETTES",
+            "emoji": "🥢"
+          },
+          {
+            "mot": "SERVIETTE",
+            "emoji": "🧻"
+          }
+        ]
+      }
+    ],
+    "gs-1": [
+      {
+        "paires": [
+          {
+            "mot": "BANANE",
+            "emoji": "🍌"
+          },
+          {
+            "mot": "VELO",
+            "emoji": "🚲"
+          },
+          {
+            "mot": "ROBOT",
+            "emoji": "🤖"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PANDA",
+            "emoji": "🐼"
+          },
+          {
+            "mot": "TIGRE",
+            "emoji": "🐯"
+          },
+          {
+            "mot": "ZEBRE",
+            "emoji": "🦓"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PARESSEUX",
+            "emoji": "🦥"
+          },
+          {
+            "mot": "FLAMANT",
+            "emoji": "🦩"
+          },
+          {
+            "mot": "HERISSON",
+            "emoji": "🦔"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MOUFETTE",
+            "emoji": "🦨"
+          },
+          {
+            "mot": "LOUTRE",
+            "emoji": "🦦"
+          },
+          {
+            "mot": "CHOUETTE",
+            "emoji": "🦉"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "DAUPHIN",
+            "emoji": "🐬"
+          },
+          {
+            "mot": "FRAISE",
+            "emoji": "🍓"
+          },
+          {
+            "mot": "CHAPEAU",
+            "emoji": "🎩"
+          },
+          {
+            "mot": "MONTRE",
+            "emoji": "⌚"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PARAPLUIE",
+            "emoji": "☂️"
+          },
+          {
+            "mot": "CROCODILE",
+            "emoji": "🐊"
+          },
+          {
+            "mot": "GLACE",
+            "emoji": "🍦"
+          },
+          {
+            "mot": "BOUGIE",
+            "emoji": "🕯️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ELEPHANT",
+            "emoji": "🐘"
+          },
+          {
+            "mot": "GIRAFE",
+            "emoji": "🦒"
+          },
+          {
+            "mot": "ZEBRE",
+            "emoji": "🦓"
+          },
+          {
+            "mot": "LION",
+            "emoji": "🦁"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CHATEAU",
+            "emoji": "🏰"
+          },
+          {
+            "mot": "DRAGON",
+            "emoji": "🐉"
+          },
+          {
+            "mot": "CHEVALIER",
+            "emoji": "⚔️"
+          },
+          {
+            "mot": "PRINCESSE",
+            "emoji": "👸"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MICROSCOPE",
+            "emoji": "🔬"
+          },
+          {
+            "mot": "LUNETTE",
+            "emoji": "👓"
+          },
+          {
+            "mot": "BOUSSOLE",
+            "emoji": "🧭"
+          },
+          {
+            "mot": "CARTE",
+            "emoji": "🗺️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "POMPE A ESSENCE",
+            "emoji": "⛽"
+          },
+          {
+            "mot": "CAMION",
+            "emoji": "🚚"
+          },
+          {
+            "mot": "MOTO",
+            "emoji": "🏍️"
+          },
+          {
+            "mot": "REMORQUE",
+            "emoji": "🚛"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PANIER",
+            "emoji": "🧺"
+          },
+          {
+            "mot": "BALANCE",
+            "emoji": "⚖️"
+          },
+          {
+            "mot": "MARCHAND",
+            "emoji": "🧑‍🌾"
+          },
+          {
+            "mot": "ETALAGE",
+            "emoji": "🍇"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CARTE AU TRESOR",
+            "emoji": "🗺️"
+          },
+          {
+            "mot": "COFFRE",
+            "emoji": "📦"
+          },
+          {
+            "mot": "ILE",
+            "emoji": "🏝️"
+          },
+          {
+            "mot": "PERROQUET",
+            "emoji": "🦜"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "USINE A JOUETS",
+            "emoji": "🧸"
+          },
+          {
+            "mot": "PERE NOEL",
+            "emoji": "🎅"
+          },
+          {
+            "mot": "TRAINEAU",
+            "emoji": "🛷"
+          },
+          {
+            "mot": "RENNE",
+            "emoji": "🦌"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BOUEE",
+            "emoji": "🛟"
+          },
+          {
+            "mot": "MAILLOT DE BAIN",
+            "emoji": "🩱"
+          },
+          {
+            "mot": "LUNETTES DE NATATION",
+            "emoji": "🥽"
+          },
+          {
+            "mot": "PISCINE",
+            "emoji": "🏊"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "COFFRE FORT",
+            "emoji": "🔐"
+          },
+          {
+            "mot": "BILLET",
+            "emoji": "💵"
+          },
+          {
+            "mot": "PIECE D'OR",
+            "emoji": "🪙"
+          },
+          {
+            "mot": "BANQUE",
+            "emoji": "🏦"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "FEE",
+            "emoji": "🧚"
+          },
+          {
+            "mot": "LUTIN",
+            "emoji": "🧝"
+          },
+          {
+            "mot": "BAGUETTE",
+            "emoji": "🪄"
+          },
+          {
+            "mot": "ETINCELLE",
+            "emoji": "✨"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "OMBRELLE",
+            "emoji": "⛱️"
+          },
+          {
+            "mot": "TRANSAT",
+            "emoji": "🏖️"
+          },
+          {
+            "mot": "GLACE VANILLE",
+            "emoji": "🍦"
+          },
+          {
+            "mot": "MAILLOT",
+            "emoji": "🩳"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CAMPING-CAR",
+            "emoji": "🚐"
+          },
+          {
+            "mot": "CARTE ROUTIERE",
+            "emoji": "🗺️"
+          },
+          {
+            "mot": "AIRE DE REPOS",
+            "emoji": "🅿️"
+          },
+          {
+            "mot": "PIQUE-NIQUE",
+            "emoji": "🧺"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MANEGE ANCIEN",
+            "emoji": "🎠"
+          },
+          {
+            "mot": "MUSIQUE DE FOIRE",
+            "emoji": "🎵"
+          },
+          {
+            "mot": "TICKET MAGIQUE",
+            "emoji": "🎫"
+          },
+          {
+            "mot": "TOUR EN CHEVAL DE BOIS",
+            "emoji": "🐴"
+          }
+        ]
+      }
+    ],
+    "gs-2": [
+      {
+        "paires": [
+          {
+            "mot": "BANANE",
+            "emoji": "🍌"
+          },
+          {
+            "mot": "VELO",
+            "emoji": "🚲"
+          },
+          {
+            "mot": "ROBOT",
+            "emoji": "🤖"
+          },
+          {
+            "mot": "TORTUE",
+            "emoji": "🐢"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PANDA",
+            "emoji": "🐼"
+          },
+          {
+            "mot": "TIGRE",
+            "emoji": "🐯"
+          },
+          {
+            "mot": "ZEBRE",
+            "emoji": "🦓"
+          },
+          {
+            "mot": "SINGE",
+            "emoji": "🐒"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PARESSEUX",
+            "emoji": "🦥"
+          },
+          {
+            "mot": "FLAMANT",
+            "emoji": "🦩"
+          },
+          {
+            "mot": "HERISSON",
+            "emoji": "🦔"
+          },
+          {
+            "mot": "BLAIREAU",
+            "emoji": "🦡"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MOUFETTE",
+            "emoji": "🦨"
+          },
+          {
+            "mot": "LOUTRE",
+            "emoji": "🦦"
+          },
+          {
+            "mot": "CHOUETTE",
+            "emoji": "🦉"
+          },
+          {
+            "mot": "KOALA",
+            "emoji": "🦥"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PAPILLON",
+            "emoji": "🦋"
+          },
+          {
+            "mot": "CARTABLE",
+            "emoji": "🎒"
+          },
+          {
+            "mot": "TAMBOUR",
+            "emoji": "🥁"
+          },
+          {
+            "mot": "FUSEE",
+            "emoji": "🚀"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TORTUE",
+            "emoji": "🐢"
+          },
+          {
+            "mot": "CITRON",
+            "emoji": "🍋"
+          },
+          {
+            "mot": "CHATEAU",
+            "emoji": "🏰"
+          },
+          {
+            "mot": "BALLON",
+            "emoji": "🎈"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "SOUS-MARIN",
+            "emoji": "🚤"
+          },
+          {
+            "mot": "VOILIER",
+            "emoji": "⛵"
+          },
+          {
+            "mot": "PIRATE",
+            "emoji": "🏴‍☠️"
+          },
+          {
+            "mot": "TRESOR",
+            "emoji": "💰"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CIRQUE",
+            "emoji": "🎪"
+          },
+          {
+            "mot": "JONGLEUR",
+            "emoji": "🤹"
+          },
+          {
+            "mot": "CLOWN",
+            "emoji": "🤡"
+          },
+          {
+            "mot": "ACROBATE",
+            "emoji": "🤸"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "FANTOME",
+            "emoji": "👻"
+          },
+          {
+            "mot": "SORCIERE",
+            "emoji": "🧙"
+          },
+          {
+            "mot": "CITROUILLE",
+            "emoji": "🎃"
+          },
+          {
+            "mot": "CHAUVE-SOURIS",
+            "emoji": "🦇"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "COURONNE",
+            "emoji": "👑"
+          },
+          {
+            "mot": "TRONE",
+            "emoji": "🪑"
+          },
+          {
+            "mot": "ROYAUME",
+            "emoji": "🏰"
+          },
+          {
+            "mot": "CARROSSE",
+            "emoji": "🛺"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MOULIN",
+            "emoji": "⚙️"
+          },
+          {
+            "mot": "FARINE",
+            "emoji": "🌾"
+          },
+          {
+            "mot": "BOULANGER",
+            "emoji": "👨‍🍳"
+          },
+          {
+            "mot": "FOUR",
+            "emoji": "🔥"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "POTAGER",
+            "emoji": "🥕"
+          },
+          {
+            "mot": "SERRE",
+            "emoji": "🌱"
+          },
+          {
+            "mot": "ARROSOIR",
+            "emoji": "🚿"
+          },
+          {
+            "mot": "JARDINIER",
+            "emoji": "🧑‍🌾"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CAMPING",
+            "emoji": "⛺"
+          },
+          {
+            "mot": "FEU DE CAMP",
+            "emoji": "🔥"
+          },
+          {
+            "mot": "SAC A DOS",
+            "emoji": "🎒"
+          },
+          {
+            "mot": "RANDONNEE",
+            "emoji": "🥾"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TAMBOURIN",
+            "emoji": "🪘"
+          },
+          {
+            "mot": "MARACAS",
+            "emoji": "🪇"
+          },
+          {
+            "mot": "XYLOPHONE",
+            "emoji": "🎹"
+          },
+          {
+            "mot": "CHANSON",
+            "emoji": "🎵"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TELEFERIQUE",
+            "emoji": "🚡"
+          },
+          {
+            "mot": "SOMMET",
+            "emoji": "⛰️"
+          },
+          {
+            "mot": "VALLEE",
+            "emoji": "🏞️"
+          },
+          {
+            "mot": "NEIGE FRAICHE",
+            "emoji": "❄️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "POMPIER EN ACTION",
+            "emoji": "🧯"
+          },
+          {
+            "mot": "CASERNE",
+            "emoji": "🚒"
+          },
+          {
+            "mot": "ECHELLE",
+            "emoji": "🪜"
+          },
+          {
+            "mot": "SIRENE",
+            "emoji": "🚨"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "LOUP-GAROU",
+            "emoji": "🐺"
+          },
+          {
+            "mot": "PLEINE LUNE",
+            "emoji": "🌕"
+          },
+          {
+            "mot": "HURLEMENT",
+            "emoji": "🗣️"
+          },
+          {
+            "mot": "FORET SOMBRE",
+            "emoji": "🌲"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BULLE DE SAVON",
+            "emoji": "🫧"
+          },
+          {
+            "mot": "ANNEAU MAGIQUE",
+            "emoji": "⭕"
+          },
+          {
+            "mot": "ARC-EN-CIEL FLOTTANT",
+            "emoji": "🌈"
+          },
+          {
+            "mot": "SOUFFLE LEGER",
+            "emoji": "💨"
+          }
+        ]
+      }
+    ],
+    "gs-3": [
+      {
+        "paires": [
+          {
+            "mot": "BANANE",
+            "emoji": "🍌"
+          },
+          {
+            "mot": "VELO",
+            "emoji": "🚲"
+          },
+          {
+            "mot": "ROBOT",
+            "emoji": "🤖"
+          },
+          {
+            "mot": "TORTUE",
+            "emoji": "🐢"
+          },
+          {
+            "mot": "NUAGE",
+            "emoji": "☁️"
+          },
+          {
+            "mot": "OURSON",
+            "emoji": "🐻"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PANDA",
+            "emoji": "🐼"
+          },
+          {
+            "mot": "TIGRE",
+            "emoji": "🐯"
+          },
+          {
+            "mot": "ZEBRE",
+            "emoji": "🦓"
+          },
+          {
+            "mot": "SINGE",
+            "emoji": "🐒"
+          },
+          {
+            "mot": "GIRAFE",
+            "emoji": "🦒"
+          },
+          {
+            "mot": "CANARD",
+            "emoji": "🦆"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PARESSEUX",
+            "emoji": "🦥"
+          },
+          {
+            "mot": "FLAMANT",
+            "emoji": "🦩"
+          },
+          {
+            "mot": "HERISSON",
+            "emoji": "🦔"
+          },
+          {
+            "mot": "BLAIREAU",
+            "emoji": "🦡"
+          },
+          {
+            "mot": "MOUFETTE",
+            "emoji": "🦨"
+          },
+          {
+            "mot": "LOUTRE",
+            "emoji": "🦦"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MOUFETTE",
+            "emoji": "🦨"
+          },
+          {
+            "mot": "LOUTRE",
+            "emoji": "🦦"
+          },
+          {
+            "mot": "CHOUETTE",
+            "emoji": "🦉"
+          },
+          {
+            "mot": "KOALA",
+            "emoji": "🦥"
+          },
+          {
+            "mot": "CASTOR",
+            "emoji": "🦫"
+          },
+          {
+            "mot": "CERF",
+            "emoji": "🦌"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ECUREUIL",
+            "emoji": "🐿️"
+          },
+          {
+            "mot": "HIBOU",
+            "emoji": "🦉"
+          },
+          {
+            "mot": "MOULIN",
+            "emoji": "⚙️"
+          },
+          {
+            "mot": "VIOLON",
+            "emoji": "🎻"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PINGOUIN",
+            "emoji": "🐧"
+          },
+          {
+            "mot": "PARAPENTE",
+            "emoji": "🪂"
+          },
+          {
+            "mot": "COQUILLAGE",
+            "emoji": "🐚"
+          },
+          {
+            "mot": "PHARE",
+            "emoji": "🗼"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MONTAGNE",
+            "emoji": "⛰️"
+          },
+          {
+            "mot": "VOLCAN",
+            "emoji": "🌋"
+          },
+          {
+            "mot": "CASCADE",
+            "emoji": "💦"
+          },
+          {
+            "mot": "GROTTE",
+            "emoji": "🕳️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ORCHESTRE",
+            "emoji": "🎻"
+          },
+          {
+            "mot": "CHEF D'ORCHESTRE",
+            "emoji": "🎼"
+          },
+          {
+            "mot": "SCENE",
+            "emoji": "🎭"
+          },
+          {
+            "mot": "APPLAUDISSEMENTS",
+            "emoji": "👏"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ROBOT",
+            "emoji": "🤖"
+          },
+          {
+            "mot": "ORDINATEUR",
+            "emoji": "💻"
+          },
+          {
+            "mot": "TELEPHONE",
+            "emoji": "📱"
+          },
+          {
+            "mot": "CASQUE",
+            "emoji": "🎧"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PLANETE",
+            "emoji": "🪐"
+          },
+          {
+            "mot": "COMETE",
+            "emoji": "☄️"
+          },
+          {
+            "mot": "ASTRONAUTE",
+            "emoji": "🧑‍🚀"
+          },
+          {
+            "mot": "NAVETTE",
+            "emoji": "🚀"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "IGLOO",
+            "emoji": "🧊"
+          },
+          {
+            "mot": "PINGOUIN",
+            "emoji": "🐧"
+          },
+          {
+            "mot": "OURS POLAIRE",
+            "emoji": "🐻‍❄️"
+          },
+          {
+            "mot": "BANQUISE",
+            "emoji": "❄️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "LABYRINTHE",
+            "emoji": "🌀"
+          },
+          {
+            "mot": "ENIGME",
+            "emoji": "❓"
+          },
+          {
+            "mot": "INDICE",
+            "emoji": "🔍"
+          },
+          {
+            "mot": "CLE",
+            "emoji": "🔑"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "AQUARIUM",
+            "emoji": "🐠"
+          },
+          {
+            "mot": "MEDUSE",
+            "emoji": "🎐"
+          },
+          {
+            "mot": "HIPPOCAMPE",
+            "emoji": "🐴"
+          },
+          {
+            "mot": "ETOILE DE MER",
+            "emoji": "⭐"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "POTION",
+            "emoji": "🧪"
+          },
+          {
+            "mot": "GRIMOIRE",
+            "emoji": "📖"
+          },
+          {
+            "mot": "BAGUETTE MAGIQUE",
+            "emoji": "🪄"
+          },
+          {
+            "mot": "CHAUDRON",
+            "emoji": "⚗️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ARC",
+            "emoji": "🏹"
+          },
+          {
+            "mot": "CIBLE",
+            "emoji": "🎯"
+          },
+          {
+            "mot": "FLECHE",
+            "emoji": "🏹"
+          },
+          {
+            "mot": "TIREUR",
+            "emoji": "🧑‍🦯"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "NEIGE ETERNELLE",
+            "emoji": "🏔️"
+          },
+          {
+            "mot": "SKI",
+            "emoji": "⛷️"
+          },
+          {
+            "mot": "CHALET",
+            "emoji": "🏡"
+          },
+          {
+            "mot": "CHOCOLAT CHAUD",
+            "emoji": "☕"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CHAMPIGNON MAGIQUE",
+            "emoji": "🍄"
+          },
+          {
+            "mot": "LUTIN DES BOIS",
+            "emoji": "🧝"
+          },
+          {
+            "mot": "CLAIRIERE",
+            "emoji": "🌿"
+          },
+          {
+            "mot": "ROSEE",
+            "emoji": "💧"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CHASSE AU TRESOR",
+            "emoji": "🗺️"
+          },
+          {
+            "mot": "COFFRE CACHE",
+            "emoji": "📦"
+          },
+          {
+            "mot": "INDICE MYSTERIEUX",
+            "emoji": "🔍"
+          },
+          {
+            "mot": "RECOMPENSE FINALE",
+            "emoji": "🏆"
+          }
+        ]
+      }
+    ],
+    "cp-1": [
+      {
+        "paires": [
+          {
+            "mot": "DINOSAURE",
+            "emoji": "🦕"
+          },
+          {
+            "mot": "PAPILLON",
+            "emoji": "🦋"
+          },
+          {
+            "mot": "CROCODILE",
+            "emoji": "🐊"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ELEPHANT",
+            "emoji": "🐘"
+          },
+          {
+            "mot": "KANGOUROU",
+            "emoji": "🦘"
+          },
+          {
+            "mot": "PIRATE",
+            "emoji": "🏴‍☠️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "REQUIN",
+            "emoji": "🦈"
+          },
+          {
+            "mot": "POULPE",
+            "emoji": "🐙"
+          },
+          {
+            "mot": "CALMAR",
+            "emoji": "🦑"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PHOQUE",
+            "emoji": "🦭"
+          },
+          {
+            "mot": "POISSON-BALLON",
+            "emoji": "🐡"
+          },
+          {
+            "mot": "HOMARD",
+            "emoji": "🦞"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "KANGOUROU",
+            "emoji": "🦘"
+          },
+          {
+            "mot": "TELESCOPE",
+            "emoji": "🔭"
+          },
+          {
+            "mot": "AQUARIUM",
+            "emoji": "🐠"
+          },
+          {
+            "mot": "TRAMPOLINE",
+            "emoji": "🤸"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "DINOSAURE",
+            "emoji": "🦕"
+          },
+          {
+            "mot": "ARC-EN-CIEL",
+            "emoji": "🌈"
+          },
+          {
+            "mot": "CAMION",
+            "emoji": "🚚"
+          },
+          {
+            "mot": "PIANO",
+            "emoji": "🎹"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PYRAMIDE",
+            "emoji": "🔺"
+          },
+          {
+            "mot": "PHARAON",
+            "emoji": "👑"
+          },
+          {
+            "mot": "DESERT",
+            "emoji": "🏜️"
+          },
+          {
+            "mot": "CHAMEAU",
+            "emoji": "🐫"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "LABORATOIRE",
+            "emoji": "🧪"
+          },
+          {
+            "mot": "EPROUVETTE",
+            "emoji": "🧫"
+          },
+          {
+            "mot": "MICROSCOPE",
+            "emoji": "🔬"
+          },
+          {
+            "mot": "SCIENTIFIQUE",
+            "emoji": "👩‍🔬"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TREMBLEMENT DE TERRE",
+            "emoji": "🌍"
+          },
+          {
+            "mot": "TSUNAMI",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "OURAGAN",
+            "emoji": "🌀"
+          },
+          {
+            "mot": "ERUPTION",
+            "emoji": "🌋"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "AMPHITHEATRE",
+            "emoji": "🏟️"
+          },
+          {
+            "mot": "GLADIATEUR",
+            "emoji": "⚔️"
+          },
+          {
+            "mot": "EMPEREUR",
+            "emoji": "👑"
+          },
+          {
+            "mot": "CESAR",
+            "emoji": "🏛️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BOUSSOLE MARINE",
+            "emoji": "🧭"
+          },
+          {
+            "mot": "PHARE",
+            "emoji": "🗼"
+          },
+          {
+            "mot": "CARTE MARINE",
+            "emoji": "🗺️"
+          },
+          {
+            "mot": "ANCRE",
+            "emoji": "⚓"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CANTINE",
+            "emoji": "🍽️"
+          },
+          {
+            "mot": "PLATEAU-REPAS",
+            "emoji": "🍱"
+          },
+          {
+            "mot": "COPAINS DE CLASSE",
+            "emoji": "👫"
+          },
+          {
+            "mot": "RECREATION",
+            "emoji": "🏃"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CERF-VOLANT GEANT",
+            "emoji": "🪁"
+          },
+          {
+            "mot": "COLLINE",
+            "emoji": "⛰️"
+          },
+          {
+            "mot": "BRISE",
+            "emoji": "🍃"
+          },
+          {
+            "mot": "FICELLE",
+            "emoji": "🧵"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "LOUPE",
+            "emoji": "🔍"
+          },
+          {
+            "mot": "DETECTIVE",
+            "emoji": "🕵️"
+          },
+          {
+            "mot": "INDICE SECRET",
+            "emoji": "🗝️"
+          },
+          {
+            "mot": "MYSTERE",
+            "emoji": "❓"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CARTABLE LOURD",
+            "emoji": "🎒"
+          },
+          {
+            "mot": "AGENDA SCOLAIRE",
+            "emoji": "📅"
+          },
+          {
+            "mot": "REGLE GRADUEE",
+            "emoji": "📏"
+          },
+          {
+            "mot": "TROUSSE",
+            "emoji": "✏️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "POTION MAGIQUE",
+            "emoji": "🧪"
+          },
+          {
+            "mot": "CHAUDRON BOUILLONNANT",
+            "emoji": "⚗️"
+          },
+          {
+            "mot": "INGREDIENT SECRET",
+            "emoji": "🌿"
+          },
+          {
+            "mot": "FUMEE VIOLETTE",
+            "emoji": "💨"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BOULE A NEIGE",
+            "emoji": "❄️"
+          },
+          {
+            "mot": "PAYSAGE MINIATURE",
+            "emoji": "🏠"
+          },
+          {
+            "mot": "SECOUEMENT MAGIQUE",
+            "emoji": "✨"
+          },
+          {
+            "mot": "SOUVENIR PRECIEUX",
+            "emoji": "💝"
+          }
+        ]
+      }
+    ],
+    "cp-2": [
+      {
+        "paires": [
+          {
+            "mot": "DINOSAURE",
+            "emoji": "🦕"
+          },
+          {
+            "mot": "PAPILLON",
+            "emoji": "🦋"
+          },
+          {
+            "mot": "CROCODILE",
+            "emoji": "🐊"
+          },
+          {
+            "mot": "HELICOPTERE",
+            "emoji": "🚁"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ELEPHANT",
+            "emoji": "🐘"
+          },
+          {
+            "mot": "KANGOUROU",
+            "emoji": "🦘"
+          },
+          {
+            "mot": "PIRATE",
+            "emoji": "🏴‍☠️"
+          },
+          {
+            "mot": "ORDINATEUR",
+            "emoji": "💻"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "REQUIN",
+            "emoji": "🦈"
+          },
+          {
+            "mot": "POULPE",
+            "emoji": "🐙"
+          },
+          {
+            "mot": "CALMAR",
+            "emoji": "🦑"
+          },
+          {
+            "mot": "HOMARD",
+            "emoji": "🦞"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PHOQUE",
+            "emoji": "🦭"
+          },
+          {
+            "mot": "POISSON-BALLON",
+            "emoji": "🐡"
+          },
+          {
+            "mot": "HOMARD",
+            "emoji": "🦞"
+          },
+          {
+            "mot": "DAUPHIN",
+            "emoji": "🐬"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PARACHUTE",
+            "emoji": "🪂"
+          },
+          {
+            "mot": "MICROSCOPE",
+            "emoji": "🔬"
+          },
+          {
+            "mot": "HELICOPTERE",
+            "emoji": "🚁"
+          },
+          {
+            "mot": "CACTUS",
+            "emoji": "🌵"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BOUSSOLE",
+            "emoji": "🧭"
+          },
+          {
+            "mot": "VOLCAN",
+            "emoji": "🌋"
+          },
+          {
+            "mot": "CHENILLE",
+            "emoji": "🐛"
+          },
+          {
+            "mot": "MEDAILLE",
+            "emoji": "🏅"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CATHEDRALE",
+            "emoji": "⛪"
+          },
+          {
+            "mot": "VITRAIL",
+            "emoji": "🪟"
+          },
+          {
+            "mot": "CLOCHE",
+            "emoji": "🔔"
+          },
+          {
+            "mot": "MOINE",
+            "emoji": "🧑‍🦲"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "USINE",
+            "emoji": "🏭"
+          },
+          {
+            "mot": "OUVRIER",
+            "emoji": "👷"
+          },
+          {
+            "mot": "MACHINE",
+            "emoji": "⚙️"
+          },
+          {
+            "mot": "PRODUCTION",
+            "emoji": "📦"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CIRCUIT",
+            "emoji": "🏁"
+          },
+          {
+            "mot": "MOTEUR",
+            "emoji": "🔧"
+          },
+          {
+            "mot": "VOLANT",
+            "emoji": "🎡"
+          },
+          {
+            "mot": "PILOTE",
+            "emoji": "🏎️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "VIGNE",
+            "emoji": "🍇"
+          },
+          {
+            "mot": "MOISSON",
+            "emoji": "🌾"
+          },
+          {
+            "mot": "TRACTEUR",
+            "emoji": "🚜"
+          },
+          {
+            "mot": "AGRICULTEUR",
+            "emoji": "🧑‍🌾"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "POTAGER BIO",
+            "emoji": "🥕"
+          },
+          {
+            "mot": "COMPOST",
+            "emoji": "🍂"
+          },
+          {
+            "mot": "ABEILLE POLLINISATRICE",
+            "emoji": "🐝"
+          },
+          {
+            "mot": "RECOLTE",
+            "emoji": "🧺"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "GLOBE VIRTUEL",
+            "emoji": "🌐"
+          },
+          {
+            "mot": "CLAVIER",
+            "emoji": "⌨️"
+          },
+          {
+            "mot": "ECRAN GEANT",
+            "emoji": "🖥️"
+          },
+          {
+            "mot": "SOURIS",
+            "emoji": "🖱️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TROMPE-L'OEIL",
+            "emoji": "🖼️"
+          },
+          {
+            "mot": "CHEVALET",
+            "emoji": "🎨"
+          },
+          {
+            "mot": "PALETTE DE COULEURS",
+            "emoji": "🎨"
+          },
+          {
+            "mot": "PINCEAU FIN",
+            "emoji": "🖌️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MONTGOLFIERE",
+            "emoji": "🎈"
+          },
+          {
+            "mot": "NUAGE BLANC",
+            "emoji": "☁️"
+          },
+          {
+            "mot": "PANIER",
+            "emoji": "🧺"
+          },
+          {
+            "mot": "VOYAGE",
+            "emoji": "🗺️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "POTAGER SCOLAIRE",
+            "emoji": "🥕"
+          },
+          {
+            "mot": "COMPOSTEUR",
+            "emoji": "🍂"
+          },
+          {
+            "mot": "GRAINE PLANTEE",
+            "emoji": "🌱"
+          },
+          {
+            "mot": "ARROSAGE QUOTIDIEN",
+            "emoji": "💧"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MARIONNETTISTE",
+            "emoji": "🎭"
+          },
+          {
+            "mot": "FIL INVISIBLE",
+            "emoji": "🧵"
+          },
+          {
+            "mot": "THEATRE DE POCHE",
+            "emoji": "🎪"
+          },
+          {
+            "mot": "APPLAUDISSEMENTS CHALEUREUX",
+            "emoji": "👏"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TAPIS VOLANT",
+            "emoji": "🧞"
+          },
+          {
+            "mot": "GENIE DE LA LAMPE",
+            "emoji": "🪔"
+          },
+          {
+            "mot": "TROIS VOEUX",
+            "emoji": "✨"
+          },
+          {
+            "mot": "PALAIS ORIENTAL",
+            "emoji": "🕌"
+          }
+        ]
+      }
+    ],
+    "cp-3": [
+      {
+        "paires": [
+          {
+            "mot": "DINOSAURE",
+            "emoji": "🦕"
+          },
+          {
+            "mot": "PAPILLON",
+            "emoji": "🦋"
+          },
+          {
+            "mot": "CROCODILE",
+            "emoji": "🐊"
+          },
+          {
+            "mot": "HELICOPTERE",
+            "emoji": "🚁"
+          },
+          {
+            "mot": "ANANAS",
+            "emoji": "🍍"
+          },
+          {
+            "mot": "TOBOGGAN",
+            "emoji": "🎢"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ELEPHANT",
+            "emoji": "🐘"
+          },
+          {
+            "mot": "KANGOUROU",
+            "emoji": "🦘"
+          },
+          {
+            "mot": "PIRATE",
+            "emoji": "🏴‍☠️"
+          },
+          {
+            "mot": "ORDINATEUR",
+            "emoji": "💻"
+          },
+          {
+            "mot": "HIPPOPOTAME",
+            "emoji": "🦛"
+          },
+          {
+            "mot": "VIOLONCELLE",
+            "emoji": "🎻"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "REQUIN",
+            "emoji": "🦈"
+          },
+          {
+            "mot": "POULPE",
+            "emoji": "🐙"
+          },
+          {
+            "mot": "CALMAR",
+            "emoji": "🦑"
+          },
+          {
+            "mot": "HOMARD",
+            "emoji": "🦞"
+          },
+          {
+            "mot": "POISSON-BALLON",
+            "emoji": "🐡"
+          },
+          {
+            "mot": "PHOQUE",
+            "emoji": "🦭"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PHOQUE",
+            "emoji": "🦭"
+          },
+          {
+            "mot": "POISSON-BALLON",
+            "emoji": "🐡"
+          },
+          {
+            "mot": "HOMARD",
+            "emoji": "🦞"
+          },
+          {
+            "mot": "DAUPHIN",
+            "emoji": "🐬"
+          },
+          {
+            "mot": "BALEINE",
+            "emoji": "🐋"
+          },
+          {
+            "mot": "AILERON",
+            "emoji": "🦈"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "SATELLITE",
+            "emoji": "🛰️"
+          },
+          {
+            "mot": "OURAGAN",
+            "emoji": "🌀"
+          },
+          {
+            "mot": "CHAMPIGNON",
+            "emoji": "🍄"
+          },
+          {
+            "mot": "LABYRINTHE",
+            "emoji": "🌀"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PYRAMIDE",
+            "emoji": "🔺"
+          },
+          {
+            "mot": "TROMPETTE",
+            "emoji": "🎺"
+          },
+          {
+            "mot": "GLOBE",
+            "emoji": "🌐"
+          },
+          {
+            "mot": "FUSEE",
+            "emoji": "🚀"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "OCEAN",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "REQUIN",
+            "emoji": "🦈"
+          },
+          {
+            "mot": "PIEUVRE",
+            "emoji": "🐙"
+          },
+          {
+            "mot": "CORAIL",
+            "emoji": "🪸"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BIBLIOTHEQUE",
+            "emoji": "📚"
+          },
+          {
+            "mot": "ETAGERE",
+            "emoji": "🗄️"
+          },
+          {
+            "mot": "ROMAN",
+            "emoji": "📖"
+          },
+          {
+            "mot": "AUTEUR",
+            "emoji": "✍️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CONSTELLATION",
+            "emoji": "✨"
+          },
+          {
+            "mot": "TELESCOPE",
+            "emoji": "🔭"
+          },
+          {
+            "mot": "OBSERVATOIRE",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "ASTRONOME",
+            "emoji": "🌟"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "IMPRIMANTE 3D",
+            "emoji": "🖨️"
+          },
+          {
+            "mot": "CODE",
+            "emoji": "💻"
+          },
+          {
+            "mot": "ROBOTIQUE",
+            "emoji": "🤖"
+          },
+          {
+            "mot": "INTELLIGENCE ARTIFICIELLE",
+            "emoji": "🧠"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CASQUE VR",
+            "emoji": "🥽"
+          },
+          {
+            "mot": "MANETTE",
+            "emoji": "🎮"
+          },
+          {
+            "mot": "ECRAN TACTILE",
+            "emoji": "📱"
+          },
+          {
+            "mot": "APPLICATION",
+            "emoji": "📲"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CHOCOLAT CHAUD",
+            "emoji": "☕"
+          },
+          {
+            "mot": "MARSHMALLOW",
+            "emoji": "🍡"
+          },
+          {
+            "mot": "CHEMINEE",
+            "emoji": "🔥"
+          },
+          {
+            "mot": "PLAID",
+            "emoji": "🧣"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CAROUSEL",
+            "emoji": "🎠"
+          },
+          {
+            "mot": "GRANDE ROUE",
+            "emoji": "🎡"
+          },
+          {
+            "mot": "BARBE A PAPA",
+            "emoji": "🍭"
+          },
+          {
+            "mot": "FETE FORAINE",
+            "emoji": "🎪"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BOUSSOLE DE RANDONNEE",
+            "emoji": "🧭"
+          },
+          {
+            "mot": "SENTIER FORESTIER",
+            "emoji": "🥾"
+          },
+          {
+            "mot": "GOURDE",
+            "emoji": "💧"
+          },
+          {
+            "mot": "CARTE TOPOGRAPHIQUE",
+            "emoji": "🗺️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "USINE A BONBONS",
+            "emoji": "🍬"
+          },
+          {
+            "mot": "CONVOYEUR SUCRE",
+            "emoji": "🍭"
+          },
+          {
+            "mot": "EMBALLAGE COLORE",
+            "emoji": "🎁"
+          },
+          {
+            "mot": "GOUTEUR OFFICIEL",
+            "emoji": "😋"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "NUAGE DE COTON",
+            "emoji": "☁️"
+          },
+          {
+            "mot": "ARC EN CIEL DOUBLE",
+            "emoji": "🌈"
+          },
+          {
+            "mot": "PLUIE FINE",
+            "emoji": "🌦️"
+          },
+          {
+            "mot": "SOLEIL PERCANT",
+            "emoji": "☀️"
+          }
+        ]
+      }
+    ],
+    "ce1-1": [
+      {
+        "paires": [
+          {
+            "mot": "RIVIERE",
+            "emoji": "🏞️"
+          },
+          {
+            "mot": "MONTAGNE",
+            "emoji": "⛰️"
+          },
+          {
+            "mot": "FORET",
+            "emoji": "🌲"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TEMPETE",
+            "emoji": "🌪️"
+          },
+          {
+            "mot": "ARC-EN-CIEL",
+            "emoji": "🌈"
+          },
+          {
+            "mot": "ETOILE",
+            "emoji": "⭐"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TOURNESOL",
+            "emoji": "🌻"
+          },
+          {
+            "mot": "CHAMPIGNON",
+            "emoji": "🍄"
+          },
+          {
+            "mot": "BLE",
+            "emoji": "🌾"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ERABLE",
+            "emoji": "🍁"
+          },
+          {
+            "mot": "PALMIER",
+            "emoji": "🌴"
+          },
+          {
+            "mot": "SAPIN",
+            "emoji": "🌲"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "HIEROGLYPHES",
+            "emoji": "𓂀"
+          },
+          {
+            "mot": "SPHINX",
+            "emoji": "🗿"
+          },
+          {
+            "mot": "NIL",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "MOMIE",
+            "emoji": "🧟"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BIBLIOTHEQUE",
+            "emoji": "📚"
+          },
+          {
+            "mot": "ASTRONAUTE",
+            "emoji": "🧑‍🚀"
+          },
+          {
+            "mot": "MICROSCOPE",
+            "emoji": "🔬"
+          },
+          {
+            "mot": "CATHEDRALE",
+            "emoji": "⛪"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "THERMOMETRE",
+            "emoji": "🌡️"
+          },
+          {
+            "mot": "STETHOSCOPE",
+            "emoji": "🩺"
+          },
+          {
+            "mot": "CALCULATRICE",
+            "emoji": "🧮"
+          },
+          {
+            "mot": "GLOBE TERRESTRE",
+            "emoji": "🌍"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CONSTITUTION",
+            "emoji": "📜"
+          },
+          {
+            "mot": "SENATEUR",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "VOTE",
+            "emoji": "🗳️"
+          },
+          {
+            "mot": "CITOYEN",
+            "emoji": "🧑"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ATMOSPHERE",
+            "emoji": "🌍"
+          },
+          {
+            "mot": "OXYGENE",
+            "emoji": "💨"
+          },
+          {
+            "mot": "OZONE",
+            "emoji": "☁️"
+          },
+          {
+            "mot": "CLIMAT",
+            "emoji": "🌡️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "AQUEDUC",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "IRRIGATION",
+            "emoji": "💧"
+          },
+          {
+            "mot": "BARRAGE",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "RESERVOIR",
+            "emoji": "🪣"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "VIKING",
+            "emoji": "🛡️"
+          },
+          {
+            "mot": "DRAKKAR",
+            "emoji": "⛵"
+          },
+          {
+            "mot": "RUNE",
+            "emoji": "🪨"
+          },
+          {
+            "mot": "FJORD",
+            "emoji": "🏔️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "OASIS",
+            "emoji": "🌴"
+          },
+          {
+            "mot": "MIRAGE",
+            "emoji": "🏜️"
+          },
+          {
+            "mot": "CARAVANE",
+            "emoji": "🐫"
+          },
+          {
+            "mot": "NOMADE",
+            "emoji": "⛺"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PARCHEMIN ANCIEN",
+            "emoji": "📜"
+          },
+          {
+            "mot": "SCEAU",
+            "emoji": "🖋️"
+          },
+          {
+            "mot": "CACHET DE CIRE",
+            "emoji": "🕯️"
+          },
+          {
+            "mot": "MESSAGER",
+            "emoji": "🐴"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TAM-TAM",
+            "emoji": "🥁"
+          },
+          {
+            "mot": "MASQUE AFRICAIN",
+            "emoji": "🎭"
+          },
+          {
+            "mot": "SAVANE",
+            "emoji": "🌾"
+          },
+          {
+            "mot": "BAOBAB",
+            "emoji": "🌳"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MOULIN A PAPIER",
+            "emoji": "📄"
+          },
+          {
+            "mot": "PATE A PAPIER",
+            "emoji": "🪵"
+          },
+          {
+            "mot": "ROULEAU",
+            "emoji": "📜"
+          },
+          {
+            "mot": "IMPRIMEUR",
+            "emoji": "🖨️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CACAO",
+            "emoji": "🍫"
+          },
+          {
+            "mot": "FEVE",
+            "emoji": "🌱"
+          },
+          {
+            "mot": "CHOCOLATIER",
+            "emoji": "👨‍🍳"
+          },
+          {
+            "mot": "TABLETTE",
+            "emoji": "🍫"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MAQUETTE DE BATEAU",
+            "emoji": "⛵"
+          },
+          {
+            "mot": "COLLE FORTE",
+            "emoji": "🧴"
+          },
+          {
+            "mot": "PLAN DETAILLE",
+            "emoji": "📐"
+          },
+          {
+            "mot": "PATIENCE",
+            "emoji": "⏳"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PHARE ISOLE",
+            "emoji": "🗼"
+          },
+          {
+            "mot": "GARDIEN SOLITAIRE",
+            "emoji": "🧑‍✈️"
+          },
+          {
+            "mot": "BATEAU EGARE",
+            "emoji": "⛵"
+          },
+          {
+            "mot": "SIGNAL LUMINEUX",
+            "emoji": "💡"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ATELIER D'HORLOGERIE",
+            "emoji": "⚙️"
+          },
+          {
+            "mot": "ROUAGE MINUSCULE",
+            "emoji": "🔧"
+          },
+          {
+            "mot": "PRECISION EXTREME",
+            "emoji": "🔍"
+          },
+          {
+            "mot": "MECANISME COMPLEXE",
+            "emoji": "⏱️"
+          }
+        ]
+      }
+    ],
+    "ce1-2": [
+      {
+        "paires": [
+          {
+            "mot": "RIVIERE",
+            "emoji": "🏞️"
+          },
+          {
+            "mot": "MONTAGNE",
+            "emoji": "⛰️"
+          },
+          {
+            "mot": "FORET",
+            "emoji": "🌲"
+          },
+          {
+            "mot": "VOLCAN",
+            "emoji": "🌋"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TEMPETE",
+            "emoji": "🌪️"
+          },
+          {
+            "mot": "ARC-EN-CIEL",
+            "emoji": "🌈"
+          },
+          {
+            "mot": "ETOILE",
+            "emoji": "⭐"
+          },
+          {
+            "mot": "COMETE",
+            "emoji": "☄️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TOURNESOL",
+            "emoji": "🌻"
+          },
+          {
+            "mot": "CHAMPIGNON",
+            "emoji": "🍄"
+          },
+          {
+            "mot": "BLE",
+            "emoji": "🌾"
+          },
+          {
+            "mot": "CACTUS",
+            "emoji": "🌵"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ERABLE",
+            "emoji": "🍁"
+          },
+          {
+            "mot": "PALMIER",
+            "emoji": "🌴"
+          },
+          {
+            "mot": "SAPIN",
+            "emoji": "🌲"
+          },
+          {
+            "mot": "CHENE",
+            "emoji": "🌳"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "COMPAS ROMAIN",
+            "emoji": "🧭"
+          },
+          {
+            "mot": "CARTE ANCIENNE",
+            "emoji": "🗺️"
+          },
+          {
+            "mot": "CARAVELLE",
+            "emoji": "⛵"
+          },
+          {
+            "mot": "NOUVEAU MONDE",
+            "emoji": "🌎"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ENGRENAGE",
+            "emoji": "⚙️"
+          },
+          {
+            "mot": "AIMANT",
+            "emoji": "🧲"
+          },
+          {
+            "mot": "BALANCE",
+            "emoji": "⚖️"
+          },
+          {
+            "mot": "LOUPE",
+            "emoji": "🔍"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PARCHEMIN",
+            "emoji": "📜"
+          },
+          {
+            "mot": "BLASON",
+            "emoji": "🛡️"
+          },
+          {
+            "mot": "COURONNE",
+            "emoji": "👑"
+          },
+          {
+            "mot": "DONJON",
+            "emoji": "🏰"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MULTIPLICATION",
+            "emoji": "✖️"
+          },
+          {
+            "mot": "DIVISION",
+            "emoji": "➗"
+          },
+          {
+            "mot": "FRACTION",
+            "emoji": "🍕"
+          },
+          {
+            "mot": "POURCENTAGE",
+            "emoji": "💯"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CROISADE",
+            "emoji": "⚔️"
+          },
+          {
+            "mot": "CHATEAU FORT",
+            "emoji": "🏰"
+          },
+          {
+            "mot": "TOURNOI",
+            "emoji": "🐴"
+          },
+          {
+            "mot": "ARMURE",
+            "emoji": "🛡️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TELESCOPE SPATIAL",
+            "emoji": "🛰️"
+          },
+          {
+            "mot": "FUSEE",
+            "emoji": "🚀"
+          },
+          {
+            "mot": "STATION ORBITALE",
+            "emoji": "🛸"
+          },
+          {
+            "mot": "COSMONAUTE",
+            "emoji": "🧑‍🚀"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "SEISME",
+            "emoji": "🌍"
+          },
+          {
+            "mot": "FAILLE",
+            "emoji": "⛰️"
+          },
+          {
+            "mot": "MAGNITUDE",
+            "emoji": "📊"
+          },
+          {
+            "mot": "REPLIQUE",
+            "emoji": "💥"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ORIGAMI",
+            "emoji": "📄"
+          },
+          {
+            "mot": "KIMONO",
+            "emoji": "👘"
+          },
+          {
+            "mot": "SAMOURAI",
+            "emoji": "⚔️"
+          },
+          {
+            "mot": "PAGODE",
+            "emoji": "🏯"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BAROMETRE",
+            "emoji": "🌡️"
+          },
+          {
+            "mot": "ANEMOMETRE",
+            "emoji": "💨"
+          },
+          {
+            "mot": "PLUVIOMETRE",
+            "emoji": "🌧️"
+          },
+          {
+            "mot": "METEOROLOGUE",
+            "emoji": "🧑‍🔬"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TOTEM",
+            "emoji": "🗿"
+          },
+          {
+            "mot": "TIPI",
+            "emoji": "⛺"
+          },
+          {
+            "mot": "PLUME",
+            "emoji": "🪶"
+          },
+          {
+            "mot": "BISON",
+            "emoji": "🦬"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "LOUPE DE DETECTIVE",
+            "emoji": "🔍"
+          },
+          {
+            "mot": "EMPREINTE",
+            "emoji": "👣"
+          },
+          {
+            "mot": "CARNET D'ENQUETE",
+            "emoji": "📓"
+          },
+          {
+            "mot": "SUSPECT",
+            "emoji": "🕵️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MARIONNETTE",
+            "emoji": "🎎"
+          },
+          {
+            "mot": "FICELLE DE BOIS",
+            "emoji": "🪵"
+          },
+          {
+            "mot": "SPECTACLE",
+            "emoji": "🎭"
+          },
+          {
+            "mot": "SCENE MINIATURE",
+            "emoji": "🎪"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CERF MAJESTUEUX",
+            "emoji": "🦌"
+          },
+          {
+            "mot": "FORET D'AUTOMNE",
+            "emoji": "🍂"
+          },
+          {
+            "mot": "BOIS SEC",
+            "emoji": "🪵"
+          },
+          {
+            "mot": "CHASSEUR PHOTOGRAPHE",
+            "emoji": "📷"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "HORLOGE ASTRONOMIQUE",
+            "emoji": "🕰️"
+          },
+          {
+            "mot": "CADRAN SOLAIRE ANTIQUE",
+            "emoji": "☀️"
+          },
+          {
+            "mot": "CONSTELLATION GRAVEE",
+            "emoji": "✨"
+          },
+          {
+            "mot": "HORLOGER PRECIS",
+            "emoji": "🔧"
+          }
+        ]
+      }
+    ],
+    "ce1-3": [
+      {
+        "paires": [
+          {
+            "mot": "RIVIERE",
+            "emoji": "🏞️"
+          },
+          {
+            "mot": "MONTAGNE",
+            "emoji": "⛰️"
+          },
+          {
+            "mot": "FORET",
+            "emoji": "🌲"
+          },
+          {
+            "mot": "VOLCAN",
+            "emoji": "🌋"
+          },
+          {
+            "mot": "DESERT",
+            "emoji": "🏜️"
+          },
+          {
+            "mot": "OCEAN",
+            "emoji": "🌊"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TEMPETE",
+            "emoji": "🌪️"
+          },
+          {
+            "mot": "ARC-EN-CIEL",
+            "emoji": "🌈"
+          },
+          {
+            "mot": "ETOILE",
+            "emoji": "⭐"
+          },
+          {
+            "mot": "COMETE",
+            "emoji": "☄️"
+          },
+          {
+            "mot": "GALAXIE",
+            "emoji": "🌌"
+          },
+          {
+            "mot": "PLANETE",
+            "emoji": "🪐"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TOURNESOL",
+            "emoji": "🌻"
+          },
+          {
+            "mot": "CHAMPIGNON",
+            "emoji": "🍄"
+          },
+          {
+            "mot": "BLE",
+            "emoji": "🌾"
+          },
+          {
+            "mot": "CACTUS",
+            "emoji": "🌵"
+          },
+          {
+            "mot": "ERABLE",
+            "emoji": "🍁"
+          },
+          {
+            "mot": "PALMIER",
+            "emoji": "🌴"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ERABLE",
+            "emoji": "🍁"
+          },
+          {
+            "mot": "PALMIER",
+            "emoji": "🌴"
+          },
+          {
+            "mot": "SAPIN",
+            "emoji": "🌲"
+          },
+          {
+            "mot": "CHENE",
+            "emoji": "🌳"
+          },
+          {
+            "mot": "BAMBOU",
+            "emoji": "🎋"
+          },
+          {
+            "mot": "PLANTE",
+            "emoji": "🪴"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MOULIN A VENT",
+            "emoji": "🌬️"
+          },
+          {
+            "mot": "FARINE FINE",
+            "emoji": "🌾"
+          },
+          {
+            "mot": "MEUNIER",
+            "emoji": "👨‍🌾"
+          },
+          {
+            "mot": "SAC DE BLE",
+            "emoji": "🌾"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ECLIPSE",
+            "emoji": "🌒"
+          },
+          {
+            "mot": "METEORITE",
+            "emoji": "☄️"
+          },
+          {
+            "mot": "GALAXIE",
+            "emoji": "🌌"
+          },
+          {
+            "mot": "NEBULEUSE",
+            "emoji": "🌠"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "STALACTITE",
+            "emoji": "🪨"
+          },
+          {
+            "mot": "GEYSER",
+            "emoji": "⛲"
+          },
+          {
+            "mot": "GLACIER",
+            "emoji": "🧊"
+          },
+          {
+            "mot": "CANYON",
+            "emoji": "🏜️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MIGRATION",
+            "emoji": "🦢"
+          },
+          {
+            "mot": "HIBERNATION",
+            "emoji": "🐻"
+          },
+          {
+            "mot": "CAMOUFLAGE",
+            "emoji": "🦎"
+          },
+          {
+            "mot": "PREDATEUR",
+            "emoji": "🦁"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "COMPAS",
+            "emoji": "📐"
+          },
+          {
+            "mot": "EQUERRE",
+            "emoji": "📏"
+          },
+          {
+            "mot": "GEOMETRIE",
+            "emoji": "🔺"
+          },
+          {
+            "mot": "ANGLE",
+            "emoji": "📐"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "IMPRIMERIE",
+            "emoji": "🖨️"
+          },
+          {
+            "mot": "MANUSCRIT",
+            "emoji": "📜"
+          },
+          {
+            "mot": "ENCRE",
+            "emoji": "🖋️"
+          },
+          {
+            "mot": "RELIURE",
+            "emoji": "📚"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ORCHESTRE SYMPHONIQUE",
+            "emoji": "🎻"
+          },
+          {
+            "mot": "PARTITION",
+            "emoji": "🎼"
+          },
+          {
+            "mot": "CHEF",
+            "emoji": "🎩"
+          },
+          {
+            "mot": "SOLISTE",
+            "emoji": "🎤"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "GEYSER",
+            "emoji": "⛲"
+          },
+          {
+            "mot": "SOURCE CHAUDE",
+            "emoji": "♨️"
+          },
+          {
+            "mot": "CRATERE",
+            "emoji": "🌋"
+          },
+          {
+            "mot": "MAGMA",
+            "emoji": "🔥"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "FRESQUE",
+            "emoji": "🖼️"
+          },
+          {
+            "mot": "MOSAIQUE",
+            "emoji": "🎨"
+          },
+          {
+            "mot": "SCULPTURE",
+            "emoji": "🗿"
+          },
+          {
+            "mot": "ATELIER D'ARTISTE",
+            "emoji": "🎭"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "GONDOLE",
+            "emoji": "🚤"
+          },
+          {
+            "mot": "CANAL",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "MASQUE VENITIEN",
+            "emoji": "🎭"
+          },
+          {
+            "mot": "PONT ANCIEN",
+            "emoji": "🌉"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "RUCHE ANCIENNE",
+            "emoji": "🐝"
+          },
+          {
+            "mot": "ESSAIM",
+            "emoji": "🐝"
+          },
+          {
+            "mot": "CIRE",
+            "emoji": "🕯️"
+          },
+          {
+            "mot": "POLLEN",
+            "emoji": "🌼"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "IGLOO SOLIDE",
+            "emoji": "🧊"
+          },
+          {
+            "mot": "TRAINEAU A CHIENS",
+            "emoji": "🛷"
+          },
+          {
+            "mot": "AURORE BOREALE",
+            "emoji": "🌌"
+          },
+          {
+            "mot": "FOURRURE EPAISSE",
+            "emoji": "🧥"
+          }
+        ]
+      }
+    ],
+    "ce2-2": [
+      {
+        "paires": [
+          {
+            "mot": "TEMPLE",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "STATUE",
+            "emoji": "🗿"
+          },
+          {
+            "mot": "POTERIE",
+            "emoji": "⚱️"
+          },
+          {
+            "mot": "PARCHEMIN",
+            "emoji": "📜"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "SATURNE",
+            "emoji": "🪐"
+          },
+          {
+            "mot": "LUNE",
+            "emoji": "🌙"
+          },
+          {
+            "mot": "COMETE",
+            "emoji": "☄️"
+          },
+          {
+            "mot": "GALAXIE",
+            "emoji": "🌌"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PHOTOSYNTHESE",
+            "emoji": "🌿"
+          },
+          {
+            "mot": "ECOSYSTEME",
+            "emoji": "🌳"
+          },
+          {
+            "mot": "BIODIVERSITE",
+            "emoji": "🦋"
+          },
+          {
+            "mot": "POLLINISATION",
+            "emoji": "🐝"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MOLECULE",
+            "emoji": "🧬"
+          },
+          {
+            "mot": "ATOME",
+            "emoji": "⚛️"
+          },
+          {
+            "mot": "CELLULE",
+            "emoji": "🔬"
+          },
+          {
+            "mot": "BACTERIE",
+            "emoji": "🦠"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "EQUATEUR",
+            "emoji": "🌍"
+          },
+          {
+            "mot": "MERIDIEN",
+            "emoji": "🧭"
+          },
+          {
+            "mot": "HEMISPHERE",
+            "emoji": "🗺️"
+          },
+          {
+            "mot": "POLE",
+            "emoji": "❄️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PHOTOSYNTHESE",
+            "emoji": "🌿"
+          },
+          {
+            "mot": "CHLOROPHYLLE",
+            "emoji": "🍃"
+          },
+          {
+            "mot": "RACINE",
+            "emoji": "🌱"
+          },
+          {
+            "mot": "SEVE",
+            "emoji": "🌳"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CATALYSEUR",
+            "emoji": "⚗️"
+          },
+          {
+            "mot": "REACTION CHIMIQUE",
+            "emoji": "💥"
+          },
+          {
+            "mot": "SOLUTION",
+            "emoji": "🧪"
+          },
+          {
+            "mot": "PRECIPITE",
+            "emoji": "🔬"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ISOTOPE",
+            "emoji": "⚛️"
+          },
+          {
+            "mot": "RADIOACTIVITE",
+            "emoji": "☢️"
+          },
+          {
+            "mot": "DEMI-VIE",
+            "emoji": "⏳"
+          },
+          {
+            "mot": "NUCLEAIRE",
+            "emoji": "🏭"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PENDULE",
+            "emoji": "🕰️"
+          },
+          {
+            "mot": "BALANCIER",
+            "emoji": "⚖️"
+          },
+          {
+            "mot": "ROUAGE",
+            "emoji": "⚙️"
+          },
+          {
+            "mot": "CADRAN",
+            "emoji": "🕐"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "SATELLITE GPS",
+            "emoji": "🛰️"
+          },
+          {
+            "mot": "POSITIONNEMENT",
+            "emoji": "📍"
+          },
+          {
+            "mot": "NAVIGATION",
+            "emoji": "🧭"
+          },
+          {
+            "mot": "COORDONNEES",
+            "emoji": "🗺️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CODE MORSE",
+            "emoji": "📡"
+          },
+          {
+            "mot": "TELEGRAMME",
+            "emoji": "📨"
+          },
+          {
+            "mot": "CABLE SOUS-MARIN",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "OPERATEUR",
+            "emoji": "🧑‍💼"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PANNEAU SOLAIRE",
+            "emoji": "☀️"
+          },
+          {
+            "mot": "EOLIENNE",
+            "emoji": "💨"
+          },
+          {
+            "mot": "BARRAGE HYDRO",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "RESEAU ELECTRIQUE",
+            "emoji": "⚡"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TELESCOPE PUISSANT",
+            "emoji": "🔭"
+          },
+          {
+            "mot": "GALAXIE LOINTAINE",
+            "emoji": "🌌"
+          },
+          {
+            "mot": "ANNEE-LUMIERE",
+            "emoji": "⭐"
+          },
+          {
+            "mot": "OBSERVATOIRE PERCHE",
+            "emoji": "🏔️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BIBLIOTHEQUE ANCIENNE",
+            "emoji": "📚"
+          },
+          {
+            "mot": "MANUSCRIT RARE",
+            "emoji": "📜"
+          },
+          {
+            "mot": "RELIURE EN CUIR",
+            "emoji": "📖"
+          },
+          {
+            "mot": "POUSSIERE DU TEMPS",
+            "emoji": "🕰️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "USINE ROBOTISEE",
+            "emoji": "🏭"
+          },
+          {
+            "mot": "CHAINE DE MONTAGE",
+            "emoji": "⚙️"
+          },
+          {
+            "mot": "AUTOMATISATION",
+            "emoji": "🤖"
+          },
+          {
+            "mot": "PRODUCTIVITE ACCRUE",
+            "emoji": "📈"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TUNNEL SOUS LA MANCHE",
+            "emoji": "🚄"
+          },
+          {
+            "mot": "INGENIERIE COMPLEXE",
+            "emoji": "⚙️"
+          },
+          {
+            "mot": "FORAGE PROFOND",
+            "emoji": "⛏️"
+          },
+          {
+            "mot": "LIAISON TRANSFRONTALIERE",
+            "emoji": "🌍"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MICROSCOPE ELECTRONIQUE",
+            "emoji": "🔬"
+          },
+          {
+            "mot": "CELLULE VIVANTE",
+            "emoji": "🦠"
+          },
+          {
+            "mot": "NOYAU CENTRAL",
+            "emoji": "⚛️"
+          },
+          {
+            "mot": "OBSERVATION PRECISE",
+            "emoji": "👁️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "LABORATOIRE SECRET",
+            "emoji": "🧪"
+          },
+          {
+            "mot": "FORMULE MYSTERIEUSE",
+            "emoji": "📋"
+          },
+          {
+            "mot": "REACTION EXPLOSIVE",
+            "emoji": "💥"
+          },
+          {
+            "mot": "CHERCHEUR PASSIONNE",
+            "emoji": "🥼"
+          }
+        ]
+      }
+    ],
+    "ce2-1": [
+      {
+        "paires": [
+          {
+            "mot": "TEMPLE",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "STATUE",
+            "emoji": "🗿"
+          },
+          {
+            "mot": "POTERIE",
+            "emoji": "⚱️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "SATURNE",
+            "emoji": "🪐"
+          },
+          {
+            "mot": "LUNE",
+            "emoji": "🌙"
+          },
+          {
+            "mot": "COMETE",
+            "emoji": "☄️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CONSTITUTION",
+            "emoji": "📜"
+          },
+          {
+            "mot": "DEMOCRATIE",
+            "emoji": "🗳️"
+          },
+          {
+            "mot": "REVOLUTION",
+            "emoji": "⚔️"
+          },
+          {
+            "mot": "REPUBLIQUE",
+            "emoji": "🏛️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ARCHIPEL",
+            "emoji": "🏝️"
+          },
+          {
+            "mot": "PENINSULE",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "ISTHME",
+            "emoji": "🗺️"
+          },
+          {
+            "mot": "DETROIT",
+            "emoji": "⛵"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "MONARCHIE",
+            "emoji": "👑"
+          },
+          {
+            "mot": "EMPIRE",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "COLONISATION",
+            "emoji": "🗺️"
+          },
+          {
+            "mot": "INDEPENDANCE",
+            "emoji": "🕊️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ELECTRON",
+            "emoji": "⚛️"
+          },
+          {
+            "mot": "PROTON",
+            "emoji": "🔵"
+          },
+          {
+            "mot": "NEUTRON",
+            "emoji": "⚪"
+          },
+          {
+            "mot": "NOYAU",
+            "emoji": "🔬"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "TRAITE",
+            "emoji": "📜"
+          },
+          {
+            "mot": "ALLIANCE",
+            "emoji": "🤝"
+          },
+          {
+            "mot": "NEUTRALITE",
+            "emoji": "🏳️"
+          },
+          {
+            "mot": "ARMISTICE",
+            "emoji": "🕊️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CONFEDERATION",
+            "emoji": "🤝"
+          },
+          {
+            "mot": "FEDERATION",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "SOUVERAINETE",
+            "emoji": "👑"
+          },
+          {
+            "mot": "FRONTIERE",
+            "emoji": "🗺️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "AQUEDUC ROMAIN",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "THERMES",
+            "emoji": "♨️"
+          },
+          {
+            "mot": "FORUM",
+            "emoji": "🏟️"
+          },
+          {
+            "mot": "TOGE",
+            "emoji": "🥻"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PRINTEMPS ARABE",
+            "emoji": "✊"
+          },
+          {
+            "mot": "MANIFESTATION",
+            "emoji": "📢"
+          },
+          {
+            "mot": "LIBERTE",
+            "emoji": "🕊️"
+          },
+          {
+            "mot": "REFORME",
+            "emoji": "📜"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BOUSSOLE ANCIENNE",
+            "emoji": "🧭"
+          },
+          {
+            "mot": "SEXTANT",
+            "emoji": "⭐"
+          },
+          {
+            "mot": "ETOILE POLAIRE",
+            "emoji": "🌟"
+          },
+          {
+            "mot": "NAVIGATEUR SOLITAIRE",
+            "emoji": "⛵"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CATAPULTE",
+            "emoji": "🏹"
+          },
+          {
+            "mot": "SIEGE DE CHATEAU",
+            "emoji": "🏰"
+          },
+          {
+            "mot": "REMPART",
+            "emoji": "🧱"
+          },
+          {
+            "mot": "DOUVE",
+            "emoji": "🌊"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CODE SECRET",
+            "emoji": "🔐"
+          },
+          {
+            "mot": "CHIFFREMENT",
+            "emoji": "🔢"
+          },
+          {
+            "mot": "MESSAGE CACHE",
+            "emoji": "📩"
+          },
+          {
+            "mot": "CRYPTOGRAPHE",
+            "emoji": "🕵️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CHATEAU DE SABLE GEANT",
+            "emoji": "🏰"
+          },
+          {
+            "mot": "MAREE MONTANTE",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "PELLE ET SEAU",
+            "emoji": "🪣"
+          },
+          {
+            "mot": "CRABE FURTIF",
+            "emoji": "🦀"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "EXPEDITION POLAIRE",
+            "emoji": "🧊"
+          },
+          {
+            "mot": "TRAINEAU CHARGE",
+            "emoji": "🛷"
+          },
+          {
+            "mot": "TEMPERATURE EXTREME",
+            "emoji": "🌡️"
+          },
+          {
+            "mot": "EXPLORATEUR COURAGEUX",
+            "emoji": "🧑‍🦱"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BIBLIOTHEQUE D'ALEXANDRIE",
+            "emoji": "📚"
+          },
+          {
+            "mot": "SAVOIR ANTIQUE",
+            "emoji": "📜"
+          },
+          {
+            "mot": "INCENDIE TRAGIQUE",
+            "emoji": "🔥"
+          },
+          {
+            "mot": "PERTE IRREMPLACABLE",
+            "emoji": "😢"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CATHEDRALE GOTHIQUE",
+            "emoji": "⛪"
+          },
+          {
+            "mot": "VITRAIL COLORE",
+            "emoji": "🪟"
+          },
+          {
+            "mot": "ARC-BOUTANT",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "CLOCHE RESONNANTE",
+            "emoji": "🔔"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PONT SUSPENDU GEANT",
+            "emoji": "🌉"
+          },
+          {
+            "mot": "CABLE D'ACIER",
+            "emoji": "⚙️"
+          },
+          {
+            "mot": "TRAVERSEE VERTIGINEUSE",
+            "emoji": "😱"
+          },
+          {
+            "mot": "INGENIEUR AUDACIEUX",
+            "emoji": "👷"
+          }
+        ]
+      }
+    ],
+    "ce2-3": [
+      {
+        "paires": [
+          {
+            "mot": "TEMPLE",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "STATUE",
+            "emoji": "🗿"
+          },
+          {
+            "mot": "POTERIE",
+            "emoji": "⚱️"
+          },
+          {
+            "mot": "PARCHEMIN",
+            "emoji": "📜"
+          },
+          {
+            "mot": "AMPHORE",
+            "emoji": "🏺"
+          },
+          {
+            "mot": "PIOCHE",
+            "emoji": "⛏️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "SATURNE",
+            "emoji": "🪐"
+          },
+          {
+            "mot": "LUNE",
+            "emoji": "🌙"
+          },
+          {
+            "mot": "COMETE",
+            "emoji": "☄️"
+          },
+          {
+            "mot": "GALAXIE",
+            "emoji": "🌌"
+          },
+          {
+            "mot": "SATELLITE",
+            "emoji": "🛰️"
+          },
+          {
+            "mot": "FUSEE",
+            "emoji": "🚀"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "GRAVITE",
+            "emoji": "🍎"
+          },
+          {
+            "mot": "APESANTEUR",
+            "emoji": "🧑‍🚀"
+          },
+          {
+            "mot": "ORBITE",
+            "emoji": "🪐"
+          },
+          {
+            "mot": "ROTATION",
+            "emoji": "🌍"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "HIEROGLYPHE",
+            "emoji": "𓂀"
+          },
+          {
+            "mot": "SARCOPHAGE",
+            "emoji": "⚰️"
+          },
+          {
+            "mot": "MOMIE",
+            "emoji": "🧟"
+          },
+          {
+            "mot": "PHARAON",
+            "emoji": "👑"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "PARLEMENT",
+            "emoji": "🏛️"
+          },
+          {
+            "mot": "LOI",
+            "emoji": "📜"
+          },
+          {
+            "mot": "JUSTICE",
+            "emoji": "⚖️"
+          },
+          {
+            "mot": "TRIBUNAL",
+            "emoji": "👨‍⚖️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "VIRUS",
+            "emoji": "🦠"
+          },
+          {
+            "mot": "ANTICORPS",
+            "emoji": "🛡️"
+          },
+          {
+            "mot": "VACCIN",
+            "emoji": "💉"
+          },
+          {
+            "mot": "IMMUNITE",
+            "emoji": "🩺"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "NEBULEUSE",
+            "emoji": "🌌"
+          },
+          {
+            "mot": "SUPERNOVA",
+            "emoji": "💥"
+          },
+          {
+            "mot": "TROU NOIR",
+            "emoji": "⚫"
+          },
+          {
+            "mot": "VOIE LACTEE",
+            "emoji": "🌠"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ECLIPSE SOLAIRE",
+            "emoji": "🌑"
+          },
+          {
+            "mot": "ECLIPSE LUNAIRE",
+            "emoji": "🌕"
+          },
+          {
+            "mot": "SOLSTICE",
+            "emoji": "☀️"
+          },
+          {
+            "mot": "EQUINOXE",
+            "emoji": "⚖️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CORAL REEF",
+            "emoji": "🪸"
+          },
+          {
+            "mot": "PLANCTON",
+            "emoji": "🦠"
+          },
+          {
+            "mot": "RECIF",
+            "emoji": "🐠"
+          },
+          {
+            "mot": "CHAINE MARINE",
+            "emoji": "🐟"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "POLLUTION PLASTIQUE",
+            "emoji": "🗑️"
+          },
+          {
+            "mot": "MICROPLASTIQUE",
+            "emoji": "🔬"
+          },
+          {
+            "mot": "OCEAN MENACE",
+            "emoji": "🌊"
+          },
+          {
+            "mot": "NETTOYAGE",
+            "emoji": "♻️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "BANQUISE FONDANTE",
+            "emoji": "🧊"
+          },
+          {
+            "mot": "OURS EN DANGER",
+            "emoji": "🐻‍❄️"
+          },
+          {
+            "mot": "RECHAUFFEMENT",
+            "emoji": "🌡️"
+          },
+          {
+            "mot": "GLACIER RECULANT",
+            "emoji": "🏔️"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "CAMEE ROMAIN",
+            "emoji": "👤"
+          },
+          {
+            "mot": "AMPHORE",
+            "emoji": "🏺"
+          },
+          {
+            "mot": "FRESQUE MURALE",
+            "emoji": "🖼️"
+          },
+          {
+            "mot": "MOSAIQUE ANTIQUE",
+            "emoji": "🎨"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "ROBOT EXPLORATEUR",
+            "emoji": "🤖"
+          },
+          {
+            "mot": "SURFACE MARTIENNE",
+            "emoji": "🔴"
+          },
+          {
+            "mot": "POUSSIERE ROUGE",
+            "emoji": "🏜️"
+          },
+          {
+            "mot": "MISSION SPATIALE",
+            "emoji": "🚀"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "RECIF CORALLIEN FRAGILE",
+            "emoji": "🪸"
+          },
+          {
+            "mot": "BLANCHISSEMENT",
+            "emoji": "⚪"
+          },
+          {
+            "mot": "TEMPERATURE OCEANIQUE",
+            "emoji": "🌡️"
+          },
+          {
+            "mot": "PRESERVATION MARINE",
+            "emoji": "🐠"
+          }
+        ]
+      },
+      {
+        "paires": [
+          {
+            "mot": "SONDE INTERSTELLAIRE",
+            "emoji": "🛰️"
+          },
+          {
+            "mot": "MESSAGE VERS LES ETOILES",
+            "emoji": "📡"
+          },
+          {
+            "mot": "VOYAGE INFINI",
+            "emoji": "♾️"
+          },
+          {
+            "mot": "DISQUE D'OR",
+            "emoji": "💿"
+          }
+        ]
+      }
+    ]
+  }
+}
