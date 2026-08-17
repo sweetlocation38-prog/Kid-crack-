@@ -1,0 +1,40 @@
+{
+  "cp-1": [
+    {"son":"s","etape":"fusionner","options":["S","C","Z"]},
+    {"son":"n","etape":"fusionner","options":["N","L","M"]}
+  ],
+  "cp-2": [
+    {"son":"oin","etape":"fusionner","options":["OIN","OI","AN"]},
+    {"son":"eil","etape":"fusionner","options":["EIL","AIL","ILL"]}
+  ],
+  "gs-2": [
+    {"son1":"b","son2":"i","etape":"fusionner_syllabe","options":["BI","DI","PI"],"resultat":"BI"},
+    {"son1":"m","son2":"a","etape":"fusionner_syllabe","options":["MA","NA","BA"],"resultat":"MA"},
+    {"son1":"t","son2":"u","etape":"fusionner_syllabe","options":["TU","DU","LU"],"resultat":"TU"},
+    {"son1":"r","son2":"i","etape":"fusionner_syllabe","options":["RI","LI","DI"],"resultat":"RI"},
+    {"son1":"p","son2":"o","etape":"fusionner_syllabe","options":["PO","BO","TO"],"resultat":"PO"}
+  ],
+  "gs-3": [
+    {"mot":"CHEVAL","icon":"🐴","etape":"premiere_syllabe","reponse":"CHE","syllabes":["CHE","VAL"]},
+    {"mot":"POISSON","icon":"🐟","etape":"premiere_syllabe","reponse":"POIS","syllabes":["POIS","SON"]},
+    {"mot":"COCHON","icon":"🐷","etape":"premiere_syllabe","reponse":"CO","syllabes":["CO","CHON"]},
+    {"mot":"SERPENT","icon":"🐍","etape":"premiere_syllabe","reponse":"SER","syllabes":["SER","PENT"]}
+  ],
+  "ms-3": [
+    {"son":"a","etape":"fusionner","options":["A","I","E"]},
+    {"son":"e","etape":"fusionner","options":["E","U","I"]},
+    {"son":"i","etape":"fusionner","options":["I","O","E"]},
+    {"son":"o","etape":"fusionner","options":["O","E","I"]},
+    {"son":"u","etape":"fusionner","options":["U","E","A"]}
+  ],
+  "ce1-3": [
+    {"etape":"comprehension","texte":"Emma a mis son manteau et ses bottes avant de sortir. Le ciel est tout gris.","options":["Il va pleuvoir","Elle a trop chaud","Elle va nager"],"question":"Pourquoi Emma s'habille-t-elle chaudement ?","bonne_reponse":"Il va pleuvoir"},
+    {"etape":"comprehension","texte":"Le petit Léo n'a pas fait ses devoirs. Sa maîtresse fronce les sourcils en voyant son cahier vide.","options":["Léo n'a pas fait ses devoirs","Elle est fatiguée","Elle a perdu son stylo"],"question":"Pourquoi la maîtresse fronce-t-elle les sourcils ?","bonne_reponse":"Léo n'a pas fait ses devoirs"},
+    {"etape":"comprehension","texte":"Après le match, les joueurs se serrent la main et lèvent une grande coupe dorée.","options":["Le match","Un livre","Une médaille en chocolat"],"question":"Qu'ont gagné les joueurs ?","bonne_reponse":"Le match"}
+  ],
+  "ce2-3": [
+    {"etape":"comprehension","texte":"Le chien gratte frénétiquement à la porte et gémit doucement.","options":["Sortir","Manger","Dormir"],"question":"Que veut le chien ?","bonne_reponse":"Sortir"},
+    {"etape":"comprehension","texte":"Après trois refus, l'inventeur range enfin ses plans dans un tiroir et n'y retouche plus.","options":["Du découragement","De la joie","De la surprise"],"question":"Que ressent probablement l'inventeur ?","bonne_reponse":"Du découragement"},
+    {"etape":"comprehension","texte":"La foule retient son souffle. Le funambule pose un pied, puis l'autre, sur le fil tendu à dix mètres du sol.","options":["De tomber","De gagner de l'argent","De s'ennuyer"],"question":"Que risque le funambule ?","bonne_reponse":"De tomber"}
+  ]
+}

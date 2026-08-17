@@ -1,0 +1,33 @@
+{
+  "ce1-2": [
+    {"items":[{"cat":"Insectes","val":"Fourmi"},{"cat":"Insectes","val":"Abeille"},{"cat":"Insectes","val":"Papillon"},{"cat":"Oiseaux","val":"Moineau"},{"cat":"Oiseaux","val":"Pigeon"},{"cat":"Oiseaux","val":"Hirondelle"}],"categories":["Insectes","Oiseaux"]}
+  ],
+  "ce1-3": [
+    {"items":[{"cat":"Sports d'hiver","val":"Ski"},{"cat":"Sports d'hiver","val":"Patinage"},{"cat":"Sports d'hiver","val":"Luge"},{"cat":"Sports d'été","val":"Natation"},{"cat":"Sports d'été","val":"Tennis"},{"cat":"Sports d'été","val":"Voile"}],"categories":["Sports d'hiver","Sports d'été"]},
+    {"items":[{"cat":"Instruments à cordes","val":"Guitare"},{"cat":"Instruments à cordes","val":"Violon"},{"cat":"Instruments à cordes","val":"Harpe"},{"cat":"Instruments à vent","val":"Flûte"},{"cat":"Instruments à vent","val":"Trompette"},{"cat":"Instruments à vent","val":"Clarinette"}],"categories":["Instruments à cordes","Instruments à vent"]},
+    {"items":[{"cat":"Océans","val":"Atlantique"},{"cat":"Océans","val":"Pacifique"},{"cat":"Océans","val":"Indien"},{"cat":"Continents","val":"Europe"},{"cat":"Continents","val":"Afrique"},{"cat":"Continents","val":"Asie"}],"categories":["Océans","Continents"]},
+    {"items":[{"cat":"Soustractions","val":"9-3"},{"cat":"Soustractions","val":"10-4"},{"cat":"Soustractions","val":"8-2"},{"cat":"Multiplications","val":"2x4"},{"cat":"Multiplications","val":"3x3"},{"cat":"Multiplications","val":"5x2"}],"categories":["Soustractions","Multiplications"]},
+    {"items":[{"cat":"Mammifères","val":"Chat"},{"cat":"Mammifères","val":"Cheval"},{"cat":"Mammifères","val":"Baleine"},{"cat":"Reptiles","val":"Lézard"},{"cat":"Reptiles","val":"Serpent"},{"cat":"Reptiles","val":"Tortue"}],"categories":["Mammifères","Reptiles"]}
+  ],
+  "ce2-2": [
+    {"items":[{"cat":"Capitales d'Amérique","val":"Washington"},{"cat":"Capitales d'Amérique","val":"Ottawa"},{"cat":"Capitales d'Amérique","val":"Brasilia"},{"cat":"Capitales d'Afrique","val":"Le Caire"},{"cat":"Capitales d'Afrique","val":"Rabat"},{"cat":"Capitales d'Afrique","val":"Dakar"}],"categories":["Capitales d'Amérique","Capitales d'Afrique"]}
+  ],
+  "ce2-3": [
+    {"items":[{"cat":"Verbes 3e groupe","val":"Prendre"},{"cat":"Verbes 3e groupe","val":"Venir"},{"cat":"Verbes 3e groupe","val":"Voir"},{"cat":"Verbes 1er groupe","val":"Aimer"},{"cat":"Verbes 1er groupe","val":"Jouer"},{"cat":"Verbes 1er groupe","val":"Danser"}],"categories":["Verbes 3e groupe","Verbes 1er groupe"]},
+    {"items":[{"cat":"Multiples de 4","val":"4"},{"cat":"Multiples de 4","val":"8"},{"cat":"Multiples de 4","val":"12"},{"cat":"Multiples de 7","val":"7"},{"cat":"Multiples de 7","val":"14"},{"cat":"Multiples de 7","val":"21"}],"categories":["Multiples de 4","Multiples de 7"]},
+    {"items":[{"cat":"Planètes telluriques","val":"Mercure"},{"cat":"Planètes telluriques","val":"Vénus"},{"cat":"Planètes telluriques","val":"Mars"},{"cat":"Planètes gazeuses","val":"Jupiter"},{"cat":"Planètes gazeuses","val":"Saturne"},{"cat":"Planètes gazeuses","val":"Neptune"}],"categories":["Planètes telluriques","Planètes gazeuses"]},
+    {"items":[{"cat":"États solides","val":"Glace"},{"cat":"États solides","val":"Roche"},{"cat":"États solides","val":"Bois"},{"cat":"États liquides","val":"Eau"},{"cat":"États liquides","val":"Huile"},{"cat":"États liquides","val":"Lait"}],"categories":["États solides","États liquides"]}
+  ],
+  "cp-3": [
+    {"items":[{"cat":"Véhicules terrestres","val":"Voiture"},{"cat":"Véhicules terrestres","val":"Vélo"},{"cat":"Véhicules terrestres","val":"Train"},{"cat":"Véhicules aériens","val":"Avion"},{"cat":"Véhicules aériens","val":"Hélicoptère"},{"cat":"Véhicules aériens","val":"Montgolfière"}],"categories":["Véhicules terrestres","Véhicules aériens"]},
+    {"items":[{"cat":"Légumes","val":"Carotte"},{"cat":"Légumes","val":"Poireau"},{"cat":"Légumes","val":"Courgette"},{"cat":"Fruits","val":"Pomme"},{"cat":"Fruits","val":"Fraise"},{"cat":"Fruits","val":"Kiwi"}],"categories":["Légumes","Fruits"]},
+    {"items":[{"cat":"Formes rondes","val":"Cercle"},{"cat":"Formes rondes","val":"Ballon"},{"cat":"Formes rondes","val":"Roue"},{"cat":"Formes pointues","val":"Triangle"},{"cat":"Formes pointues","val":"Étoile"},{"cat":"Formes pointues","val":"Flèche"}],"categories":["Formes rondes","Formes pointues"]}
+  ],
+  "gs-3": [
+    {"items":[{"cat":"Ciel","val":"🌞"},{"cat":"Ciel","val":"🌧️"},{"cat":"Ciel","val":"🌈"},{"cat":"Jardin","val":"🌷"},{"cat":"Jardin","val":"🐝"},{"cat":"Jardin","val":"🦋"},{"cat":"Cuisine","val":"🍳"},{"cat":"Cuisine","val":"🍲"},{"cat":"Cuisine","val":"🥄"}],"categories":["Ciel","Jardin","Cuisine"]},
+    {"items":[{"cat":"Ferme","val":"🐄"},{"cat":"Ferme","val":"🐖"},{"cat":"Ferme","val":"🐓"},{"cat":"Savane","val":"🦁"},{"cat":"Savane","val":"🦒"},{"cat":"Savane","val":"🐘"},{"cat":"Banquise","val":"🐧"},{"cat":"Banquise","val":"🐻‍❄️"},{"cat":"Banquise","val":"🦭"}],"categories":["Ferme","Savane","Banquise"]}
+  ],
+  "ms-3": [
+    {"items":[{"cat":"Transports","val":"🚗"},{"cat":"Transports","val":"🚲"},{"cat":"Transports","val":"🚂"},{"cat":"Jouets","val":"🧸"},{"cat":"Jouets","val":"🪀"},{"cat":"Jouets","val":"🎲"},{"cat":"Vêtements","val":"👕"},{"cat":"Vêtements","val":"🧢"},{"cat":"Vêtements","val":"🧦"}],"categories":["Transports","Jouets","Vêtements"]}
+  ]
+}

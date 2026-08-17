@@ -1,0 +1,11 @@
+{
+  "ms-1": [
+    {"etape":"drapeau_pays","drapeau":"🇹🇷","options":["Turquie","Grèce","Espagne"],"reponse":"Turquie","categorie":"drapeau"}
+  ],
+  "ms-2": [
+    {"etape":"drapeau_pays","drapeau":"🇦🇷","options":["Argentine","Brésil","Chili"],"reponse":"Argentine","categorie":"drapeau"}
+  ],
+  "ms-3": [
+    {"etape":"drapeau_pays","drapeau":"🇨🇺","options":["Cuba","Mexique","Colombie"],"reponse":"Cuba","categorie":"drapeau"}
+  ]
+}

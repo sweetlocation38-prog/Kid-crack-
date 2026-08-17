@@ -1,0 +1,21 @@
+{
+  "ce1-3": [
+    {"paye":380,"prix":246,"etape":"monnaie","rendu":134,"options":[134,133,135]}
+  ],
+  "ce2-3": [
+    {"paye":1750,"prix":1080,"etape":"monnaie","rendu":670,"options":[670,669,671]}
+  ],
+  "cp-3": [
+    {"paye":95,"prix":58,"etape":"monnaie","rendu":37,"options":[37,36,38]}
+  ],
+  "gs-2": [
+    {"paye":45,"prix":33,"etape":"monnaie","rendu":12,"options":[12,11,13]}
+  ],
+  "gs-3": [
+    {"paye":48,"prix":19,"etape":"monnaie","rendu":29,"options":[29,28,30]}
+  ],
+  "ms-3": [
+    {"paye":22,"prix":15,"etape":"monnaie","rendu":7,"options":[7,6,8]},
+    {"paye":12,"prix":7,"etape":"monnaie","rendu":5,"options":[5,4,6]}
+  ]
+}

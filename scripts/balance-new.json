@@ -1,0 +1,8 @@
+{
+  "cp-1": [
+    {"etape":"equilibre","gauche":42,"manque":25,"options":[25,24,26],"droit_connu":17}
+  ],
+  "cp-3": [
+    {"etape":"equilibre","gauche":65,"manque":45,"options":[45,44,46],"droit_connu":20}
+  ]
+}
