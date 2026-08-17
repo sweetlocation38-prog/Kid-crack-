@@ -1,0 +1,6688 @@
+{
+  "sons_magiques": {
+    "ce1-3": [
+      {
+        "etape": "comprehension",
+        "texte": "Marc a oublié son parapluie. Quand il sort, la pluie tombe fort. Il court se mettre à l'abri.",
+        "options": [
+          "Il n'a pas de parapluie et il pleut",
+          "Il fait une course",
+          "Il a peur du chien"
+        ],
+        "question": "Pourquoi Marc court-il ?",
+        "bonne_reponse": "Il n'a pas de parapluie et il pleut"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le chat s'approche doucement de la souris. La souris ne bouge pas. Soudain, elle s'enfuit.",
+        "options": [
+          "Elle a vu le chat approcher",
+          "Elle a faim",
+          "Elle veut jouer"
+        ],
+        "question": "Pourquoi la souris s'enfuit-elle ?",
+        "bonne_reponse": "Elle a vu le chat approcher"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Il fait très chaud cet été. Les enfants vont à la piscine. Ils nagent toute l'après-midi.",
+        "options": [
+          "Il fait chaud",
+          "Il pleut",
+          "C'est leur anniversaire"
+        ],
+        "question": "Pourquoi les enfants vont-ils à la piscine ?",
+        "bonne_reponse": "Il fait chaud"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Léo n'a pas fait ses devoirs. Le lendemain, il est inquiet en classe. La maîtresse le remarque.",
+        "options": [
+          "Il n'a pas fait ses devoirs",
+          "Il est malade",
+          "Il a perdu son cahier"
+        ],
+        "question": "Pourquoi Léo est-il inquiet ?",
+        "bonne_reponse": "Il n'a pas fait ses devoirs"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Les étoiles apparaissent une à une dans le ciel sombre. Le hibou ouvre les yeux et s'envole chasser dans la forêt.",
+        "options": [
+          "La nuit",
+          "Le matin",
+          "À midi"
+        ],
+        "question": "Quand le hibou se réveille-t-il ?",
+        "bonne_reponse": "La nuit"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le vieux jardinier arrose ses tomates tous les soirs. Cette année, la récolte est particulièrement belle.",
+        "options": [
+          "Il arrose regulièrement ses plants",
+          "Il a acheté de nouvelles graines",
+          "Il a un grand jardin"
+        ],
+        "question": "Pourquoi la récolte est-elle belle ?",
+        "bonne_reponse": "Il arrose regulièrement ses plants"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Léa s'entraîne à nager depuis le début de l'été. Aujourd'hui, elle traverse la piscine sans s'arrêter.",
+        "options": [
+          "Léa a progressé grâce à l'entraînement",
+          "Léa a peur de l'eau",
+          "La piscine est fermée"
+        ],
+        "question": "Que montre cette histoire ?",
+        "bonne_reponse": "Léa a progressé grâce à l'entraînement"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le chat s'approche du bol de lait renversé. Il regarde autour de lui, l'air inquiet.",
+        "options": [
+          "Il a peut-être fait une bêtise",
+          "Il a trop mangé",
+          "Il veut jouer"
+        ],
+        "question": "Pourquoi le chat semble-t-il inquiet ?",
+        "bonne_reponse": "Il a peut-être fait une bêtise"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Les nuages s'assombrissent rapidement. Les promeneurs pressent le pas vers l'abri le plus proche.",
+        "options": [
+          "Une pluie menace d'arriver",
+          "Il fait déjà nuit",
+          "Ils ont faim"
+        ],
+        "question": "Pourquoi les promeneurs se dépêchent-ils ?",
+        "bonne_reponse": "Une pluie menace d'arriver"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le vieux chien dort toute la journée près du feu. Il ne joue plus comme avant.",
+        "options": [
+          "Il est devenu vieux et fatigué",
+          "Il est malade",
+          "Il a peur du feu"
+        ],
+        "question": "Que suggère cette histoire sur le chien ?",
+        "bonne_reponse": "Il est devenu vieux et fatigué"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Chaque jour, Tom donne une graine de tournesol à l'oiseau sur son balcon. L'oiseau revient toujours.",
+        "options": [
+          "Il sait qu'il trouvera de la nourriture",
+          "Il est perdu",
+          "Il n'aime pas voler"
+        ],
+        "question": "Pourquoi l'oiseau revient-il chaque jour ?",
+        "bonne_reponse": "Il sait qu'il trouvera de la nourriture"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "La rivière est basse cet été. Les poissons se rassemblent dans les rares zones encore profondes.",
+        "options": [
+          "L'eau est basse ailleurs",
+          "Ils jouent ensemble",
+          "Ils ont froid"
+        ],
+        "question": "Pourquoi les poissons se rassemblent-ils ?",
+        "bonne_reponse": "L'eau est basse ailleurs"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le petit escargot avance très lentement, mais il finit toujours par arriver où il veut aller.",
+        "options": [
+          "La patience finit par payer",
+          "Il faut aller vite",
+          "L'escargot se perd souvent"
+        ],
+        "question": "Que nous apprend cette histoire ?",
+        "bonne_reponse": "La patience finit par payer"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "L'orage a fait fuir tous les oiseaux du jardin.",
+        "options": [
+          "À cause de l'orage",
+          "À cause du chat",
+          "À cause du bruit des enfants"
+        ],
+        "question": "Pourquoi les oiseaux ont-ils fui ?",
+        "bonne_reponse": "À cause de l'orage"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Malgré la fatigue, l'alpiniste continua son ascension.",
+        "options": [
+          "Il continue son ascension",
+          "Il redescend",
+          "Il se repose"
+        ],
+        "question": "Que fait l'alpiniste malgré la fatigue ?",
+        "bonne_reponse": "Il continue son ascension"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le vent hurlait, les vagues immenses s'écrasaient sur le pont, et la pluie fouettait le visage du capitaine, qui tenait fermement la barre de son navire.",
+        "options": [
+          "La tempête",
+          "Le brouillard",
+          "La nuit noire"
+        ],
+        "question": "À travers quoi le capitaine dirigea-t-il le navire ?",
+        "bonne_reponse": "La tempête"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Sarah relit son histoire une première fois, corrige un mot, la relit encore, change une phrase, puis la relit une troisième fois avant de la rendre à sa maîtresse.",
+        "options": [
+          "Elle veut qu'elle soit parfaite",
+          "Elle a oublié ce qu'elle a écrit",
+          "Elle s'ennuie"
+        ],
+        "question": "Pourquoi Sarah relit-elle son histoire ?",
+        "bonne_reponse": "Elle veut qu'elle soit parfaite"
+      }
+    ],
+    "ce2-3": [
+      {
+        "etape": "comprehension",
+        "texte": "Sarah a couru toute la journée sans manger. Le soir, elle se sent faible et a mal à la tête.",
+        "options": [
+          "Elle n'a pas mangé",
+          "Elle a trop dormi",
+          "Elle a trop bu"
+        ],
+        "question": "Pourquoi Sarah se sent-elle faible ?",
+        "bonne_reponse": "Elle n'a pas mangé"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le vieux fermier regarde le ciel inquiet. Sans pluie depuis des semaines, ses cultures commencent à sécher.",
+        "options": [
+          "Le manque de pluie abîme ses cultures",
+          "Il a perdu son chien",
+          "Il n'a plus d'argent"
+        ],
+        "question": "Pourquoi le fermier est-il inquiet ?",
+        "bonne_reponse": "Le manque de pluie abîme ses cultures"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le chien refuse de manger depuis deux jours. Inquiets, ses maîtres l'emmènent chez le vétérinaire.",
+        "options": [
+          "Il ne mange plus",
+          "Il a grandi",
+          "Il a un nouveau jouet"
+        ],
+        "question": "Pourquoi les maîtres emmènent-ils le chien chez le vétérinaire ?",
+        "bonne_reponse": "Il ne mange plus"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Après des heures de vol, l'avion traverse enfin les nuages. Des milliers de petites lumières scintillent dans l'obscurité, en contrebas.",
+        "options": [
+          "La ville illuminée",
+          "La mer déchaînée",
+          "Un autre avion"
+        ],
+        "question": "Que voient les passagers ?",
+        "bonne_reponse": "La ville illuminée"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le vieux pêcheur connaît chaque recoin de la rivière. Même dans le brouillard, il retrouve son chemin sans difficulté.",
+        "options": [
+          "Il connaît très bien la rivière",
+          "Il a une carte",
+          "Il suit un autre bateau"
+        ],
+        "question": "Pourquoi le pêcheur ne se perd-il pas dans le brouillard ?",
+        "bonne_reponse": "Il connaît très bien la rivière"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Malgré plusieurs échecs, la jeune scientifique poursuit ses expériences. Elle est convaincue que la solution est proche.",
+        "options": [
+          "Sa persévérance",
+          "Son découragement",
+          "Son indifférence"
+        ],
+        "question": "Que montre l'attitude de la scientifique ?",
+        "bonne_reponse": "Sa persévérance"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le glacier recule chaque année un peu plus. Les scientifiques y voient un signal inquiétant pour la planète.",
+        "options": [
+          "C'est un signe du changement climatique",
+          "Le glacier va grandir",
+          "C'est normal en hiver"
+        ],
+        "question": "Pourquoi ce recul inquiète-t-il les scientifiques ?",
+        "bonne_reponse": "C'est un signe du changement climatique"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Après la tempête, les villageois se rassemblent pour réparer ensemble les toits endommagés.",
+        "options": [
+          "Ils réparent les toits ensemble",
+          "Ils quittent le village",
+          "Ils attendent les secours"
+        ],
+        "question": "Que font les villageois après la tempête ?",
+        "bonne_reponse": "Ils réparent les toits ensemble"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le vieux loup solitaire observe la meute de loin, sans jamais s'approcher.",
+        "options": [
+          "Il vit à l'écart de la meute",
+          "Il dirige la meute",
+          "Il a peur de la nuit"
+        ],
+        "question": "Que suggère le comportement du vieux loup ?",
+        "bonne_reponse": "Il vit à l'écart de la meute"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Malgré la pluie battante, les spectateurs restent jusqu'à la fin du match, emmitouflés dans leurs manteaux.",
+        "options": [
+          "Leur passion pour le match",
+          "Leur envie de partir",
+          "Leur indifférence"
+        ],
+        "question": "Que montre l'attitude des spectateurs ?",
+        "bonne_reponse": "Leur passion pour le match"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Du matin jusqu'au soir, sans jamais se poser bien longtemps, l'abeille va de fleur en fleur, puis retourne à la ruche, encore et encore, inlassablement.",
+        "options": [
+          "Sans relâche",
+          "Lentement",
+          "Une seule fois par jour"
+        ],
+        "question": "Comment travaille l'abeille ?",
+        "bonne_reponse": "Sans relâche"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le vieux gardien de phare vit seul depuis vingt ans, mais il ne se sent jamais vraiment seul grâce aux marins qu'il aide chaque nuit.",
+        "options": [
+          "Il aide les marins chaque nuit",
+          "Il a de la famille avec lui",
+          "Il ne sort jamais du phare"
+        ],
+        "question": "Pourquoi le gardien ne se sent-il pas seul ?",
+        "bonne_reponse": "Il aide les marins chaque nuit"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Malgré la fatigue accumulée, les coureurs franchirent la ligne d'arrivée.",
+        "options": [
+          "Ils franchirent la ligne d'arrivée",
+          "Ils abandonnèrent la course",
+          "Ils s'arrêtèrent pour se reposer"
+        ],
+        "question": "Que firent les coureurs malgré la fatigue ?",
+        "bonne_reponse": "Ils franchirent la ligne d'arrivée"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Tout le village dormait profondément, plongé dans l'obscurité, quand un grondement sourd a réveillé les habitants en sursaut.",
+        "options": [
+          "En pleine nuit",
+          "Au petit matin",
+          "En plein après-midi"
+        ],
+        "question": "Quand l'éruption surprit-elle les habitants ?",
+        "bonne_reponse": "En pleine nuit"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Pendant des semaines, sans personne à qui parler, la navigatrice hissait chaque voile elle-même, dormait par courtes siestes, et affrontait seule chaque tempête sur son petit bateau.",
+        "options": [
+          "Seule à bord de son voilier",
+          "En équipage",
+          "En avion"
+        ],
+        "question": "Comment la navigatrice traversa-t-elle l'océan ?",
+        "bonne_reponse": "Seule à bord de son voilier"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le détective examine les traces de pas dans la neige. Elles s'arrêtent devant une porte en bois vermoulu, aux volets fermés depuis des années.",
+        "options": [
+          "À la vieille maison",
+          "Au commissariat",
+          "À l'école"
+        ],
+        "question": "Où mènent les traces de pas ?",
+        "bonne_reponse": "À la vieille maison"
+      },
+      {
+        "etape": "comprehension",
+        "texte": "Le jeune pianiste tremble avant d'entrer sur scène, les mains moites. Mais dès que ses doigts touchent les premières touches, son visage se détend et un sourire apparaît.",
+        "options": [
+          "Son trac disparaît",
+          "Il oublie sa musique",
+          "Il quitte la scène"
+        ],
+        "question": "Que se passe-t-il quand il commence à jouer ?",
+        "bonne_reponse": "Son trac disparaît"
+      }
+    ],
+    "cp-1": [
+      {
+        "son": "t",
+        "etape": "fusionner",
+        "options": [
+          "T",
+          "D",
+          "P"
+        ]
+      },
+      {
+        "son": "f",
+        "etape": "fusionner",
+        "options": [
+          "F",
+          "V",
+          "B"
+        ]
+      },
+      {
+        "son": "v",
+        "etape": "fusionner",
+        "options": [
+          "V",
+          "F",
+          "B"
+        ]
+      },
+      {
+        "son": "s",
+        "etape": "fusionner",
+        "options": [
+          "S",
+          "Z",
+          "C"
+        ]
+      },
+      {
+        "son": "z",
+        "etape": "fusionner",
+        "options": [
+          "Z",
+          "S",
+          "J"
+        ]
+      },
+      {
+        "son": "ch",
+        "etape": "fusionner",
+        "options": [
+          "CH",
+          "J",
+          "S"
+        ]
+      },
+      {
+        "son": "j",
+        "etape": "fusionner",
+        "options": [
+          "J",
+          "CH",
+          "Z"
+        ]
+      },
+      {
+        "son": "p",
+        "etape": "fusionner",
+        "options": [
+          "P",
+          "B",
+          "T"
+        ]
+      },
+      {
+        "son": "b",
+        "etape": "fusionner",
+        "options": [
+          "B",
+          "P",
+          "D"
+        ]
+      },
+      {
+        "son": "d",
+        "etape": "fusionner",
+        "options": [
+          "D",
+          "T",
+          "B"
+        ]
+      },
+      {
+        "son": "c",
+        "etape": "fusionner",
+        "options": [
+          "C",
+          "G",
+          "Q"
+        ]
+      },
+      {
+        "son": "g",
+        "etape": "fusionner",
+        "options": [
+          "G",
+          "C",
+          "J"
+        ]
+      },
+      {
+        "son": "m",
+        "etape": "fusionner",
+        "options": [
+          "M",
+          "N",
+          "B"
+        ]
+      },
+      {
+        "son": "n",
+        "etape": "fusionner",
+        "options": [
+          "N",
+          "M",
+          "D"
+        ]
+      },
+      {
+        "son": "l",
+        "etape": "fusionner",
+        "options": [
+          "L",
+          "R",
+          "N"
+        ]
+      },
+      {
+        "son": "r",
+        "etape": "fusionner",
+        "options": [
+          "R",
+          "L",
+          "M"
+        ]
+      },
+      {
+        "son": "k",
+        "etape": "fusionner",
+        "options": [
+          "K",
+          "G",
+          "C"
+        ]
+      },
+      {
+        "son": "qu",
+        "etape": "fusionner",
+        "options": [
+          "QU",
+          "C",
+          "K"
+        ]
+      }
+    ],
+    "cp-2": [
+      {
+        "son": "on",
+        "etape": "fusionner",
+        "options": [
+          "ON",
+          "AN",
+          "IN"
+        ]
+      },
+      {
+        "son": "an",
+        "etape": "fusionner",
+        "options": [
+          "AN",
+          "ON",
+          "IN"
+        ]
+      },
+      {
+        "son": "in",
+        "etape": "fusionner",
+        "options": [
+          "IN",
+          "ON",
+          "AN"
+        ]
+      },
+      {
+        "son": "un",
+        "etape": "fusionner",
+        "options": [
+          "UN",
+          "IN",
+          "ON"
+        ]
+      },
+      {
+        "son": "ou",
+        "etape": "fusionner",
+        "options": [
+          "OU",
+          "ON",
+          "O"
+        ]
+      },
+      {
+        "son": "oi",
+        "etape": "fusionner",
+        "options": [
+          "OI",
+          "OA",
+          "O"
+        ]
+      },
+      {
+        "son": "ai",
+        "etape": "fusionner",
+        "options": [
+          "AI",
+          "A",
+          "E"
+        ]
+      },
+      {
+        "son": "ei",
+        "etape": "fusionner",
+        "options": [
+          "EI",
+          "E",
+          "AI"
+        ]
+      },
+      {
+        "son": "eu",
+        "etape": "fusionner",
+        "options": [
+          "EU",
+          "OU",
+          "E"
+        ]
+      },
+      {
+        "son": "au",
+        "etape": "fusionner",
+        "options": [
+          "AU",
+          "O",
+          "OU"
+        ]
+      },
+      {
+        "son": "eau",
+        "etape": "fusionner",
+        "options": [
+          "EAU",
+          "OU",
+          "O"
+        ]
+      },
+      {
+        "son": "gn",
+        "etape": "fusionner",
+        "options": [
+          "GN",
+          "N",
+          "NI"
+        ]
+      },
+      {
+        "son": "ph",
+        "etape": "fusionner",
+        "options": [
+          "PH",
+          "F",
+          "V"
+        ]
+      },
+      {
+        "son": "qu",
+        "etape": "fusionner",
+        "options": [
+          "QU",
+          "C",
+          "K"
+        ]
+      },
+      {
+        "son": "ill",
+        "etape": "fusionner",
+        "options": [
+          "ILL",
+          "IL",
+          "I"
+        ]
+      },
+      {
+        "son": "tion",
+        "etape": "fusionner",
+        "options": [
+          "TION",
+          "SION",
+          "SON"
+        ]
+      },
+      {
+        "son": "sion",
+        "etape": "fusionner",
+        "options": [
+          "SION",
+          "TION",
+          "SON"
+        ]
+      },
+      {
+        "son": "ien",
+        "etape": "fusionner",
+        "options": [
+          "IEN",
+          "IN",
+          "EN"
+        ]
+      }
+    ],
+    "gs-2": [
+      {
+        "son1": "b",
+        "son2": "a",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "BA",
+          "DA",
+          "PA"
+        ],
+        "resultat": "BA"
+      },
+      {
+        "son1": "d",
+        "son2": "o",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "DO",
+          "CO",
+          "TO"
+        ],
+        "resultat": "DO"
+      },
+      {
+        "son1": "m",
+        "son2": "i",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "MI",
+          "NI",
+          "FI"
+        ],
+        "resultat": "MI"
+      },
+      {
+        "son1": "r",
+        "son2": "u",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "RU",
+          "LU",
+          "DU"
+        ],
+        "resultat": "RU"
+      },
+      {
+        "son1": "s",
+        "son2": "e",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "SE",
+          "CE",
+          "ZE"
+        ],
+        "resultat": "SE"
+      },
+      {
+        "son1": "t",
+        "son2": "a",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "TA",
+          "CA",
+          "PA"
+        ],
+        "resultat": "TA"
+      },
+      {
+        "son1": "l",
+        "son2": "o",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "LO",
+          "RO",
+          "MO"
+        ],
+        "resultat": "LO"
+      },
+      {
+        "son1": "p",
+        "son2": "i",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "PI",
+          "BI",
+          "TI"
+        ],
+        "resultat": "PI"
+      },
+      {
+        "son1": "f",
+        "son2": "u",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "FU",
+          "VU",
+          "JU"
+        ],
+        "resultat": "FU"
+      },
+      {
+        "son1": "v",
+        "son2": "e",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "VE",
+          "FE",
+          "ME"
+        ],
+        "resultat": "VE"
+      },
+      {
+        "son1": "c",
+        "son2": "a",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "CA",
+          "GA",
+          "TA"
+        ],
+        "resultat": "CA"
+      },
+      {
+        "son1": "g",
+        "son2": "o",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "GO",
+          "CO",
+          "BO"
+        ],
+        "resultat": "GO"
+      },
+      {
+        "son1": "n",
+        "son2": "i",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "NI",
+          "MI",
+          "BI"
+        ],
+        "resultat": "NI"
+      },
+      {
+        "son1": "j",
+        "son2": "u",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "JU",
+          "FU",
+          "LU"
+        ],
+        "resultat": "JU"
+      },
+      {
+        "son1": "z",
+        "son2": "a",
+        "etape": "fusionner_syllabe",
+        "options": [
+          "ZA",
+          "SA",
+          "FA"
+        ],
+        "resultat": "ZA"
+      }
+    ],
+    "gs-3": [
+      {
+        "mot": "BANANE",
+        "icon": "🍌",
+        "etape": "premiere_syllabe",
+        "reponse": "BA",
+        "syllabes": [
+          "BA",
+          "NA",
+          "NE"
+        ]
+      },
+      {
+        "mot": "TOMATE",
+        "icon": "🍅",
+        "etape": "premiere_syllabe",
+        "reponse": "TO",
+        "syllabes": [
+          "TO",
+          "MA",
+          "TE"
+        ]
+      },
+      {
+        "mot": "CANARD",
+        "icon": "🦆",
+        "etape": "premiere_syllabe",
+        "reponse": "CA",
+        "syllabes": [
+          "CA",
+          "NARD"
+        ]
+      },
+      {
+        "mot": "VELO",
+        "icon": "🚲",
+        "etape": "premiere_syllabe",
+        "reponse": "VE",
+        "syllabes": [
+          "VE",
+          "LO"
+        ]
+      },
+      {
+        "mot": "MOTO",
+        "icon": "🏍️",
+        "etape": "premiere_syllabe",
+        "reponse": "MO",
+        "syllabes": [
+          "MO",
+          "TO"
+        ]
+      },
+      {
+        "mot": "PAPILLON",
+        "icon": "🦋",
+        "etape": "premiere_syllabe",
+        "reponse": "PA",
+        "syllabes": [
+          "PA",
+          "PI",
+          "LLON"
+        ]
+      },
+      {
+        "mot": "CROCODILE",
+        "icon": "🐊",
+        "etape": "premiere_syllabe",
+        "reponse": "CRO",
+        "syllabes": [
+          "CRO",
+          "CO",
+          "DILE"
+        ]
+      },
+      {
+        "mot": "DINOSAURE",
+        "icon": "🦕",
+        "etape": "premiere_syllabe",
+        "reponse": "DI",
+        "syllabes": [
+          "DI",
+          "NO",
+          "SAURE"
+        ]
+      },
+      {
+        "mot": "SOLEIL",
+        "icon": "☀️",
+        "etape": "premiere_syllabe",
+        "reponse": "SO",
+        "syllabes": [
+          "SO",
+          "LEIL"
+        ]
+      },
+      {
+        "mot": "MAISON",
+        "icon": "🏠",
+        "etape": "premiere_syllabe",
+        "reponse": "MAI",
+        "syllabes": [
+          "MAI",
+          "SON"
+        ]
+      },
+      {
+        "mot": "GATEAU",
+        "icon": "🎂",
+        "etape": "premiere_syllabe",
+        "reponse": "GA",
+        "syllabes": [
+          "GA",
+          "TEAU"
+        ]
+      },
+      {
+        "mot": "BALLON",
+        "icon": "🎈",
+        "etape": "premiere_syllabe",
+        "reponse": "BAL",
+        "syllabes": [
+          "BAL",
+          "LON"
+        ]
+      },
+      {
+        "mot": "TORTUE",
+        "icon": "🐢",
+        "etape": "premiere_syllabe",
+        "reponse": "TOR",
+        "syllabes": [
+          "TOR",
+          "TUE"
+        ]
+      },
+      {
+        "mot": "ROBOT",
+        "icon": "🤖",
+        "etape": "premiere_syllabe",
+        "reponse": "RO",
+        "syllabes": [
+          "RO",
+          "BOT"
+        ]
+      },
+      {
+        "mot": "PANDA",
+        "icon": "🐼",
+        "etape": "premiere_syllabe",
+        "reponse": "PAN",
+        "syllabes": [
+          "PAN",
+          "DA"
+        ]
+      },
+      {
+        "mot": "LAPIN",
+        "icon": "🐰",
+        "etape": "premiere_syllabe",
+        "reponse": "LA",
+        "syllabes": [
+          "LA",
+          "PIN"
+        ]
+      }
+    ],
+    "ms-3": [
+      {
+        "son": "a",
+        "etape": "fusionner",
+        "options": [
+          "A",
+          "O",
+          "U"
+        ]
+      },
+      {
+        "son": "a",
+        "etape": "fusionner",
+        "options": [
+          "A",
+          "E",
+          "I"
+        ]
+      },
+      {
+        "son": "a",
+        "etape": "fusionner",
+        "options": [
+          "A",
+          "U",
+          "O"
+        ]
+      },
+      {
+        "son": "e",
+        "etape": "fusionner",
+        "options": [
+          "E",
+          "A",
+          "O"
+        ]
+      },
+      {
+        "son": "e",
+        "etape": "fusionner",
+        "options": [
+          "E",
+          "I",
+          "U"
+        ]
+      },
+      {
+        "son": "e",
+        "etape": "fusionner",
+        "options": [
+          "E",
+          "O",
+          "A"
+        ]
+      },
+      {
+        "son": "i",
+        "etape": "fusionner",
+        "options": [
+          "I",
+          "U",
+          "A"
+        ]
+      },
+      {
+        "son": "i",
+        "etape": "fusionner",
+        "options": [
+          "I",
+          "E",
+          "O"
+        ]
+      },
+      {
+        "son": "i",
+        "etape": "fusionner",
+        "options": [
+          "I",
+          "A",
+          "U"
+        ]
+      },
+      {
+        "son": "o",
+        "etape": "fusionner",
+        "options": [
+          "O",
+          "A",
+          "U"
+        ]
+      },
+      {
+        "son": "o",
+        "etape": "fusionner",
+        "options": [
+          "O",
+          "I",
+          "E"
+        ]
+      },
+      {
+        "son": "o",
+        "etape": "fusionner",
+        "options": [
+          "O",
+          "U",
+          "A"
+        ]
+      },
+      {
+        "son": "u",
+        "etape": "fusionner",
+        "options": [
+          "U",
+          "O",
+          "I"
+        ]
+      },
+      {
+        "son": "u",
+        "etape": "fusionner",
+        "options": [
+          "U",
+          "A",
+          "E"
+        ]
+      },
+      {
+        "son": "u",
+        "etape": "fusionner",
+        "options": [
+          "U",
+          "I",
+          "O"
+        ]
+      }
+    ]
+  },
+  "tri_village": {
+    "ce1-2": [
+      {
+        "items": [
+          {
+            "cat": "États de la matière",
+            "val": "Solide"
+          },
+          {
+            "cat": "États de la matière",
+            "val": "Liquide"
+          },
+          {
+            "cat": "États de la matière",
+            "val": "Gazeux"
+          },
+          {
+            "cat": "Énergie",
+            "val": "Électricité"
+          },
+          {
+            "cat": "Énergie",
+            "val": "Chaleur"
+          },
+          {
+            "cat": "Énergie",
+            "val": "Lumière"
+          }
+        ],
+        "categories": [
+          "États de la matière",
+          "Énergie"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Herbivores",
+            "val": "Vache"
+          },
+          {
+            "cat": "Herbivores",
+            "val": "Mouton"
+          },
+          {
+            "cat": "Herbivores",
+            "val": "Cerf"
+          },
+          {
+            "cat": "Carnivores",
+            "val": "Lion"
+          },
+          {
+            "cat": "Carnivores",
+            "val": "Loup"
+          },
+          {
+            "cat": "Carnivores",
+            "val": "Renard"
+          }
+        ],
+        "categories": [
+          "Herbivores",
+          "Carnivores"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Fractions",
+            "val": "1/2"
+          },
+          {
+            "cat": "Fractions",
+            "val": "3/4"
+          },
+          {
+            "cat": "Nombres entiers",
+            "val": "5"
+          },
+          {
+            "cat": "Nombres entiers",
+            "val": "12"
+          }
+        ],
+        "categories": [
+          "Fractions",
+          "Nombres entiers"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Moyen Âge",
+            "val": "🏰"
+          },
+          {
+            "cat": "Moyen Âge",
+            "val": "⚔️"
+          },
+          {
+            "cat": "Époque moderne",
+            "val": "🏙️"
+          },
+          {
+            "cat": "Époque moderne",
+            "val": "📱"
+          }
+        ],
+        "categories": [
+          "Moyen Âge",
+          "Époque moderne"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Aigre",
+            "val": "🍋"
+          },
+          {
+            "cat": "Aigre",
+            "val": "🍇"
+          },
+          {
+            "cat": "Amer",
+            "val": "☕"
+          },
+          {
+            "cat": "Amer",
+            "val": "🍫"
+          }
+        ],
+        "categories": [
+          "Aigre",
+          "Amer"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se conjugue",
+            "val": "Manger"
+          },
+          {
+            "cat": "Se conjugue",
+            "val": "Aller"
+          },
+          {
+            "cat": "Invariable",
+            "val": "Vite"
+          },
+          {
+            "cat": "Invariable",
+            "val": "Souvent"
+          }
+        ],
+        "categories": [
+          "Se conjugue",
+          "Invariable"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Nombres premiers",
+            "val": "7"
+          },
+          {
+            "cat": "Nombres premiers",
+            "val": "11"
+          },
+          {
+            "cat": "Nombres composés",
+            "val": "8"
+          },
+          {
+            "cat": "Nombres composés",
+            "val": "9"
+          }
+        ],
+        "categories": [
+          "Nombres premiers",
+          "Nombres composés"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Auteur",
+            "val": "✍️"
+          },
+          {
+            "cat": "Auteur",
+            "val": "📝"
+          },
+          {
+            "cat": "Illustrateur",
+            "val": "🎨"
+          },
+          {
+            "cat": "Illustrateur",
+            "val": "🖌️"
+          }
+        ],
+        "categories": [
+          "Auteur",
+          "Illustrateur"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Angle droit",
+            "val": "📐"
+          },
+          {
+            "cat": "Angle droit",
+            "val": "🧱"
+          },
+          {
+            "cat": "Angle arrondi",
+            "val": "⚽"
+          },
+          {
+            "cat": "Angle arrondi",
+            "val": "🥚"
+          }
+        ],
+        "categories": [
+          "Angle droit",
+          "Angle arrondi"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Ere primaire",
+            "val": "🐟"
+          },
+          {
+            "cat": "Ere primaire",
+            "val": "🦂"
+          },
+          {
+            "cat": "Ere secondaire",
+            "val": "🦕"
+          },
+          {
+            "cat": "Ere secondaire",
+            "val": "🦖"
+          }
+        ],
+        "categories": [
+          "Ere primaire",
+          "Ere secondaire"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Climat désertique",
+            "val": "🌵"
+          },
+          {
+            "cat": "Climat désertique",
+            "val": "🦂"
+          },
+          {
+            "cat": "Climat tropical",
+            "val": "🌴"
+          },
+          {
+            "cat": "Climat tropical",
+            "val": "🦜"
+          }
+        ],
+        "categories": [
+          "Climat désertique",
+          "Climat tropical"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Roche sédimentaire",
+            "val": "🪨"
+          },
+          {
+            "cat": "Roche sédimentaire",
+            "val": "🏖️"
+          },
+          {
+            "cat": "Roche volcanique",
+            "val": "🌋"
+          },
+          {
+            "cat": "Roche volcanique",
+            "val": "🔥"
+          }
+        ],
+        "categories": [
+          "Roche sédimentaire",
+          "Roche volcanique"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Animal domestique",
+            "val": "🐕"
+          },
+          {
+            "cat": "Animal domestique",
+            "val": "🐈"
+          },
+          {
+            "cat": "Animal sauvage",
+            "val": "🐺"
+          },
+          {
+            "cat": "Animal sauvage",
+            "val": "🦊"
+          }
+        ],
+        "categories": [
+          "Animal domestique",
+          "Animal sauvage"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Mot au singulier",
+            "val": "Chat"
+          },
+          {
+            "cat": "Mot au singulier",
+            "val": "Maison"
+          },
+          {
+            "cat": "Mot au pluriel",
+            "val": "Chats"
+          },
+          {
+            "cat": "Mot au pluriel",
+            "val": "Maisons"
+          }
+        ],
+        "categories": [
+          "Mot au singulier",
+          "Mot au pluriel"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Métier du passé",
+            "val": "🐴"
+          },
+          {
+            "cat": "Métier du passé",
+            "val": "🕯️"
+          },
+          {
+            "cat": "Métier moderne",
+            "val": "💻"
+          },
+          {
+            "cat": "Métier moderne",
+            "val": "📱"
+          }
+        ],
+        "categories": [
+          "Métier du passé",
+          "Métier moderne"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Île",
+            "val": "🏝️"
+          },
+          {
+            "cat": "Île",
+            "val": "🌴"
+          },
+          {
+            "cat": "Continent",
+            "val": "🗺️"
+          },
+          {
+            "cat": "Continent",
+            "val": "🌍"
+          }
+        ],
+        "categories": [
+          "Île",
+          "Continent"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Monument ancien",
+            "val": "🏛️"
+          },
+          {
+            "cat": "Monument ancien",
+            "val": "🗿"
+          },
+          {
+            "cat": "Bâtiment moderne",
+            "val": "🏢"
+          },
+          {
+            "cat": "Bâtiment moderne",
+            "val": "🏬"
+          }
+        ],
+        "categories": [
+          "Monument ancien",
+          "Bâtiment moderne"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Instrument scientifique",
+            "val": "🔬"
+          },
+          {
+            "cat": "Instrument scientifique",
+            "val": "🧪"
+          },
+          {
+            "cat": "Instrument artistique",
+            "val": "🖌️"
+          },
+          {
+            "cat": "Instrument artistique",
+            "val": "🎨"
+          }
+        ],
+        "categories": [
+          "Instrument scientifique",
+          "Instrument artistique"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Récit imaginaire",
+            "val": "🧚"
+          },
+          {
+            "cat": "Récit imaginaire",
+            "val": "🐉"
+          },
+          {
+            "cat": "Récit vrai",
+            "val": "📰"
+          },
+          {
+            "cat": "Récit vrai",
+            "val": "📸"
+          }
+        ],
+        "categories": [
+          "Récit imaginaire",
+          "Récit vrai"
+        ]
+      }
+    ],
+    "ce1-3": [
+      {
+        "items": [
+          {
+            "cat": "Multiplications",
+            "val": "2x3"
+          },
+          {
+            "cat": "Multiplications",
+            "val": "4x5"
+          },
+          {
+            "cat": "Multiplications",
+            "val": "6x2"
+          },
+          {
+            "cat": "Additions",
+            "val": "2+3"
+          },
+          {
+            "cat": "Additions",
+            "val": "4+5"
+          },
+          {
+            "cat": "Additions",
+            "val": "6+2"
+          }
+        ],
+        "categories": [
+          "Multiplications",
+          "Additions"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Rivières",
+            "val": "Seine"
+          },
+          {
+            "cat": "Rivières",
+            "val": "Loire"
+          },
+          {
+            "cat": "Rivières",
+            "val": "Rhône"
+          },
+          {
+            "cat": "Montagnes",
+            "val": "Alpes"
+          },
+          {
+            "cat": "Montagnes",
+            "val": "Pyrénées"
+          },
+          {
+            "cat": "Montagnes",
+            "val": "Vosges"
+          }
+        ],
+        "categories": [
+          "Rivières",
+          "Montagnes"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Instruments à cordes",
+            "val": "🎻"
+          },
+          {
+            "cat": "Instruments à cordes",
+            "val": "🎸"
+          },
+          {
+            "cat": "Instruments à vent",
+            "val": "🎺"
+          },
+          {
+            "cat": "Instruments à vent",
+            "val": "🎷"
+          }
+        ],
+        "categories": [
+          "Instruments à cordes",
+          "Instruments à vent"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Vertébrés",
+            "val": "🐟"
+          },
+          {
+            "cat": "Vertébrés",
+            "val": "🐦"
+          },
+          {
+            "cat": "Invertébrés",
+            "val": "🐛"
+          },
+          {
+            "cat": "Invertébrés",
+            "val": "🦑"
+          }
+        ],
+        "categories": [
+          "Vertébrés",
+          "Invertébrés"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Sédentaire",
+            "val": "🏠"
+          },
+          {
+            "cat": "Sédentaire",
+            "val": "🐢"
+          },
+          {
+            "cat": "Migrateur",
+            "val": "🦢"
+          },
+          {
+            "cat": "Migrateur",
+            "val": "🦋"
+          }
+        ],
+        "categories": [
+          "Sédentaire",
+          "Migrateur"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Précieux",
+            "val": "💎"
+          },
+          {
+            "cat": "Précieux",
+            "val": "👑"
+          },
+          {
+            "cat": "Commun",
+            "val": "🪨"
+          },
+          {
+            "cat": "Commun",
+            "val": "🌾"
+          }
+        ],
+        "categories": [
+          "Précieux",
+          "Commun"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Diurne",
+            "val": "🦅"
+          },
+          {
+            "cat": "Diurne",
+            "val": "🐿️"
+          },
+          {
+            "cat": "Nocturne",
+            "val": "🦉"
+          },
+          {
+            "cat": "Nocturne",
+            "val": "🦇"
+          }
+        ],
+        "categories": [
+          "Diurne",
+          "Nocturne"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Espèce en danger",
+            "val": "🐼"
+          },
+          {
+            "cat": "Espèce en danger",
+            "val": "🦏"
+          },
+          {
+            "cat": "Espèce commune",
+            "val": "🐦"
+          },
+          {
+            "cat": "Espèce commune",
+            "val": "🐿️"
+          }
+        ],
+        "categories": [
+          "Espèce en danger",
+          "Espèce commune"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se transforme au four",
+            "val": "🍞"
+          },
+          {
+            "cat": "Se transforme au four",
+            "val": "🎂"
+          },
+          {
+            "cat": "Se mange cru",
+            "val": "🥗"
+          },
+          {
+            "cat": "Se mange cru",
+            "val": "🍓"
+          }
+        ],
+        "categories": [
+          "Se transforme au four",
+          "Se mange cru"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Énergie non renouvelable",
+            "val": "🛢️"
+          },
+          {
+            "cat": "Énergie non renouvelable",
+            "val": "⚫"
+          },
+          {
+            "cat": "Énergie renouvelable",
+            "val": "☀️"
+          },
+          {
+            "cat": "Énergie renouvelable",
+            "val": "💨"
+          }
+        ],
+        "categories": [
+          "Énergie non renouvelable",
+          "Énergie renouvelable"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se conjugue à l'imparfait",
+            "val": "Je chantais"
+          },
+          {
+            "cat": "Se conjugue à l'imparfait",
+            "val": "Tu jouais"
+          },
+          {
+            "cat": "Se conjugue au futur",
+            "val": "Je chanterai"
+          },
+          {
+            "cat": "Se conjugue au futur",
+            "val": "Tu joueras"
+          }
+        ],
+        "categories": [
+          "Se conjugue à l'imparfait",
+          "Se conjugue au futur"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Planète intérieure",
+            "val": "🔴"
+          },
+          {
+            "cat": "Planète intérieure",
+            "val": "🌍"
+          },
+          {
+            "cat": "Planète extérieure",
+            "val": "🪐"
+          },
+          {
+            "cat": "Planète extérieure",
+            "val": "🔵"
+          }
+        ],
+        "categories": [
+          "Planète intérieure",
+          "Planète extérieure"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se cultive en champ",
+            "val": "🌾"
+          },
+          {
+            "cat": "Se cultive en champ",
+            "val": "🌽"
+          },
+          {
+            "cat": "Se cultive en verger",
+            "val": "🍎"
+          },
+          {
+            "cat": "Se cultive en verger",
+            "val": "🍐"
+          }
+        ],
+        "categories": [
+          "Se cultive en champ",
+          "Se cultive en verger"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Producteur d'énergie",
+            "val": "☀️"
+          },
+          {
+            "cat": "Producteur d'énergie",
+            "val": "⚡"
+          },
+          {
+            "cat": "Consommateur d'énergie",
+            "val": "💡"
+          },
+          {
+            "cat": "Consommateur d'énergie",
+            "val": "📱"
+          }
+        ],
+        "categories": [
+          "Producteur d'énergie",
+          "Consommateur d'énergie"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Onomatopée d'animal",
+            "val": "Miaou"
+          },
+          {
+            "cat": "Onomatopée d'animal",
+            "val": "Waouf"
+          },
+          {
+            "cat": "Onomatopée de machine",
+            "val": "Vroum"
+          },
+          {
+            "cat": "Onomatopée de machine",
+            "val": "Bip"
+          }
+        ],
+        "categories": [
+          "Onomatopée d'animal",
+          "Onomatopée de machine"
+        ]
+      }
+    ],
+    "ce2-2": [
+      {
+        "items": [
+          {
+            "cat": "Fractions",
+            "val": "1/2"
+          },
+          {
+            "cat": "Fractions",
+            "val": "1/4"
+          },
+          {
+            "cat": "Fractions",
+            "val": "3/4"
+          },
+          {
+            "cat": "Nombres entiers",
+            "val": "5"
+          },
+          {
+            "cat": "Nombres entiers",
+            "val": "12"
+          },
+          {
+            "cat": "Nombres entiers",
+            "val": "100"
+          }
+        ],
+        "categories": [
+          "Fractions",
+          "Nombres entiers"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Capitales européennes",
+            "val": "Paris"
+          },
+          {
+            "cat": "Capitales européennes",
+            "val": "Berlin"
+          },
+          {
+            "cat": "Capitales européennes",
+            "val": "Rome"
+          },
+          {
+            "cat": "Capitales asiatiques",
+            "val": "Tokyo"
+          },
+          {
+            "cat": "Capitales asiatiques",
+            "val": "Pékin"
+          },
+          {
+            "cat": "Capitales asiatiques",
+            "val": "Séoul"
+          }
+        ],
+        "categories": [
+          "Capitales européennes",
+          "Capitales asiatiques"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Roches",
+            "val": "🪨"
+          },
+          {
+            "cat": "Roches",
+            "val": "⛰️"
+          },
+          {
+            "cat": "Minéraux",
+            "val": "💎"
+          },
+          {
+            "cat": "Minéraux",
+            "val": "🔶"
+          }
+        ],
+        "categories": [
+          "Roches",
+          "Minéraux"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Énergie renouvelable",
+            "val": "☀️"
+          },
+          {
+            "cat": "Énergie renouvelable",
+            "val": "💨"
+          },
+          {
+            "cat": "Énergie fossile",
+            "val": "🛢️"
+          },
+          {
+            "cat": "Énergie fossile",
+            "val": "⚫"
+          }
+        ],
+        "categories": [
+          "Énergie renouvelable",
+          "Énergie fossile"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Acide",
+            "val": "🍋"
+          },
+          {
+            "cat": "Acide",
+            "val": "🍶"
+          },
+          {
+            "cat": "Basique",
+            "val": "🧼"
+          },
+          {
+            "cat": "Basique",
+            "val": "🧴"
+          }
+        ],
+        "categories": [
+          "Acide",
+          "Basique"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Régime démocratique",
+            "val": "🗳️"
+          },
+          {
+            "cat": "Régime démocratique",
+            "val": "⚖️"
+          },
+          {
+            "cat": "Régime autoritaire",
+            "val": "👑"
+          },
+          {
+            "cat": "Régime autoritaire",
+            "val": "⛓️"
+          }
+        ],
+        "categories": [
+          "Régime démocratique",
+          "Régime autoritaire"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Isolant",
+            "val": "🪵"
+          },
+          {
+            "cat": "Isolant",
+            "val": "🧵"
+          },
+          {
+            "cat": "Conducteur",
+            "val": "🔧"
+          },
+          {
+            "cat": "Conducteur",
+            "val": "⚡"
+          }
+        ],
+        "categories": [
+          "Isolant",
+          "Conducteur"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Autotrophe",
+            "val": "🌿"
+          },
+          {
+            "cat": "Autotrophe",
+            "val": "🌳"
+          },
+          {
+            "cat": "Hétérotrophe",
+            "val": "🦌"
+          },
+          {
+            "cat": "Hétérotrophe",
+            "val": "🐛"
+          }
+        ],
+        "categories": [
+          "Autotrophe",
+          "Hétérotrophe"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Nombre décimal",
+            "val": "3,5"
+          },
+          {
+            "cat": "Nombre décimal",
+            "val": "7,25"
+          },
+          {
+            "cat": "Nombre entier",
+            "val": "12"
+          },
+          {
+            "cat": "Nombre entier",
+            "val": "48"
+          }
+        ],
+        "categories": [
+          "Nombre décimal",
+          "Nombre entier"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Empire ancien",
+            "val": "🏛️"
+          },
+          {
+            "cat": "Empire ancien",
+            "val": "👑"
+          },
+          {
+            "cat": "Nation moderne",
+            "val": "🏙️"
+          },
+          {
+            "cat": "Nation moderne",
+            "val": "🗳️"
+          }
+        ],
+        "categories": [
+          "Empire ancien",
+          "Nation moderne"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Adjectif qualificatif",
+            "val": "Grand"
+          },
+          {
+            "cat": "Adjectif qualificatif",
+            "val": "Beau"
+          },
+          {
+            "cat": "Adjectif numéral",
+            "val": "Trois"
+          },
+          {
+            "cat": "Adjectif numéral",
+            "val": "Premier"
+          }
+        ],
+        "categories": [
+          "Adjectif qualificatif",
+          "Adjectif numéral"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Guerre ancienne",
+            "val": "⚔️"
+          },
+          {
+            "cat": "Guerre ancienne",
+            "val": "🛡️"
+          },
+          {
+            "cat": "Guerre moderne",
+            "val": "✈️"
+          },
+          {
+            "cat": "Guerre moderne",
+            "val": "🪖"
+          }
+        ],
+        "categories": [
+          "Guerre ancienne",
+          "Guerre moderne"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Sujet du texte",
+            "val": "👤"
+          },
+          {
+            "cat": "Sujet du texte",
+            "val": "👥"
+          },
+          {
+            "cat": "Complément du texte",
+            "val": "📍"
+          },
+          {
+            "cat": "Complément du texte",
+            "val": "⏰"
+          }
+        ],
+        "categories": [
+          "Sujet du texte",
+          "Complément du texte"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Habitat naturel préservé",
+            "val": "🌳"
+          },
+          {
+            "cat": "Habitat naturel préservé",
+            "val": "🏞️"
+          },
+          {
+            "cat": "Habitat urbanisé",
+            "val": "🏙️"
+          },
+          {
+            "cat": "Habitat urbanisé",
+            "val": "🏗️"
+          }
+        ],
+        "categories": [
+          "Habitat naturel préservé",
+          "Habitat urbanisé"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Sujet de conjugaison singulier",
+            "val": "Je"
+          },
+          {
+            "cat": "Sujet de conjugaison singulier",
+            "val": "Il"
+          },
+          {
+            "cat": "Sujet de conjugaison pluriel",
+            "val": "Nous"
+          },
+          {
+            "cat": "Sujet de conjugaison pluriel",
+            "val": "Ils"
+          }
+        ],
+        "categories": [
+          "Sujet de conjugaison singulier",
+          "Sujet de conjugaison pluriel"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Texte narratif",
+            "val": "📖"
+          },
+          {
+            "cat": "Texte narratif",
+            "val": "📜"
+          },
+          {
+            "cat": "Texte informatif",
+            "val": "📰"
+          },
+          {
+            "cat": "Texte informatif",
+            "val": "📊"
+          }
+        ],
+        "categories": [
+          "Texte narratif",
+          "Texte informatif"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Personnage historique",
+            "val": "👑"
+          },
+          {
+            "cat": "Personnage historique",
+            "val": "⚔️"
+          },
+          {
+            "cat": "Personnage de fiction",
+            "val": "🧙"
+          },
+          {
+            "cat": "Personnage de fiction",
+            "val": "🦸"
+          }
+        ],
+        "categories": [
+          "Personnage historique",
+          "Personnage de fiction"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Œuvre picturale",
+            "val": "🖼️"
+          },
+          {
+            "cat": "Œuvre picturale",
+            "val": "🎨"
+          },
+          {
+            "cat": "Œuvre sculptée",
+            "val": "🗿"
+          },
+          {
+            "cat": "Œuvre sculptée",
+            "val": "🏺"
+          }
+        ],
+        "categories": [
+          "Œuvre picturale",
+          "Œuvre sculptée"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Mot de liaison",
+            "val": "Et"
+          },
+          {
+            "cat": "Mot de liaison",
+            "val": "Mais"
+          },
+          {
+            "cat": "Mot de négation",
+            "val": "Ne...pas"
+          },
+          {
+            "cat": "Mot de négation",
+            "val": "Jamais"
+          }
+        ],
+        "categories": [
+          "Mot de liaison",
+          "Mot de négation"
+        ]
+      }
+    ],
+    "ce2-3": [
+      {
+        "items": [
+          {
+            "cat": "Verbes 1er groupe",
+            "val": "Chanter"
+          },
+          {
+            "cat": "Verbes 1er groupe",
+            "val": "Manger"
+          },
+          {
+            "cat": "Verbes 1er groupe",
+            "val": "Parler"
+          },
+          {
+            "cat": "Verbes 2e groupe",
+            "val": "Finir"
+          },
+          {
+            "cat": "Verbes 2e groupe",
+            "val": "Choisir"
+          },
+          {
+            "cat": "Verbes 2e groupe",
+            "val": "Grandir"
+          }
+        ],
+        "categories": [
+          "Verbes 1er groupe",
+          "Verbes 2e groupe"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Multiples de 3",
+            "val": "3"
+          },
+          {
+            "cat": "Multiples de 3",
+            "val": "6"
+          },
+          {
+            "cat": "Multiples de 3",
+            "val": "9"
+          },
+          {
+            "cat": "Multiples de 5",
+            "val": "5"
+          },
+          {
+            "cat": "Multiples de 5",
+            "val": "10"
+          },
+          {
+            "cat": "Multiples de 5",
+            "val": "15"
+          }
+        ],
+        "categories": [
+          "Multiples de 3",
+          "Multiples de 5"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Système solaire",
+            "val": "🪐"
+          },
+          {
+            "cat": "Système solaire",
+            "val": "☄️"
+          },
+          {
+            "cat": "Galaxie",
+            "val": "🌌"
+          },
+          {
+            "cat": "Galaxie",
+            "val": "✨"
+          }
+        ],
+        "categories": [
+          "Système solaire",
+          "Galaxie"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Adjectifs",
+            "val": "Grand"
+          },
+          {
+            "cat": "Adjectifs",
+            "val": "Rapide"
+          },
+          {
+            "cat": "Adverbes",
+            "val": "Rapidement"
+          },
+          {
+            "cat": "Adverbes",
+            "val": "Doucement"
+          }
+        ],
+        "categories": [
+          "Adjectifs",
+          "Adverbes"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Étoile",
+            "val": "☀️"
+          },
+          {
+            "cat": "Étoile",
+            "val": "⭐"
+          },
+          {
+            "cat": "Planète",
+            "val": "🪐"
+          },
+          {
+            "cat": "Planète",
+            "val": "🌍"
+          }
+        ],
+        "categories": [
+          "Étoile",
+          "Planète"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Transformation physique",
+            "val": "🧊"
+          },
+          {
+            "cat": "Transformation physique",
+            "val": "💨"
+          },
+          {
+            "cat": "Transformation chimique",
+            "val": "🔥"
+          },
+          {
+            "cat": "Transformation chimique",
+            "val": "⚗️"
+          }
+        ],
+        "categories": [
+          "Transformation physique",
+          "Transformation chimique"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Producteur",
+            "val": "🌿"
+          },
+          {
+            "cat": "Producteur",
+            "val": "🌳"
+          },
+          {
+            "cat": "Consommateur",
+            "val": "🦌"
+          },
+          {
+            "cat": "Consommateur",
+            "val": "🦁"
+          }
+        ],
+        "categories": [
+          "Producteur",
+          "Consommateur"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Nombre pair",
+            "val": "14"
+          },
+          {
+            "cat": "Nombre pair",
+            "val": "28"
+          },
+          {
+            "cat": "Nombre impair",
+            "val": "15"
+          },
+          {
+            "cat": "Nombre impair",
+            "val": "29"
+          }
+        ],
+        "categories": [
+          "Nombre pair",
+          "Nombre impair"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Instrument de mesure du temps",
+            "val": "⏰"
+          },
+          {
+            "cat": "Instrument de mesure du temps",
+            "val": "⏳"
+          },
+          {
+            "cat": "Instrument de mesure de distance",
+            "val": "📏"
+          },
+          {
+            "cat": "Instrument de mesure de distance",
+            "val": "🧭"
+          }
+        ],
+        "categories": [
+          "Instrument de mesure du temps",
+          "Instrument de mesure de distance"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Fraction inférieure à 1",
+            "val": "1/2"
+          },
+          {
+            "cat": "Fraction inférieure à 1",
+            "val": "3/4"
+          },
+          {
+            "cat": "Fraction supérieure à 1",
+            "val": "5/2"
+          },
+          {
+            "cat": "Fraction supérieure à 1",
+            "val": "7/3"
+          }
+        ],
+        "categories": [
+          "Fraction inférieure à 1",
+          "Fraction supérieure à 1"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Angle aigu",
+            "val": "📐"
+          },
+          {
+            "cat": "Angle aigu",
+            "val": "🔺"
+          },
+          {
+            "cat": "Angle obtus",
+            "val": "📏"
+          },
+          {
+            "cat": "Angle obtus",
+            "val": "◺"
+          }
+        ],
+        "categories": [
+          "Angle aigu",
+          "Angle obtus"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Auteur classique",
+            "val": "🖋️"
+          },
+          {
+            "cat": "Auteur classique",
+            "val": "📜"
+          },
+          {
+            "cat": "Auteur contemporain",
+            "val": "💻"
+          },
+          {
+            "cat": "Auteur contemporain",
+            "val": "📱"
+          }
+        ],
+        "categories": [
+          "Auteur classique",
+          "Auteur contemporain"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Phénomène naturel lent",
+            "val": "🏔️"
+          },
+          {
+            "cat": "Phénomène naturel lent",
+            "val": "🌱"
+          },
+          {
+            "cat": "Phénomène naturel rapide",
+            "val": "⚡"
+          },
+          {
+            "cat": "Phénomène naturel rapide",
+            "val": "🌋"
+          }
+        ],
+        "categories": [
+          "Phénomène naturel lent",
+          "Phénomène naturel rapide"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Unité de temps courte",
+            "val": "⏱️"
+          },
+          {
+            "cat": "Unité de temps courte",
+            "val": "⏰"
+          },
+          {
+            "cat": "Unité de temps longue",
+            "val": "📅"
+          },
+          {
+            "cat": "Unité de temps longue",
+            "val": "🗓️"
+          }
+        ],
+        "categories": [
+          "Unité de temps courte",
+          "Unité de temps longue"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Espace confiné",
+            "val": "🏠"
+          },
+          {
+            "cat": "Espace confiné",
+            "val": "🚗"
+          },
+          {
+            "cat": "Espace ouvert",
+            "val": "🏞️"
+          },
+          {
+            "cat": "Espace ouvert",
+            "val": "🌊"
+          }
+        ],
+        "categories": [
+          "Espace confiné",
+          "Espace ouvert"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Grandeur mesurable directement",
+            "val": "📏"
+          },
+          {
+            "cat": "Grandeur mesurable directement",
+            "val": "⚖️"
+          },
+          {
+            "cat": "Grandeur calculée",
+            "val": "📐"
+          },
+          {
+            "cat": "Grandeur calculée",
+            "val": "🧮"
+          }
+        ],
+        "categories": [
+          "Grandeur mesurable directement",
+          "Grandeur calculée"
+        ]
+      }
+    ],
+    "cp-3": [
+      {
+        "items": [
+          {
+            "cat": "Solides",
+            "val": "Cube"
+          },
+          {
+            "cat": "Solides",
+            "val": "Sphère"
+          },
+          {
+            "cat": "Solides",
+            "val": "Cylindre"
+          },
+          {
+            "cat": "Formes plates",
+            "val": "Carré"
+          },
+          {
+            "cat": "Formes plates",
+            "val": "Cercle"
+          },
+          {
+            "cat": "Formes plates",
+            "val": "Triangle"
+          }
+        ],
+        "categories": [
+          "Solides",
+          "Formes plates"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Planètes",
+            "val": "Mars"
+          },
+          {
+            "cat": "Planètes",
+            "val": "Vénus"
+          },
+          {
+            "cat": "Planètes",
+            "val": "Jupiter"
+          },
+          {
+            "cat": "Objets de l'espace",
+            "val": "Comète"
+          },
+          {
+            "cat": "Objets de l'espace",
+            "val": "Galaxie"
+          },
+          {
+            "cat": "Objets de l'espace",
+            "val": "Satellite"
+          }
+        ],
+        "categories": [
+          "Planètes",
+          "Objets de l'espace"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Solide",
+            "val": "🧊"
+          },
+          {
+            "cat": "Solide",
+            "val": "🪨"
+          },
+          {
+            "cat": "Liquide",
+            "val": "💧"
+          },
+          {
+            "cat": "Liquide",
+            "val": "🥛"
+          }
+        ],
+        "categories": [
+          "Solide",
+          "Liquide"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Herbivores",
+            "val": "🐄"
+          },
+          {
+            "cat": "Herbivores",
+            "val": "🐰"
+          },
+          {
+            "cat": "Herbivores",
+            "val": "🦌"
+          },
+          {
+            "cat": "Carnivores",
+            "val": "🦁"
+          },
+          {
+            "cat": "Carnivores",
+            "val": "🐺"
+          },
+          {
+            "cat": "Carnivores",
+            "val": "🦈"
+          }
+        ],
+        "categories": [
+          "Herbivores",
+          "Carnivores"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Volant",
+            "val": "🦅"
+          },
+          {
+            "cat": "Volant",
+            "val": "🦇"
+          },
+          {
+            "cat": "Rampant",
+            "val": "🐍"
+          },
+          {
+            "cat": "Rampant",
+            "val": "🐌"
+          }
+        ],
+        "categories": [
+          "Volant",
+          "Rampant"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Naturel",
+            "val": "🌳"
+          },
+          {
+            "cat": "Naturel",
+            "val": "⛰️"
+          },
+          {
+            "cat": "Fabriqué",
+            "val": "🏠"
+          },
+          {
+            "cat": "Fabriqué",
+            "val": "🚗"
+          }
+        ],
+        "categories": [
+          "Naturel",
+          "Fabriqué"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se pèse",
+            "val": "⚖️"
+          },
+          {
+            "cat": "Se pèse",
+            "val": "🍎"
+          },
+          {
+            "cat": "Se mesure",
+            "val": "📏"
+          },
+          {
+            "cat": "Se mesure",
+            "val": "📐"
+          }
+        ],
+        "categories": [
+          "Se pèse",
+          "Se mesure"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se lit à voix haute",
+            "val": "📖"
+          },
+          {
+            "cat": "Se lit à voix haute",
+            "val": "📰"
+          },
+          {
+            "cat": "Se regarde en silence",
+            "val": "🖼️"
+          },
+          {
+            "cat": "Se regarde en silence",
+            "val": "📸"
+          }
+        ],
+        "categories": [
+          "Se lit à voix haute",
+          "Se regarde en silence"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Odeur agréable",
+            "val": "🌸"
+          },
+          {
+            "cat": "Odeur agréable",
+            "val": "🍰"
+          },
+          {
+            "cat": "Odeur désagréable",
+            "val": "🗑️"
+          },
+          {
+            "cat": "Odeur désagréable",
+            "val": "🧦"
+          }
+        ],
+        "categories": [
+          "Odeur agréable",
+          "Odeur désagréable"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se conjugue au présent",
+            "val": "Je mange"
+          },
+          {
+            "cat": "Se conjugue au présent",
+            "val": "Tu cours"
+          },
+          {
+            "cat": "Se conjugue au passé",
+            "val": "J'ai mangé"
+          },
+          {
+            "cat": "Se conjugue au passé",
+            "val": "Tu as couru"
+          }
+        ],
+        "categories": [
+          "Se conjugue au présent",
+          "Se conjugue au passé"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se recharge",
+            "val": "🔋"
+          },
+          {
+            "cat": "Se recharge",
+            "val": "📱"
+          },
+          {
+            "cat": "Ne se recharge pas",
+            "val": "📖"
+          },
+          {
+            "cat": "Ne se recharge pas",
+            "val": "✏️"
+          }
+        ],
+        "categories": [
+          "Se recharge",
+          "Ne se recharge pas"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Fait partie du corps",
+            "val": "👁️"
+          },
+          {
+            "cat": "Fait partie du corps",
+            "val": "👂"
+          },
+          {
+            "cat": "Fait partie d'une maison",
+            "val": "🚪"
+          },
+          {
+            "cat": "Fait partie d'une maison",
+            "val": "🪟"
+          }
+        ],
+        "categories": [
+          "Fait partie du corps",
+          "Fait partie d'une maison"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se joue en équipe",
+            "val": "⚽"
+          },
+          {
+            "cat": "Se joue en équipe",
+            "val": "🏀"
+          },
+          {
+            "cat": "Se joue seul",
+            "val": "♟️"
+          },
+          {
+            "cat": "Se joue seul",
+            "val": "🧩"
+          }
+        ],
+        "categories": [
+          "Se joue en équipe",
+          "Se joue seul"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se fabrique à la main",
+            "val": "🧶"
+          },
+          {
+            "cat": "Se fabrique à la main",
+            "val": "🏺"
+          },
+          {
+            "cat": "Se fabrique en usine",
+            "val": "🚗"
+          },
+          {
+            "cat": "Se fabrique en usine",
+            "val": "📱"
+          }
+        ],
+        "categories": [
+          "Se fabrique à la main",
+          "Se fabrique en usine"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Sport d'hiver",
+            "val": "⛷️"
+          },
+          {
+            "cat": "Sport d'hiver",
+            "val": "⛸️"
+          },
+          {
+            "cat": "Sport d'été",
+            "val": "🏊"
+          },
+          {
+            "cat": "Sport d'été",
+            "val": "🎾"
+          }
+        ],
+        "categories": [
+          "Sport d'hiver",
+          "Sport d'été"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Fête religieuse",
+            "val": "⛪"
+          },
+          {
+            "cat": "Fête religieuse",
+            "val": "🕯️"
+          },
+          {
+            "cat": "Fête laïque",
+            "val": "🎆"
+          },
+          {
+            "cat": "Fête laïque",
+            "val": "🎊"
+          }
+        ],
+        "categories": [
+          "Fête religieuse",
+          "Fête laïque"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Sport de balle",
+            "val": "⚽"
+          },
+          {
+            "cat": "Sport de balle",
+            "val": "🎾"
+          },
+          {
+            "cat": "Sport de course",
+            "val": "🏃"
+          },
+          {
+            "cat": "Sport de course",
+            "val": "🚴"
+          }
+        ],
+        "categories": [
+          "Sport de balle",
+          "Sport de course"
+        ]
+      }
+    ],
+    "gs-3": [
+      {
+        "items": [
+          {
+            "cat": "Équipe",
+            "val": "⚽"
+          },
+          {
+            "cat": "Équipe",
+            "val": "🏀"
+          },
+          {
+            "cat": "Équipe",
+            "val": "🏈"
+          },
+          {
+            "cat": "Individuel",
+            "val": "🎾"
+          },
+          {
+            "cat": "Individuel",
+            "val": "🏸"
+          },
+          {
+            "cat": "Individuel",
+            "val": "⛳"
+          },
+          {
+            "cat": "Aquatique",
+            "val": "🏊"
+          },
+          {
+            "cat": "Aquatique",
+            "val": "🤽"
+          },
+          {
+            "cat": "Aquatique",
+            "val": "🚣"
+          }
+        ],
+        "categories": [
+          "Équipe",
+          "Individuel",
+          "Aquatique"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Planètes",
+            "val": "🪐"
+          },
+          {
+            "cat": "Planètes",
+            "val": "🌍"
+          },
+          {
+            "cat": "Planètes",
+            "val": "🌕"
+          },
+          {
+            "cat": "Espace",
+            "val": "⭐"
+          },
+          {
+            "cat": "Espace",
+            "val": "☄️"
+          },
+          {
+            "cat": "Espace",
+            "val": "🌌"
+          },
+          {
+            "cat": "Nature",
+            "val": "🌳"
+          },
+          {
+            "cat": "Nature",
+            "val": "🌸"
+          },
+          {
+            "cat": "Nature",
+            "val": "🍄"
+          }
+        ],
+        "categories": [
+          "Planètes",
+          "Espace",
+          "Nature"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Émotions joyeuses",
+            "val": "😄"
+          },
+          {
+            "cat": "Émotions joyeuses",
+            "val": "🥳"
+          },
+          {
+            "cat": "Émotions joyeuses",
+            "val": "😍"
+          },
+          {
+            "cat": "Émotions tristes",
+            "val": "😢"
+          },
+          {
+            "cat": "Émotions tristes",
+            "val": "😞"
+          },
+          {
+            "cat": "Émotions tristes",
+            "val": "😔"
+          }
+        ],
+        "categories": [
+          "Émotions joyeuses",
+          "Émotions tristes"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Jour",
+            "val": "☀️"
+          },
+          {
+            "cat": "Jour",
+            "val": "🌤️"
+          },
+          {
+            "cat": "Jour",
+            "val": "🦋"
+          },
+          {
+            "cat": "Nuit",
+            "val": "🌙"
+          },
+          {
+            "cat": "Nuit",
+            "val": "⭐"
+          },
+          {
+            "cat": "Nuit",
+            "val": "🦉"
+          }
+        ],
+        "categories": [
+          "Jour",
+          "Nuit"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Froid (climat)",
+            "val": "🐧"
+          },
+          {
+            "cat": "Froid (climat)",
+            "val": "🐻‍❄️"
+          },
+          {
+            "cat": "Chaud (climat)",
+            "val": "🐫"
+          },
+          {
+            "cat": "Chaud (climat)",
+            "val": "🦁"
+          }
+        ],
+        "categories": [
+          "Froid (climat)",
+          "Chaud (climat)"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se plante",
+            "val": "🌱"
+          },
+          {
+            "cat": "Se plante",
+            "val": "🌻"
+          },
+          {
+            "cat": "Se récolte",
+            "val": "🍎"
+          },
+          {
+            "cat": "Se récolte",
+            "val": "🥕"
+          }
+        ],
+        "categories": [
+          "Se plante",
+          "Se récolte"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Métiers en extérieur",
+            "val": "👷"
+          },
+          {
+            "cat": "Métiers en extérieur",
+            "val": "🧑‍🌾"
+          },
+          {
+            "cat": "Métiers en intérieur",
+            "val": "👨‍🏫"
+          },
+          {
+            "cat": "Métiers en intérieur",
+            "val": "👩‍💻"
+          }
+        ],
+        "categories": [
+          "Métiers en extérieur",
+          "Métiers en intérieur"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Sport d'équipe",
+            "val": "⚽"
+          },
+          {
+            "cat": "Sport d'équipe",
+            "val": "🏀"
+          },
+          {
+            "cat": "Sport individuel",
+            "val": "🏊"
+          },
+          {
+            "cat": "Sport individuel",
+            "val": "🎾"
+          }
+        ],
+        "categories": [
+          "Sport d'équipe",
+          "Sport individuel"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Animal de compagnie",
+            "val": "🐶"
+          },
+          {
+            "cat": "Animal de compagnie",
+            "val": "🐱"
+          },
+          {
+            "cat": "Animal de la ferme",
+            "val": "🐄"
+          },
+          {
+            "cat": "Animal de la ferme",
+            "val": "🐖"
+          }
+        ],
+        "categories": [
+          "Animal de compagnie",
+          "Animal de la ferme"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Dans la classe",
+            "val": "📖"
+          },
+          {
+            "cat": "Dans la classe",
+            "val": "🪑"
+          },
+          {
+            "cat": "Dans la cour",
+            "val": "⚽"
+          },
+          {
+            "cat": "Dans la cour",
+            "val": "🏃"
+          }
+        ],
+        "categories": [
+          "Dans la classe",
+          "Dans la cour"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Pousse dans un jardin",
+            "val": "🌻"
+          },
+          {
+            "cat": "Pousse dans un jardin",
+            "val": "🥕"
+          },
+          {
+            "cat": "Pousse dans une forêt",
+            "val": "🌲"
+          },
+          {
+            "cat": "Pousse dans une forêt",
+            "val": "🍄"
+          }
+        ],
+        "categories": [
+          "Pousse dans un jardin",
+          "Pousse dans une forêt"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se répare avec un outil",
+            "val": "🔧"
+          },
+          {
+            "cat": "Se répare avec un outil",
+            "val": "🔨"
+          },
+          {
+            "cat": "Se soigne",
+            "val": "💊"
+          },
+          {
+            "cat": "Se soigne",
+            "val": "🩹"
+          }
+        ],
+        "categories": [
+          "Se répare avec un outil",
+          "Se soigne"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se cultive",
+            "val": "🌾"
+          },
+          {
+            "cat": "Se cultive",
+            "val": "🍇"
+          },
+          {
+            "cat": "Se pêche",
+            "val": "🐟"
+          },
+          {
+            "cat": "Se pêche",
+            "val": "🦐"
+          }
+        ],
+        "categories": [
+          "Se cultive",
+          "Se pêche"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se mange avec les doigts",
+            "val": "🍟"
+          },
+          {
+            "cat": "Se mange avec les doigts",
+            "val": "🍪"
+          },
+          {
+            "cat": "Se mange avec des couverts",
+            "val": "🍝"
+          },
+          {
+            "cat": "Se mange avec des couverts",
+            "val": "🍲"
+          }
+        ],
+        "categories": [
+          "Se mange avec les doigts",
+          "Se mange avec des couverts"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se conduit sur route",
+            "val": "🚗"
+          },
+          {
+            "cat": "Se conduit sur route",
+            "val": "🏍️"
+          },
+          {
+            "cat": "Se conduit sur eau",
+            "val": "🚤"
+          },
+          {
+            "cat": "Se conduit sur eau",
+            "val": "⛵"
+          }
+        ],
+        "categories": [
+          "Se conduit sur route",
+          "Se conduit sur eau"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Objet du bureau",
+            "val": "📎"
+          },
+          {
+            "cat": "Objet du bureau",
+            "val": "📌"
+          },
+          {
+            "cat": "Objet de la cuisine",
+            "val": "🍴"
+          },
+          {
+            "cat": "Objet de la cuisine",
+            "val": "🥣"
+          }
+        ],
+        "categories": [
+          "Objet du bureau",
+          "Objet de la cuisine"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Meuble du salon",
+            "val": "🛋️"
+          },
+          {
+            "cat": "Meuble du salon",
+            "val": "📺"
+          },
+          {
+            "cat": "Meuble de la cuisine",
+            "val": "🍽️"
+          },
+          {
+            "cat": "Meuble de la cuisine",
+            "val": "🔪"
+          }
+        ],
+        "categories": [
+          "Meuble du salon",
+          "Meuble de la cuisine"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Sert à mesurer le temps",
+            "val": "⏰"
+          },
+          {
+            "cat": "Sert à mesurer le temps",
+            "val": "⏳"
+          },
+          {
+            "cat": "Sert à mesurer la distance",
+            "val": "📏"
+          },
+          {
+            "cat": "Sert à mesurer la distance",
+            "val": "🧭"
+          }
+        ],
+        "categories": [
+          "Sert à mesurer le temps",
+          "Sert à mesurer la distance"
+        ]
+      }
+    ],
+    "ms-3": [
+      {
+        "items": [
+          {
+            "cat": "Fruits",
+            "val": "🍎"
+          },
+          {
+            "cat": "Fruits",
+            "val": "🍌"
+          },
+          {
+            "cat": "Fruits",
+            "val": "🍇"
+          },
+          {
+            "cat": "Légumes",
+            "val": "🥕"
+          },
+          {
+            "cat": "Légumes",
+            "val": "🥦"
+          },
+          {
+            "cat": "Légumes",
+            "val": "🌽"
+          },
+          {
+            "cat": "Animaux",
+            "val": "🐶"
+          },
+          {
+            "cat": "Animaux",
+            "val": "🐱"
+          },
+          {
+            "cat": "Animaux",
+            "val": "🐰"
+          }
+        ],
+        "categories": [
+          "Fruits",
+          "Légumes",
+          "Animaux"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Ciel",
+            "val": "☀️"
+          },
+          {
+            "cat": "Ciel",
+            "val": "🌙"
+          },
+          {
+            "cat": "Ciel",
+            "val": "⭐"
+          },
+          {
+            "cat": "Mer",
+            "val": "🐟"
+          },
+          {
+            "cat": "Mer",
+            "val": "🐬"
+          },
+          {
+            "cat": "Mer",
+            "val": "🐙"
+          },
+          {
+            "cat": "Terre",
+            "val": "🌳"
+          },
+          {
+            "cat": "Terre",
+            "val": "🌸"
+          },
+          {
+            "cat": "Terre",
+            "val": "🍄"
+          }
+        ],
+        "categories": [
+          "Ciel",
+          "Mer",
+          "Terre"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Chaud",
+            "val": "☀️"
+          },
+          {
+            "cat": "Chaud",
+            "val": "🔥"
+          },
+          {
+            "cat": "Chaud",
+            "val": "🌋"
+          },
+          {
+            "cat": "Froid",
+            "val": "❄️"
+          },
+          {
+            "cat": "Froid",
+            "val": "🧊"
+          },
+          {
+            "cat": "Froid",
+            "val": "⛄"
+          }
+        ],
+        "categories": [
+          "Chaud",
+          "Froid"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Rond",
+            "val": "⚽"
+          },
+          {
+            "cat": "Rond",
+            "val": "🍎"
+          },
+          {
+            "cat": "Rond",
+            "val": "🌕"
+          },
+          {
+            "cat": "Carré",
+            "val": "📦"
+          },
+          {
+            "cat": "Carré",
+            "val": "🎲"
+          },
+          {
+            "cat": "Carré",
+            "val": "🪟"
+          }
+        ],
+        "categories": [
+          "Rond",
+          "Carré"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Dur",
+            "val": "🪨"
+          },
+          {
+            "cat": "Dur",
+            "val": "🧱"
+          },
+          {
+            "cat": "Dur",
+            "val": "🔨"
+          },
+          {
+            "cat": "Mou",
+            "val": "🧸"
+          },
+          {
+            "cat": "Mou",
+            "val": "🛏️"
+          },
+          {
+            "cat": "Mou",
+            "val": "☁️"
+          }
+        ],
+        "categories": [
+          "Dur",
+          "Mou"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Maison",
+            "val": "🛋️"
+          },
+          {
+            "cat": "Maison",
+            "val": "🛏️"
+          },
+          {
+            "cat": "Maison",
+            "val": "🚪"
+          },
+          {
+            "cat": "Extérieur",
+            "val": "🌳"
+          },
+          {
+            "cat": "Extérieur",
+            "val": "⛲"
+          },
+          {
+            "cat": "Extérieur",
+            "val": "🚲"
+          }
+        ],
+        "categories": [
+          "Maison",
+          "Extérieur"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Ça se porte",
+            "val": "👕"
+          },
+          {
+            "cat": "Ça se porte",
+            "val": "🧢"
+          },
+          {
+            "cat": "Ça se conduit",
+            "val": "🚗"
+          },
+          {
+            "cat": "Ça se conduit",
+            "val": "🚲"
+          }
+        ],
+        "categories": [
+          "Ça se porte",
+          "Ça se conduit"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Fait du bruit",
+            "val": "🔔"
+          },
+          {
+            "cat": "Fait du bruit",
+            "val": "📯"
+          },
+          {
+            "cat": "Silencieux",
+            "val": "📖"
+          },
+          {
+            "cat": "Silencieux",
+            "val": "🖼️"
+          }
+        ],
+        "categories": [
+          "Fait du bruit",
+          "Silencieux"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Métal",
+            "val": "🔑"
+          },
+          {
+            "cat": "Métal",
+            "val": "🥄"
+          },
+          {
+            "cat": "Plastique",
+            "val": "🧸"
+          },
+          {
+            "cat": "Plastique",
+            "val": "🪣"
+          }
+        ],
+        "categories": [
+          "Métal",
+          "Plastique"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Vole dans le ciel",
+            "val": "🦋"
+          },
+          {
+            "cat": "Vole dans le ciel",
+            "val": "🐝"
+          },
+          {
+            "cat": "Nage dans l'eau",
+            "val": "🐬"
+          },
+          {
+            "cat": "Nage dans l'eau",
+            "val": "🦭"
+          }
+        ],
+        "categories": [
+          "Vole dans le ciel",
+          "Nage dans l'eau"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Grimpe aux arbres",
+            "val": "🐿️"
+          },
+          {
+            "cat": "Grimpe aux arbres",
+            "val": "🐒"
+          },
+          {
+            "cat": "Reste au sol",
+            "val": "🐢"
+          },
+          {
+            "cat": "Reste au sol",
+            "val": "🐌"
+          }
+        ],
+        "categories": [
+          "Grimpe aux arbres",
+          "Reste au sol"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Frotte",
+            "val": "🧽"
+          },
+          {
+            "cat": "Frotte",
+            "val": "🧹"
+          },
+          {
+            "cat": "Coupe",
+            "val": "✂️"
+          },
+          {
+            "cat": "Coupe",
+            "val": "🔪"
+          }
+        ],
+        "categories": [
+          "Frotte",
+          "Coupe"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Roule",
+            "val": "⚽"
+          },
+          {
+            "cat": "Roule",
+            "val": "🚗"
+          },
+          {
+            "cat": "Glisse",
+            "val": "🛷"
+          },
+          {
+            "cat": "Glisse",
+            "val": "⛸️"
+          }
+        ],
+        "categories": [
+          "Roule",
+          "Glisse"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se boit chaud",
+            "val": "☕"
+          },
+          {
+            "cat": "Se boit chaud",
+            "val": "🍵"
+          },
+          {
+            "cat": "Se boit frais",
+            "val": "🧊"
+          },
+          {
+            "cat": "Se boit frais",
+            "val": "🥤"
+          }
+        ],
+        "categories": [
+          "Se boit chaud",
+          "Se boit frais"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Marche sur 2 pattes",
+            "val": "🐔"
+          },
+          {
+            "cat": "Marche sur 2 pattes",
+            "val": "🐧"
+          },
+          {
+            "cat": "Marche sur 4 pattes",
+            "val": "🐕"
+          },
+          {
+            "cat": "Marche sur 4 pattes",
+            "val": "🐎"
+          }
+        ],
+        "categories": [
+          "Marche sur 2 pattes",
+          "Marche sur 4 pattes"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Fait des petits",
+            "val": "🐰"
+          },
+          {
+            "cat": "Fait des petits",
+            "val": "🐈"
+          },
+          {
+            "cat": "Pond des oeufs",
+            "val": "🐔"
+          },
+          {
+            "cat": "Pond des oeufs",
+            "val": "🐢"
+          }
+        ],
+        "categories": [
+          "Fait des petits",
+          "Pond des oeufs"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "A un moteur",
+            "val": "🚗"
+          },
+          {
+            "cat": "A un moteur",
+            "val": "🏍️"
+          },
+          {
+            "cat": "N'a pas de moteur",
+            "val": "🚲"
+          },
+          {
+            "cat": "N'a pas de moteur",
+            "val": "🛴"
+          }
+        ],
+        "categories": [
+          "A un moteur",
+          "N'a pas de moteur"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Se lave à l'eau",
+            "val": "🍇"
+          },
+          {
+            "cat": "Se lave à l'eau",
+            "val": "🥕"
+          },
+          {
+            "cat": "S'épluche",
+            "val": "🍌"
+          },
+          {
+            "cat": "S'épluche",
+            "val": "🍊"
+          }
+        ],
+        "categories": [
+          "Se lave à l'eau",
+          "S'épluche"
+        ]
+      },
+      {
+        "items": [
+          {
+            "cat": "Fait du bruit fort",
+            "val": "📯"
+          },
+          {
+            "cat": "Fait du bruit fort",
+            "val": "🥁"
+          },
+          {
+            "cat": "Fait un bruit doux",
+            "val": "🔕"
+          },
+          {
+            "cat": "Fait un bruit doux",
+            "val": "🎐"
+          }
+        ],
+        "categories": [
+          "Fait du bruit fort",
+          "Fait un bruit doux"
+        ]
+      }
+    ]
+  },
+  "balance_prairie": {
+    "cp-1": [
+      {
+        "etape": "equilibre",
+        "gauche": 35,
+        "manque": 15,
+        "options": [
+          15,
+          14,
+          16
+        ],
+        "droit_connu": 20
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 40,
+        "manque": 15,
+        "options": [
+          15,
+          16,
+          14
+        ],
+        "droit_connu": 25
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 28,
+        "manque": 15,
+        "options": [
+          15,
+          14,
+          16
+        ],
+        "droit_connu": 13
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 26,
+        "manque": 16,
+        "options": [
+          15,
+          16,
+          17
+        ],
+        "droit_connu": 10
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 50,
+        "manque": 41,
+        "options": [
+          40,
+          42,
+          41
+        ],
+        "droit_connu": 9
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 21,
+        "manque": 1,
+        "options": [
+          2,
+          1,
+          3
+        ],
+        "droit_connu": 20
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 33,
+        "manque": 19,
+        "options": [
+          20,
+          18,
+          19
+        ],
+        "droit_connu": 14
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 44,
+        "manque": 22,
+        "options": [
+          23,
+          21,
+          22
+        ],
+        "droit_connu": 22
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 58,
+        "manque": 28,
+        "options": [
+          29,
+          27,
+          28
+        ],
+        "droit_connu": 30
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 37,
+        "manque": 21,
+        "options": [
+          22,
+          20,
+          21
+        ],
+        "droit_connu": 16
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 29,
+        "manque": 21,
+        "options": [
+          22,
+          20,
+          21
+        ],
+        "droit_connu": 8
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 55,
+        "manque": 22,
+        "options": [
+          23,
+          21,
+          22
+        ],
+        "droit_connu": 33
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 51,
+        "manque": 7,
+        "options": [
+          8,
+          6,
+          7
+        ],
+        "droit_connu": 44
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 54,
+        "manque": 11,
+        "options": [
+          12,
+          11,
+          10
+        ],
+        "droit_connu": 43
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 51,
+        "manque": 37,
+        "options": [
+          37,
+          38,
+          36
+        ],
+        "droit_connu": 14
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 22,
+        "manque": 10,
+        "options": [
+          11,
+          10,
+          9
+        ],
+        "droit_connu": 12
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 25,
+        "manque": 17,
+        "options": [
+          17,
+          16,
+          18
+        ],
+        "droit_connu": 8
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 48,
+        "manque": 30,
+        "options": [
+          32,
+          28,
+          30
+        ],
+        "droit_connu": 18
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 30,
+        "manque": 2,
+        "options": [
+          4,
+          2,
+          1
+        ],
+        "droit_connu": 28
+      }
+    ],
+    "cp-3": [
+      {
+        "etape": "equilibre",
+        "gauche": 60,
+        "manque": 35,
+        "options": [
+          35,
+          34,
+          36
+        ],
+        "droit_connu": 25
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 55,
+        "manque": 27,
+        "options": [
+          27,
+          26,
+          28
+        ],
+        "droit_connu": 28
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 48,
+        "manque": 26,
+        "options": [
+          26,
+          25,
+          27
+        ],
+        "droit_connu": 22
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 53,
+        "manque": 37,
+        "options": [
+          36,
+          38,
+          37
+        ],
+        "droit_connu": 16
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 45,
+        "manque": 21,
+        "options": [
+          22,
+          21,
+          20
+        ],
+        "droit_connu": 24
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 90,
+        "manque": 29,
+        "options": [
+          28,
+          30,
+          29
+        ],
+        "droit_connu": 61
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 50,
+        "manque": 18,
+        "options": [
+          19,
+          17,
+          18
+        ],
+        "droit_connu": 32
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 71,
+        "manque": 60,
+        "options": [
+          59,
+          61,
+          60
+        ],
+        "droit_connu": 11
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 81,
+        "manque": 69,
+        "options": [
+          68,
+          70,
+          69
+        ],
+        "droit_connu": 12
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 91,
+        "manque": 2,
+        "options": [
+          3,
+          1,
+          2
+        ],
+        "droit_connu": 89
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 39,
+        "manque": 4,
+        "options": [
+          4,
+          5,
+          3
+        ],
+        "droit_connu": 35
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 35,
+        "manque": 17,
+        "options": [
+          18,
+          16,
+          17
+        ],
+        "droit_connu": 18
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 48,
+        "manque": 21,
+        "options": [
+          22,
+          21,
+          20
+        ],
+        "droit_connu": 27
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 88,
+        "manque": 61,
+        "options": [
+          60,
+          62,
+          61
+        ],
+        "droit_connu": 27
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 30,
+        "manque": 7,
+        "options": [
+          6,
+          8,
+          7
+        ],
+        "droit_connu": 23
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 72,
+        "manque": 43,
+        "options": [
+          42,
+          44,
+          43
+        ],
+        "droit_connu": 29
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 49,
+        "manque": 38,
+        "options": [
+          39,
+          37,
+          38
+        ],
+        "droit_connu": 11
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 39,
+        "manque": 2,
+        "options": [
+          2,
+          3,
+          1
+        ],
+        "droit_connu": 37
+      },
+      {
+        "etape": "equilibre",
+        "gauche": 44,
+        "manque": 33,
+        "options": [
+          35,
+          31,
+          33
+        ],
+        "droit_connu": 11
+      }
+    ]
+  },
+  "marche_village": {
+    "ce1-3": [
+      {
+        "paye": 400,
+        "prix": 340,
+        "etape": "monnaie",
+        "rendu": 60,
+        "options": [
+          60,
+          59,
+          61
+        ]
+      },
+      {
+        "paye": 350,
+        "prix": 280,
+        "etape": "monnaie",
+        "rendu": 70,
+        "options": [
+          70,
+          69,
+          71
+        ]
+      },
+      {
+        "paye": 250,
+        "prix": 195,
+        "etape": "monnaie",
+        "rendu": 55,
+        "options": [
+          55,
+          54,
+          56
+        ]
+      },
+      {
+        "paye": 400,
+        "prix": 312,
+        "etape": "monnaie",
+        "rendu": 88,
+        "options": [
+          88,
+          87,
+          89
+        ]
+      },
+      {
+        "paye": 450,
+        "prix": 365,
+        "etape": "monnaie",
+        "rendu": 85,
+        "options": [
+          85,
+          84,
+          86
+        ]
+      },
+      {
+        "paye": 350,
+        "prix": 298,
+        "etape": "monnaie",
+        "rendu": 52,
+        "options": [
+          52,
+          51,
+          53
+        ]
+      },
+      {
+        "paye": 300,
+        "prix": 227,
+        "etape": "monnaie",
+        "rendu": 73,
+        "options": [
+          73,
+          72,
+          74
+        ]
+      },
+      {
+        "paye": 400,
+        "prix": 341,
+        "etape": "monnaie",
+        "rendu": 59,
+        "options": [
+          59,
+          58,
+          60
+        ]
+      },
+      {
+        "paye": 156,
+        "prix": 67,
+        "etape": "monnaie",
+        "rendu": 89,
+        "options": [
+          90,
+          89,
+          88
+        ]
+      },
+      {
+        "paye": 302,
+        "prix": 97,
+        "etape": "monnaie",
+        "rendu": 205,
+        "options": [
+          206,
+          204,
+          205
+        ]
+      },
+      {
+        "paye": 228,
+        "prix": 187,
+        "etape": "monnaie",
+        "rendu": 41,
+        "options": [
+          40,
+          42,
+          41
+        ]
+      },
+      {
+        "paye": 444,
+        "prix": 221,
+        "etape": "monnaie",
+        "rendu": 223,
+        "options": [
+          222,
+          224,
+          223
+        ]
+      },
+      {
+        "paye": 259,
+        "prix": 142,
+        "etape": "monnaie",
+        "rendu": 117,
+        "options": [
+          116,
+          117,
+          118
+        ]
+      },
+      {
+        "paye": 446,
+        "prix": 60,
+        "etape": "monnaie",
+        "rendu": 386,
+        "options": [
+          384,
+          386,
+          388
+        ]
+      },
+      {
+        "paye": 362,
+        "prix": 117,
+        "etape": "monnaie",
+        "rendu": 245,
+        "options": [
+          247,
+          243,
+          245
+        ]
+      },
+      {
+        "paye": 342,
+        "prix": 71,
+        "etape": "monnaie",
+        "rendu": 271,
+        "options": [
+          271,
+          268,
+          274
+        ]
+      },
+      {
+        "paye": 229,
+        "prix": 74,
+        "etape": "monnaie",
+        "rendu": 155,
+        "options": [
+          158,
+          155,
+          152
+        ]
+      },
+      {
+        "paye": 251,
+        "prix": 138,
+        "etape": "monnaie",
+        "rendu": 113,
+        "options": [
+          110,
+          113,
+          116
+        ]
+      },
+      {
+        "paye": 325,
+        "prix": 240,
+        "etape": "monnaie",
+        "rendu": 85,
+        "options": [
+          85,
+          88,
+          82
+        ]
+      }
+    ],
+    "ce2-3": [
+      {
+        "paye": 1500,
+        "prix": 1250,
+        "etape": "monnaie",
+        "rendu": 250,
+        "options": [
+          250,
+          249,
+          251
+        ]
+      },
+      {
+        "paye": 2000,
+        "prix": 1875,
+        "etape": "monnaie",
+        "rendu": 125,
+        "options": [
+          125,
+          124,
+          126
+        ]
+      },
+      {
+        "paye": 1000,
+        "prix": 940,
+        "etape": "monnaie",
+        "rendu": 60,
+        "options": [
+          60,
+          59,
+          61
+        ]
+      },
+      {
+        "paye": 1500,
+        "prix": 1420,
+        "etape": "monnaie",
+        "rendu": 80,
+        "options": [
+          80,
+          79,
+          81
+        ]
+      },
+      {
+        "paye": 2000,
+        "prix": 1650,
+        "etape": "monnaie",
+        "rendu": 350,
+        "options": [
+          350,
+          349,
+          351
+        ]
+      },
+      {
+        "paye": 1200,
+        "prix": 980,
+        "etape": "monnaie",
+        "rendu": 220,
+        "options": [
+          220,
+          219,
+          221
+        ]
+      },
+      {
+        "paye": 2000,
+        "prix": 1875,
+        "etape": "monnaie",
+        "rendu": 125,
+        "options": [
+          125,
+          124,
+          126
+        ]
+      },
+      {
+        "paye": 1500,
+        "prix": 1290,
+        "etape": "monnaie",
+        "rendu": 210,
+        "options": [
+          210,
+          209,
+          211
+        ]
+      },
+      {
+        "paye": 1688,
+        "prix": 1662,
+        "etape": "monnaie",
+        "rendu": 26,
+        "options": [
+          27,
+          25,
+          26
+        ]
+      },
+      {
+        "paye": 1469,
+        "prix": 1181,
+        "etape": "monnaie",
+        "rendu": 288,
+        "options": [
+          288,
+          289,
+          287
+        ]
+      },
+      {
+        "paye": 710,
+        "prix": 621,
+        "etape": "monnaie",
+        "rendu": 89,
+        "options": [
+          88,
+          89,
+          90
+        ]
+      },
+      {
+        "paye": 963,
+        "prix": 692,
+        "etape": "monnaie",
+        "rendu": 271,
+        "options": [
+          272,
+          271,
+          270
+        ]
+      },
+      {
+        "paye": 1850,
+        "prix": 513,
+        "etape": "monnaie",
+        "rendu": 1337,
+        "options": [
+          1337,
+          1338,
+          1336
+        ]
+      },
+      {
+        "paye": 1545,
+        "prix": 1145,
+        "etape": "monnaie",
+        "rendu": 400,
+        "options": [
+          398,
+          400,
+          402
+        ]
+      },
+      {
+        "paye": 1427,
+        "prix": 555,
+        "etape": "monnaie",
+        "rendu": 872,
+        "options": [
+          872,
+          870,
+          874
+        ]
+      },
+      {
+        "paye": 1830,
+        "prix": 701,
+        "etape": "monnaie",
+        "rendu": 1129,
+        "options": [
+          1126,
+          1129,
+          1132
+        ]
+      },
+      {
+        "paye": 803,
+        "prix": 780,
+        "etape": "monnaie",
+        "rendu": 23,
+        "options": [
+          26,
+          23,
+          20
+        ]
+      },
+      {
+        "paye": 770,
+        "prix": 665,
+        "etape": "monnaie",
+        "rendu": 105,
+        "options": [
+          108,
+          105,
+          102
+        ]
+      },
+      {
+        "paye": 1366,
+        "prix": 404,
+        "etape": "monnaie",
+        "rendu": 962,
+        "options": [
+          962,
+          965,
+          959
+        ]
+      }
+    ],
+    "cp-3": [
+      {
+        "paye": 100,
+        "prix": 85,
+        "etape": "monnaie",
+        "rendu": 15,
+        "options": [
+          15,
+          14,
+          16
+        ]
+      },
+      {
+        "paye": 120,
+        "prix": 93,
+        "etape": "monnaie",
+        "rendu": 27,
+        "options": [
+          27,
+          26,
+          28
+        ]
+      },
+      {
+        "paye": 80,
+        "prix": 64,
+        "etape": "monnaie",
+        "rendu": 16,
+        "options": [
+          16,
+          15,
+          17
+        ]
+      },
+      {
+        "paye": 120,
+        "prix": 88,
+        "etape": "monnaie",
+        "rendu": 32,
+        "options": [
+          32,
+          31,
+          33
+        ]
+      },
+      {
+        "paye": 130,
+        "prix": 97,
+        "etape": "monnaie",
+        "rendu": 33,
+        "options": [
+          33,
+          32,
+          34
+        ]
+      },
+      {
+        "paye": 100,
+        "prix": 71,
+        "etape": "monnaie",
+        "rendu": 29,
+        "options": [
+          29,
+          28,
+          30
+        ]
+      },
+      {
+        "paye": 90,
+        "prix": 66,
+        "etape": "monnaie",
+        "rendu": 24,
+        "options": [
+          24,
+          23,
+          25
+        ]
+      },
+      {
+        "paye": 110,
+        "prix": 82,
+        "etape": "monnaie",
+        "rendu": 28,
+        "options": [
+          28,
+          27,
+          29
+        ]
+      },
+      {
+        "paye": 65,
+        "prix": 64,
+        "etape": "monnaie",
+        "rendu": 1,
+        "options": [
+          2,
+          3,
+          1
+        ]
+      },
+      {
+        "paye": 60,
+        "prix": 47,
+        "etape": "monnaie",
+        "rendu": 13,
+        "options": [
+          13,
+          14,
+          12
+        ]
+      },
+      {
+        "paye": 70,
+        "prix": 51,
+        "etape": "monnaie",
+        "rendu": 19,
+        "options": [
+          20,
+          18,
+          19
+        ]
+      },
+      {
+        "paye": 85,
+        "prix": 64,
+        "etape": "monnaie",
+        "rendu": 21,
+        "options": [
+          22,
+          21,
+          20
+        ]
+      },
+      {
+        "paye": 84,
+        "prix": 23,
+        "etape": "monnaie",
+        "rendu": 61,
+        "options": [
+          62,
+          60,
+          61
+        ]
+      },
+      {
+        "paye": 115,
+        "prix": 48,
+        "etape": "monnaie",
+        "rendu": 67,
+        "options": [
+          69,
+          65,
+          67
+        ]
+      },
+      {
+        "paye": 78,
+        "prix": 26,
+        "etape": "monnaie",
+        "rendu": 52,
+        "options": [
+          54,
+          50,
+          52
+        ]
+      },
+      {
+        "paye": 107,
+        "prix": 82,
+        "etape": "monnaie",
+        "rendu": 25,
+        "options": [
+          22,
+          28,
+          25
+        ]
+      },
+      {
+        "paye": 88,
+        "prix": 70,
+        "etape": "monnaie",
+        "rendu": 18,
+        "options": [
+          15,
+          21,
+          18
+        ]
+      },
+      {
+        "paye": 127,
+        "prix": 92,
+        "etape": "monnaie",
+        "rendu": 35,
+        "options": [
+          35,
+          32,
+          38
+        ]
+      },
+      {
+        "paye": 52,
+        "prix": 16,
+        "etape": "monnaie",
+        "rendu": 36,
+        "options": [
+          33,
+          36,
+          39
+        ]
+      }
+    ],
+    "gs-2": [
+      {
+        "paye": 30,
+        "prix": 22,
+        "etape": "monnaie",
+        "rendu": 8,
+        "options": [
+          8,
+          7,
+          9
+        ]
+      },
+      {
+        "paye": 35,
+        "prix": 27,
+        "etape": "monnaie",
+        "rendu": 8,
+        "options": [
+          8,
+          9,
+          7
+        ]
+      },
+      {
+        "paye": 25,
+        "prix": 19,
+        "etape": "monnaie",
+        "rendu": 6,
+        "options": [
+          6,
+          5,
+          7
+        ]
+      },
+      {
+        "paye": 35,
+        "prix": 24,
+        "etape": "monnaie",
+        "rendu": 11,
+        "options": [
+          11,
+          10,
+          12
+        ]
+      },
+      {
+        "paye": 40,
+        "prix": 31,
+        "etape": "monnaie",
+        "rendu": 9,
+        "options": [
+          9,
+          8,
+          10
+        ]
+      },
+      {
+        "paye": 30,
+        "prix": 18,
+        "etape": "monnaie",
+        "rendu": 12,
+        "options": [
+          12,
+          11,
+          13
+        ]
+      },
+      {
+        "paye": 35,
+        "prix": 26,
+        "etape": "monnaie",
+        "rendu": 9,
+        "options": [
+          9,
+          8,
+          10
+        ]
+      },
+      {
+        "paye": 30,
+        "prix": 21,
+        "etape": "monnaie",
+        "rendu": 9,
+        "options": [
+          9,
+          8,
+          10
+        ]
+      },
+      {
+        "paye": 51,
+        "prix": 9,
+        "etape": "monnaie",
+        "rendu": 42,
+        "options": [
+          42,
+          41,
+          43
+        ]
+      },
+      {
+        "paye": 53,
+        "prix": 41,
+        "etape": "monnaie",
+        "rendu": 12,
+        "options": [
+          11,
+          13,
+          12
+        ]
+      },
+      {
+        "paye": 49,
+        "prix": 21,
+        "etape": "monnaie",
+        "rendu": 28,
+        "options": [
+          29,
+          27,
+          28
+        ]
+      },
+      {
+        "paye": 27,
+        "prix": 19,
+        "etape": "monnaie",
+        "rendu": 8,
+        "options": [
+          9,
+          7,
+          8
+        ]
+      },
+      {
+        "paye": 38,
+        "prix": 25,
+        "etape": "monnaie",
+        "rendu": 13,
+        "options": [
+          14,
+          13,
+          12
+        ]
+      },
+      {
+        "paye": 53,
+        "prix": 14,
+        "etape": "monnaie",
+        "rendu": 39,
+        "options": [
+          41,
+          39,
+          37
+        ]
+      },
+      {
+        "paye": 48,
+        "prix": 16,
+        "etape": "monnaie",
+        "rendu": 32,
+        "options": [
+          32,
+          30,
+          34
+        ]
+      },
+      {
+        "paye": 37,
+        "prix": 20,
+        "etape": "monnaie",
+        "rendu": 17,
+        "options": [
+          17,
+          14,
+          20
+        ]
+      },
+      {
+        "paye": 52,
+        "prix": 51,
+        "etape": "monnaie",
+        "rendu": 1,
+        "options": [
+          1,
+          4,
+          7
+        ]
+      },
+      {
+        "paye": 20,
+        "prix": 10,
+        "etape": "monnaie",
+        "rendu": 10,
+        "options": [
+          7,
+          10,
+          13
+        ]
+      },
+      {
+        "paye": 19,
+        "prix": 9,
+        "etape": "monnaie",
+        "rendu": 10,
+        "options": [
+          10,
+          7,
+          13
+        ]
+      }
+    ],
+    "gs-3": [
+      {
+        "paye": 50,
+        "prix": 34,
+        "etape": "monnaie",
+        "rendu": 16,
+        "options": [
+          16,
+          15,
+          17
+        ]
+      },
+      {
+        "paye": 50,
+        "prix": 42,
+        "etape": "monnaie",
+        "rendu": 8,
+        "options": [
+          8,
+          7,
+          9
+        ]
+      },
+      {
+        "paye": 40,
+        "prix": 28,
+        "etape": "monnaie",
+        "rendu": 12,
+        "options": [
+          12,
+          11,
+          13
+        ]
+      },
+      {
+        "paye": 50,
+        "prix": 38,
+        "etape": "monnaie",
+        "rendu": 12,
+        "options": [
+          12,
+          11,
+          13
+        ]
+      },
+      {
+        "paye": 60,
+        "prix": 45,
+        "etape": "monnaie",
+        "rendu": 15,
+        "options": [
+          15,
+          14,
+          16
+        ]
+      },
+      {
+        "paye": 40,
+        "prix": 31,
+        "etape": "monnaie",
+        "rendu": 9,
+        "options": [
+          9,
+          8,
+          10
+        ]
+      },
+      {
+        "paye": 50,
+        "prix": 36,
+        "etape": "monnaie",
+        "rendu": 14,
+        "options": [
+          14,
+          13,
+          15
+        ]
+      },
+      {
+        "paye": 40,
+        "prix": 24,
+        "etape": "monnaie",
+        "rendu": 16,
+        "options": [
+          16,
+          15,
+          17
+        ]
+      },
+      {
+        "paye": 50,
+        "prix": 26,
+        "etape": "monnaie",
+        "rendu": 24,
+        "options": [
+          24,
+          25,
+          23
+        ]
+      },
+      {
+        "paye": 39,
+        "prix": 21,
+        "etape": "monnaie",
+        "rendu": 18,
+        "options": [
+          17,
+          18,
+          19
+        ]
+      },
+      {
+        "paye": 17,
+        "prix": 13,
+        "etape": "monnaie",
+        "rendu": 4,
+        "options": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "paye": 37,
+        "prix": 23,
+        "etape": "monnaie",
+        "rendu": 14,
+        "options": [
+          14,
+          13,
+          15
+        ]
+      },
+      {
+        "paye": 50,
+        "prix": 6,
+        "etape": "monnaie",
+        "rendu": 44,
+        "options": [
+          44,
+          43,
+          45
+        ]
+      },
+      {
+        "paye": 43,
+        "prix": 38,
+        "etape": "monnaie",
+        "rendu": 5,
+        "options": [
+          3,
+          7,
+          5
+        ]
+      },
+      {
+        "paye": 50,
+        "prix": 6,
+        "etape": "monnaie",
+        "rendu": 44,
+        "options": [
+          42,
+          46,
+          44
+        ]
+      },
+      {
+        "paye": 18,
+        "prix": 14,
+        "etape": "monnaie",
+        "rendu": 4,
+        "options": [
+          7,
+          1,
+          4
+        ]
+      },
+      {
+        "paye": 24,
+        "prix": 15,
+        "etape": "monnaie",
+        "rendu": 9,
+        "options": [
+          12,
+          9,
+          6
+        ]
+      },
+      {
+        "paye": 45,
+        "prix": 37,
+        "etape": "monnaie",
+        "rendu": 8,
+        "options": [
+          11,
+          8,
+          5
+        ]
+      },
+      {
+        "paye": 53,
+        "prix": 27,
+        "etape": "monnaie",
+        "rendu": 26,
+        "options": [
+          23,
+          29,
+          26
+        ]
+      }
+    ],
+    "ms-3": [
+      {
+        "paye": 15,
+        "prix": 8,
+        "etape": "monnaie",
+        "rendu": 7,
+        "options": [
+          7,
+          6,
+          8
+        ]
+      },
+      {
+        "paye": 15,
+        "prix": 9,
+        "etape": "monnaie",
+        "rendu": 6,
+        "options": [
+          6,
+          5,
+          7
+        ]
+      },
+      {
+        "paye": 20,
+        "prix": 12,
+        "etape": "monnaie",
+        "rendu": 8,
+        "options": [
+          8,
+          7,
+          9
+        ]
+      },
+      {
+        "paye": 20,
+        "prix": 13,
+        "etape": "monnaie",
+        "rendu": 7,
+        "options": [
+          7,
+          6,
+          8
+        ]
+      },
+      {
+        "paye": 20,
+        "prix": 16,
+        "etape": "monnaie",
+        "rendu": 4,
+        "options": [
+          4,
+          3,
+          5
+        ]
+      },
+      {
+        "paye": 18,
+        "prix": 6,
+        "etape": "monnaie",
+        "rendu": 12,
+        "options": [
+          12,
+          11,
+          13
+        ]
+      },
+      {
+        "paye": 25,
+        "prix": 17,
+        "etape": "monnaie",
+        "rendu": 8,
+        "options": [
+          8,
+          7,
+          9
+        ]
+      },
+      {
+        "paye": 19,
+        "prix": 11,
+        "etape": "monnaie",
+        "rendu": 8,
+        "options": [
+          8,
+          7,
+          9
+        ]
+      },
+      {
+        "paye": 20,
+        "prix": 14,
+        "etape": "monnaie",
+        "rendu": 6,
+        "options": [
+          6,
+          5,
+          7
+        ]
+      },
+      {
+        "paye": 16,
+        "prix": 11,
+        "etape": "monnaie",
+        "rendu": 5,
+        "options": [
+          6,
+          5,
+          4
+        ]
+      },
+      {
+        "paye": 6,
+        "prix": 5,
+        "etape": "monnaie",
+        "rendu": 1,
+        "options": [
+          2,
+          1,
+          4
+        ]
+      },
+      {
+        "paye": 10,
+        "prix": 3,
+        "etape": "monnaie",
+        "rendu": 7,
+        "options": [
+          8,
+          7,
+          6
+        ]
+      },
+      {
+        "paye": 4,
+        "prix": 3,
+        "etape": "monnaie",
+        "rendu": 1,
+        "options": [
+          5,
+          2,
+          1
+        ]
+      },
+      {
+        "paye": 18,
+        "prix": 12,
+        "etape": "monnaie",
+        "rendu": 6,
+        "options": [
+          5,
+          6,
+          7
+        ]
+      },
+      {
+        "paye": 19,
+        "prix": 14,
+        "etape": "monnaie",
+        "rendu": 5,
+        "options": [
+          3,
+          5,
+          7
+        ]
+      },
+      {
+        "paye": 6,
+        "prix": 5,
+        "etape": "monnaie",
+        "rendu": 1,
+        "options": [
+          1,
+          3,
+          6
+        ]
+      },
+      {
+        "paye": 15,
+        "prix": 12,
+        "etape": "monnaie",
+        "rendu": 3,
+        "options": [
+          3,
+          1,
+          6
+        ]
+      },
+      {
+        "paye": 8,
+        "prix": 6,
+        "etape": "monnaie",
+        "rendu": 2,
+        "options": [
+          5,
+          2,
+          1
+        ]
+      }
+    ]
+  },
+  "monde_capitales": {
+    "ms-1": [
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇹",
+        "options": [
+          "Italie",
+          "France",
+          "Allemagne"
+        ],
+        "reponse": "Italie",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇯🇵",
+        "options": [
+          "Japon",
+          "Chine",
+          "Corée du Sud"
+        ],
+        "reponse": "Japon",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇫🇷",
+        "options": [
+          "France",
+          "Espagne",
+          "Italie"
+        ],
+        "reponse": "France",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇺🇸",
+        "options": [
+          "États-Unis",
+          "Canada",
+          "Mexique"
+        ],
+        "reponse": "États-Unis",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇪🇸",
+        "options": [
+          "Espagne",
+          "Portugal",
+          "Italie"
+        ],
+        "reponse": "Espagne",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇩🇪",
+        "options": [
+          "Allemagne",
+          "Autriche",
+          "Suisse"
+        ],
+        "reponse": "Allemagne",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇬🇷",
+        "options": [
+          "Grèce",
+          "Italie",
+          "Turquie"
+        ],
+        "reponse": "Grèce",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇱",
+        "options": [
+          "Pologne",
+          "Allemagne",
+          "Russie"
+        ],
+        "reponse": "Pologne",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇪",
+        "options": [
+          "Irlande",
+          "Royaume-Uni",
+          "France"
+        ],
+        "reponse": "Irlande",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇦🇹",
+        "options": [
+          "Autriche",
+          "Allemagne",
+          "Suisse"
+        ],
+        "reponse": "Autriche",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇩🇰",
+        "options": [
+          "Danemark",
+          "Norvège",
+          "Suède"
+        ],
+        "reponse": "Danemark",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇫🇮",
+        "options": [
+          "Finlande",
+          "Suède",
+          "Norvège"
+        ],
+        "reponse": "Finlande",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇹",
+        "options": [
+          "Portugal",
+          "Espagne",
+          "Maroc"
+        ],
+        "reponse": "Portugal",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇭",
+        "options": [
+          "Suisse",
+          "Autriche",
+          "Italie"
+        ],
+        "reponse": "Suisse",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇳🇱",
+        "options": [
+          "Pays-Bas",
+          "Belgique",
+          "Allemagne"
+        ],
+        "reponse": "Pays-Bas",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇧🇪",
+        "options": [
+          "Belgique",
+          "France",
+          "Pays-Bas"
+        ],
+        "reponse": "Belgique",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇸🇪",
+        "options": [
+          "Suède",
+          "Norvège",
+          "Finlande"
+        ],
+        "reponse": "Suède",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇳🇴",
+        "options": [
+          "Norvège",
+          "Suède",
+          "Danemark"
+        ],
+        "reponse": "Norvège",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "animal_pays",
+        "animal": "🐨",
+        "options": [
+          "Australie",
+          "France",
+          "Chine"
+        ],
+        "reponse": "Australie",
+        "categorie": "animal",
+        "continent": "Oceanie"
+      }
+    ],
+    "ms-2": [
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇬🇧",
+        "options": [
+          "Royaume-Uni",
+          "France",
+          "Irlande"
+        ],
+        "reponse": "Royaume-Uni",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇦",
+        "options": [
+          "Canada",
+          "États-Unis",
+          "Mexique"
+        ],
+        "reponse": "Canada",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇧🇷",
+        "options": [
+          "Brésil",
+          "Argentine",
+          "Mexique"
+        ],
+        "reponse": "Brésil",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇳",
+        "options": [
+          "Chine",
+          "Japon",
+          "Vietnam"
+        ],
+        "reponse": "Chine",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇲🇽",
+        "options": [
+          "Mexique",
+          "Brésil",
+          "Espagne"
+        ],
+        "reponse": "Mexique",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇪🇬",
+        "options": [
+          "Égypte",
+          "Maroc",
+          "Algérie"
+        ],
+        "reponse": "Égypte",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇰🇷",
+        "options": [
+          "Corée du Sud",
+          "Japon",
+          "Chine"
+        ],
+        "reponse": "Corée du Sud",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇩",
+        "options": [
+          "Indonésie",
+          "Thaïlande",
+          "Malaisie"
+        ],
+        "reponse": "Indonésie",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇻🇳",
+        "options": [
+          "Vietnam",
+          "Thaïlande",
+          "Cambodge"
+        ],
+        "reponse": "Vietnam",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇹🇭",
+        "options": [
+          "Thaïlande",
+          "Vietnam",
+          "Laos"
+        ],
+        "reponse": "Thaïlande",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇭",
+        "options": [
+          "Philippines",
+          "Indonésie",
+          "Malaisie"
+        ],
+        "reponse": "Philippines",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇳🇬",
+        "options": [
+          "Nigeria",
+          "Kenya",
+          "Ghana"
+        ],
+        "reponse": "Nigeria",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇿🇦",
+        "options": [
+          "Afrique du Sud",
+          "Kenya",
+          "Égypte"
+        ],
+        "reponse": "Afrique du Sud",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇬🇭",
+        "options": [
+          "Ghana",
+          "Nigeria",
+          "Sénégal"
+        ],
+        "reponse": "Ghana",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇸🇳",
+        "options": [
+          "Sénégal",
+          "Mali",
+          "Ghana"
+        ],
+        "reponse": "Sénégal",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇩🇿",
+        "options": [
+          "Algérie",
+          "Maroc",
+          "Tunisie"
+        ],
+        "reponse": "Algérie",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇹🇳",
+        "options": [
+          "Tunisie",
+          "Algérie",
+          "Maroc"
+        ],
+        "reponse": "Tunisie",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇱",
+        "options": [
+          "Chili",
+          "Argentine",
+          "Pérou"
+        ],
+        "reponse": "Chili",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "animal_pays",
+        "animal": "🐘",
+        "options": [
+          "Inde",
+          "France",
+          "Canada"
+        ],
+        "reponse": "Inde",
+        "categorie": "animal",
+        "continent": "Asie"
+      }
+    ],
+    "ms-3": [
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇹",
+        "options": [
+          "Portugal",
+          "Espagne",
+          "Italie"
+        ],
+        "reponse": "Portugal",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇬🇷",
+        "options": [
+          "Grèce",
+          "Turquie",
+          "Italie"
+        ],
+        "reponse": "Grèce",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇷🇺",
+        "options": [
+          "Russie",
+          "Pologne",
+          "Ukraine"
+        ],
+        "reponse": "Russie",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇳",
+        "options": [
+          "Inde",
+          "Pakistan",
+          "Bangladesh"
+        ],
+        "reponse": "Inde",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇦🇺",
+        "options": [
+          "Australie",
+          "Nouvelle-Zélande",
+          "Canada"
+        ],
+        "reponse": "Australie",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇲🇦",
+        "options": [
+          "Maroc",
+          "Algérie",
+          "Tunisie"
+        ],
+        "reponse": "Maroc",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇴",
+        "options": [
+          "Colombie",
+          "Venezuela",
+          "Équateur"
+        ],
+        "reponse": "Colombie",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇪",
+        "options": [
+          "Pérou",
+          "Chili",
+          "Bolivie"
+        ],
+        "reponse": "Pérou",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇻🇪",
+        "options": [
+          "Venezuela",
+          "Colombie",
+          "Équateur"
+        ],
+        "reponse": "Venezuela",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇺🇾",
+        "options": [
+          "Uruguay",
+          "Argentine",
+          "Brésil"
+        ],
+        "reponse": "Uruguay",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇳🇿",
+        "options": [
+          "Nouvelle-Zélande",
+          "Australie",
+          "Fidji"
+        ],
+        "reponse": "Nouvelle-Zélande",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇸",
+        "options": [
+          "Islande",
+          "Norvège",
+          "Groenland"
+        ],
+        "reponse": "Islande",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇺🇦",
+        "options": [
+          "Ukraine",
+          "Russie",
+          "Pologne"
+        ],
+        "reponse": "Ukraine",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇭🇺",
+        "options": [
+          "Hongrie",
+          "Roumanie",
+          "Autriche"
+        ],
+        "reponse": "Hongrie",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇿",
+        "options": [
+          "République Tchèque",
+          "Slovaquie",
+          "Pologne"
+        ],
+        "reponse": "République Tchèque",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇷🇴",
+        "options": [
+          "Roumanie",
+          "Bulgarie",
+          "Hongrie"
+        ],
+        "reponse": "Roumanie",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇭🇷",
+        "options": [
+          "Croatie",
+          "Slovénie",
+          "Serbie"
+        ],
+        "reponse": "Croatie",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇱",
+        "options": [
+          "Israël",
+          "Jordanie",
+          "Liban"
+        ],
+        "reponse": "Israël",
+        "categorie": "drapeau"
+      },
+      {
+        "etape": "animal_pays",
+        "animal": "🐓",
+        "options": [
+          "France",
+          "Italie",
+          "Espagne"
+        ],
+        "reponse": "France",
+        "categorie": "animal",
+        "continent": "Europe"
+      }
+    ]
+  }
+}
