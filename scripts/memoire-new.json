@@ -1,0 +1,60 @@
+{
+  "ms-3": [
+    {"paires":[{"mot":"CHAT","emoji":"🐱"},{"mot":"CHIEN","emoji":"🐶"},{"mot":"OISEAU","emoji":"🐦"},{"mot":"POISSON","emoji":"🐟"}]}
+  ],
+  "gs-1": [
+    {"paires":[{"mot":"FRAISE","emoji":"🍓"},{"mot":"BANANE","emoji":"🍌"},{"mot":"RAISIN","emoji":"🍇"},{"mot":"CERISE","emoji":"🍒"},{"mot":"ORANGE","emoji":"🍊"}]}
+  ],
+  "gs-2": [
+    {"paires":[{"mot":"VOITURE","emoji":"🚗"},{"mot":"BATEAU","emoji":"⛵"},{"mot":"AVION","emoji":"✈️"},{"mot":"TRAIN","emoji":"🚂"},{"mot":"VELO","emoji":"🚲"}]},
+    {"paires":[{"mot":"SOLEIL","emoji":"☀️"},{"mot":"LUNE","emoji":"🌙"},{"mot":"ETOILE","emoji":"⭐"},{"mot":"NUAGE","emoji":"☁️"},{"mot":"PLUIE","emoji":"🌧️"}]}
+  ],
+  "gs-3": [
+    {"paires":[{"mot":"POMME","emoji":"🍎"},{"mot":"POIRE","emoji":"🍐"},{"mot":"FRAISE","emoji":"🍓"},{"mot":"CITRON","emoji":"🍋"},{"mot":"PASTEQUE","emoji":"🍉"}]},
+    {"paires":[{"mot":"LION","emoji":"🦁"},{"mot":"TIGRE","emoji":"🐯"},{"mot":"OURS","emoji":"🐻"},{"mot":"LOUP","emoji":"🐺"},{"mot":"RENARD","emoji":"🦊"}]}
+  ],
+  "cp-1": [
+    {"paires":[{"mot":"PINGOUIN","emoji":"🐧"},{"mot":"OTARIE","emoji":"🦭"},{"mot":"BALEINE","emoji":"🐳"},{"mot":"DAUPHIN","emoji":"🐬"},{"mot":"CORAIL","emoji":"🪸"},{"mot":"CRABE","emoji":"🦀"}]},
+    {"paires":[{"mot":"POMPIER","emoji":"🚒"},{"mot":"POLICIER","emoji":"🚓"},{"mot":"AMBULANCE","emoji":"🚑"},{"mot":"TRACTEUR","emoji":"🚜"},{"mot":"BUS","emoji":"🚌"},{"mot":"CAMION","emoji":"🚚"}]},
+    {"paires":[{"mot":"GUITARE","emoji":"🎸"},{"mot":"PIANO","emoji":"🎹"},{"mot":"TAMBOUR","emoji":"🥁"},{"mot":"TROMPETTE","emoji":"🎺"},{"mot":"VIOLON","emoji":"🎻"},{"mot":"FLUTE","emoji":"🪈"}]}
+  ],
+  "cp-2": [
+    {"paires":[{"mot":"ROBOT","emoji":"🤖"},{"mot":"FUSEE","emoji":"🚀"},{"mot":"PLANETE","emoji":"🪐"},{"mot":"ASTRONAUTE","emoji":"🧑‍🚀"},{"mot":"ETOILE","emoji":"⭐"},{"mot":"LUNE","emoji":"🌙"}]},
+    {"paires":[{"mot":"DRAGON","emoji":"🐉"},{"mot":"LICORNE","emoji":"🦄"},{"mot":"SORCIERE","emoji":"🧙"},{"mot":"CHATEAU","emoji":"🏰"},{"mot":"CHEVALIER","emoji":"⚔️"},{"mot":"FEE","emoji":"🧚"}]},
+    {"paires":[{"mot":"CITROUILLE","emoji":"🎃"},{"mot":"FANTOME","emoji":"👻"},{"mot":"CHAUVE-SOURIS","emoji":"🦇"},{"mot":"ARAIGNEE","emoji":"🕷️"},{"mot":"SORCIERE","emoji":"🧙"},{"mot":"LUNE","emoji":"🌙"}]}
+  ],
+  "cp-3": [
+    {"paires":[{"mot":"MONTAGNE","emoji":"🏔️"},{"mot":"VOLCAN","emoji":"🌋"},{"mot":"DESERT","emoji":"🏜️"},{"mot":"FORET","emoji":"🌲"},{"mot":"RIVIERE","emoji":"🏞️"},{"mot":"OCEAN","emoji":"🌊"}]},
+    {"paires":[{"mot":"ASTRONAUTE","emoji":"🧑‍🚀"},{"mot":"FUSEE","emoji":"🚀"},{"mot":"SATELLITE","emoji":"🛰️"},{"mot":"METEORITE","emoji":"☄️"},{"mot":"GALAXIE","emoji":"🌌"},{"mot":"TELESCOPE","emoji":"🔭"}]},
+    {"paires":[{"mot":"VIKING","emoji":"⚔️"},{"mot":"PIRATE","emoji":"🏴‍☠️"},{"mot":"CHEVALIER","emoji":"🛡️"},{"mot":"ROI","emoji":"👑"},{"mot":"FORTERESSE","emoji":"🏰"},{"mot":"EPEE","emoji":"⚔️"}]},
+    {"paires":[{"mot":"ABEILLE","emoji":"🐝"},{"mot":"FOURMI","emoji":"🐜"},{"mot":"PAPILLON","emoji":"🦋"},{"mot":"COCCINELLE","emoji":"🐞"},{"mot":"LIBELLULE","emoji":"🪰"},{"mot":"ESCARGOT","emoji":"🐌"}]}
+  ],
+  "ce1-1": [
+    {"paires":[{"mot":"PHARAON","emoji":"👑"},{"mot":"MOMIE","emoji":"🧟"},{"mot":"PYRAMIDE","emoji":"🔺"},{"mot":"SPHINX","emoji":"🦁"},{"mot":"HIEROGLYPHE","emoji":"📜"},{"mot":"SARCOPHAGE","emoji":"⚰️"}]}
+  ],
+  "ce1-2": [
+    {"paires":[{"mot":"CHEVALIER","emoji":"⚔️"},{"mot":"CHATEAU","emoji":"🏰"},{"mot":"ECU","emoji":"🛡️"},{"mot":"DONJON","emoji":"🏯"},{"mot":"TOURNOI","emoji":"🐎"},{"mot":"ARMURE","emoji":"🛡️"}]},
+    {"paires":[{"mot":"REQUIN","emoji":"🦈"},{"mot":"PIEUVRE","emoji":"🐙"},{"mot":"CORAIL","emoji":"🪸"},{"mot":"SOUS-MARIN","emoji":"🚤"},{"mot":"PLONGEUR","emoji":"🤿"},{"mot":"OCEAN","emoji":"🌊"}]}
+  ],
+  "ce1-3": [
+    {"paires":[{"mot":"VOLCAN","emoji":"🌋"},{"mot":"LAVE","emoji":"🔥"},{"mot":"SEISME","emoji":"🌍"},{"mot":"ERUPTION","emoji":"💥"},{"mot":"MAGMA","emoji":"🌋"},{"mot":"CENDRE","emoji":"☁️"}]},
+    {"paires":[{"mot":"GALAXIE","emoji":"🌌"},{"mot":"ETOILE","emoji":"⭐"},{"mot":"COMETE","emoji":"☄️"},{"mot":"NEBULEUSE","emoji":"🌌"},{"mot":"TROU-NOIR","emoji":"⚫"},{"mot":"PLANETE","emoji":"🪐"}]},
+    {"paires":[{"mot":"ROBOT","emoji":"🤖"},{"mot":"CIRCUIT","emoji":"🔌"},{"mot":"CAPTEUR","emoji":"📡"},{"mot":"PROGRAMME","emoji":"💻"},{"mot":"INTELLIGENCE","emoji":"🧠"},{"mot":"ALGORITHME","emoji":"🔢"}]},
+    {"paires":[{"mot":"MEDECIN","emoji":"⚕️"},{"mot":"HOPITAL","emoji":"🏥"},{"mot":"VACCIN","emoji":"💉"},{"mot":"MICROSCOPE","emoji":"🔬"},{"mot":"BACTERIE","emoji":"🦠"},{"mot":"REMEDE","emoji":"💊"}]}
+  ],
+  "ce2-1": [
+    {"paires":[{"mot":"GLADIATEUR","emoji":"⚔️"},{"mot":"ARENE","emoji":"🏟️"},{"mot":"EMPEREUR","emoji":"👑"},{"mot":"LEGION","emoji":"🛡️"},{"mot":"COLISEE","emoji":"🏛️"},{"mot":"TOGE","emoji":"👘"}]},
+    {"paires":[{"mot":"FUSEE","emoji":"🚀"},{"mot":"ORBITE","emoji":"🪐"},{"mot":"APESANTEUR","emoji":"🧑‍🚀"},{"mot":"SATELLITE","emoji":"🛰️"},{"mot":"ASTEROIDE","emoji":"☄️"},{"mot":"GRAVITE","emoji":"🍎"}]}
+  ],
+  "ce2-2": [
+    {"paires":[{"mot":"MOULIN","emoji":"🏚️"},{"mot":"MEUNIER","emoji":"👨‍🌾"},{"mot":"BLE","emoji":"🌾"},{"mot":"FARINE","emoji":"🌾"},{"mot":"PAIN","emoji":"🍞"},{"mot":"FOUR","emoji":"🔥"}]},
+    {"paires":[{"mot":"PARCHEMIN","emoji":"📜"},{"mot":"ENCRE","emoji":"🖋️"},{"mot":"PLUME","emoji":"🪶"},{"mot":"SCEAU","emoji":"📯"},{"mot":"MANUSCRIT","emoji":"📖"},{"mot":"BIBLIOTHEQUE","emoji":"📚"}]}
+  ],
+  "ce2-3": [
+    {"paires":[{"mot":"SEISME","emoji":"🌍"},{"mot":"TSUNAMI","emoji":"🌊"},{"mot":"ERUPTION","emoji":"🌋"},{"mot":"OURAGAN","emoji":"🌀"},{"mot":"TORNADE","emoji":"🌪️"},{"mot":"INONDATION","emoji":"🌊"}]},
+    {"paires":[{"mot":"ADN","emoji":"🧬"},{"mot":"CELLULE","emoji":"🔬"},{"mot":"GENE","emoji":"🧬"},{"mot":"MUTATION","emoji":"🧬"},{"mot":"CHROMOSOME","emoji":"🧬"},{"mot":"EVOLUTION","emoji":"🐒"}]},
+    {"paires":[{"mot":"PHILOSOPHE","emoji":"📖"},{"mot":"DEMOCRATIE","emoji":"🏛️"},{"mot":"SENAT","emoji":"🏛️"},{"mot":"CITOYEN","emoji":"👥"},{"mot":"VOTE","emoji":"🗳️"},{"mot":"LOI","emoji":"⚖️"}]},
+    {"paires":[{"mot":"METEO","emoji":"🌦️"},{"mot":"ANTICYCLONE","emoji":"☀️"},{"mot":"DEPRESSION","emoji":"🌧️"},{"mot":"THERMOMETRE","emoji":"🌡️"},{"mot":"BAROMETRE","emoji":"📊"},{"mot":"PREVISION","emoji":"📡"}]},
+    {"paires":[{"mot":"ENERGIE","emoji":"⚡"},{"mot":"EOLIENNE","emoji":"🌬️"},{"mot":"SOLAIRE","emoji":"☀️"},{"mot":"BARRAGE","emoji":"🌊"},{"mot":"CENTRALE","emoji":"🏭"},{"mot":"ELECTRICITE","emoji":"⚡"}]}
+  ]
+}
