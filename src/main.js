@@ -11663,6 +11663,13 @@ const BOULE_TAP_MOUVEMENT_MAX = 26;
 const BOULE_TAP_DUREE_MAX_MS = 500;
 const BOULE_DISTANCE_VISIBLE = 560;
 const BOULE_RAYON_COLLISION = 0.075; // resserre (etait 0.11) : retour de Thierry, trop facile de toucher un mauvais nombre par erreur
+// Fenetre de rattrapage pour la CIBLE (bon chiffre/lettre) : sans ca, la
+// capture n'etait verifiee qu'a l'instant exact ou l'item franchit la
+// ligne (une seule frame a 25 images/seconde), ce qui la rendait quasi
+// impossible a reussir meme en visant juste - retour de Thierry ("on
+// touche le bon numero, il ne se passe rien"). Ne s'applique qu'a la
+// cible : les leurres/pieges/pieces gardent leur comportement d'origine.
+const BOULE_MARGE_RATTRAPAGE = 45;
 const BOULE_VIES_DEPART = 3;
 const BOULE_NIVEAUX_PAR_PARTIE = 5; // au-dela, ecran de fin de partie plutot qu'un enchainement infini de niveaux
 const BOULE_VARIATION_VITESSE = 0.15; // vitesse tiree aleatoirement entre -15% et +15% de la moyenne, a chaque trajet
@@ -12328,6 +12335,15 @@ function BouleQuiRouleScreen({ route, navigation }) {
             if (relative <= 0) {
               const atteint = Math.abs(o.x - ballXNormRef.current) < seuilCollision;
               const estBloque = Date.now() < blocageJusquaRef.current;
+
+              if (o.type === 'cible' && !atteint && relative > -BOULE_MARGE_RATTRAPAGE) {
+                // Pas encore touchee, mais toujours dans la petite fenetre
+                // de rattrapage : on la laisse continuer sa chute plutot
+                // que de la retirer immediatement (voir BOULE_MARGE_RATTRAPAGE).
+                suivants.push({ ...o, distance: distanceActuelle });
+                continue;
+              }
+
               if (o.type === 'cible') {
                 if (atteint && !estBloque) {
                   setScore((s) => s + 1);
