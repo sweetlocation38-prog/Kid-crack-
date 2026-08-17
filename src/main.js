@@ -1254,7 +1254,7 @@ async function completeSession({ profil, miniJeuId, currentRung, erreursTotal, d
   const rankChanged = newRank !== previousRank;
   try {
     if (rankChanged) {
-      const code = AVATAR_CHAIN[newRank - 1].code;
+      const code = avatarChainAt(newRank).code;
       const { data: fiche } = await supabase
         .from('fiches_animaux')
         .select('*')
@@ -5322,8 +5322,8 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         <View style={styles.stonesWrap}>
           {optionsOrder.map((option, i) => {
             const isAnswered = answered !== null;
-            const isThisCorrect = String(option) === String(promptData.correct);
-            const isThisAnswer = isAnswered && String(option) === String(answered);
+            const isThisCorrect = reponsesEquivalentes(option, promptData.correct);
+            const isThisAnswer = isAnswered && reponsesEquivalentes(option, answered);
             // On ne revele la bonne reponse en surbrillance que si l'enfant
             // l'a trouvee, ou apres 3 erreurs sur CETTE question - jamais
             // immediatement a la premiere erreur, pour ne pas donner la
@@ -6401,8 +6401,8 @@ function CachettesLumaScreen({ route, navigation }) {
         <View style={styles.stonesWrap}>
           {optionsOrder.map((option, i) => {
             const isAnswered = answered !== null;
-            const isThisAnswer = isAnswered && String(option) === String(answered);
-            const isThisCorrect = String(option) === String(promptData.correct);
+            const isThisAnswer = isAnswered && reponsesEquivalentes(option, answered);
+            const isThisCorrect = reponsesEquivalentes(option, promptData.correct);
             const bg = isColorAnswer ? CACHETTES_COULEURS_HEX[option] : STONE_COLORS[i % STONE_COLORS.length];
             return (
               <Pressable
@@ -6624,8 +6624,8 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
         <View style={styles.stonesWrap}>
           {optionsOrder.map((option, i) => {
             const isAnswered = answered !== null;
-            const isThisAnswer = isAnswered && String(option) === String(answered);
-            const isThisCorrect = String(option) === String(promptData.correct);
+            const isThisAnswer = isAnswered && reponsesEquivalentes(option, answered);
+            const isThisCorrect = reponsesEquivalentes(option, promptData.correct);
             const bg = STONE_COLORS[i % STONE_COLORS.length];
             const estUnEmojiSeul = String(option).length <= 4;
             return (
@@ -6978,7 +6978,7 @@ function IndicesJardinScreen({ route, navigation }) {
 
       {feedback && (
         <PopIn key={feedback + round}>
-          <Text style={[styles.feedback, String(answered) === String(mystere.cible) ? styles.feedbackSuccess : styles.feedbackError]}>
+          <Text style={[styles.feedback, reponsesEquivalentes(answered, mystere.cible) ? styles.feedbackSuccess : styles.feedbackError]}>
             {feedback}
           </Text>
         </PopIn>
@@ -6989,7 +6989,7 @@ function IndicesJardinScreen({ route, navigation }) {
         <View style={styles.stonesWrap}>
           {optionsOrder.map((option, i) => {
             const isAnswered = answered !== null;
-            const isThisCorrect = String(option) === String(mystere.cible);
+            const isThisCorrect = reponsesEquivalentes(option, mystere.cible);
             return (
               <Pressable
                 key={i}
@@ -7000,7 +7000,7 @@ function IndicesJardinScreen({ route, navigation }) {
                   styles.optionButton,
                   { backgroundColor: STONE_COLORS[i % STONE_COLORS.length] },
                   isAnswered && isThisCorrect && styles.optionCorrect,
-                  isAnswered && String(answered) === String(option) && !isThisCorrect && styles.optionWrong,
+                  isAnswered && reponsesEquivalentes(answered, option) && !isThisCorrect && styles.optionWrong,
                 ]}
               >
                 <Text style={styles.optionText}>{option}</Text>
@@ -12978,7 +12978,7 @@ const styles = StyleSheet.create({
   feedbackError: { color: colors.error },
   stonesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, justifyContent: 'center' },
   stone: {
-    minWidth: 64, height: 64, paddingHorizontal: 16, borderRadius: 16,
+    minWidth: 64, minHeight: 64, paddingHorizontal: 16, paddingTop: 22, paddingBottom: 8, borderRadius: 16,
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
     borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
   },
@@ -13022,7 +13022,7 @@ const styles = StyleSheet.create({
   triItemText: { fontSize: 22, fontWeight: '700', color: colors.ink, paddingHorizontal: 4 },
   triCategories: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center' },
   triCategoryBox: {
-    minWidth: 120, paddingVertical: 20, paddingHorizontal: 14, borderRadius: 18,
+    minWidth: 120, paddingTop: 26, paddingBottom: 16, paddingHorizontal: 14, borderRadius: 18,
     backgroundColor: colors.mossSoft, alignItems: 'center', justifyContent: 'center',
   },
   triCategoryText: { fontSize: 15, fontWeight: '800', color: '#fff', textAlign: 'center' },
@@ -13045,7 +13045,7 @@ const styles = StyleSheet.create({
   friseGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginTop: 10 },
   friseEvent: {
     width: 96, minHeight: 88, borderRadius: 16, backgroundColor: colors.mossDeep,
-    alignItems: 'center', justifyContent: 'center', padding: 8, gap: 4,
+    alignItems: 'center', justifyContent: 'center', paddingTop: 24, paddingHorizontal: 8, paddingBottom: 8, gap: 4,
     borderWidth: 3, borderColor: colors.mossDeep,
   },
   friseEventDone: { backgroundColor: colors.success, borderColor: colors.success },
