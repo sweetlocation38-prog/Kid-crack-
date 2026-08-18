@@ -12332,18 +12332,21 @@ function BouleQuiRouleScreen({ route, navigation }) {
             const aVitessePropre = o.vitesseSuppl != null;
             const distanceActuelle = aVitessePropre ? o.distance - o.vitesseSuppl * dt : o.distance;
             const relative = distanceActuelle - nouvelleDistance;
-            // Zone de capture : des que l'item est PROCHE de l'avatar en
-            // hauteur (avant OU apres la ligne, pas seulement pile
-            // dessus) ET que l'avatar est bien en face en largeur, c'est
-            // considere comme touche - a chaque frame, pas seulement a
-            // l'instant exact du franchissement.
-            const dansLaZone = Math.abs(relative) < BOULE_ZONE_CAPTURE_Y;
-            const bienEnFace = Math.abs(o.x - ballXNormRef.current) < seuilCollision;
-            const toucheMaintenant = dansLaZone && bienEnFace;
-            const aCompletementDepasse = relative <= -BOULE_ZONE_CAPTURE_Y;
+            // Fenetre de capture UNIQUEMENT avant que l'item atteigne la
+            // ligne de l'avatar (jamais apres) - retour de Thierry : la
+            // version precedente laissait "relative" continuer a baisser
+            // sous 0 pendant que l'affichage restait fige pile sur la
+            // ligne (impossible d'aller plus bas visuellement), donc
+            // l'item semblait geler puis disparaitre d'un coup, decale de
+            // ce qui se passait reellement en coulisses. Desormais, on
+            // resout TOUJOURS (attrape ou rate) au plus tard au moment ou
+            // relative atteint 0 - jamais apres - donc ce qui est affiche
+            // correspond exactement a ce qui est detecte.
+            const dansLaFenetreDApproche = relative <= BOULE_ZONE_CAPTURE_Y;
+            const bienEnFace = dansLaFenetreDApproche && Math.abs(o.x - ballXNormRef.current) < seuilCollision;
 
-            if (toucheMaintenant || aCompletementDepasse) {
-              const atteint = toucheMaintenant;
+            if (bienEnFace || relative <= 0) {
+              const atteint = bienEnFace;
               const estBloque = Date.now() < blocageJusquaRef.current;
 
               if (o.type === 'cible') {
@@ -12543,19 +12546,19 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: 6 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14, flexWrap: 'wrap', rowGap: 4 }}>
         <Pressable onPress={() => { setReglage(null); setPret(false); setFinNiveau(null); }}>
           <Text style={[styles.backLabel, { fontSize: 13 }]}>‹ Retour</Text>
         </Pressable>
-        <Text style={{ fontWeight: '900', color: colors.mossDeep, fontSize: 17 }}>
+        <Text style={{ fontWeight: '900', color: colors.mossDeep, fontSize: 26, flexShrink: 1, textAlign: 'center' }}>
           {affichageCible ?? ' '}
         </Text>
-        <Text style={{ fontWeight: '800', fontSize: 14 }}>
+        <Text style={{ fontWeight: '800', fontSize: 18, flexShrink: 1 }}>
           <Text style={{ color: colors.gold }}>★ {score} 🪙{nbPieces}{boucliers > 0 ? ` 🛡️${boucliers}` : ''}</Text>
           <Text style={{ color: colors.error }}>  {'❤️'.repeat(vies)}</Text>
         </Text>
       </View>
-      <Text style={{ textAlign: 'center', fontSize: 12, color: colors.ink, opacity: 0.6, marginTop: 1 }}>
+      <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '700', color: colors.ink, opacity: 0.75, marginTop: 3 }}>
         Série : {streakActuelle}/{conf.objectifStreak} · Partie : {niveauxCompletesAffiche}/{BOULE_NIVEAUX_PAR_PARTIE}
       </Text>
 
