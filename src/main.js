@@ -11662,14 +11662,14 @@ const BOULE_DOUBLE_TAP_FENETRE_MS = 380;
 const BOULE_TAP_MOUVEMENT_MAX = 26;
 const BOULE_TAP_DUREE_MAX_MS = 500;
 const BOULE_DISTANCE_VISIBLE = 560;
-const BOULE_RAYON_COLLISION = 0.075; // resserre (etait 0.11) : retour de Thierry, trop facile de toucher un mauvais nombre par erreur
+const BOULE_RAYON_COLLISION = 0.13; // elargi (etait 0.075, resserre a tort avant que les items tombent de facon independante/etalee) : retour de Thierry, un enfant doit pouvoir toucher toute la "bulle" visible, pas juste le chiffre precis au pixel pres
 // Zone de capture verticale, DES DEUX COTES de la ligne du joueur (avant
 // ET apres) - retour de Thierry : avant, le contact n'etait verifie qu'a
 // l'instant exact ou l'item franchissait UNE LIGNE precise, ce qui
 // demandait une precision quasi impossible. Desormais, des que le doigt
 // est proche de l'item PENDANT qu'il traverse cette zone (et pas
 // seulement pile sur la ligne), ca compte comme touche.
-const BOULE_ZONE_CAPTURE_Y = 70;
+const BOULE_ZONE_CAPTURE_Y = 95;
 const BOULE_VIES_DEPART = 3;
 const BOULE_NIVEAUX_PAR_PARTIE = 5; // au-dela, ecran de fin de partie plutot qu'un enchainement infini de niveaux
 const BOULE_VARIATION_VITESSE = 0.15; // vitesse tiree aleatoirement entre -15% et +15% de la moyenne, a chaque trajet
