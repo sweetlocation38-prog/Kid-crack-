@@ -11669,7 +11669,7 @@ const BOULE_RAYON_COLLISION = 0.075; // taille du CERCLE VISIBLE (rayon) - ne re
 // demandait une precision quasi impossible. Desormais, des que le doigt
 // est proche de l'item PENDANT qu'il traverse cette zone (et pas
 // seulement pile sur la ligne), ca compte comme touche.
-const BOULE_ZONE_CAPTURE_Y = 95;
+const BOULE_ZONE_CAPTURE_Y = 20; // resserre (etait 95) : une fenetre trop large resolvait (attrape OU rate) l'item bien avant qu'il n'arrive visuellement en bas - retour de Thierry, "les chiffres ne descendent pas jusqu'en bas". Garde juste de quoi compenser la frequence d'images (25/s), pas plus.
 const BOULE_VIES_DEPART = 3;
 const BOULE_NIVEAUX_PAR_PARTIE = 5; // au-dela, ecran de fin de partie plutot qu'un enchainement infini de niveaux
 const BOULE_VARIATION_VITESSE = 0.15; // vitesse tiree aleatoirement entre -15% et +15% de la moyenne, a chaque trajet
