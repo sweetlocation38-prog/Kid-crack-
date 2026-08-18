@@ -11663,13 +11663,13 @@ const BOULE_TAP_MOUVEMENT_MAX = 26;
 const BOULE_TAP_DUREE_MAX_MS = 500;
 const BOULE_DISTANCE_VISIBLE = 560;
 const BOULE_RAYON_COLLISION = 0.075; // resserre (etait 0.11) : retour de Thierry, trop facile de toucher un mauvais nombre par erreur
-// Fenetre de rattrapage pour la CIBLE (bon chiffre/lettre) : sans ca, la
-// capture n'etait verifiee qu'a l'instant exact ou l'item franchit la
-// ligne (une seule frame a 25 images/seconde), ce qui la rendait quasi
-// impossible a reussir meme en visant juste - retour de Thierry ("on
-// touche le bon numero, il ne se passe rien"). Ne s'applique qu'a la
-// cible : les leurres/pieges/pieces gardent leur comportement d'origine.
-const BOULE_MARGE_RATTRAPAGE = 45;
+// Zone de capture verticale, DES DEUX COTES de la ligne du joueur (avant
+// ET apres) - retour de Thierry : avant, le contact n'etait verifie qu'a
+// l'instant exact ou l'item franchissait UNE LIGNE precise, ce qui
+// demandait une precision quasi impossible. Desormais, des que le doigt
+// est proche de l'item PENDANT qu'il traverse cette zone (et pas
+// seulement pile sur la ligne), ca compte comme touche.
+const BOULE_ZONE_CAPTURE_Y = 70;
 const BOULE_VIES_DEPART = 3;
 const BOULE_NIVEAUX_PAR_PARTIE = 5; // au-dela, ecran de fin de partie plutot qu'un enchainement infini de niveaux
 const BOULE_VARIATION_VITESSE = 0.15; // vitesse tiree aleatoirement entre -15% et +15% de la moyenne, a chaque trajet
@@ -12332,17 +12332,19 @@ function BouleQuiRouleScreen({ route, navigation }) {
             const aVitessePropre = o.vitesseSuppl != null;
             const distanceActuelle = aVitessePropre ? o.distance - o.vitesseSuppl * dt : o.distance;
             const relative = distanceActuelle - nouvelleDistance;
-            if (relative <= 0) {
-              const atteint = Math.abs(o.x - ballXNormRef.current) < seuilCollision;
-              const estBloque = Date.now() < blocageJusquaRef.current;
+            // Zone de capture : des que l'item est PROCHE de l'avatar en
+            // hauteur (avant OU apres la ligne, pas seulement pile
+            // dessus) ET que l'avatar est bien en face en largeur, c'est
+            // considere comme touche - a chaque frame, pas seulement a
+            // l'instant exact du franchissement.
+            const dansLaZone = Math.abs(relative) < BOULE_ZONE_CAPTURE_Y;
+            const bienEnFace = Math.abs(o.x - ballXNormRef.current) < seuilCollision;
+            const toucheMaintenant = dansLaZone && bienEnFace;
+            const aCompletementDepasse = relative <= -BOULE_ZONE_CAPTURE_Y;
 
-              if (o.type === 'cible' && !atteint && relative > -BOULE_MARGE_RATTRAPAGE) {
-                // Pas encore touchee, mais toujours dans la petite fenetre
-                // de rattrapage : on la laisse continuer sa chute plutot
-                // que de la retirer immediatement (voir BOULE_MARGE_RATTRAPAGE).
-                suivants.push({ ...o, distance: distanceActuelle });
-                continue;
-              }
+            if (toucheMaintenant || aCompletementDepasse) {
+              const atteint = toucheMaintenant;
+              const estBloque = Date.now() < blocageJusquaRef.current;
 
               if (o.type === 'cible') {
                 if (atteint && !estBloque) {
@@ -12363,10 +12365,10 @@ function BouleQuiRouleScreen({ route, navigation }) {
                     return nouveau;
                   });
                 } else {
-                  // Loupe (pas assez precis, ou bloque par un piege malus) :
-                  // le streak repart a zero, MAIS on redemande exactement
-                  // le meme item ensuite (cibleEnAttenteRef pas efface) -
-                  // aucune vie perdue, on continue sans interruption.
+                  // Loupe (item completement passe sans etre touche, ou
+                  // bloque par un piege malus) : le streak repart a zero,
+                  // MAIS on redemande exactement le meme item ensuite
+                  // (cibleEnAttenteRef pas efface) - aucune vie perdue.
                   setMessage({ texte: estBloque ? 'Bloqué, réessaie dans quelques secondes !' : 'Raté, pas assez précis ! On continue.', ok: false });
                   setStreakActuelle(0);
                 }
