@@ -11852,7 +11852,15 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const profil = route?.params?.profil ?? null;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const pisteLargeur = screenWidth * BOULE_PISTE_LARGEUR_RATIO;
-  const pisteHauteur = Math.max(220, screenHeight - 150);
+  // Hauteur de l'en-tete MESUREE reellement a l'ecran (pas un chiffre fixe
+  // devine) - retour de Thierry : un chiffre fixe supposait un en-tete
+  // d'une certaine taille, et des qu'on l'a agrandi, la barre de controle
+  // s'est retrouvee poussee hors de l'ecran sans qu'on s'en rende compte.
+  // Desormais, la piste s'adapte a la vraie taille de l'en-tete, quelle
+  // qu'elle soit.
+  const [headerHauteur, setHeaderHauteur] = useState(110);
+  const BOULE_CONTROLE_HAUTEUR = 52; // barre de controle (46) + sa marge (6)
+  const pisteHauteur = Math.max(180, screenHeight - headerHauteur - BOULE_CONTROLE_HAUTEUR - 16);
   const horizonY = pisteHauteur * 0.06;
   const joueurY = pisteHauteur - 60;
   const barreControleGauche = (screenWidth - pisteLargeur) / 2;
@@ -12553,27 +12561,34 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: 6 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14, flexWrap: 'wrap', rowGap: 4 }}>
-        <Pressable onPress={() => { setReglage(null); setPret(false); setFinNiveau(null); }}>
-          <Text style={[styles.backLabel, { fontSize: 13 }]}>‹ Retour</Text>
-        </Pressable>
-        <Text style={{ fontWeight: '900', color: colors.mossDeep, fontSize: 26, flexShrink: 1, textAlign: 'center' }}>
-          {affichageCible ?? ' '}
+      <View onLayout={(e) => setHeaderHauteur(e.nativeEvent.layout.height)}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14, flexWrap: 'wrap', rowGap: 4, minHeight: 40 }}>
+          <Pressable onPress={() => { setReglage(null); setPret(false); setFinNiveau(null); }}>
+            <Text style={[styles.backLabel, { fontSize: 13 }]}>‹ Retour</Text>
+          </Pressable>
+          <Text style={{ fontWeight: '900', color: colors.mossDeep, fontSize: 26, flexShrink: 1, textAlign: 'center' }}>
+            {affichageCible ?? ' '}
+          </Text>
+          <Text style={{ fontWeight: '800', fontSize: 18, flexShrink: 1 }}>
+            <Text style={{ color: colors.gold }}>★ {score} 🪙{nbPieces}{boucliers > 0 ? ` 🛡️${boucliers}` : ''}</Text>
+            <Text style={{ color: colors.error }}>  {'❤️'.repeat(vies)}</Text>
+          </Text>
+        </View>
+        <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '700', color: colors.ink, opacity: 0.75, marginTop: 3 }}>
+          Série : {streakActuelle}/{conf.objectifStreak} · Partie : {niveauxCompletesAffiche}/{BOULE_NIVEAUX_PAR_PARTIE}
         </Text>
-        <Text style={{ fontWeight: '800', fontSize: 18, flexShrink: 1 }}>
-          <Text style={{ color: colors.gold }}>★ {score} 🪙{nbPieces}{boucliers > 0 ? ` 🛡️${boucliers}` : ''}</Text>
-          <Text style={{ color: colors.error }}>  {'❤️'.repeat(vies)}</Text>
-        </Text>
-      </View>
-      <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '700', color: colors.ink, opacity: 0.75, marginTop: 3 }}>
-        Série : {streakActuelle}/{conf.objectifStreak} · Partie : {niveauxCompletesAffiche}/{BOULE_NIVEAUX_PAR_PARTIE}
-      </Text>
 
-      {message && (
-        <Text style={{ textAlign: 'center', fontSize: 12, fontWeight: '700', color: message.ok ? colors.success : colors.error }}>
-          {message.texte}
-        </Text>
-      )}
+        {/* Hauteur fixe reservee (le message apparait/disparait sans arret
+            pendant la partie - s'il changeait la hauteur mesuree a chaque
+            fois, la piste de jeu bougerait en permanence). */}
+        <View style={{ height: 16, justifyContent: 'center' }}>
+          {message && (
+            <Text style={{ textAlign: 'center', fontSize: 12, fontWeight: '700', color: message.ok ? colors.success : colors.error }}>
+              {message.texte}
+            </Text>
+          )}
+        </View>
+      </View>
 
       <View
         collapsable={false}
