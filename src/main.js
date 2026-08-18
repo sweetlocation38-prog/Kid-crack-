@@ -11662,7 +11662,7 @@ const BOULE_DOUBLE_TAP_FENETRE_MS = 380;
 const BOULE_TAP_MOUVEMENT_MAX = 26;
 const BOULE_TAP_DUREE_MAX_MS = 500;
 const BOULE_DISTANCE_VISIBLE = 560;
-const BOULE_RAYON_COLLISION = 0.13; // elargi (etait 0.075, resserre a tort avant que les items tombent de facon independante/etalee) : retour de Thierry, un enfant doit pouvoir toucher toute la "bulle" visible, pas juste le chiffre precis au pixel pres
+const BOULE_RAYON_COLLISION = 0.075; // taille du CERCLE VISIBLE (rayon) - ne represente plus a lui seul la vraie zone de capture, voir seuilCollision plus bas qui y ajoute le rayon de l'avatar
 // Zone de capture verticale, DES DEUX COTES de la ligne du joueur (avant
 // ET apres) - retour de Thierry : avant, le contact n'etait verifie qu'a
 // l'instant exact ou l'item franchissait UNE LIGNE precise, ce qui
@@ -12229,7 +12229,14 @@ function BouleQuiRouleScreen({ route, navigation }) {
       setDistanceParcourue((prevDist) => {
         const vitesseEffective = vitesseAvanceRef.current * (Date.now() < ralentiJusquaRef.current ? 0.8 : 1);
         const nouvelleDistance = prevDist + vitesseEffective * dt;
-        const seuilCollision = BOULE_RAYON_COLLISION;
+        // Vraie zone de capture = rayon du cercle visible autour de l'item
+        // + rayon de l'AVATAR lui-meme (pas juste son centre, un point
+        // minuscule) - retour de Thierry : l'avatar doit attraper l'item
+        // des que leurs deux ronds se touchent, comme a l'oeil, pas
+        // seulement quand son centre exact passe pile dans le petit
+        // cercle affiche.
+        const rayonAvatarNorm = (BOULE_TAILLE / 2) / pisteLargeur;
+        const seuilCollision = BOULE_RAYON_COLLISION + rayonAvatarNorm;
         const maintenant = Date.now();
 
         setObjets((prevObjets) => {
