@@ -11672,6 +11672,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
 // ============================================================
 const BOULE_PISTE_LARGEUR_RATIO = 1;
 const BOULE_TAILLE = 39; // -30% par rapport a la version precedente (56)
+const BOULE_VITESSE_DEPLACEMENT_MANUEL = 1.35; // fraction de la largeur de piste traversee par seconde, boutons maintenus
 const BOULE_ITEM_TAILLE_BASE = 51; // -20% par rapport a la version precedente (64)
 const BOULE_PIEGE_TAILLE = Math.round(BOULE_ITEM_TAILLE_BASE * 0.8); // -20% supplementaires pour les pieges
 const BOULE_DOUBLE_TAP_FENETRE_MS = 380;
@@ -11875,11 +11876,10 @@ function BouleQuiRouleScreen({ route, navigation }) {
   // Desormais, la piste s'adapte a la vraie taille de l'en-tete, quelle
   // qu'elle soit.
   const [headerHauteur, setHeaderHauteur] = useState(110);
-  const BOULE_CONTROLE_HAUTEUR = 52; // barre de controle (46) + sa marge (6)
+  const BOULE_CONTROLE_HAUTEUR = 58; // boutons ◀▶ (52) + leur marge (6)
   const pisteHauteur = Math.max(180, screenHeight - headerHauteur - BOULE_CONTROLE_HAUTEUR - 16);
   const horizonY = pisteHauteur * 0.06;
   const joueurY = pisteHauteur - 60;
-  const barreControleGauche = (screenWidth - pisteLargeur) / 2;
 
   // Budget de temps de jeu (meme mecanisme que les autres jeux) : on
   // verifie a chaque fin de niveau, jamais en cours de route, pour ne
@@ -11944,8 +11944,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const tickRef = useRef(null);
   const touchStartRef = useRef({ x: 0, y: 0, t: 0 });
   const dernierTapRef = useRef(0);
-  const controleTailleRef = useRef({ largeur: 1, gauche: 0 });
-  const dernierRenduBallRef = useRef(0);
+  const directionMaintenueRef = useRef(0); // -1 = gauche, 0 = arret, 1 = droite (boutons maintenus)
 
   // IMPORTANT : memoise via useMemo, pas juste recalcule a chaque rendu.
   // Sans ca, conf est un NOUVEL objet a chaque re-rendu (meme quand rien
@@ -12004,34 +12003,15 @@ function BouleQuiRouleScreen({ route, navigation }) {
     setIsPaused(true);
   }
 
-  function onControleDeplacement(pageX) {
-    const { largeur, gauche } = controleTailleRef.current;
-    const relatif = (pageX - gauche) / largeur;
-    const clamped = Math.max(0, Math.min(1, relatif));
-    // Le jeu (collisions, boucle) suit TOUJOURS la reference en temps
-    // reel, sans aucun delai. Seul le redessin visuel (setState, qui
-    // redessine tout l'ecran a chaque appel) est limite a ~30 fois par
-    // seconde : sans ca, chaque micro-mouvement du doigt redessinait
-    // l'ecran en entier, ce qui bloquait tout pendant le glissement.
-    ballXNormRef.current = clamped;
-    const maintenant = Date.now();
-    if (maintenant - dernierRenduBallRef.current >= 33) {
-      dernierRenduBallRef.current = maintenant;
-      setBallXNorm(clamped);
-    }
+  // Boutons ◀ ▶ maintenus plutot qu'un glisser sur une barre - retour de
+  // Thierry, le glisser ne fonctionnait pas bien. Tant qu'un bouton est
+  // maintenu, l'avatar se deplace en continu dans cette direction (mis a
+  // jour a chaque tick de la boucle de jeu, voir plus bas).
+  function demarrerDeplacement(direction) {
+    directionMaintenueRef.current = direction;
   }
-  function onControleGrant(e) {
-    controleTailleRef.current.gauche = barreControleGauche;
-    controleTailleRef.current.largeur = pisteLargeur;
-    onControleDeplacement(e.nativeEvent.pageX);
-  }
-  function onControleRelease(e) {
-    // A la fin du geste, on force un dernier rendu exact (sans attendre
-    // le prochain palier de 33ms) pour que la boule soit bien a la
-    // position finale precise du doigt, jamais en retard visuellement.
-    onControleDeplacement(e.nativeEvent.pageX);
-    dernierRenduBallRef.current = 0;
-    setBallXNorm(ballXNormRef.current);
+  function arreterDeplacement() {
+    directionMaintenueRef.current = 0;
   }
 
   function onTouchDebut(e) {
@@ -12249,6 +12229,14 @@ function BouleQuiRouleScreen({ route, navigation }) {
       if (isPausedRef.current) return;
       const dt = 0.04;
       const c = conf;
+
+      // Deplacement continu de l'avatar tant qu'un bouton ◀ ▶ est
+      // maintenu (mis a jour a chaque tick, comme le reste du jeu).
+      if (directionMaintenueRef.current !== 0) {
+        const nouveauX = Math.max(0, Math.min(1, ballXNormRef.current + directionMaintenueRef.current * BOULE_VITESSE_DEPLACEMENT_MANUEL * dt));
+        ballXNormRef.current = nouveauX;
+        setBallXNorm(nouveauX);
+      }
 
       setDistanceParcourue((prevDist) => {
         const vitesseEffective = vitesseAvanceRef.current * (Date.now() < ralentiJusquaRef.current ? 0.8 : 1);
@@ -12704,19 +12692,21 @@ function BouleQuiRouleScreen({ route, navigation }) {
         )}
       </View>
 
-      <View
-        collapsable={false}
-        onStartShouldSetResponder={() => true}
-        onMoveShouldSetResponder={() => true}
-        onResponderGrant={onControleGrant}
-        onResponderMove={(e) => onControleDeplacement(e.nativeEvent.pageX)}
-        onResponderRelease={onControleRelease}
-        style={{
-          width: pisteLargeur, height: 46, alignSelf: 'center', marginTop: 6,
-          backgroundColor: '#E4DCC8', borderRadius: 12, justifyContent: 'center',
-        }}
-      >
-        <View style={{ position: 'absolute', left: ballScreenX - 3, top: 4, width: 6, height: 38, borderRadius: 3, backgroundColor: colors.mossDeep }} />
+      <View style={{ flexDirection: 'row', width: pisteLargeur, alignSelf: 'center', marginTop: 6, gap: 10 }}>
+        <Pressable
+          onPressIn={() => demarrerDeplacement(-1)}
+          onPressOut={arreterDeplacement}
+          style={{ flex: 1, height: 52, backgroundColor: '#E4DCC8', borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Text style={{ fontSize: 26, fontWeight: '900', color: colors.mossDeep }}>◀</Text>
+        </Pressable>
+        <Pressable
+          onPressIn={() => demarrerDeplacement(1)}
+          onPressOut={arreterDeplacement}
+          style={{ flex: 1, height: 52, backgroundColor: '#E4DCC8', borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Text style={{ fontSize: 26, fontWeight: '900', color: colors.mossDeep }}>▶</Text>
+        </Pressable>
       </View>
     </View>
   );
