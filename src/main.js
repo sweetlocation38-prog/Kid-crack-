@@ -7628,37 +7628,18 @@ function pickTrapCells(path, rung) {
   return pieges;
 }
 
-// Croix directionnelle (D-pad) pour se deplacer dans les jeux de type
-// labyrinthe - retour de Thierry : glisser le doigt directement sur la
-// grille cachait le personnage sous le doigt. Placee en encart (coin bas
-// droit du plateau) plutot qu'a cote, pour ne pas rogner sur la taille du
-// labyrinthe a l'ecran. Un simple tap suffit par case (pas de glisser).
-function CroixDirectionnelle({ onHaut, onBas, onGauche, onDroite }) {
-  const taille = 40;
-  const style = {
-    width: taille, height: taille, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.88)', borderRadius: 8, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.15)',
-  };
-  const texte = { fontSize: 18, fontWeight: '900', color: '#3D2E4F' };
-  return (
-    <View style={{ position: 'absolute', bottom: 10, right: 10, alignItems: 'center' }}>
-      <Pressable style={style} onPress={onHaut}><Text style={texte}>▲</Text></Pressable>
-      <View style={{ flexDirection: 'row', gap: taille + 4 }}>
-        <Pressable style={style} onPress={onGauche}><Text style={texte}>◀</Text></Pressable>
-        <Pressable style={style} onPress={onDroite}><Text style={texte}>▶</Text></Pressable>
-      </View>
-      <Pressable style={style} onPress={onBas}><Text style={texte}>▼</Text></Pressable>
-    </View>
-  );
-}
-
-function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, trapCells, trapsResolus }) {
+function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, trapCells, trapsResolus, onTouchStart, onTouchMove, gridRef }) {
   const cellSize = MAZE_CELL_SIZE;
   const wallColor = '#3D2E4F';
 
   return (
     <View
+      ref={gridRef}
       collapsable={false}
+      onStartShouldSetResponder={() => true}
+      onMoveShouldSetResponder={() => true}
+      onResponderGrant={(e) => onTouchStart(e.nativeEvent.pageX, e.nativeEvent.pageY)}
+      onResponderMove={(e) => onTouchMove(e.nativeEvent.pageX, e.nativeEvent.pageY)}
       style={{ alignSelf: 'center', marginVertical: 12, backgroundColor: '#EDE7F6', borderRadius: 6 }}
     >
       {cells.map((row, r) => (
@@ -8062,6 +8043,41 @@ function LabyrintheGrotteScreen({ route, navigation }) {
     }
   }
 
+  // Glissement RELATIF plutot que position absolue : ou que le doigt se
+  // pose sur la grille, glisser dans une direction fait avancer le
+  // personnage pas a pas dans cette direction - le doigt n'a plus besoin
+  // d'etre exactement sur le personnage, donc il ne cache plus la vue sur
+  // le chemin. Repris a l'identique de Chemin des Dizaines (retour de
+  // Thierry : ce systeme fonctionne bien, a reappliquer ici plutot qu'une
+  // croix directionnelle).
+  const gridRef = useRef(null);
+  const touchAnchorRef = useRef(null);
+  const PAS_GLISSEMENT = MAZE_CELL_SIZE * 0.7;
+
+  function onTouchStart(pageX, pageY) {
+    touchAnchorRef.current = { x: pageX, y: pageY };
+  }
+
+  function onTouchMove(pageX, pageY) {
+    if (!touchAnchorRef.current) {
+      touchAnchorRef.current = { x: pageX, y: pageY };
+      return;
+    }
+    const dx = pageX - touchAnchorRef.current.x;
+    const dy = pageY - touchAnchorRef.current.y;
+    if (Math.abs(dx) < PAS_GLISSEMENT && Math.abs(dy) < PAS_GLISSEMENT) return;
+
+    const { r, c } = posRef.current;
+    let nr = r, nc = c;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      nc = c + (dx > 0 ? 1 : -1);
+    } else {
+      nr = r + (dy > 0 ? 1 : -1);
+    }
+    tryMoveTo(nr, nc);
+    touchAnchorRef.current = { x: pageX, y: pageY };
+  }
+
   if (sessionDone) {
     return (
       <SessionEndScreen
@@ -8127,25 +8143,20 @@ function LabyrintheGrotteScreen({ route, navigation }) {
         </Text>
       )}
 
-      <View style={{ position: 'relative' }}>
-        <MazeGridVisual
-          cells={cells}
-          rows={rows}
-          cols={cols}
-          pos={pos}
-          start={{ r: 0, c: 0 }}
-          treasure={treasure}
-          visitedSet={visitedSet}
-          trapCells={trapCellsRef.current}
-          trapsResolus={trapsResolus}
-        />
-        <CroixDirectionnelle
-          onHaut={() => tryMoveTo(pos.r - 1, pos.c)}
-          onBas={() => tryMoveTo(pos.r + 1, pos.c)}
-          onGauche={() => tryMoveTo(pos.r, pos.c - 1)}
-          onDroite={() => tryMoveTo(pos.r, pos.c + 1)}
-        />
-      </View>
+      <MazeGridVisual
+        cells={cells}
+        rows={rows}
+        cols={cols}
+        pos={pos}
+        start={{ r: 0, c: 0 }}
+        treasure={treasure}
+        visitedSet={visitedSet}
+        trapCells={trapCellsRef.current}
+        trapsResolus={trapsResolus}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        gridRef={gridRef}
+      />
 
       <TrapQuestionModal
         visible={activeTrap != null}
