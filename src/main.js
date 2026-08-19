@@ -7628,18 +7628,37 @@ function pickTrapCells(path, rung) {
   return pieges;
 }
 
-function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, trapCells, trapsResolus, onGridTouch, gridRef }) {
+// Croix directionnelle (D-pad) pour se deplacer dans les jeux de type
+// labyrinthe - retour de Thierry : glisser le doigt directement sur la
+// grille cachait le personnage sous le doigt. Placee en encart (coin bas
+// droit du plateau) plutot qu'a cote, pour ne pas rogner sur la taille du
+// labyrinthe a l'ecran. Un simple tap suffit par case (pas de glisser).
+function CroixDirectionnelle({ onHaut, onBas, onGauche, onDroite }) {
+  const taille = 40;
+  const style = {
+    width: taille, height: taille, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.88)', borderRadius: 8, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.15)',
+  };
+  const texte = { fontSize: 18, fontWeight: '900', color: '#3D2E4F' };
+  return (
+    <View style={{ position: 'absolute', bottom: 10, right: 10, alignItems: 'center' }}>
+      <Pressable style={style} onPress={onHaut}><Text style={texte}>▲</Text></Pressable>
+      <View style={{ flexDirection: 'row', gap: taille + 4 }}>
+        <Pressable style={style} onPress={onGauche}><Text style={texte}>◀</Text></Pressable>
+        <Pressable style={style} onPress={onDroite}><Text style={texte}>▶</Text></Pressable>
+      </View>
+      <Pressable style={style} onPress={onBas}><Text style={texte}>▼</Text></Pressable>
+    </View>
+  );
+}
+
+function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, trapCells, trapsResolus }) {
   const cellSize = MAZE_CELL_SIZE;
   const wallColor = '#3D2E4F';
 
   return (
     <View
-      ref={gridRef}
       collapsable={false}
-      onStartShouldSetResponder={() => true}
-      onMoveShouldSetResponder={() => true}
-      onResponderGrant={(e) => onGridTouch(e.nativeEvent.pageX, e.nativeEvent.pageY)}
-      onResponderMove={(e) => onGridTouch(e.nativeEvent.pageX, e.nativeEvent.pageY)}
       style={{ alignSelf: 'center', marginVertical: 12, backgroundColor: '#EDE7F6', borderRadius: 6 }}
     >
       {cells.map((row, r) => (
@@ -7808,8 +7827,6 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   const finishedRef = useRef(false);
   const stepsCountRef = useRef(0);
   const targetDistRef = useRef(0);
-  const gridOriginRef = useRef({ x: 0, y: 0 });
-  const gridRef = useRef(null);
   const trapCellsRef = useRef([]);
   const trapsResolusRef = useRef(new Set());
   const trapActiveRef = useRef(false); // bloque les deplacements pendant qu'une question est affichee
@@ -8045,22 +8062,6 @@ function LabyrintheGrotteScreen({ route, navigation }) {
     }
   }
 
-  function onGridTouch(pageX, pageY) {
-    const { x, y } = gridOriginRef.current;
-    const localX = pageX - x;
-    const localY = pageY - y;
-    const c = Math.floor(localX / (MAZE_CELL_SIZE + 0));
-    const r = Math.floor(localY / (MAZE_CELL_SIZE + 0));
-    tryMoveTo(r, c);
-  }
-
-  function onGridLayout() {
-    if (!gridRef.current) return;
-    gridRef.current.measure((fx, fy, w, h, pageX, pageY) => {
-      gridOriginRef.current = { x: pageX, y: pageY };
-    });
-  }
-
   if (sessionDone) {
     return (
       <SessionEndScreen
@@ -8126,7 +8127,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
         </Text>
       )}
 
-      <View onLayout={onGridLayout}>
+      <View style={{ position: 'relative' }}>
         <MazeGridVisual
           cells={cells}
           rows={rows}
@@ -8137,8 +8138,12 @@ function LabyrintheGrotteScreen({ route, navigation }) {
           visitedSet={visitedSet}
           trapCells={trapCellsRef.current}
           trapsResolus={trapsResolus}
-          onGridTouch={onGridTouch}
-          gridRef={gridRef}
+        />
+        <CroixDirectionnelle
+          onHaut={() => tryMoveTo(pos.r - 1, pos.c)}
+          onBas={() => tryMoveTo(pos.r + 1, pos.c)}
+          onGauche={() => tryMoveTo(pos.r, pos.c - 1)}
+          onDroite={() => tryMoveTo(pos.r, pos.c + 1)}
         />
       </View>
 
