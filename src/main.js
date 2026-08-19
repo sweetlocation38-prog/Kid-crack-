@@ -8830,6 +8830,15 @@ function CheminDizainesScreen({ route, navigation }) {
   }
 
   function retirerUnEnVrac() {
+    if (enVrac === 0 && dizaines > 0) {
+      // Plus rien "en vrac" a retirer : on defait une dizaine pour
+      // pouvoir continuer - retour de Thierry, sinon impossible de
+      // corriger un total qui tombe pile sur un multiple de dix.
+      setDizaines((d) => d - 1);
+      setEnVrac(9);
+      speakSmart('Une botte de dix est défaite !');
+      return;
+    }
     setEnVrac((v) => Math.max(0, v - 1));
   }
 
@@ -8989,7 +8998,7 @@ function CheminDizainesScreen({ route, navigation }) {
       />
 
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
-        {enVrac > 0 && (
+        {(enVrac > 0 || dizaines > 0) && (
           <Pressable style={[styles.button, { backgroundColor: '#E0C9A6' }]} onPress={retirerUnEnVrac}>
             <Text style={styles.buttonText}>↩️ Retirer un jeton</Text>
           </Pressable>
