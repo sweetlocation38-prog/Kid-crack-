@@ -5365,7 +5365,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
                 </Text>
                 <Pressable
                   style={[styles.optionListenBtn, estUnEmojiSeul && styles.optionListenBtnBas]}
-                  onPress={() => speakSmart(String(option))}
+                  onPress={() => speakPhonemeOuTexte(String(option))}
                   hitSlop={10}
                 >
                   <Text style={{ fontSize: 15 }}>🎤</Text>
@@ -6650,7 +6650,7 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
                 </Text>
                 <Pressable
                   style={[styles.optionListenBtn, estUnEmojiSeul && styles.optionListenBtnBas]}
-                  onPress={() => speakSmart(String(option))}
+                  onPress={() => speakPhonemeOuTexte(String(option))}
                   hitSlop={10}
                 >
                   <Text style={{ fontSize: 15 }}>🎤</Text>
@@ -7764,7 +7764,7 @@ function TrapQuestionModal({ visible, trapData, onAnswer }) {
               <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Pressable
                   style={[styles.button, { flex: 1, marginTop: 0 }]}
-                  onPress={() => onAnswer(String(opt) === String(trapData.bonneReponse))}
+                  onPress={() => onAnswer(reponsesEquivalentes(opt, trapData.bonneReponse))}
                 >
                   <Text style={styles.buttonText}>{String(opt)}</Text>
                 </Pressable>
