@@ -1,363 +1,329 @@
 {
   "totalLignes": 905,
-  "sansContinentCount": 751,
-  "sansContinentExemples": [
-    {
-      "pays": "Bhoutan",
-      "etape": "pays_capitale",
-      "options": [
-        "Thimphou",
-        "Phnom Penh",
-        "Riyad"
-      ],
-      "reponse": "Thimphou",
-      "categorie": "capitale"
-    },
-    {
-      "pays": "Maldives",
-      "etape": "pays_capitale",
-      "options": [
-        "Malé",
-        "Thimphou",
-        "Port-d'Espagne"
-      ],
-      "reponse": "Malé",
-      "categorie": "capitale"
-    },
-    {
-      "pays": "Bahreïn",
-      "etape": "pays_capitale",
-      "options": [
-        "Manama",
-        "Nassau",
-        "Kingston"
-      ],
-      "reponse": "Manama",
-      "categorie": "capitale"
-    }
-  ],
-  "Oceanie": {
-    "count": 12,
-    "exemples": [
-      {
-        "etape": "animal_pays",
-        "animal": "🦘",
-        "options": [
-          "Australie",
-          "France",
-          "Chine"
-        ],
-        "reponse": "Australie",
-        "categorie": "animal",
-        "continent": "Oceanie"
-      },
-      {
-        "etape": "animal_pays",
-        "animal": "🐨",
-        "options": [
-          "Australie",
-          "Nouvelle-Zélande",
-          "Fidji"
-        ],
-        "reponse": "Australie",
-        "categorie": "animal",
-        "continent": "Oceanie"
-      },
-      {
-        "etape": "animal_pays",
-        "animal": "🥝",
-        "options": [
-          "Nouvelle-Zélande",
-          "Australie",
-          "Fidji"
-        ],
-        "reponse": "Nouvelle-Zélande",
-        "categorie": "animal",
-        "continent": "Oceanie"
-      },
-      {
-        "etape": "drapeau_pays",
-        "drapeau": "🇫🇯",
-        "options": [
-          "Fidji",
-          "Samoa",
-          "Tonga"
-        ],
-        "reponse": "Fidji",
-        "categorie": "ile",
-        "continent": "Oceanie"
-      },
-      {
-        "etape": "drapeau_pays",
-        "drapeau": "🇳🇿",
-        "options": [
-          "Nouvelle-Zélande",
-          "Australie",
-          "Fidji"
-        ],
-        "reponse": "Nouvelle-Zélande",
-        "categorie": "ile",
-        "continent": "Oceanie"
-      }
-    ]
-  },
+  "sansContinentCount": 0,
+  "sansContinentExemples": [],
   "Asie": {
-    "count": 36,
+    "count": 239,
     "exemples": [
       {
-        "etape": "animal_pays",
-        "animal": "🐼",
+        "pays": "Maldives",
+        "etape": "pays_capitale",
         "options": [
-          "Chine",
-          "France",
-          "Brésil"
+          "Malé",
+          "Thimphou",
+          "Port-d'Espagne"
         ],
-        "reponse": "Chine",
-        "categorie": "animal",
+        "reponse": "Malé",
+        "categorie": "capitale",
         "continent": "Asie"
       },
       {
-        "etape": "animal_pays",
-        "animal": "🐅",
+        "pays": "Bahreïn",
+        "etape": "pays_capitale",
         "options": [
-          "Inde",
-          "Chine",
-          "Thaïlande"
+          "Manama",
+          "Nassau",
+          "Kingston"
         ],
-        "reponse": "Inde",
-        "categorie": "animal",
+        "reponse": "Manama",
+        "categorie": "capitale",
         "continent": "Asie"
       },
       {
-        "etape": "animal_pays",
-        "animal": "🐘",
+        "pays": "Jordanie",
+        "etape": "pays_capitale",
         "options": [
-          "Thaïlande",
-          "Inde",
-          "Vietnam"
+          "Amman",
+          "Kingston",
+          "Dacca"
         ],
-        "reponse": "Thaïlande",
-        "categorie": "animal",
+        "reponse": "Amman",
+        "categorie": "capitale",
         "continent": "Asie"
       },
       {
-        "etape": "animal_pays",
-        "animal": "🐫",
+        "pays": "Afghanistan",
+        "etape": "pays_capitale",
         "options": [
-          "Arabie Saoudite",
-          "Qatar",
-          "Oman"
+          "Kaboul",
+          "Abou Dabi",
+          "Kingston"
         ],
-        "reponse": "Arabie Saoudite",
-        "categorie": "animal",
+        "reponse": "Kaboul",
+        "categorie": "capitale",
         "continent": "Asie"
       },
       {
-        "etape": "animal_pays",
-        "animal": "🐉",
+        "pays": "Bangladesh",
+        "etape": "pays_capitale",
         "options": [
-          "Chine",
-          "Japon",
-          "Corée du Sud"
+          "Dacca",
+          "Banjul",
+          "Accra"
         ],
-        "reponse": "Chine",
-        "categorie": "animal",
+        "reponse": "Dacca",
+        "categorie": "capitale",
         "continent": "Asie"
-      }
-    ]
-  },
-  "Amerique": {
-    "count": 29,
-    "exemples": [
-      {
-        "etape": "animal_pays",
-        "animal": "🦅",
-        "options": [
-          "États-Unis",
-          "Chine",
-          "Egypte"
-        ],
-        "reponse": "États-Unis",
-        "categorie": "animal",
-        "continent": "Amerique"
-      },
-      {
-        "etape": "animal_pays",
-        "animal": "🐆",
-        "options": [
-          "Brésil",
-          "Argentine",
-          "Chili"
-        ],
-        "reponse": "Brésil",
-        "categorie": "animal",
-        "continent": "Amerique"
-      },
-      {
-        "etape": "animal_pays",
-        "animal": "🐻‍❄️",
-        "options": [
-          "Canada",
-          "Russie",
-          "Norvège"
-        ],
-        "reponse": "Canada",
-        "categorie": "animal",
-        "continent": "Amerique"
-      },
-      {
-        "etape": "animal_pays",
-        "animal": "🦙",
-        "options": [
-          "Pérou",
-          "Bolivie",
-          "Chili"
-        ],
-        "reponse": "Pérou",
-        "categorie": "animal",
-        "continent": "Amerique"
-      },
-      {
-        "etape": "animal_pays",
-        "animal": "🦬",
-        "options": [
-          "États-Unis",
-          "Canada",
-          "Mexique"
-        ],
-        "reponse": "États-Unis",
-        "categorie": "animal",
-        "continent": "Amerique"
       }
     ]
   },
   "Afrique": {
-    "count": 35,
+    "count": 192,
     "exemples": [
       {
-        "etape": "animal_pays",
-        "animal": "🦁",
+        "pays": "Gambie",
+        "etape": "pays_capitale",
         "options": [
-          "Kenya",
-          "France",
-          "Japon"
+          "Banjul",
+          "Accra",
+          "Malabo"
         ],
-        "reponse": "Kenya",
-        "categorie": "animal",
+        "reponse": "Banjul",
+        "categorie": "capitale",
         "continent": "Afrique"
       },
       {
-        "etape": "animal_pays",
-        "animal": "🦏",
+        "pays": "Ghana",
+        "etape": "pays_capitale",
         "options": [
-          "Afrique du Sud",
-          "Kenya",
-          "Egypte"
+          "Accra",
+          "Malé",
+          "Saint-Domingue"
         ],
-        "reponse": "Afrique du Sud",
-        "categorie": "animal",
+        "reponse": "Accra",
+        "categorie": "capitale",
         "continent": "Afrique"
       },
       {
-        "etape": "animal_pays",
-        "animal": "🦒",
+        "pays": "Cameroun",
+        "etape": "pays_capitale",
         "options": [
-          "Tanzanie",
-          "Kenya",
-          "Zambie"
+          "Yaoundé",
+          "Abou Dabi",
+          "Banjul"
         ],
-        "reponse": "Tanzanie",
-        "categorie": "animal",
+        "reponse": "Yaoundé",
+        "categorie": "capitale",
         "continent": "Afrique"
       },
       {
-        "etape": "animal_pays",
-        "animal": "🦓",
+        "pays": "Somalie",
+        "etape": "pays_capitale",
         "options": [
-          "Botswana",
-          "Kenya",
-          "Namibie"
+          "Mogadiscio",
+          "Malabo",
+          "Accra"
         ],
-        "reponse": "Botswana",
-        "categorie": "animal",
+        "reponse": "Mogadiscio",
+        "categorie": "capitale",
         "continent": "Afrique"
       },
       {
-        "pays": "Égypte",
-        "etape": "langue_pays",
+        "pays": "Ouganda",
+        "etape": "pays_capitale",
         "options": [
-          "Arabe",
-          "Français",
-          "Anglais"
+          "Kampala",
+          "Abou Dabi",
+          "Malabo"
         ],
-        "reponse": "Arabe",
-        "categorie": "langue",
+        "reponse": "Kampala",
+        "categorie": "capitale",
         "continent": "Afrique"
       }
     ]
   },
-  "Europe": {
-    "count": 42,
+  "Amerique": {
+    "count": 177,
     "exemples": [
       {
-        "etape": "animal_pays",
-        "animal": "🐓",
+        "pays": "Jamaïque",
+        "etape": "pays_capitale",
         "options": [
-          "France",
-          "Espagne",
-          "Italie"
+          "Kingston",
+          "Dacca",
+          "Accra"
         ],
-        "reponse": "France",
-        "categorie": "animal",
+        "reponse": "Kingston",
+        "categorie": "capitale",
+        "continent": "Amerique"
+      },
+      {
+        "pays": "Bahamas",
+        "etape": "pays_capitale",
+        "options": [
+          "Nassau",
+          "Phnom Penh",
+          "Riyad"
+        ],
+        "reponse": "Nassau",
+        "categorie": "capitale",
+        "continent": "Amerique"
+      },
+      {
+        "pays": "Barbade",
+        "etape": "pays_capitale",
+        "options": [
+          "Bridgetown",
+          "Dacca",
+          "Manama"
+        ],
+        "reponse": "Bridgetown",
+        "categorie": "capitale",
+        "continent": "Amerique"
+      },
+      {
+        "pays": "Trinité-et-Tobago",
+        "etape": "pays_capitale",
+        "options": [
+          "Port-d'Espagne",
+          "Banjul",
+          "Bridgetown"
+        ],
+        "reponse": "Port-d'Espagne",
+        "categorie": "capitale",
+        "continent": "Amerique"
+      },
+      {
+        "pays": "Haïti",
+        "etape": "pays_capitale",
+        "options": [
+          "Port-au-Prince",
+          "Dili",
+          "Malé"
+        ],
+        "reponse": "Port-au-Prince",
+        "categorie": "capitale",
+        "continent": "Amerique"
+      }
+    ]
+  },
+  "Europe": {
+    "count": 246,
+    "exemples": [
+      {
+        "pays": "Andorre",
+        "etape": "pays_capitale",
+        "options": [
+          "Andorre-la-Vieille",
+          "Cité du Vatican",
+          "Majuro"
+        ],
+        "reponse": "Andorre-la-Vieille",
+        "categorie": "capitale",
         "continent": "Europe"
       },
       {
-        "etape": "animal_pays",
-        "animal": "🐻",
+        "pays": "Monaco",
+        "etape": "pays_capitale",
         "options": [
-          "Russie",
-          "Suède",
-          "Finlande"
+          "Monaco",
+          "Andorre-la-Vieille",
+          "Vaduz"
         ],
-        "reponse": "Russie",
-        "categorie": "animal",
+        "reponse": "Monaco",
+        "categorie": "capitale",
         "continent": "Europe"
       },
       {
-        "etape": "animal_pays",
-        "animal": "🦌",
+        "pays": "Liechtenstein",
+        "etape": "pays_capitale",
         "options": [
-          "Norvège",
-          "Suède",
-          "Finlande"
+          "Vaduz",
+          "Andorre-la-Vieille",
+          "Monaco"
         ],
-        "reponse": "Norvège",
-        "categorie": "animal",
+        "reponse": "Vaduz",
+        "categorie": "capitale",
         "continent": "Europe"
       },
       {
-        "pays": "Espagne",
-        "etape": "langue_pays",
+        "pays": "Andorre",
+        "etape": "pays_capitale",
         "options": [
-          "Espagnol",
-          "Portugais",
-          "Italien"
+          "Andorre-la-Vieille",
+          "Ngerulmud",
+          "Majuro"
         ],
-        "reponse": "Espagnol",
-        "categorie": "langue",
+        "reponse": "Andorre-la-Vieille",
+        "categorie": "capitale",
         "continent": "Europe"
       },
       {
-        "pays": "Allemagne",
-        "etape": "langue_pays",
+        "pays": "Monaco",
+        "etape": "pays_capitale",
         "options": [
-          "Allemand",
-          "Anglais",
-          "Néerlandais"
+          "Monaco",
+          "Palikir",
+          "Basseterre"
         ],
-        "reponse": "Allemand",
-        "categorie": "langue",
+        "reponse": "Monaco",
+        "categorie": "capitale",
         "continent": "Europe"
+      }
+    ]
+  },
+  "Oceanie": {
+    "count": 51,
+    "exemples": [
+      {
+        "pays": "Kiribati",
+        "etape": "pays_capitale",
+        "options": [
+          "Tarawa",
+          "Cité du Vatican",
+          "Basseterre"
+        ],
+        "reponse": "Tarawa",
+        "categorie": "capitale",
+        "continent": "Oceanie"
+      },
+      {
+        "pays": "Palaos",
+        "etape": "pays_capitale",
+        "options": [
+          "Ngerulmud",
+          "Monaco",
+          "Funafuti"
+        ],
+        "reponse": "Ngerulmud",
+        "categorie": "capitale",
+        "continent": "Oceanie"
+      },
+      {
+        "pays": "Tuvalu",
+        "etape": "pays_capitale",
+        "options": [
+          "Funafuti",
+          "Saint John's",
+          "Vaduz"
+        ],
+        "reponse": "Funafuti",
+        "categorie": "capitale",
+        "continent": "Oceanie"
+      },
+      {
+        "pays": "Nauru",
+        "etape": "pays_capitale",
+        "options": [
+          "Yaren",
+          "Cité du Vatican",
+          "Basseterre"
+        ],
+        "reponse": "Yaren",
+        "categorie": "capitale",
+        "continent": "Oceanie"
+      },
+      {
+        "pays": "Îles Marshall",
+        "etape": "pays_capitale",
+        "options": [
+          "Majuro",
+          "Tarawa",
+          "Paramaribo"
+        ],
+        "reponse": "Majuro",
+        "categorie": "capitale",
+        "continent": "Oceanie"
       }
     ]
   }
