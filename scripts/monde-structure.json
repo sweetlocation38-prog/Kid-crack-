@@ -1,0 +1,150 @@
+{
+  "sansContinent": {
+    "pays_capitale": {
+      "count": 310,
+      "exemple": {
+        "pays": "Bhoutan",
+        "etape": "pays_capitale",
+        "options": [
+          "Thimphou",
+          "Phnom Penh",
+          "Riyad"
+        ],
+        "reponse": "Thimphou",
+        "categorie": "capitale"
+      }
+    },
+    "drapeau_pays": {
+      "count": 115,
+      "exemple": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇹",
+        "options": [
+          "Italie",
+          "France",
+          "Allemagne"
+        ],
+        "reponse": "Italie",
+        "categorie": "drapeau"
+      }
+    },
+    "drapeau_capitale": {
+      "count": 79,
+      "exemple": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇧🇪",
+        "options": [
+          "Bruxelles",
+          "Anvers",
+          "Bruges"
+        ],
+        "reponse": "Bruxelles",
+        "categorie": "drapeau"
+      }
+    },
+    "langue_pays": {
+      "count": 204,
+      "exemple": {
+        "pays": "France",
+        "etape": "langue_pays",
+        "options": [
+          "Chinois",
+          "Français",
+          "Arabe"
+        ],
+        "reponse": "Français",
+        "categorie": "langue"
+      }
+    },
+    "animal_pays": {
+      "count": 27,
+      "exemple": {
+        "etape": "animal_pays",
+        "animal": "🐓",
+        "options": [
+          "Inde",
+          "Japon",
+          "France"
+        ],
+        "reponse": "France",
+        "categorie": "animal"
+      }
+    },
+    "monument_pays": {
+      "count": 16,
+      "exemple": {
+        "etape": "monument_pays",
+        "options": [
+          "Italie",
+          "Égypte",
+          "Brésil"
+        ],
+        "reponse": "Italie",
+        "monument": "🏟️",
+        "categorie": "monument"
+      }
+    }
+  },
+  "avecContinent": {
+    "animal_pays": {
+      "count": 35,
+      "exemple": {
+        "etape": "animal_pays",
+        "animal": "🦘",
+        "options": [
+          "Australie",
+          "France",
+          "Chine"
+        ],
+        "reponse": "Australie",
+        "categorie": "animal",
+        "continent": "Oceanie"
+      }
+    },
+    "langue_pays": {
+      "count": 14,
+      "exemple": {
+        "pays": "Espagne",
+        "etape": "langue_pays",
+        "options": [
+          "Espagnol",
+          "Portugais",
+          "Italien"
+        ],
+        "reponse": "Espagnol",
+        "categorie": "langue",
+        "continent": "Europe"
+      }
+    },
+    "monument_pays": {
+      "count": 20,
+      "exemple": {
+        "etape": "monument_pays",
+        "options": [
+          "France",
+          "Espagne",
+          "Italie"
+        ],
+        "reponse": "France",
+        "monument": "🗼",
+        "categorie": "monument",
+        "continent": "Europe"
+      }
+    },
+    "drapeau_pays": {
+      "count": 85,
+      "exemple": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇫🇯",
+        "options": [
+          "Fidji",
+          "Samoa",
+          "Tonga"
+        ],
+        "reponse": "Fidji",
+        "categorie": "ile",
+        "continent": "Oceanie"
+      }
+    }
+  }
+}
