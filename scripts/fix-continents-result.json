@@ -1,0 +1,231 @@
+{
+  "total": 751,
+  "succes": 735,
+  "echecsCount": 16,
+  "echecs": [
+    {
+      "id": "2b70fbcf-b539-4176-b8bb-ff9dbc2dcd95",
+      "donnees": {
+        "pays": "Émirats arabes unis",
+        "etape": "pays_capitale",
+        "options": [
+          "Abou Dabi",
+          "Bangui",
+          "Islamabad"
+        ],
+        "reponse": "Abou Dabi",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "3fc1c21d-d7f3-4a9b-a8da-a4398067a6c3",
+      "donnees": {
+        "pays": "Arabie saoudite",
+        "etape": "pays_capitale",
+        "options": [
+          "Riyad",
+          "Phnom Penh",
+          "Thimphou"
+        ],
+        "reponse": "Riyad",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "d304e2b3-6438-43e2-93ef-10e7e86b4364",
+      "donnees": {
+        "pays": "République dominicaine",
+        "etape": "pays_capitale",
+        "options": [
+          "Saint-Domingue",
+          "Islamabad",
+          "Nassau"
+        ],
+        "reponse": "Saint-Domingue",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "68dda72e-c590-471a-94a3-48f2e9fc8ac9",
+      "donnees": {
+        "pays": "Émirats arabes unis",
+        "etape": "pays_capitale",
+        "options": [
+          "Abou Dabi",
+          "Dacca",
+          "Bissau"
+        ],
+        "reponse": "Abou Dabi",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "507c389b-abaf-4ddd-a136-953c14b70647",
+      "donnees": {
+        "pays": "Arabie saoudite",
+        "etape": "pays_capitale",
+        "options": [
+          "Riyad",
+          "Kaboul",
+          "Dacca"
+        ],
+        "reponse": "Riyad",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "589fcf84-a26d-4ced-bf6a-374f5c89cb57",
+      "donnees": {
+        "pays": "République dominicaine",
+        "etape": "pays_capitale",
+        "options": [
+          "Saint-Domingue",
+          "Manama",
+          "Bridgetown"
+        ],
+        "reponse": "Saint-Domingue",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "b8e82449-ebdd-449c-8699-00be25df5704",
+      "donnees": {
+        "pays": "Émirats arabes unis",
+        "etape": "pays_capitale",
+        "options": [
+          "Abou Dabi",
+          "Accra",
+          "Port-au-Prince"
+        ],
+        "reponse": "Abou Dabi",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "57ba33a3-6f9a-4ed8-89d1-fac3537b4581",
+      "donnees": {
+        "pays": "Arabie saoudite",
+        "etape": "pays_capitale",
+        "options": [
+          "Riyad",
+          "Phnom Penh",
+          "Port-au-Prince"
+        ],
+        "reponse": "Riyad",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "8b816d30-25df-4573-8113-e9a156d0e2a5",
+      "donnees": {
+        "pays": "République dominicaine",
+        "etape": "pays_capitale",
+        "options": [
+          "Saint-Domingue",
+          "Dacca",
+          "Nassau"
+        ],
+        "reponse": "Saint-Domingue",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "f8477ed3-80a8-4372-9cf8-cc4a94e3ad69",
+      "donnees": {
+        "pays": "Vatican",
+        "etape": "pays_capitale",
+        "options": [
+          "Cité du Vatican",
+          "Monaco",
+          "Belmopan"
+        ],
+        "reponse": "Cité du Vatican",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "6188a3a9-30dc-4007-bf97-7a467352cce0",
+      "donnees": {
+        "pays": "Vatican",
+        "etape": "pays_capitale",
+        "options": [
+          "Cité du Vatican",
+          "Basseterre",
+          "Palikir"
+        ],
+        "reponse": "Cité du Vatican",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "ea1319ec-91c7-4704-9f21-69034bb246c9",
+      "donnees": {
+        "pays": "Vatican",
+        "etape": "pays_capitale",
+        "options": [
+          "Cité du Vatican",
+          "Basseterre",
+          "Palikir"
+        ],
+        "reponse": "Cité du Vatican",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "c2a3bf42-ff13-4c64-99e4-a8e207fc489d",
+      "donnees": {
+        "pays": "Érythrée",
+        "etape": "pays_capitale",
+        "options": [
+          "Asmara",
+          "Massaoua",
+          "Keren"
+        ],
+        "reponse": "Asmara",
+        "categorie": "capitale"
+      }
+    },
+    {
+      "id": "5829f7ae-7a60-4ca6-a1dc-c23d3e8d97d1",
+      "donnees": {
+        "pays": "Écosse",
+        "etape": "langue_pays",
+        "options": [
+          "Japonais",
+          "Anglais",
+          "Italien"
+        ],
+        "reponse": "Anglais",
+        "categorie": "langue"
+      }
+    },
+    {
+      "id": "fea97e0c-6bd9-4192-a604-b3424081752e",
+      "donnees": {
+        "pays": "Écosse",
+        "etape": "langue_pays",
+        "options": [
+          "Anglais",
+          "Français",
+          "Espagnol"
+        ],
+        "reponse": "Anglais",
+        "categorie": "langue"
+      }
+    },
+    {
+      "id": "1761b775-245f-4286-a20b-ca6eb64e26ec",
+      "donnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇷",
+        "options": [
+          "Porto Rico",
+          "Haïti",
+          "Cuba"
+        ],
+        "reponse": "Porto Rico",
+        "categorie": "ile"
+      }
+    }
+  ]
+}
