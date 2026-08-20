@@ -1,0 +1,5116 @@
+{
+  "totalLignesSansContinent": 751,
+  "paysDistincts": 365,
+  "detail": {
+    "Thimphou": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Bhoutan",
+        "etape": "pays_capitale",
+        "options": [
+          "Thimphou",
+          "Phnom Penh",
+          "Riyad"
+        ],
+        "reponse": "Thimphou",
+        "categorie": "capitale"
+      }
+    },
+    "Malé": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Maldives",
+        "etape": "pays_capitale",
+        "options": [
+          "Malé",
+          "Thimphou",
+          "Port-d'Espagne"
+        ],
+        "reponse": "Malé",
+        "categorie": "capitale"
+      }
+    },
+    "Manama": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Bahreïn",
+        "etape": "pays_capitale",
+        "options": [
+          "Manama",
+          "Nassau",
+          "Kingston"
+        ],
+        "reponse": "Manama",
+        "categorie": "capitale"
+      }
+    },
+    "Abou Dabi": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Émirats arabes unis",
+        "etape": "pays_capitale",
+        "options": [
+          "Abou Dabi",
+          "Bangui",
+          "Islamabad"
+        ],
+        "reponse": "Abou Dabi",
+        "categorie": "capitale"
+      }
+    },
+    "Riyad": {
+      "count": 4,
+      "exempleDonnees": {
+        "pays": "Arabie saoudite",
+        "etape": "pays_capitale",
+        "options": [
+          "Riyad",
+          "Phnom Penh",
+          "Thimphou"
+        ],
+        "reponse": "Riyad",
+        "categorie": "capitale"
+      }
+    },
+    "Amman": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Jordanie",
+        "etape": "pays_capitale",
+        "options": [
+          "Amman",
+          "Kingston",
+          "Dacca"
+        ],
+        "reponse": "Amman",
+        "categorie": "capitale"
+      }
+    },
+    "Kaboul": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Afghanistan",
+        "etape": "pays_capitale",
+        "options": [
+          "Kaboul",
+          "Abou Dabi",
+          "Kingston"
+        ],
+        "reponse": "Kaboul",
+        "categorie": "capitale"
+      }
+    },
+    "Islamabad": {
+      "count": 4,
+      "exempleDonnees": {
+        "pays": "Pakistan",
+        "etape": "pays_capitale",
+        "options": [
+          "Islamabad",
+          "Banjul",
+          "Nassau"
+        ],
+        "reponse": "Islamabad",
+        "categorie": "capitale"
+      }
+    },
+    "Dacca": {
+      "count": 4,
+      "exempleDonnees": {
+        "pays": "Bangladesh",
+        "etape": "pays_capitale",
+        "options": [
+          "Dacca",
+          "Banjul",
+          "Accra"
+        ],
+        "reponse": "Dacca",
+        "categorie": "capitale"
+      }
+    },
+    "Phnom Penh": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Cambodge",
+        "etape": "pays_capitale",
+        "options": [
+          "Phnom Penh",
+          "Dacca",
+          "Dili"
+        ],
+        "reponse": "Phnom Penh",
+        "categorie": "capitale"
+      }
+    },
+    "Banjul": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Gambie",
+        "etape": "pays_capitale",
+        "options": [
+          "Banjul",
+          "Accra",
+          "Malabo"
+        ],
+        "reponse": "Banjul",
+        "categorie": "capitale"
+      }
+    },
+    "Accra": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Ghana",
+        "etape": "pays_capitale",
+        "options": [
+          "Accra",
+          "Malé",
+          "Saint-Domingue"
+        ],
+        "reponse": "Accra",
+        "categorie": "capitale"
+      }
+    },
+    "Yaoundé": {
+      "count": 4,
+      "exempleDonnees": {
+        "pays": "Cameroun",
+        "etape": "pays_capitale",
+        "options": [
+          "Yaoundé",
+          "Abou Dabi",
+          "Banjul"
+        ],
+        "reponse": "Yaoundé",
+        "categorie": "capitale"
+      }
+    },
+    "Mogadiscio": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Somalie",
+        "etape": "pays_capitale",
+        "options": [
+          "Mogadiscio",
+          "Malabo",
+          "Accra"
+        ],
+        "reponse": "Mogadiscio",
+        "categorie": "capitale"
+      }
+    },
+    "Kampala": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Ouganda",
+        "etape": "pays_capitale",
+        "options": [
+          "Kampala",
+          "Abou Dabi",
+          "Malabo"
+        ],
+        "reponse": "Kampala",
+        "categorie": "capitale"
+      }
+    },
+    "Bangui": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Centrafrique",
+        "etape": "pays_capitale",
+        "options": [
+          "Bangui",
+          "Amman",
+          "Mogadiscio"
+        ],
+        "reponse": "Bangui",
+        "categorie": "capitale"
+      }
+    },
+    "Malabo": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Guinée équatoriale",
+        "etape": "pays_capitale",
+        "options": [
+          "Malabo",
+          "Bridgetown",
+          "Port-d'Espagne"
+        ],
+        "reponse": "Malabo",
+        "categorie": "capitale"
+      }
+    },
+    "Bissau": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Guinée-Bissau",
+        "etape": "pays_capitale",
+        "options": [
+          "Bissau",
+          "Dili",
+          "Port-au-Prince"
+        ],
+        "reponse": "Bissau",
+        "categorie": "capitale"
+      }
+    },
+    "Dili": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Timor oriental",
+        "etape": "pays_capitale",
+        "options": [
+          "Dili",
+          "Banjul",
+          "Kampala"
+        ],
+        "reponse": "Dili",
+        "categorie": "capitale"
+      }
+    },
+    "Kingston": {
+      "count": 4,
+      "exempleDonnees": {
+        "pays": "Jamaïque",
+        "etape": "pays_capitale",
+        "options": [
+          "Kingston",
+          "Dacca",
+          "Accra"
+        ],
+        "reponse": "Kingston",
+        "categorie": "capitale"
+      }
+    },
+    "Nassau": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Bahamas",
+        "etape": "pays_capitale",
+        "options": [
+          "Nassau",
+          "Phnom Penh",
+          "Riyad"
+        ],
+        "reponse": "Nassau",
+        "categorie": "capitale"
+      }
+    },
+    "Bridgetown": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Barbade",
+        "etape": "pays_capitale",
+        "options": [
+          "Bridgetown",
+          "Dacca",
+          "Manama"
+        ],
+        "reponse": "Bridgetown",
+        "categorie": "capitale"
+      }
+    },
+    "Port-d'Espagne": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Trinité-et-Tobago",
+        "etape": "pays_capitale",
+        "options": [
+          "Port-d'Espagne",
+          "Banjul",
+          "Bridgetown"
+        ],
+        "reponse": "Port-d'Espagne",
+        "categorie": "capitale"
+      }
+    },
+    "Saint-Domingue": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "République dominicaine",
+        "etape": "pays_capitale",
+        "options": [
+          "Saint-Domingue",
+          "Islamabad",
+          "Nassau"
+        ],
+        "reponse": "Saint-Domingue",
+        "categorie": "capitale"
+      }
+    },
+    "Port-au-Prince": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Haïti",
+        "etape": "pays_capitale",
+        "options": [
+          "Port-au-Prince",
+          "Dili",
+          "Malé"
+        ],
+        "reponse": "Port-au-Prince",
+        "categorie": "capitale"
+      }
+    },
+    "Andorre-la-Vieille": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Andorre",
+        "etape": "pays_capitale",
+        "options": [
+          "Andorre-la-Vieille",
+          "Cité du Vatican",
+          "Majuro"
+        ],
+        "reponse": "Andorre-la-Vieille",
+        "categorie": "capitale"
+      }
+    },
+    "Monaco": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Monaco",
+        "etape": "pays_capitale",
+        "options": [
+          "Monaco",
+          "Andorre-la-Vieille",
+          "Vaduz"
+        ],
+        "reponse": "Monaco",
+        "categorie": "capitale"
+      }
+    },
+    "Saint-Marin": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Saint-Marin",
+        "etape": "pays_capitale",
+        "options": [
+          "Saint-Marin",
+          "Cité du Vatican",
+          "Georgetown"
+        ],
+        "reponse": "Saint-Marin",
+        "categorie": "capitale"
+      }
+    },
+    "Vaduz": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Liechtenstein",
+        "etape": "pays_capitale",
+        "options": [
+          "Vaduz",
+          "Andorre-la-Vieille",
+          "Monaco"
+        ],
+        "reponse": "Vaduz",
+        "categorie": "capitale"
+      }
+    },
+    "Cité du Vatican": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Vatican",
+        "etape": "pays_capitale",
+        "options": [
+          "Cité du Vatican",
+          "Monaco",
+          "Belmopan"
+        ],
+        "reponse": "Cité du Vatican",
+        "categorie": "capitale"
+      }
+    },
+    "Belmopan": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Belize",
+        "etape": "pays_capitale",
+        "options": [
+          "Belmopan",
+          "Vaduz",
+          "Cité du Vatican"
+        ],
+        "reponse": "Belmopan",
+        "categorie": "capitale"
+      }
+    },
+    "Georgetown": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Guyana",
+        "etape": "pays_capitale",
+        "options": [
+          "Georgetown",
+          "Ngerulmud",
+          "Belmopan"
+        ],
+        "reponse": "Georgetown",
+        "categorie": "capitale"
+      }
+    },
+    "Paramaribo": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Suriname",
+        "etape": "pays_capitale",
+        "options": [
+          "Paramaribo",
+          "Saint-Georges",
+          "Vaduz"
+        ],
+        "reponse": "Paramaribo",
+        "categorie": "capitale"
+      }
+    },
+    "Castries": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Sainte-Lucie",
+        "etape": "pays_capitale",
+        "options": [
+          "Castries",
+          "Funafuti",
+          "Andorre-la-Vieille"
+        ],
+        "reponse": "Castries",
+        "categorie": "capitale"
+      }
+    },
+    "Saint-Georges": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Grenade",
+        "etape": "pays_capitale",
+        "options": [
+          "Saint-Georges",
+          "Majuro",
+          "Belmopan"
+        ],
+        "reponse": "Saint-Georges",
+        "categorie": "capitale"
+      }
+    },
+    "Roseau": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Dominique",
+        "etape": "pays_capitale",
+        "options": [
+          "Roseau",
+          "Saint John's",
+          "Georgetown"
+        ],
+        "reponse": "Roseau",
+        "categorie": "capitale"
+      }
+    },
+    "Saint John's": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Antigua-et-Barbuda",
+        "etape": "pays_capitale",
+        "options": [
+          "Saint John's",
+          "Monaco",
+          "Georgetown"
+        ],
+        "reponse": "Saint John's",
+        "categorie": "capitale"
+      }
+    },
+    "Basseterre": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Saint-Kitts-et-Nevis",
+        "etape": "pays_capitale",
+        "options": [
+          "Basseterre",
+          "Saint John's",
+          "Tarawa"
+        ],
+        "reponse": "Basseterre",
+        "categorie": "capitale"
+      }
+    },
+    "Kingstown": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Saint-Vincent-et-les-Grenadines",
+        "etape": "pays_capitale",
+        "options": [
+          "Kingstown",
+          "Belmopan",
+          "Saint John's"
+        ],
+        "reponse": "Kingstown",
+        "categorie": "capitale"
+      }
+    },
+    "Tarawa": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Kiribati",
+        "etape": "pays_capitale",
+        "options": [
+          "Tarawa",
+          "Cité du Vatican",
+          "Basseterre"
+        ],
+        "reponse": "Tarawa",
+        "categorie": "capitale"
+      }
+    },
+    "Ngerulmud": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Palaos",
+        "etape": "pays_capitale",
+        "options": [
+          "Ngerulmud",
+          "Monaco",
+          "Funafuti"
+        ],
+        "reponse": "Ngerulmud",
+        "categorie": "capitale"
+      }
+    },
+    "Funafuti": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Tuvalu",
+        "etape": "pays_capitale",
+        "options": [
+          "Funafuti",
+          "Saint John's",
+          "Vaduz"
+        ],
+        "reponse": "Funafuti",
+        "categorie": "capitale"
+      }
+    },
+    "Yaren": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Nauru",
+        "etape": "pays_capitale",
+        "options": [
+          "Yaren",
+          "Cité du Vatican",
+          "Basseterre"
+        ],
+        "reponse": "Yaren",
+        "categorie": "capitale"
+      }
+    },
+    "Majuro": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Îles Marshall",
+        "etape": "pays_capitale",
+        "options": [
+          "Majuro",
+          "Tarawa",
+          "Paramaribo"
+        ],
+        "reponse": "Majuro",
+        "categorie": "capitale"
+      }
+    },
+    "Palikir": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Micronésie",
+        "etape": "pays_capitale",
+        "options": [
+          "Palikir",
+          "Monaco",
+          "Paramaribo"
+        ],
+        "reponse": "Palikir",
+        "categorie": "capitale"
+      }
+    },
+    "Italie": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇹",
+        "options": [
+          "Italie",
+          "France",
+          "Allemagne"
+        ],
+        "reponse": "Italie",
+        "categorie": "drapeau"
+      }
+    },
+    "Japon": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇯🇵",
+        "options": [
+          "Japon",
+          "Chine",
+          "Corée du Sud"
+        ],
+        "reponse": "Japon",
+        "categorie": "drapeau"
+      }
+    },
+    "Pékin": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Chine",
+        "etape": "pays_capitale",
+        "options": [
+          "Pékin",
+          "Shanghai",
+          "Hong Kong"
+        ],
+        "reponse": "Pékin",
+        "categorie": "capitale"
+      }
+    },
+    "France": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇫🇷",
+        "options": [
+          "France",
+          "Espagne",
+          "Italie"
+        ],
+        "reponse": "France",
+        "categorie": "drapeau"
+      }
+    },
+    "États-Unis": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇺🇸",
+        "options": [
+          "États-Unis",
+          "Canada",
+          "Mexique"
+        ],
+        "reponse": "États-Unis",
+        "categorie": "drapeau"
+      }
+    },
+    "Espagne": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇪🇸",
+        "options": [
+          "Espagne",
+          "Portugal",
+          "Italie"
+        ],
+        "reponse": "Espagne",
+        "categorie": "drapeau"
+      }
+    },
+    "Allemagne": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇩🇪",
+        "options": [
+          "Allemagne",
+          "Autriche",
+          "Suisse"
+        ],
+        "reponse": "Allemagne",
+        "categorie": "drapeau"
+      }
+    },
+    "Royaume-Uni": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇬🇧",
+        "options": [
+          "Royaume-Uni",
+          "France",
+          "Irlande"
+        ],
+        "reponse": "Royaume-Uni",
+        "categorie": "drapeau"
+      }
+    },
+    "Canada": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇦",
+        "options": [
+          "Canada",
+          "États-Unis",
+          "Mexique"
+        ],
+        "reponse": "Canada",
+        "categorie": "drapeau"
+      }
+    },
+    "Brésil": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇧🇷",
+        "options": [
+          "Brésil",
+          "Argentine",
+          "Mexique"
+        ],
+        "reponse": "Brésil",
+        "categorie": "drapeau"
+      }
+    },
+    "Chine": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇳",
+        "options": [
+          "Chine",
+          "Japon",
+          "Vietnam"
+        ],
+        "reponse": "Chine",
+        "categorie": "drapeau"
+      }
+    },
+    "Mexique": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇲🇽",
+        "options": [
+          "Mexique",
+          "Brésil",
+          "Espagne"
+        ],
+        "reponse": "Mexique",
+        "categorie": "drapeau"
+      }
+    },
+    "Égypte": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇪🇬",
+        "options": [
+          "Égypte",
+          "Maroc",
+          "Algérie"
+        ],
+        "reponse": "Égypte",
+        "categorie": "drapeau"
+      }
+    },
+    "Portugal": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇹",
+        "options": [
+          "Portugal",
+          "Espagne",
+          "Italie"
+        ],
+        "reponse": "Portugal",
+        "categorie": "drapeau"
+      }
+    },
+    "Grèce": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇬🇷",
+        "options": [
+          "Grèce",
+          "Turquie",
+          "Italie"
+        ],
+        "reponse": "Grèce",
+        "categorie": "drapeau"
+      }
+    },
+    "Russie": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇷🇺",
+        "options": [
+          "Russie",
+          "Pologne",
+          "Ukraine"
+        ],
+        "reponse": "Russie",
+        "categorie": "drapeau"
+      }
+    },
+    "Inde": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇳",
+        "options": [
+          "Inde",
+          "Pakistan",
+          "Bangladesh"
+        ],
+        "reponse": "Inde",
+        "categorie": "drapeau"
+      }
+    },
+    "Australie": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇦🇺",
+        "options": [
+          "Australie",
+          "Nouvelle-Zélande",
+          "Canada"
+        ],
+        "reponse": "Australie",
+        "categorie": "drapeau"
+      }
+    },
+    "Maroc": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇲🇦",
+        "options": [
+          "Maroc",
+          "Algérie",
+          "Tunisie"
+        ],
+        "reponse": "Maroc",
+        "categorie": "drapeau"
+      }
+    },
+    "Belgique": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇧🇪",
+        "options": [
+          "Belgique",
+          "France",
+          "Pays-Bas"
+        ],
+        "reponse": "Belgique",
+        "categorie": "drapeau"
+      }
+    },
+    "Suisse": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇭",
+        "options": [
+          "Suisse",
+          "Autriche",
+          "Allemagne"
+        ],
+        "reponse": "Suisse",
+        "categorie": "drapeau"
+      }
+    },
+    "Pays-Bas": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇳🇱",
+        "options": [
+          "Pays-Bas",
+          "Belgique",
+          "Danemark"
+        ],
+        "reponse": "Pays-Bas",
+        "categorie": "drapeau"
+      }
+    },
+    "Suède": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇸🇪",
+        "options": [
+          "Suède",
+          "Norvège",
+          "Finlande"
+        ],
+        "reponse": "Suède",
+        "categorie": "drapeau"
+      }
+    },
+    "Norvège": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇳🇴",
+        "options": [
+          "Norvège",
+          "Suède",
+          "Danemark"
+        ],
+        "reponse": "Norvège",
+        "categorie": "drapeau"
+      }
+    },
+    "Corée du Sud": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇰🇷",
+        "options": [
+          "Corée du Sud",
+          "Japon",
+          "Chine"
+        ],
+        "reponse": "Corée du Sud",
+        "categorie": "drapeau"
+      }
+    },
+    "Argentine": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇦🇷",
+        "options": [
+          "Argentine",
+          "Brésil",
+          "Chili"
+        ],
+        "reponse": "Argentine",
+        "categorie": "drapeau"
+      }
+    },
+    "Turquie": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇹🇷",
+        "options": [
+          "Turquie",
+          "Grèce",
+          "Égypte"
+        ],
+        "reponse": "Turquie",
+        "categorie": "drapeau"
+      }
+    },
+    "Kenya": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇰🇪",
+        "options": [
+          "Kenya",
+          "Éthiopie",
+          "Tanzanie"
+        ],
+        "reponse": "Kenya",
+        "categorie": "drapeau"
+      }
+    },
+    "Thaïlande": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇹🇭",
+        "options": [
+          "Thaïlande",
+          "Vietnam",
+          "Cambodge"
+        ],
+        "reponse": "Thaïlande",
+        "categorie": "drapeau"
+      }
+    },
+    "Pologne": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇱",
+        "options": [
+          "Pologne",
+          "Russie",
+          "Allemagne"
+        ],
+        "reponse": "Pologne",
+        "categorie": "drapeau"
+      }
+    },
+    "Vietnam": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇻🇳",
+        "options": [
+          "Vietnam",
+          "Thaïlande",
+          "Laos"
+        ],
+        "reponse": "Vietnam",
+        "categorie": "drapeau"
+      }
+    },
+    "Paris": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "France",
+        "etape": "pays_capitale",
+        "options": [
+          "Paris",
+          "Lyon",
+          "Marseille"
+        ],
+        "reponse": "Paris",
+        "categorie": "capitale"
+      }
+    },
+    "Rome": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Italie",
+        "etape": "pays_capitale",
+        "options": [
+          "Rome",
+          "Milan",
+          "Venise"
+        ],
+        "reponse": "Rome",
+        "categorie": "capitale"
+      }
+    },
+    "Tokyo": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Japon",
+        "etape": "pays_capitale",
+        "options": [
+          "Tokyo",
+          "Osaka",
+          "Kyoto"
+        ],
+        "reponse": "Tokyo",
+        "categorie": "capitale"
+      }
+    },
+    "Madrid": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Espagne",
+        "etape": "pays_capitale",
+        "options": [
+          "Madrid",
+          "Barcelone",
+          "Séville"
+        ],
+        "reponse": "Madrid",
+        "categorie": "capitale"
+      }
+    },
+    "Berlin": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Allemagne",
+        "etape": "pays_capitale",
+        "options": [
+          "Berlin",
+          "Munich",
+          "Hambourg"
+        ],
+        "reponse": "Berlin",
+        "categorie": "capitale"
+      }
+    },
+    "Washington": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "États-Unis",
+        "etape": "pays_capitale",
+        "options": [
+          "Washington",
+          "New York",
+          "Los Angeles"
+        ],
+        "reponse": "Washington",
+        "categorie": "capitale"
+      }
+    },
+    "Londres": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Royaume-Uni",
+        "etape": "pays_capitale",
+        "options": [
+          "Londres",
+          "Manchester",
+          "Liverpool"
+        ],
+        "reponse": "Londres",
+        "categorie": "capitale"
+      }
+    },
+    "Ottawa": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Canada",
+        "etape": "pays_capitale",
+        "options": [
+          "Ottawa",
+          "Toronto",
+          "Montréal"
+        ],
+        "reponse": "Ottawa",
+        "categorie": "capitale"
+      }
+    },
+    "Brasilia": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Brésil",
+        "etape": "pays_capitale",
+        "options": [
+          "Brasilia",
+          "Rio de Janeiro",
+          "São Paulo"
+        ],
+        "reponse": "Brasilia",
+        "categorie": "capitale"
+      }
+    },
+    "Le Caire": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Égypte",
+        "etape": "pays_capitale",
+        "options": [
+          "Le Caire",
+          "Alexandrie",
+          "Louxor"
+        ],
+        "reponse": "Le Caire",
+        "categorie": "capitale"
+      }
+    },
+    "Mexico": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Mexique",
+        "etape": "pays_capitale",
+        "options": [
+          "Mexico",
+          "Cancún",
+          "Guadalajara"
+        ],
+        "reponse": "Mexico",
+        "categorie": "capitale"
+      }
+    },
+    "Lisbonne": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Portugal",
+        "etape": "pays_capitale",
+        "options": [
+          "Lisbonne",
+          "Porto",
+          "Faro"
+        ],
+        "reponse": "Lisbonne",
+        "categorie": "capitale"
+      }
+    },
+    "Athènes": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Grèce",
+        "etape": "pays_capitale",
+        "options": [
+          "Athènes",
+          "Thessalonique",
+          "Corinthe"
+        ],
+        "reponse": "Athènes",
+        "categorie": "capitale"
+      }
+    },
+    "Moscou": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Russie",
+        "etape": "pays_capitale",
+        "options": [
+          "Moscou",
+          "Saint-Pétersbourg",
+          "Kazan"
+        ],
+        "reponse": "Moscou",
+        "categorie": "capitale"
+      }
+    },
+    "New Delhi": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Inde",
+        "etape": "pays_capitale",
+        "options": [
+          "New Delhi",
+          "Bombay",
+          "Bangalore"
+        ],
+        "reponse": "New Delhi",
+        "categorie": "capitale"
+      }
+    },
+    "Canberra": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Australie",
+        "etape": "pays_capitale",
+        "options": [
+          "Canberra",
+          "Sydney",
+          "Melbourne"
+        ],
+        "reponse": "Canberra",
+        "categorie": "capitale"
+      }
+    },
+    "Rabat": {
+      "count": 4,
+      "exempleDonnees": {
+        "pays": "Maroc",
+        "etape": "pays_capitale",
+        "options": [
+          "Rabat",
+          "Casablanca",
+          "Marrakech"
+        ],
+        "reponse": "Rabat",
+        "categorie": "capitale"
+      }
+    },
+    "Bruxelles": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇧🇪",
+        "options": [
+          "Bruxelles",
+          "Anvers",
+          "Bruges"
+        ],
+        "reponse": "Bruxelles",
+        "categorie": "drapeau"
+      }
+    },
+    "Berne": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇨🇭",
+        "options": [
+          "Berne",
+          "Genève",
+          "Zurich"
+        ],
+        "reponse": "Berne",
+        "categorie": "drapeau"
+      }
+    },
+    "Amsterdam": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇳🇱",
+        "options": [
+          "Amsterdam",
+          "Rotterdam",
+          "La Haye"
+        ],
+        "reponse": "Amsterdam",
+        "categorie": "drapeau"
+      }
+    },
+    "Stockholm": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇸🇪",
+        "options": [
+          "Stockholm",
+          "Göteborg",
+          "Malmö"
+        ],
+        "reponse": "Stockholm",
+        "categorie": "drapeau"
+      }
+    },
+    "Oslo": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇳🇴",
+        "options": [
+          "Oslo",
+          "Bergen",
+          "Trondheim"
+        ],
+        "reponse": "Oslo",
+        "categorie": "drapeau"
+      }
+    },
+    "Séoul": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇰🇷",
+        "options": [
+          "Séoul",
+          "Busan",
+          "Incheon"
+        ],
+        "reponse": "Séoul",
+        "categorie": "drapeau"
+      }
+    },
+    "Buenos Aires": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Argentine",
+        "etape": "pays_capitale",
+        "options": [
+          "Buenos Aires",
+          "Córdoba",
+          "Rosario"
+        ],
+        "reponse": "Buenos Aires",
+        "categorie": "capitale"
+      }
+    },
+    "Ankara": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Turquie",
+        "etape": "pays_capitale",
+        "options": [
+          "Ankara",
+          "Istanbul",
+          "Izmir"
+        ],
+        "reponse": "Ankara",
+        "categorie": "capitale"
+      }
+    },
+    "Nairobi": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Kenya",
+        "etape": "pays_capitale",
+        "options": [
+          "Nairobi",
+          "Mombasa",
+          "Kisumu"
+        ],
+        "reponse": "Nairobi",
+        "categorie": "capitale"
+      }
+    },
+    "Bangkok": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Thaïlande",
+        "etape": "pays_capitale",
+        "options": [
+          "Bangkok",
+          "Phuket",
+          "Chiang Mai"
+        ],
+        "reponse": "Bangkok",
+        "categorie": "capitale"
+      }
+    },
+    "Varsovie": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Pologne",
+        "etape": "pays_capitale",
+        "options": [
+          "Varsovie",
+          "Cracovie",
+          "Gdansk"
+        ],
+        "reponse": "Varsovie",
+        "categorie": "capitale"
+      }
+    },
+    "Hanoï": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Vietnam",
+        "etape": "pays_capitale",
+        "options": [
+          "Hanoï",
+          "Hô Chi Minh-Ville",
+          "Da Nang"
+        ],
+        "reponse": "Hanoï",
+        "categorie": "capitale"
+      }
+    },
+    "Abuja": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Nigeria",
+        "etape": "pays_capitale",
+        "options": [
+          "Abuja",
+          "Lagos",
+          "Kano"
+        ],
+        "reponse": "Abuja",
+        "categorie": "capitale"
+      }
+    },
+    "Jakarta": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Indonésie",
+        "etape": "pays_capitale",
+        "options": [
+          "Jakarta",
+          "Bali",
+          "Surabaya"
+        ],
+        "reponse": "Jakarta",
+        "categorie": "capitale"
+      }
+    },
+    "Lima": {
+      "count": 4,
+      "exempleDonnees": {
+        "pays": "Pérou",
+        "etape": "pays_capitale",
+        "options": [
+          "Lima",
+          "Cusco",
+          "Arequipa"
+        ],
+        "reponse": "Lima",
+        "categorie": "capitale"
+      }
+    },
+    "Kiev": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Ukraine",
+        "etape": "pays_capitale",
+        "options": [
+          "Kiev",
+          "Odessa",
+          "Lviv"
+        ],
+        "reponse": "Kiev",
+        "categorie": "capitale"
+      }
+    },
+    "Helsinki": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Finlande",
+        "etape": "pays_capitale",
+        "options": [
+          "Helsinki",
+          "Tampere",
+          "Turku"
+        ],
+        "reponse": "Helsinki",
+        "categorie": "capitale"
+      }
+    },
+    "Bogota": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇨🇴",
+        "options": [
+          "Bogota",
+          "Medellin",
+          "Lima"
+        ],
+        "reponse": "Bogota",
+        "categorie": "drapeau"
+      }
+    },
+    "Reykjavik": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Islande",
+        "etape": "pays_capitale",
+        "options": [
+          "Reykjavik",
+          "Oslo",
+          "Helsinki"
+        ],
+        "reponse": "Reykjavik",
+        "categorie": "capitale"
+      }
+    },
+    "Wellington": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Nouvelle-Zélande",
+        "etape": "pays_capitale",
+        "options": [
+          "Wellington",
+          "Auckland",
+          "Canberra"
+        ],
+        "reponse": "Wellington",
+        "categorie": "capitale"
+      }
+    },
+    "Pretoria": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Afrique du Sud",
+        "etape": "pays_capitale",
+        "options": [
+          "Pretoria",
+          "Le Cap",
+          "Johannesburg"
+        ],
+        "reponse": "Pretoria",
+        "categorie": "capitale"
+      }
+    },
+    "Santiago": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Chili",
+        "etape": "pays_capitale",
+        "options": [
+          "Santiago",
+          "Valparaiso",
+          "Buenos Aires"
+        ],
+        "reponse": "Santiago",
+        "categorie": "capitale"
+      }
+    },
+    "Jérusalem": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Israël",
+        "etape": "pays_capitale",
+        "options": [
+          "Jérusalem",
+          "Tel-Aviv",
+          "Haïfa"
+        ],
+        "reponse": "Jérusalem",
+        "categorie": "capitale"
+      }
+    },
+    "Budapest": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Hongrie",
+        "etape": "pays_capitale",
+        "options": [
+          "Budapest",
+          "Prague",
+          "Vienne"
+        ],
+        "reponse": "Budapest",
+        "categorie": "capitale"
+      }
+    },
+    "Irlande": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇪",
+        "options": [
+          "Irlande",
+          "Royaume-Uni",
+          "France"
+        ],
+        "reponse": "Irlande",
+        "categorie": "drapeau"
+      }
+    },
+    "Autriche": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇦🇹",
+        "options": [
+          "Autriche",
+          "Allemagne",
+          "Suisse"
+        ],
+        "reponse": "Autriche",
+        "categorie": "drapeau"
+      }
+    },
+    "Danemark": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇩🇰",
+        "options": [
+          "Danemark",
+          "Norvège",
+          "Suède"
+        ],
+        "reponse": "Danemark",
+        "categorie": "drapeau"
+      }
+    },
+    "Finlande": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇫🇮",
+        "options": [
+          "Finlande",
+          "Suède",
+          "Norvège"
+        ],
+        "reponse": "Finlande",
+        "categorie": "drapeau"
+      }
+    },
+    "Indonésie": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇩",
+        "options": [
+          "Indonésie",
+          "Thaïlande",
+          "Malaisie"
+        ],
+        "reponse": "Indonésie",
+        "categorie": "drapeau"
+      }
+    },
+    "Philippines": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇭",
+        "options": [
+          "Philippines",
+          "Indonésie",
+          "Malaisie"
+        ],
+        "reponse": "Philippines",
+        "categorie": "drapeau"
+      }
+    },
+    "Nigeria": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇳🇬",
+        "options": [
+          "Nigeria",
+          "Kenya",
+          "Ghana"
+        ],
+        "reponse": "Nigeria",
+        "categorie": "drapeau"
+      }
+    },
+    "Afrique du Sud": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇿🇦",
+        "options": [
+          "Afrique du Sud",
+          "Kenya",
+          "Égypte"
+        ],
+        "reponse": "Afrique du Sud",
+        "categorie": "drapeau"
+      }
+    },
+    "Ghana": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇬🇭",
+        "options": [
+          "Ghana",
+          "Nigeria",
+          "Sénégal"
+        ],
+        "reponse": "Ghana",
+        "categorie": "drapeau"
+      }
+    },
+    "Sénégal": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇸🇳",
+        "options": [
+          "Sénégal",
+          "Mali",
+          "Ghana"
+        ],
+        "reponse": "Sénégal",
+        "categorie": "drapeau"
+      }
+    },
+    "Algérie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇩🇿",
+        "options": [
+          "Algérie",
+          "Maroc",
+          "Tunisie"
+        ],
+        "reponse": "Algérie",
+        "categorie": "drapeau"
+      }
+    },
+    "Tunisie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇹🇳",
+        "options": [
+          "Tunisie",
+          "Algérie",
+          "Maroc"
+        ],
+        "reponse": "Tunisie",
+        "categorie": "drapeau"
+      }
+    },
+    "Chili": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇱",
+        "options": [
+          "Chili",
+          "Argentine",
+          "Pérou"
+        ],
+        "reponse": "Chili",
+        "categorie": "drapeau"
+      }
+    },
+    "Colombie": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇴",
+        "options": [
+          "Colombie",
+          "Venezuela",
+          "Équateur"
+        ],
+        "reponse": "Colombie",
+        "categorie": "drapeau"
+      }
+    },
+    "Pérou": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇪",
+        "options": [
+          "Pérou",
+          "Chili",
+          "Bolivie"
+        ],
+        "reponse": "Pérou",
+        "categorie": "drapeau"
+      }
+    },
+    "Venezuela": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇻🇪",
+        "options": [
+          "Venezuela",
+          "Colombie",
+          "Équateur"
+        ],
+        "reponse": "Venezuela",
+        "categorie": "drapeau"
+      }
+    },
+    "Uruguay": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇺🇾",
+        "options": [
+          "Uruguay",
+          "Argentine",
+          "Brésil"
+        ],
+        "reponse": "Uruguay",
+        "categorie": "drapeau"
+      }
+    },
+    "Nouvelle-Zélande": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇳🇿",
+        "options": [
+          "Nouvelle-Zélande",
+          "Australie",
+          "Fidji"
+        ],
+        "reponse": "Nouvelle-Zélande",
+        "categorie": "drapeau"
+      }
+    },
+    "Islande": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇸",
+        "options": [
+          "Islande",
+          "Norvège",
+          "Groenland"
+        ],
+        "reponse": "Islande",
+        "categorie": "drapeau"
+      }
+    },
+    "Ukraine": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇺🇦",
+        "options": [
+          "Ukraine",
+          "Russie",
+          "Pologne"
+        ],
+        "reponse": "Ukraine",
+        "categorie": "drapeau"
+      }
+    },
+    "Hongrie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇭🇺",
+        "options": [
+          "Hongrie",
+          "Roumanie",
+          "Autriche"
+        ],
+        "reponse": "Hongrie",
+        "categorie": "drapeau"
+      }
+    },
+    "République Tchèque": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇿",
+        "options": [
+          "République Tchèque",
+          "Slovaquie",
+          "Pologne"
+        ],
+        "reponse": "République Tchèque",
+        "categorie": "drapeau"
+      }
+    },
+    "Roumanie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇷🇴",
+        "options": [
+          "Roumanie",
+          "Bulgarie",
+          "Hongrie"
+        ],
+        "reponse": "Roumanie",
+        "categorie": "drapeau"
+      }
+    },
+    "Croatie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇭🇷",
+        "options": [
+          "Croatie",
+          "Slovénie",
+          "Serbie"
+        ],
+        "reponse": "Croatie",
+        "categorie": "drapeau"
+      }
+    },
+    "Israël": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇮🇱",
+        "options": [
+          "Israël",
+          "Jordanie",
+          "Liban"
+        ],
+        "reponse": "Israël",
+        "categorie": "drapeau"
+      }
+    },
+    "Arabie Saoudite": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇸🇦",
+        "options": [
+          "Arabie Saoudite",
+          "Émirats Arabes Unis",
+          "Qatar"
+        ],
+        "reponse": "Arabie Saoudite",
+        "categorie": "drapeau"
+      }
+    },
+    "Émirats Arabes Unis": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇦🇪",
+        "options": [
+          "Émirats Arabes Unis",
+          "Arabie Saoudite",
+          "Qatar"
+        ],
+        "reponse": "Émirats Arabes Unis",
+        "categorie": "drapeau"
+      }
+    },
+    "Pakistan": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇰",
+        "options": [
+          "Pakistan",
+          "Inde",
+          "Bangladesh"
+        ],
+        "reponse": "Pakistan",
+        "categorie": "drapeau"
+      }
+    },
+    "Bangladesh": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇧🇩",
+        "options": [
+          "Bangladesh",
+          "Inde",
+          "Pakistan"
+        ],
+        "reponse": "Bangladesh",
+        "categorie": "drapeau"
+      }
+    },
+    "Sri Lanka": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇱🇰",
+        "options": [
+          "Sri Lanka",
+          "Inde",
+          "Maldives"
+        ],
+        "reponse": "Sri Lanka",
+        "categorie": "drapeau"
+      }
+    },
+    "Malaisie": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇲🇾",
+        "options": [
+          "Malaisie",
+          "Indonésie",
+          "Singapour"
+        ],
+        "reponse": "Malaisie",
+        "categorie": "drapeau"
+      }
+    },
+    "Singapour": {
+      "count": 4,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇸🇬",
+        "options": [
+          "Singapour",
+          "Malaisie",
+          "Indonésie"
+        ],
+        "reponse": "Singapour",
+        "categorie": "drapeau"
+      }
+    },
+    "Maldives": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇲🇻",
+        "options": [
+          "Maldives",
+          "Sri Lanka",
+          "Seychelles"
+        ],
+        "reponse": "Maldives",
+        "categorie": "drapeau"
+      }
+    },
+    "Népal": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇳🇵",
+        "options": [
+          "Népal",
+          "Bhoutan",
+          "Inde"
+        ],
+        "reponse": "Népal",
+        "categorie": "drapeau"
+      }
+    },
+    "Mongolie": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇲🇳",
+        "options": [
+          "Mongolie",
+          "Chine",
+          "Kazakhstan"
+        ],
+        "reponse": "Mongolie",
+        "categorie": "drapeau"
+      }
+    },
+    "Éthiopie": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇪🇹",
+        "options": [
+          "Éthiopie",
+          "Kenya",
+          "Somalie"
+        ],
+        "reponse": "Éthiopie",
+        "categorie": "drapeau"
+      }
+    },
+    "Tanzanie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇹🇿",
+        "options": [
+          "Tanzanie",
+          "Kenya",
+          "Ouganda"
+        ],
+        "reponse": "Tanzanie",
+        "categorie": "drapeau"
+      }
+    },
+    "Ouganda": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇺🇬",
+        "options": [
+          "Ouganda",
+          "Tanzanie",
+          "Kenya"
+        ],
+        "reponse": "Ouganda",
+        "categorie": "drapeau"
+      }
+    },
+    "Zimbabwe": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇿🇼",
+        "options": [
+          "Zimbabwe",
+          "Zambie",
+          "Botswana"
+        ],
+        "reponse": "Zimbabwe",
+        "categorie": "drapeau"
+      }
+    },
+    "Madagascar": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇲🇬",
+        "options": [
+          "Madagascar",
+          "Maurice",
+          "Mozambique"
+        ],
+        "reponse": "Madagascar",
+        "categorie": "drapeau"
+      }
+    },
+    "Côte d'Ivoire": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇮",
+        "options": [
+          "Côte d'Ivoire",
+          "Ghana",
+          "Sénégal"
+        ],
+        "reponse": "Côte d'Ivoire",
+        "categorie": "drapeau"
+      }
+    },
+    "Cameroun": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇲",
+        "options": [
+          "Cameroun",
+          "Nigeria",
+          "Gabon"
+        ],
+        "reponse": "Cameroun",
+        "categorie": "drapeau"
+      }
+    },
+    "Bolivie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇧🇴",
+        "options": [
+          "Bolivie",
+          "Pérou",
+          "Paraguay"
+        ],
+        "reponse": "Bolivie",
+        "categorie": "drapeau"
+      }
+    },
+    "Paraguay": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇾",
+        "options": [
+          "Paraguay",
+          "Bolivie",
+          "Uruguay"
+        ],
+        "reponse": "Paraguay",
+        "categorie": "drapeau"
+      }
+    },
+    "Équateur": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇪🇨",
+        "options": [
+          "Équateur",
+          "Colombie",
+          "Pérou"
+        ],
+        "reponse": "Équateur",
+        "categorie": "drapeau"
+      }
+    },
+    "Cuba": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇺",
+        "options": [
+          "Cuba",
+          "République Dominicaine",
+          "Jamaïque"
+        ],
+        "reponse": "Cuba",
+        "categorie": "drapeau"
+      }
+    },
+    "Jamaïque": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇯🇲",
+        "options": [
+          "Jamaïque",
+          "Cuba",
+          "Haïti"
+        ],
+        "reponse": "Jamaïque",
+        "categorie": "drapeau"
+      }
+    },
+    "Copenhague": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Danemark",
+        "etape": "pays_capitale",
+        "options": [
+          "Copenhague",
+          "Aarhus",
+          "Odense"
+        ],
+        "reponse": "Copenhague",
+        "categorie": "capitale"
+      }
+    },
+    "Vienne": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Autriche",
+        "etape": "pays_capitale",
+        "options": [
+          "Vienne",
+          "Salzbourg",
+          "Graz"
+        ],
+        "reponse": "Vienne",
+        "categorie": "capitale"
+      }
+    },
+    "Dublin": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Irlande",
+        "etape": "pays_capitale",
+        "options": [
+          "Dublin",
+          "Cork",
+          "Belfast"
+        ],
+        "reponse": "Dublin",
+        "categorie": "capitale"
+      }
+    },
+    "Prague": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "République Tchèque",
+        "etape": "pays_capitale",
+        "options": [
+          "Prague",
+          "Brno",
+          "Ostrava"
+        ],
+        "reponse": "Prague",
+        "categorie": "capitale"
+      }
+    },
+    "Zagreb": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Croatie",
+        "etape": "pays_capitale",
+        "options": [
+          "Zagreb",
+          "Split",
+          "Dubrovnik"
+        ],
+        "reponse": "Zagreb",
+        "categorie": "capitale"
+      }
+    },
+    "Bucarest": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Roumanie",
+        "etape": "pays_capitale",
+        "options": [
+          "Bucarest",
+          "Cluj",
+          "Timisoara"
+        ],
+        "reponse": "Bucarest",
+        "categorie": "capitale"
+      }
+    },
+    "Alger": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Algérie",
+        "etape": "pays_capitale",
+        "options": [
+          "Alger",
+          "Oran",
+          "Constantine"
+        ],
+        "reponse": "Alger",
+        "categorie": "capitale"
+      }
+    },
+    "Addis-Abeba": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Éthiopie",
+        "etape": "pays_capitale",
+        "options": [
+          "Addis-Abeba",
+          "Nairobi",
+          "Khartoum"
+        ],
+        "reponse": "Addis-Abeba",
+        "categorie": "capitale"
+      }
+    },
+    "Caracas": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Venezuela",
+        "etape": "pays_capitale",
+        "options": [
+          "Caracas",
+          "Maracaibo",
+          "Valencia"
+        ],
+        "reponse": "Caracas",
+        "categorie": "capitale"
+      }
+    },
+    "Kuala Lumpur": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇲🇾",
+        "options": [
+          "Kuala Lumpur",
+          "Penang",
+          "Johor Bahru"
+        ],
+        "reponse": "Kuala Lumpur",
+        "categorie": "drapeau"
+      }
+    },
+    "La Havane": {
+      "count": 2,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇨🇺",
+        "options": [
+          "La Havane",
+          "Santiago de Cuba",
+          "Camagüey"
+        ],
+        "reponse": "La Havane",
+        "categorie": "drapeau"
+      }
+    },
+    "Oulan-Bator": {
+      "count": 3,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇲🇳",
+        "options": [
+          "Oulan-Bator",
+          "Darkhan",
+          "Erdenet"
+        ],
+        "reponse": "Oulan-Bator",
+        "categorie": "drapeau"
+      }
+    },
+    "Dodoma": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Tanzanie",
+        "etape": "pays_capitale",
+        "options": [
+          "Dodoma",
+          "Dar es Salaam",
+          "Zanzibar"
+        ],
+        "reponse": "Dodoma",
+        "categorie": "capitale"
+      }
+    },
+    "Harare": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Zimbabwe",
+        "etape": "pays_capitale",
+        "options": [
+          "Harare",
+          "Bulawayo",
+          "Victoria Falls"
+        ],
+        "reponse": "Harare",
+        "categorie": "capitale"
+      }
+    },
+    "Antananarivo": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Madagascar",
+        "etape": "pays_capitale",
+        "options": [
+          "Antananarivo",
+          "Toamasina",
+          "Fianarantsoa"
+        ],
+        "reponse": "Antananarivo",
+        "categorie": "capitale"
+      }
+    },
+    "Yamoussoukro": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Côte d'Ivoire",
+        "etape": "pays_capitale",
+        "options": [
+          "Yamoussoukro",
+          "Abidjan",
+          "Bouaké"
+        ],
+        "reponse": "Yamoussoukro",
+        "categorie": "capitale"
+      }
+    },
+    "Dakar": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Sénégal",
+        "etape": "pays_capitale",
+        "options": [
+          "Dakar",
+          "Thiès",
+          "Saint-Louis"
+        ],
+        "reponse": "Dakar",
+        "categorie": "capitale"
+      }
+    },
+    "Sucre": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Bolivie",
+        "etape": "pays_capitale",
+        "options": [
+          "Sucre",
+          "La Paz",
+          "Santa Cruz"
+        ],
+        "reponse": "Sucre",
+        "categorie": "capitale"
+      }
+    },
+    "Asuncion": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Paraguay",
+        "etape": "pays_capitale",
+        "options": [
+          "Asuncion",
+          "Ciudad del Este",
+          "Encarnación"
+        ],
+        "reponse": "Asuncion",
+        "categorie": "capitale"
+      }
+    },
+    "Quito": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Équateur",
+        "etape": "pays_capitale",
+        "options": [
+          "Quito",
+          "Guayaquil",
+          "Cuenca"
+        ],
+        "reponse": "Quito",
+        "categorie": "capitale"
+      }
+    },
+    "Colombo": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Sri Lanka",
+        "etape": "pays_capitale",
+        "options": [
+          "Colombo",
+          "Kandy",
+          "Galle"
+        ],
+        "reponse": "Colombo",
+        "categorie": "capitale"
+      }
+    },
+    "Katmandou": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Népal",
+        "etape": "pays_capitale",
+        "options": [
+          "Katmandou",
+          "Pokhara",
+          "Lalitpur"
+        ],
+        "reponse": "Katmandou",
+        "categorie": "capitale"
+      }
+    },
+    "Tunis": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇹🇳",
+        "options": [
+          "Tunis",
+          "Alger",
+          "Tripoli"
+        ],
+        "reponse": "Tunis",
+        "categorie": "drapeau"
+      }
+    },
+    "Montevideo": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_capitale",
+        "drapeau": "🇺🇾",
+        "options": [
+          "Montevideo",
+          "Buenos Aires",
+          "Asuncion"
+        ],
+        "reponse": "Montevideo",
+        "categorie": "drapeau"
+      }
+    },
+    "Belgrade": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Serbie",
+        "etape": "pays_capitale",
+        "options": [
+          "Belgrade",
+          "Novi Sad",
+          "Nis"
+        ],
+        "reponse": "Belgrade",
+        "categorie": "capitale"
+      }
+    },
+    "Sofia": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Bulgarie",
+        "etape": "pays_capitale",
+        "options": [
+          "Sofia",
+          "Plovdiv",
+          "Varna"
+        ],
+        "reponse": "Sofia",
+        "categorie": "capitale"
+      }
+    },
+    "Bratislava": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Slovaquie",
+        "etape": "pays_capitale",
+        "options": [
+          "Bratislava",
+          "Kosice",
+          "Presov"
+        ],
+        "reponse": "Bratislava",
+        "categorie": "capitale"
+      }
+    },
+    "Ljubljana": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Slovénie",
+        "etape": "pays_capitale",
+        "options": [
+          "Ljubljana",
+          "Maribor",
+          "Celje"
+        ],
+        "reponse": "Ljubljana",
+        "categorie": "capitale"
+      }
+    },
+    "Vilnius": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Lituanie",
+        "etape": "pays_capitale",
+        "options": [
+          "Vilnius",
+          "Kaunas",
+          "Klaipeda"
+        ],
+        "reponse": "Vilnius",
+        "categorie": "capitale"
+      }
+    },
+    "Riga": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Lettonie",
+        "etape": "pays_capitale",
+        "options": [
+          "Riga",
+          "Daugavpils",
+          "Liepaja"
+        ],
+        "reponse": "Riga",
+        "categorie": "capitale"
+      }
+    },
+    "Tallinn": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Estonie",
+        "etape": "pays_capitale",
+        "options": [
+          "Tallinn",
+          "Tartu",
+          "Narva"
+        ],
+        "reponse": "Tallinn",
+        "categorie": "capitale"
+      }
+    },
+    "Lusaka": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Zambie",
+        "etape": "pays_capitale",
+        "options": [
+          "Lusaka",
+          "Ndola",
+          "Kitwe"
+        ],
+        "reponse": "Lusaka",
+        "categorie": "capitale"
+      }
+    },
+    "Gaborone": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Botswana",
+        "etape": "pays_capitale",
+        "options": [
+          "Gaborone",
+          "Francistown",
+          "Maun"
+        ],
+        "reponse": "Gaborone",
+        "categorie": "capitale"
+      }
+    },
+    "Windhoek": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Namibie",
+        "etape": "pays_capitale",
+        "options": [
+          "Windhoek",
+          "Swakopmund",
+          "Walvis Bay"
+        ],
+        "reponse": "Windhoek",
+        "categorie": "capitale"
+      }
+    },
+    "Maputo": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Mozambique",
+        "etape": "pays_capitale",
+        "options": [
+          "Maputo",
+          "Beira",
+          "Nampula"
+        ],
+        "reponse": "Maputo",
+        "categorie": "capitale"
+      }
+    },
+    "Sarajevo": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Bosnie-Herzégovine",
+        "etape": "pays_capitale",
+        "options": [
+          "Sarajevo",
+          "Mostar",
+          "Banja Luka"
+        ],
+        "reponse": "Sarajevo",
+        "categorie": "capitale"
+      }
+    },
+    "Skopje": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Macédoine du Nord",
+        "etape": "pays_capitale",
+        "options": [
+          "Skopje",
+          "Bitola",
+          "Ohrid"
+        ],
+        "reponse": "Skopje",
+        "categorie": "capitale"
+      }
+    },
+    "Tirana": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Albanie",
+        "etape": "pays_capitale",
+        "options": [
+          "Tirana",
+          "Durrës",
+          "Shkodër"
+        ],
+        "reponse": "Tirana",
+        "categorie": "capitale"
+      }
+    },
+    "Chisinau": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Moldavie",
+        "etape": "pays_capitale",
+        "options": [
+          "Chisinau",
+          "Tiraspol",
+          "Balti"
+        ],
+        "reponse": "Chisinau",
+        "categorie": "capitale"
+      }
+    },
+    "Minsk": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Biélorussie",
+        "etape": "pays_capitale",
+        "options": [
+          "Minsk",
+          "Gomel",
+          "Brest"
+        ],
+        "reponse": "Minsk",
+        "categorie": "capitale"
+      }
+    },
+    "Astana": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Kazakhstan",
+        "etape": "pays_capitale",
+        "options": [
+          "Astana",
+          "Almaty",
+          "Chimkent"
+        ],
+        "reponse": "Astana",
+        "categorie": "capitale"
+      }
+    },
+    "Tachkent": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Ouzbékistan",
+        "etape": "pays_capitale",
+        "options": [
+          "Tachkent",
+          "Samarcande",
+          "Boukhara"
+        ],
+        "reponse": "Tachkent",
+        "categorie": "capitale"
+      }
+    },
+    "Tbilissi": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Géorgie",
+        "etape": "pays_capitale",
+        "options": [
+          "Tbilissi",
+          "Batoumi",
+          "Koutaïssi"
+        ],
+        "reponse": "Tbilissi",
+        "categorie": "capitale"
+      }
+    },
+    "Erevan": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Arménie",
+        "etape": "pays_capitale",
+        "options": [
+          "Erevan",
+          "Gyumri",
+          "Vanadzor"
+        ],
+        "reponse": "Erevan",
+        "categorie": "capitale"
+      }
+    },
+    "Bakou": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Azerbaïdjan",
+        "etape": "pays_capitale",
+        "options": [
+          "Bakou",
+          "Gandja",
+          "Sumqayit"
+        ],
+        "reponse": "Bakou",
+        "categorie": "capitale"
+      }
+    },
+    "Manille": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Philippines",
+        "etape": "pays_capitale",
+        "options": [
+          "Manille",
+          "Cebu",
+          "Davao"
+        ],
+        "reponse": "Manille",
+        "categorie": "capitale"
+      }
+    },
+    "Taipei": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Taïwan",
+        "etape": "pays_capitale",
+        "options": [
+          "Taipei",
+          "Kaohsiung",
+          "Taichung"
+        ],
+        "reponse": "Taipei",
+        "categorie": "capitale"
+      }
+    },
+    "Téhéran": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Iran",
+        "etape": "pays_capitale",
+        "options": [
+          "Téhéran",
+          "Ispahan",
+          "Chiraz"
+        ],
+        "reponse": "Téhéran",
+        "categorie": "capitale"
+      }
+    },
+    "Bagdad": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Irak",
+        "etape": "pays_capitale",
+        "options": [
+          "Bagdad",
+          "Bassora",
+          "Mossoul"
+        ],
+        "reponse": "Bagdad",
+        "categorie": "capitale"
+      }
+    },
+    "Damas": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Syrie",
+        "etape": "pays_capitale",
+        "options": [
+          "Damas",
+          "Alep",
+          "Homs"
+        ],
+        "reponse": "Damas",
+        "categorie": "capitale"
+      }
+    },
+    "Beyrouth": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Liban",
+        "etape": "pays_capitale",
+        "options": [
+          "Beyrouth",
+          "Tripoli",
+          "Saïda"
+        ],
+        "reponse": "Beyrouth",
+        "categorie": "capitale"
+      }
+    },
+    "Doha": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Qatar",
+        "etape": "pays_capitale",
+        "options": [
+          "Doha",
+          "Al Wakrah",
+          "Al Rayyan"
+        ],
+        "reponse": "Doha",
+        "categorie": "capitale"
+      }
+    },
+    "Koweït City": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Koweït",
+        "etape": "pays_capitale",
+        "options": [
+          "Koweït City",
+          "Al Ahmadi",
+          "Hawalli"
+        ],
+        "reponse": "Koweït City",
+        "categorie": "capitale"
+      }
+    },
+    "Mascate": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Oman",
+        "etape": "pays_capitale",
+        "options": [
+          "Mascate",
+          "Salalah",
+          "Sohar"
+        ],
+        "reponse": "Mascate",
+        "categorie": "capitale"
+      }
+    },
+    "Sanaa": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Yémen",
+        "etape": "pays_capitale",
+        "options": [
+          "Sanaa",
+          "Aden",
+          "Taïz"
+        ],
+        "reponse": "Sanaa",
+        "categorie": "capitale"
+      }
+    },
+    "Tripoli": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Libye",
+        "etape": "pays_capitale",
+        "options": [
+          "Tripoli",
+          "Benghazi",
+          "Misrata"
+        ],
+        "reponse": "Tripoli",
+        "categorie": "capitale"
+      }
+    },
+    "Khartoum": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Soudan",
+        "etape": "pays_capitale",
+        "options": [
+          "Khartoum",
+          "Omdurman",
+          "Port-Soudan"
+        ],
+        "reponse": "Khartoum",
+        "categorie": "capitale"
+      }
+    },
+    "Kigali": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Rwanda",
+        "etape": "pays_capitale",
+        "options": [
+          "Kigali",
+          "Bujumbura",
+          "Kampala"
+        ],
+        "reponse": "Kigali",
+        "categorie": "capitale"
+      }
+    },
+    "Bujumbura": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Burundi",
+        "etape": "pays_capitale",
+        "options": [
+          "Bujumbura",
+          "Kigali",
+          "Nairobi"
+        ],
+        "reponse": "Bujumbura",
+        "categorie": "capitale"
+      }
+    },
+    "Lilongwe": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Malawi",
+        "etape": "pays_capitale",
+        "options": [
+          "Lilongwe",
+          "Blantyre",
+          "Harare"
+        ],
+        "reponse": "Lilongwe",
+        "categorie": "capitale"
+      }
+    },
+    "Luanda": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Angola",
+        "etape": "pays_capitale",
+        "options": [
+          "Luanda",
+          "Huambo",
+          "Lobito"
+        ],
+        "reponse": "Luanda",
+        "categorie": "capitale"
+      }
+    },
+    "Kinshasa": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "République Démocratique du Congo",
+        "etape": "pays_capitale",
+        "options": [
+          "Kinshasa",
+          "Lubumbashi",
+          "Kisangani"
+        ],
+        "reponse": "Kinshasa",
+        "categorie": "capitale"
+      }
+    },
+    "Brazzaville": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Congo",
+        "etape": "pays_capitale",
+        "options": [
+          "Brazzaville",
+          "Pointe-Noire",
+          "Kinshasa"
+        ],
+        "reponse": "Brazzaville",
+        "categorie": "capitale"
+      }
+    },
+    "Libreville": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Gabon",
+        "etape": "pays_capitale",
+        "options": [
+          "Libreville",
+          "Port-Gentil",
+          "Franceville"
+        ],
+        "reponse": "Libreville",
+        "categorie": "capitale"
+      }
+    },
+    "Conakry": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Guinée",
+        "etape": "pays_capitale",
+        "options": [
+          "Conakry",
+          "Kankan",
+          "Labé"
+        ],
+        "reponse": "Conakry",
+        "categorie": "capitale"
+      }
+    },
+    "Bamako": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Mali",
+        "etape": "pays_capitale",
+        "options": [
+          "Bamako",
+          "Tombouctou",
+          "Gao"
+        ],
+        "reponse": "Bamako",
+        "categorie": "capitale"
+      }
+    },
+    "Niamey": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Niger",
+        "etape": "pays_capitale",
+        "options": [
+          "Niamey",
+          "Zinder",
+          "Agadez"
+        ],
+        "reponse": "Niamey",
+        "categorie": "capitale"
+      }
+    },
+    "N'Djamena": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Tchad",
+        "etape": "pays_capitale",
+        "options": [
+          "N'Djamena",
+          "Moundou",
+          "Sarh"
+        ],
+        "reponse": "N'Djamena",
+        "categorie": "capitale"
+      }
+    },
+    "Ouagadougou": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Burkina Faso",
+        "etape": "pays_capitale",
+        "options": [
+          "Ouagadougou",
+          "Bobo-Dioulasso",
+          "Koudougou"
+        ],
+        "reponse": "Ouagadougou",
+        "categorie": "capitale"
+      }
+    },
+    "Porto-Novo": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Bénin",
+        "etape": "pays_capitale",
+        "options": [
+          "Porto-Novo",
+          "Cotonou",
+          "Parakou"
+        ],
+        "reponse": "Porto-Novo",
+        "categorie": "capitale"
+      }
+    },
+    "Lomé": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Togo",
+        "etape": "pays_capitale",
+        "options": [
+          "Lomé",
+          "Sokodé",
+          "Kara"
+        ],
+        "reponse": "Lomé",
+        "categorie": "capitale"
+      }
+    },
+    "Monrovia": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Liberia",
+        "etape": "pays_capitale",
+        "options": [
+          "Monrovia",
+          "Gbarnga",
+          "Buchanan"
+        ],
+        "reponse": "Monrovia",
+        "categorie": "capitale"
+      }
+    },
+    "Freetown": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Sierra Leone",
+        "etape": "pays_capitale",
+        "options": [
+          "Freetown",
+          "Bo",
+          "Kenema"
+        ],
+        "reponse": "Freetown",
+        "categorie": "capitale"
+      }
+    },
+    "Nouakchott": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Mauritanie",
+        "etape": "pays_capitale",
+        "options": [
+          "Nouakchott",
+          "Nouadhibou",
+          "Rosso"
+        ],
+        "reponse": "Nouakchott",
+        "categorie": "capitale"
+      }
+    },
+    "Asmara": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Érythrée",
+        "etape": "pays_capitale",
+        "options": [
+          "Asmara",
+          "Massaoua",
+          "Keren"
+        ],
+        "reponse": "Asmara",
+        "categorie": "capitale"
+      }
+    },
+    "Djibouti": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Djibouti",
+        "etape": "pays_capitale",
+        "options": [
+          "Djibouti",
+          "Ali Sabieh",
+          "Tadjourah"
+        ],
+        "reponse": "Djibouti",
+        "categorie": "capitale"
+      }
+    },
+    "Moroni": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Comores",
+        "etape": "pays_capitale",
+        "options": [
+          "Moroni",
+          "Mutsamudu",
+          "Fomboni"
+        ],
+        "reponse": "Moroni",
+        "categorie": "capitale"
+      }
+    },
+    "Port-Louis": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Maurice",
+        "etape": "pays_capitale",
+        "options": [
+          "Port-Louis",
+          "Curepipe",
+          "Vacoas"
+        ],
+        "reponse": "Port-Louis",
+        "categorie": "capitale"
+      }
+    },
+    "Victoria": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Seychelles",
+        "etape": "pays_capitale",
+        "options": [
+          "Victoria",
+          "Anse Boileau",
+          "Beau Vallon"
+        ],
+        "reponse": "Victoria",
+        "categorie": "capitale"
+      }
+    },
+    "Praia": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Cap-Vert",
+        "etape": "pays_capitale",
+        "options": [
+          "Praia",
+          "Mindelo",
+          "Assomada"
+        ],
+        "reponse": "Praia",
+        "categorie": "capitale"
+      }
+    },
+    "Mbabane": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Eswatini",
+        "etape": "pays_capitale",
+        "options": [
+          "Mbabane",
+          "Manzini",
+          "Lobamba"
+        ],
+        "reponse": "Mbabane",
+        "categorie": "capitale"
+      }
+    },
+    "Maseru": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Lesotho",
+        "etape": "pays_capitale",
+        "options": [
+          "Maseru",
+          "Teyateyaneng",
+          "Mafeteng"
+        ],
+        "reponse": "Maseru",
+        "categorie": "capitale"
+      }
+    },
+    "Port Moresby": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Papouasie-Nouvelle-Guinée",
+        "etape": "pays_capitale",
+        "options": [
+          "Port Moresby",
+          "Lae",
+          "Mount Hagen"
+        ],
+        "reponse": "Port Moresby",
+        "categorie": "capitale"
+      }
+    },
+    "Suva": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Fidji",
+        "etape": "pays_capitale",
+        "options": [
+          "Suva",
+          "Nadi",
+          "Lautoka"
+        ],
+        "reponse": "Suva",
+        "categorie": "capitale"
+      }
+    },
+    "Apia": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Samoa",
+        "etape": "pays_capitale",
+        "options": [
+          "Apia",
+          "Salelologa",
+          "Faleula"
+        ],
+        "reponse": "Apia",
+        "categorie": "capitale"
+      }
+    },
+    "Nuku'alofa": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Tonga",
+        "etape": "pays_capitale",
+        "options": [
+          "Nuku'alofa",
+          "Neiafu",
+          "Haveluloto"
+        ],
+        "reponse": "Nuku'alofa",
+        "categorie": "capitale"
+      }
+    },
+    "Port-Vila": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Vanuatu",
+        "etape": "pays_capitale",
+        "options": [
+          "Port-Vila",
+          "Luganville",
+          "Norsup"
+        ],
+        "reponse": "Port-Vila",
+        "categorie": "capitale"
+      }
+    },
+    "Honiara": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Salomon",
+        "etape": "pays_capitale",
+        "options": [
+          "Honiara",
+          "Auki",
+          "Gizo"
+        ],
+        "reponse": "Honiara",
+        "categorie": "capitale"
+      }
+    },
+    "Bandar Seri Begawan": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Brunei",
+        "etape": "pays_capitale",
+        "options": [
+          "Bandar Seri Begawan",
+          "Kuala Belait",
+          "Seria"
+        ],
+        "reponse": "Bandar Seri Begawan",
+        "categorie": "capitale"
+      }
+    },
+    "San José": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Costa Rica",
+        "etape": "pays_capitale",
+        "options": [
+          "San José",
+          "Limón",
+          "Alajuela"
+        ],
+        "reponse": "San José",
+        "categorie": "capitale"
+      }
+    },
+    "Panama": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Panama",
+        "etape": "pays_capitale",
+        "options": [
+          "Panama",
+          "Colón",
+          "David"
+        ],
+        "reponse": "Panama",
+        "categorie": "capitale"
+      }
+    },
+    "Managua": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Nicaragua",
+        "etape": "pays_capitale",
+        "options": [
+          "Managua",
+          "León",
+          "Granada"
+        ],
+        "reponse": "Managua",
+        "categorie": "capitale"
+      }
+    },
+    "Tegucigalpa": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Honduras",
+        "etape": "pays_capitale",
+        "options": [
+          "Tegucigalpa",
+          "San Pedro Sula",
+          "La Ceiba"
+        ],
+        "reponse": "Tegucigalpa",
+        "categorie": "capitale"
+      }
+    },
+    "Guatemala": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Guatemala",
+        "etape": "pays_capitale",
+        "options": [
+          "Guatemala",
+          "Quetzaltenango",
+          "Escuintla"
+        ],
+        "reponse": "Guatemala",
+        "categorie": "capitale"
+      }
+    },
+    "San Salvador": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Salvador",
+        "etape": "pays_capitale",
+        "options": [
+          "San Salvador",
+          "Santa Ana",
+          "San Miguel"
+        ],
+        "reponse": "San Salvador",
+        "categorie": "capitale"
+      }
+    },
+    "Nicosie": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Chypre",
+        "etape": "pays_capitale",
+        "options": [
+          "Nicosie",
+          "Limassol",
+          "Larnaca"
+        ],
+        "reponse": "Nicosie",
+        "categorie": "capitale"
+      }
+    },
+    "La Valette": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Malte",
+        "etape": "pays_capitale",
+        "options": [
+          "La Valette",
+          "Birkirkara",
+          "Mdina"
+        ],
+        "reponse": "La Valette",
+        "categorie": "capitale"
+      }
+    },
+    "La Paz": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Bolivie",
+        "etape": "pays_capitale",
+        "options": [
+          "La Paz",
+          "Lima",
+          "Santiago"
+        ],
+        "reponse": "La Paz",
+        "categorie": "capitale"
+      }
+    },
+    "Naypyidaw": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Myanmar",
+        "etape": "pays_capitale",
+        "options": [
+          "Naypyidaw",
+          "Bangkok",
+          "Hanoï"
+        ],
+        "reponse": "Naypyidaw",
+        "categorie": "capitale"
+      }
+    },
+    "Achgabat": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Turkménistan",
+        "etape": "pays_capitale",
+        "options": [
+          "Achgabat",
+          "Tachkent",
+          "Douchanbé"
+        ],
+        "reponse": "Achgabat",
+        "categorie": "capitale"
+      }
+    },
+    "Bichkek": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Kirghizistan",
+        "etape": "pays_capitale",
+        "options": [
+          "Bichkek",
+          "Douchanbé",
+          "Astana"
+        ],
+        "reponse": "Bichkek",
+        "categorie": "capitale"
+      }
+    },
+    "Douchanbé": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Tadjikistan",
+        "etape": "pays_capitale",
+        "options": [
+          "Douchanbé",
+          "Bichkek",
+          "Achgabat"
+        ],
+        "reponse": "Douchanbé",
+        "categorie": "capitale"
+      }
+    },
+    "Vientiane": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Laos",
+        "etape": "pays_capitale",
+        "options": [
+          "Vientiane",
+          "Phnom Penh",
+          "Naypyidaw"
+        ],
+        "reponse": "Vientiane",
+        "categorie": "capitale"
+      }
+    },
+    "Français": {
+      "count": 6,
+      "exempleDonnees": {
+        "pays": "France",
+        "etape": "langue_pays",
+        "options": [
+          "Chinois",
+          "Français",
+          "Arabe"
+        ],
+        "reponse": "Français",
+        "categorie": "langue"
+      }
+    },
+    "Espagnol": {
+      "count": 25,
+      "exempleDonnees": {
+        "pays": "Espagne",
+        "etape": "langue_pays",
+        "options": [
+          "Espagnol",
+          "Italien",
+          "Russe"
+        ],
+        "reponse": "Espagnol",
+        "categorie": "langue"
+      }
+    },
+    "Italien": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Italie",
+        "etape": "langue_pays",
+        "options": [
+          "Japonais",
+          "Russe",
+          "Italien"
+        ],
+        "reponse": "Italien",
+        "categorie": "langue"
+      }
+    },
+    "Allemand": {
+      "count": 5,
+      "exempleDonnees": {
+        "pays": "Allemagne",
+        "etape": "langue_pays",
+        "options": [
+          "Allemand",
+          "Chinois",
+          "Portugais"
+        ],
+        "reponse": "Allemand",
+        "categorie": "langue"
+      }
+    },
+    "Anglais": {
+      "count": 16,
+      "exempleDonnees": {
+        "pays": "Royaume-Uni",
+        "etape": "langue_pays",
+        "options": [
+          "Italien",
+          "Anglais",
+          "Japonais"
+        ],
+        "reponse": "Anglais",
+        "categorie": "langue"
+      }
+    },
+    "Portugais": {
+      "count": 7,
+      "exempleDonnees": {
+        "pays": "Portugal",
+        "etape": "langue_pays",
+        "options": [
+          "Français",
+          "Portugais",
+          "Allemand"
+        ],
+        "reponse": "Portugais",
+        "categorie": "langue"
+      }
+    },
+    "Chinois": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Chine",
+        "etape": "langue_pays",
+        "options": [
+          "Chinois",
+          "Portugais",
+          "Russe"
+        ],
+        "reponse": "Chinois",
+        "categorie": "langue"
+      }
+    },
+    "Japonais": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Japon",
+        "etape": "langue_pays",
+        "options": [
+          "Italien",
+          "Portugais",
+          "Japonais"
+        ],
+        "reponse": "Japonais",
+        "categorie": "langue"
+      }
+    },
+    "Russe": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Russie",
+        "etape": "langue_pays",
+        "options": [
+          "Italien",
+          "Portugais",
+          "Russe"
+        ],
+        "reponse": "Russe",
+        "categorie": "langue"
+      }
+    },
+    "Arabe": {
+      "count": 23,
+      "exempleDonnees": {
+        "pays": "Égypte",
+        "etape": "langue_pays",
+        "options": [
+          "Français",
+          "Espagnol",
+          "Arabe"
+        ],
+        "reponse": "Arabe",
+        "categorie": "langue"
+      }
+    },
+    "Hindi": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Inde",
+        "etape": "langue_pays",
+        "options": [
+          "Hindi",
+          "Japonais",
+          "Anglais"
+        ],
+        "reponse": "Hindi",
+        "categorie": "langue"
+      }
+    },
+    "Grec": {
+      "count": 4,
+      "exempleDonnees": {
+        "pays": "Grèce",
+        "etape": "langue_pays",
+        "options": [
+          "Grec",
+          "Italien",
+          "Espagnol"
+        ],
+        "reponse": "Grec",
+        "categorie": "langue"
+      }
+    },
+    "Néerlandais": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Pays-Bas",
+        "etape": "langue_pays",
+        "options": [
+          "Russe",
+          "Japonais",
+          "Néerlandais"
+        ],
+        "reponse": "Néerlandais",
+        "categorie": "langue"
+      }
+    },
+    "Turc": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Turquie",
+        "etape": "langue_pays",
+        "options": [
+          "Anglais",
+          "Turc",
+          "Italien"
+        ],
+        "reponse": "Turc",
+        "categorie": "langue"
+      }
+    },
+    "Suédois": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Suède",
+        "etape": "langue_pays",
+        "options": [
+          "Suédois",
+          "Chinois",
+          "Espagnol"
+        ],
+        "reponse": "Suédois",
+        "categorie": "langue"
+      }
+    },
+    "Polonais": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Pologne",
+        "etape": "langue_pays",
+        "options": [
+          "Polonais",
+          "Japonais",
+          "Arabe"
+        ],
+        "reponse": "Polonais",
+        "categorie": "langue"
+      }
+    },
+    "Allemand, français et italien": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Suisse",
+        "etape": "langue_pays",
+        "options": [
+          "Espagnol",
+          "Allemand, français et italien",
+          "Anglais"
+        ],
+        "reponse": "Allemand, français et italien",
+        "categorie": "langue"
+      }
+    },
+    "Anglais et français": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Canada",
+        "etape": "langue_pays",
+        "options": [
+          "Anglais et français",
+          "Portugais",
+          "Italien"
+        ],
+        "reponse": "Anglais et français",
+        "categorie": "langue"
+      }
+    },
+    "Coréen": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Corée du Sud",
+        "etape": "langue_pays",
+        "options": [
+          "Français",
+          "Arabe",
+          "Coréen"
+        ],
+        "reponse": "Coréen",
+        "categorie": "langue"
+      }
+    },
+    "Vietnamien": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Vietnam",
+        "etape": "langue_pays",
+        "options": [
+          "Vietnamien",
+          "Portugais",
+          "Chinois"
+        ],
+        "reponse": "Vietnamien",
+        "categorie": "langue"
+      }
+    },
+    "Thaï": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Thaïlande",
+        "etape": "langue_pays",
+        "options": [
+          "Russe",
+          "Thaï",
+          "Arabe"
+        ],
+        "reponse": "Thaï",
+        "categorie": "langue"
+      }
+    },
+    "Indonésien": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Indonésie",
+        "etape": "langue_pays",
+        "options": [
+          "Portugais",
+          "Anglais",
+          "Indonésien"
+        ],
+        "reponse": "Indonésien",
+        "categorie": "langue"
+      }
+    },
+    "Finnois": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Finlande",
+        "etape": "langue_pays",
+        "options": [
+          "Japonais",
+          "Allemand",
+          "Finnois"
+        ],
+        "reponse": "Finnois",
+        "categorie": "langue"
+      }
+    },
+    "Norvégien": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Norvège",
+        "etape": "langue_pays",
+        "options": [
+          "Norvégien",
+          "Français",
+          "Portugais"
+        ],
+        "reponse": "Norvégien",
+        "categorie": "langue"
+      }
+    },
+    "Danois": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Danemark",
+        "etape": "langue_pays",
+        "options": [
+          "Allemand",
+          "Italien",
+          "Danois"
+        ],
+        "reponse": "Danois",
+        "categorie": "langue"
+      }
+    },
+    "Hongrois": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Hongrie",
+        "etape": "langue_pays",
+        "options": [
+          "Hongrois",
+          "Japonais",
+          "Français"
+        ],
+        "reponse": "Hongrois",
+        "categorie": "langue"
+      }
+    },
+    "Roumain": {
+      "count": 4,
+      "exempleDonnees": {
+        "pays": "Roumanie",
+        "etape": "langue_pays",
+        "options": [
+          "Italien",
+          "Roumain",
+          "Anglais"
+        ],
+        "reponse": "Roumain",
+        "categorie": "langue"
+      }
+    },
+    "Ukrainien": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Ukraine",
+        "etape": "langue_pays",
+        "options": [
+          "Portugais",
+          "Ukrainien",
+          "Français"
+        ],
+        "reponse": "Ukrainien",
+        "categorie": "langue"
+      }
+    },
+    "Swahili et anglais": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Kenya",
+        "etape": "langue_pays",
+        "options": [
+          "Russe",
+          "Swahili et anglais",
+          "Français"
+        ],
+        "reponse": "Swahili et anglais",
+        "categorie": "langue"
+      }
+    },
+    "Hébreu": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Israël",
+        "etape": "langue_pays",
+        "options": [
+          "Hébreu",
+          "Japonais",
+          "Allemand"
+        ],
+        "reponse": "Hébreu",
+        "categorie": "langue"
+      }
+    },
+    "Persan": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Iran",
+        "etape": "langue_pays",
+        "options": [
+          "Chinois",
+          "Espagnol",
+          "Persan"
+        ],
+        "reponse": "Persan",
+        "categorie": "langue"
+      }
+    },
+    "Ourdou": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Pakistan",
+        "etape": "langue_pays",
+        "options": [
+          "Ourdou",
+          "Russe",
+          "Français"
+        ],
+        "reponse": "Ourdou",
+        "categorie": "langue"
+      }
+    },
+    "Filipino et anglais": {
+      "count": 3,
+      "exempleDonnees": {
+        "pays": "Philippines",
+        "etape": "langue_pays",
+        "options": [
+          "Filipino et anglais",
+          "Espagnol",
+          "Anglais"
+        ],
+        "reponse": "Filipino et anglais",
+        "categorie": "langue"
+      }
+    },
+    "Espagnol et guarani": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Paraguay",
+        "etape": "langue_pays",
+        "options": [
+          "Espagnol et guarani",
+          "Allemand",
+          "Portugais"
+        ],
+        "reponse": "Espagnol et guarani",
+        "categorie": "langue"
+      }
+    },
+    "Malais": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Malaisie",
+        "etape": "langue_pays",
+        "options": [
+          "Portugais",
+          "Anglais",
+          "Malais"
+        ],
+        "reponse": "Malais",
+        "categorie": "langue"
+      }
+    },
+    "Anglais, malais, chinois et tamoul": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Singapour",
+        "etape": "langue_pays",
+        "options": [
+          "Anglais, malais, chinois et tamoul",
+          "Arabe",
+          "Turc"
+        ],
+        "reponse": "Anglais, malais, chinois et tamoul",
+        "categorie": "langue"
+      }
+    },
+    "Bengali": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Bangladesh",
+        "etape": "langue_pays",
+        "options": [
+          "Bengali",
+          "Anglais",
+          "Allemand"
+        ],
+        "reponse": "Bengali",
+        "categorie": "langue"
+      }
+    },
+    "Cingalais et tamoul": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Sri Lanka",
+        "etape": "langue_pays",
+        "options": [
+          "Japonais",
+          "Portugais",
+          "Cingalais et tamoul"
+        ],
+        "reponse": "Cingalais et tamoul",
+        "categorie": "langue"
+      }
+    },
+    "Népalais": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Népal",
+        "etape": "langue_pays",
+        "options": [
+          "Turc",
+          "Népalais",
+          "Allemand"
+        ],
+        "reponse": "Népalais",
+        "categorie": "langue"
+      }
+    },
+    "Birman": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Myanmar",
+        "etape": "langue_pays",
+        "options": [
+          "Arabe",
+          "Portugais",
+          "Birman"
+        ],
+        "reponse": "Birman",
+        "categorie": "langue"
+      }
+    },
+    "Khmer": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Cambodge",
+        "etape": "langue_pays",
+        "options": [
+          "Français",
+          "Italien",
+          "Khmer"
+        ],
+        "reponse": "Khmer",
+        "categorie": "langue"
+      }
+    },
+    "Lao": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Laos",
+        "etape": "langue_pays",
+        "options": [
+          "Français",
+          "Lao",
+          "Portugais"
+        ],
+        "reponse": "Lao",
+        "categorie": "langue"
+      }
+    },
+    "Mongol": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Mongolie",
+        "etape": "langue_pays",
+        "options": [
+          "Espagnol",
+          "Arabe",
+          "Mongol"
+        ],
+        "reponse": "Mongol",
+        "categorie": "langue"
+      }
+    },
+    "Kazakh et russe": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Kazakhstan",
+        "etape": "langue_pays",
+        "options": [
+          "Kazakh et russe",
+          "Anglais",
+          "Espagnol"
+        ],
+        "reponse": "Kazakh et russe",
+        "categorie": "langue"
+      }
+    },
+    "Ouzbek": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Ouzbékistan",
+        "etape": "langue_pays",
+        "options": [
+          "Japonais",
+          "Ouzbek",
+          "Hindi"
+        ],
+        "reponse": "Ouzbek",
+        "categorie": "langue"
+      }
+    },
+    "Pachto et dari": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Afghanistan",
+        "etape": "langue_pays",
+        "options": [
+          "Espagnol",
+          "Russe",
+          "Pachto et dari"
+        ],
+        "reponse": "Pachto et dari",
+        "categorie": "langue"
+      }
+    },
+    "Géorgien": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Géorgie",
+        "etape": "langue_pays",
+        "options": [
+          "Russe",
+          "Géorgien",
+          "Espagnol"
+        ],
+        "reponse": "Géorgien",
+        "categorie": "langue"
+      }
+    },
+    "Arménien": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Arménie",
+        "etape": "langue_pays",
+        "options": [
+          "Hindi",
+          "Arménien",
+          "Français"
+        ],
+        "reponse": "Arménien",
+        "categorie": "langue"
+      }
+    },
+    "Azéri": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Azerbaïdjan",
+        "etape": "langue_pays",
+        "options": [
+          "Azéri",
+          "Japonais",
+          "Russe"
+        ],
+        "reponse": "Azéri",
+        "categorie": "langue"
+      }
+    },
+    "Amharique": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Éthiopie",
+        "etape": "langue_pays",
+        "options": [
+          "Amharique",
+          "Turc",
+          "Japonais"
+        ],
+        "reponse": "Amharique",
+        "categorie": "langue"
+      }
+    },
+    "Swahili": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Tanzanie",
+        "etape": "langue_pays",
+        "options": [
+          "Swahili",
+          "Italien",
+          "Arabe"
+        ],
+        "reponse": "Swahili",
+        "categorie": "langue"
+      }
+    },
+    "Anglais et swahili": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Ouganda",
+        "etape": "langue_pays",
+        "options": [
+          "Anglais et swahili",
+          "Français",
+          "Hindi"
+        ],
+        "reponse": "Anglais et swahili",
+        "categorie": "langue"
+      }
+    },
+    "Français et anglais": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Cameroun",
+        "etape": "langue_pays",
+        "options": [
+          "Arabe",
+          "Français et anglais",
+          "Anglais"
+        ],
+        "reponse": "Français et anglais",
+        "categorie": "langue"
+      }
+    },
+    "Malgache et français": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Madagascar",
+        "etape": "langue_pays",
+        "options": [
+          "Espagnol",
+          "Malgache et français",
+          "Japonais"
+        ],
+        "reponse": "Malgache et français",
+        "categorie": "langue"
+      }
+    },
+    "Kinyarwanda, français et anglais": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Rwanda",
+        "etape": "langue_pays",
+        "options": [
+          "Anglais",
+          "Chinois",
+          "Kinyarwanda, français et anglais"
+        ],
+        "reponse": "Kinyarwanda, français et anglais",
+        "categorie": "langue"
+      }
+    },
+    "Estonien": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Estonie",
+        "etape": "langue_pays",
+        "options": [
+          "Estonien",
+          "Portugais",
+          "Espagnol"
+        ],
+        "reponse": "Estonien",
+        "categorie": "langue"
+      }
+    },
+    "Letton": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Lettonie",
+        "etape": "langue_pays",
+        "options": [
+          "Letton",
+          "Anglais",
+          "Russe"
+        ],
+        "reponse": "Letton",
+        "categorie": "langue"
+      }
+    },
+    "Lituanien": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Lituanie",
+        "etape": "langue_pays",
+        "options": [
+          "Hindi",
+          "Espagnol",
+          "Lituanien"
+        ],
+        "reponse": "Lituanien",
+        "categorie": "langue"
+      }
+    },
+    "Slovaque": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Slovaquie",
+        "etape": "langue_pays",
+        "options": [
+          "Hindi",
+          "Slovaque",
+          "Français"
+        ],
+        "reponse": "Slovaque",
+        "categorie": "langue"
+      }
+    },
+    "Slovène": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Slovénie",
+        "etape": "langue_pays",
+        "options": [
+          "Slovène",
+          "Espagnol",
+          "Anglais"
+        ],
+        "reponse": "Slovène",
+        "categorie": "langue"
+      }
+    },
+    "Croate": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Croatie",
+        "etape": "langue_pays",
+        "options": [
+          "Croate",
+          "Russe",
+          "Turc"
+        ],
+        "reponse": "Croate",
+        "categorie": "langue"
+      }
+    },
+    "Serbe": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Serbie",
+        "etape": "langue_pays",
+        "options": [
+          "Espagnol",
+          "Serbe",
+          "Russe"
+        ],
+        "reponse": "Serbe",
+        "categorie": "langue"
+      }
+    },
+    "Bosnien": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Bosnie-Herzégovine",
+        "etape": "langue_pays",
+        "options": [
+          "Bosnien",
+          "Espagnol",
+          "Hindi"
+        ],
+        "reponse": "Bosnien",
+        "categorie": "langue"
+      }
+    },
+    "Albanais": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Albanie",
+        "etape": "langue_pays",
+        "options": [
+          "Anglais",
+          "Arabe",
+          "Albanais"
+        ],
+        "reponse": "Albanais",
+        "categorie": "langue"
+      }
+    },
+    "Macédonien": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Macédoine du Nord",
+        "etape": "langue_pays",
+        "options": [
+          "Anglais",
+          "Chinois",
+          "Macédonien"
+        ],
+        "reponse": "Macédonien",
+        "categorie": "langue"
+      }
+    },
+    "Bulgare": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Bulgarie",
+        "etape": "langue_pays",
+        "options": [
+          "Russe",
+          "Bulgare",
+          "Portugais"
+        ],
+        "reponse": "Bulgare",
+        "categorie": "langue"
+      }
+    },
+    "Islandais": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Islande",
+        "etape": "langue_pays",
+        "options": [
+          "Russe",
+          "Islandais",
+          "Japonais"
+        ],
+        "reponse": "Islandais",
+        "categorie": "langue"
+      }
+    },
+    "Maltais": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Malte",
+        "etape": "langue_pays",
+        "options": [
+          "Anglais",
+          "Maltais",
+          "Allemand"
+        ],
+        "reponse": "Maltais",
+        "categorie": "langue"
+      }
+    },
+    "Luxembourgeois, français et allemand": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Luxembourg",
+        "etape": "langue_pays",
+        "options": [
+          "Portugais",
+          "Turc",
+          "Luxembourgeois, français et allemand"
+        ],
+        "reponse": "Luxembourgeois, français et allemand",
+        "categorie": "langue"
+      }
+    },
+    "Catalan": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Andorre",
+        "etape": "langue_pays",
+        "options": [
+          "Chinois",
+          "Portugais",
+          "Catalan"
+        ],
+        "reponse": "Catalan",
+        "categorie": "langue"
+      }
+    },
+    "Biélorusse et russe": {
+      "count": 1,
+      "exempleDonnees": {
+        "pays": "Biélorussie",
+        "etape": "langue_pays",
+        "options": [
+          "Biélorusse et russe",
+          "Ukrainien",
+          "Italien"
+        ],
+        "reponse": "Biélorusse et russe",
+        "categorie": "langue"
+      }
+    },
+    "Français et néerlandais": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "Belgique",
+        "etape": "langue_pays",
+        "options": [
+          "Français et néerlandais",
+          "Allemand",
+          "Anglais"
+        ],
+        "reponse": "Français et néerlandais",
+        "categorie": "langue"
+      }
+    },
+    "Tchèque": {
+      "count": 2,
+      "exempleDonnees": {
+        "pays": "République Tchèque",
+        "etape": "langue_pays",
+        "options": [
+          "Tchèque",
+          "Slovaque",
+          "Polonais"
+        ],
+        "reponse": "Tchèque",
+        "categorie": "langue"
+      }
+    },
+    "Botswana": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "animal_pays",
+        "animal": "🦓",
+        "options": [
+          "Japon",
+          "Botswana",
+          "Australie"
+        ],
+        "reponse": "Botswana",
+        "categorie": "animal"
+      }
+    },
+    "Namibie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "animal_pays",
+        "animal": "🦓",
+        "options": [
+          "Mexique",
+          "Namibie",
+          "Inde"
+        ],
+        "reponse": "Namibie",
+        "categorie": "animal"
+      }
+    },
+    "Zambie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "animal_pays",
+        "animal": "🦓",
+        "options": [
+          "Mexique",
+          "Russie",
+          "Zambie"
+        ],
+        "reponse": "Zambie",
+        "categorie": "animal"
+      }
+    },
+    "Bhoutan": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "animal_pays",
+        "animal": "🐉",
+        "options": [
+          "Russie",
+          "Chine",
+          "Bhoutan"
+        ],
+        "reponse": "Bhoutan",
+        "categorie": "animal"
+      }
+    },
+    "Cambodge": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "monument_pays",
+        "options": [
+          "Cambodge",
+          "Égypte",
+          "France"
+        ],
+        "reponse": "Cambodge",
+        "monument": "🛕",
+        "categorie": "monument"
+      }
+    },
+    "Myanmar": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "monument_pays",
+        "options": [
+          "Chine",
+          "Myanmar",
+          "Brésil"
+        ],
+        "reponse": "Myanmar",
+        "monument": "🛕",
+        "categorie": "monument"
+      }
+    },
+    "Jordanie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "monument_pays",
+        "options": [
+          "Jordanie",
+          "Inde",
+          "Japon"
+        ],
+        "reponse": "Jordanie",
+        "monument": "🏛️",
+        "categorie": "monument"
+      }
+    },
+    "Chypre": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇾",
+        "options": [
+          "Chypre",
+          "Islande",
+          "Maurice"
+        ],
+        "reponse": "Chypre",
+        "categorie": "ile"
+      }
+    },
+    "Taïwan": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇹🇼",
+        "options": [
+          "Malte",
+          "Fidji",
+          "Taïwan"
+        ],
+        "reponse": "Taïwan",
+        "categorie": "ile"
+      }
+    },
+    "République Dominicaine": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇩🇴",
+        "options": [
+          "Jamaïque",
+          "République Dominicaine",
+          "Samoa"
+        ],
+        "reponse": "République Dominicaine",
+        "categorie": "ile"
+      }
+    },
+    "Bahamas": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇧🇸",
+        "options": [
+          "Bahamas",
+          "Malte",
+          "Samoa"
+        ],
+        "reponse": "Bahamas",
+        "categorie": "ile"
+      }
+    },
+    "Trinité-et-Tobago": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇹🇹",
+        "options": [
+          "Madagascar",
+          "Jamaïque",
+          "Trinité-et-Tobago"
+        ],
+        "reponse": "Trinité-et-Tobago",
+        "categorie": "ile"
+      }
+    },
+    "Porto Rico": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇷",
+        "options": [
+          "Porto Rico",
+          "Haïti",
+          "Cuba"
+        ],
+        "reponse": "Porto Rico",
+        "categorie": "ile"
+      }
+    },
+    "Comores": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇰🇲",
+        "options": [
+          "Haïti",
+          "Fidji",
+          "Comores"
+        ],
+        "reponse": "Comores",
+        "categorie": "ile"
+      }
+    },
+    "Cap-Vert": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇨🇻",
+        "options": [
+          "Cuba",
+          "Samoa",
+          "Cap-Vert"
+        ],
+        "reponse": "Cap-Vert",
+        "categorie": "ile"
+      }
+    },
+    "Tonga": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇹🇴",
+        "options": [
+          "Haïti",
+          "Tonga",
+          "Sri Lanka"
+        ],
+        "reponse": "Tonga",
+        "categorie": "ile"
+      }
+    },
+    "Papouasie-Nouvelle-Guinée": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇬",
+        "options": [
+          "Papouasie-Nouvelle-Guinée",
+          "Malte",
+          "Cuba"
+        ],
+        "reponse": "Papouasie-Nouvelle-Guinée",
+        "categorie": "ile"
+      }
+    },
+    "Vanuatu": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇻🇺",
+        "options": [
+          "Fidji",
+          "Madagascar",
+          "Vanuatu"
+        ],
+        "reponse": "Vanuatu",
+        "categorie": "ile"
+      }
+    },
+    "Salomon": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇸🇧",
+        "options": [
+          "Jamaïque",
+          "Sri Lanka",
+          "Salomon"
+        ],
+        "reponse": "Salomon",
+        "categorie": "ile"
+      }
+    },
+    "Barbade": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇧🇧",
+        "options": [
+          "Haïti",
+          "Sri Lanka",
+          "Barbade"
+        ],
+        "reponse": "Barbade",
+        "categorie": "ile"
+      }
+    },
+    "Sainte-Lucie": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇱🇨",
+        "options": [
+          "Sainte-Lucie",
+          "Islande",
+          "Cuba"
+        ],
+        "reponse": "Sainte-Lucie",
+        "categorie": "ile"
+      }
+    },
+    "Grenade": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇬🇩",
+        "options": [
+          "Cuba",
+          "Maurice",
+          "Grenade"
+        ],
+        "reponse": "Grenade",
+        "categorie": "ile"
+      }
+    },
+    "Bahreïn": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇧🇭",
+        "options": [
+          "Bahreïn",
+          "Islande",
+          "Malte"
+        ],
+        "reponse": "Bahreïn",
+        "categorie": "ile"
+      }
+    },
+    "Palaos": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇵🇼",
+        "options": [
+          "Palaos",
+          "Fidji",
+          "Malte"
+        ],
+        "reponse": "Palaos",
+        "categorie": "ile"
+      }
+    },
+    "Kiribati": {
+      "count": 1,
+      "exempleDonnees": {
+        "etape": "drapeau_pays",
+        "drapeau": "🇰🇮",
+        "options": [
+          "Kiribati",
+          "Maurice",
+          "Fidji"
+        ],
+        "reponse": "Kiribati",
+        "categorie": "ile"
+      }
+    }
+  }
+}
