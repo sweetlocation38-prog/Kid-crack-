@@ -12107,7 +12107,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
     } else if (modeChoisi === 'lettres') {
       lettresQueueRef.current = [];
       await assurerQueueLettres(c);
-      setChiffreAffiche(null);
+      setChiffreAffiche(lettresQueueRef.current[0]?.valeur ?? null); // affiche des le debut, comme pour les chiffres
     } else {
       setChiffreAffiche(null);
     }
@@ -12256,6 +12256,12 @@ function BouleQuiRouleScreen({ route, navigation }) {
       if (isPausedRef.current) return;
       const dt = 0.04;
       const c = conf;
+      // A partir du CM2, une mauvaise reponse (leurre) remet la serie a
+      // zero, comme avant - c'est le niveau le plus avance, l'exigence
+      // reste elevee. En dessous, se tromper de chiffre/lettre ne penalise
+      // plus la serie (retour de Thierry : sinon trop long/dur) - seul le
+      // rocher classique 🪨 la remet a zero, pour garder un vrai enjeu.
+      const estCM2 = rungJeu != null && rungJeu >= rungFromGradeAndPalier('cm2', 1);
 
       setDistanceParcourue((prevDist) => {
         const vitesseEffective = vitesseAvanceRef.current * (Date.now() < ralentiJusquaRef.current ? 0.8 : 1);
@@ -12298,7 +12304,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
             }
             if (cibleEnAttenteRef.current) {
               if (mode === 'calculs') setEnonceAffiche(cibleEnAttenteRef.current.enonce);
-              if (mode === 'chiffres') setChiffreAffiche(cibleEnAttenteRef.current.valeur);
+              else setChiffreAffiche(cibleEnAttenteRef.current.valeur);
             }
           }
 
@@ -12416,12 +12422,15 @@ function BouleQuiRouleScreen({ route, navigation }) {
               } else if (o.type === 'distracteur') {
                 if (atteint) {
                   setMessage({ texte: 'Pas celui-là, continue à chercher !', ok: false });
-                  setStreakActuelle(0);
+                  if (estCM2) setStreakActuelle(0);
                   declencherEffet(o.x, false);
                   if (c.distracteurCoutePV) perdreUneVie();
                 }
               } else if (o.type === 'piege') {
-                if (atteint) perdreUneVie();
+                if (atteint) {
+                  perdreUneVie();
+                  if (!estCM2) setStreakActuelle(0);
+                }
               } else if (o.type === 'piege_mortel') {
                 if (atteint) perdreToutesLesVies();
               } else if (o.type === 'piege_malus') {
@@ -12573,7 +12582,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
     return { relative, p, y };
   }
 
-  const affichageCible = mode === 'calculs' ? `${enonceAffiche} = ?` : mode === 'chiffres' ? `Cherche : ${chiffreAffiche ?? ''}` : null;
+  const affichageCible = mode === 'calculs' ? `${enonceAffiche} = ?` : `Cherche : ${chiffreAffiche ?? ''}`;
 
   const objetsVisibles = objets
     .map((o) => ({ ...o, pos: positionEcran(o.distance) }))
