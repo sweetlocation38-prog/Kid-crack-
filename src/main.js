@@ -12413,11 +12413,17 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   });
                 } else {
                   // Loupe (item completement passe sans etre touche, ou
-                  // bloque par un piege malus) : le streak repart a zero,
-                  // MAIS on redemande exactement le meme item ensuite
-                  // (cibleEnAttenteRef pas efface) - aucune vie perdue.
+                  // bloque par un piege malus) : avant le CM2, ca ne
+                  // remet plus la serie a zero non plus (seul le rocher
+                  // le fait desormais) - retour de Thierry, ce cas
+                  // precis etait celui qui se declenchait vraiment a
+                  // chaque fois qu'un mauvais chiffre etait attrape (la
+                  // vraie cible, elle, finissait toujours par etre
+                  // loupee de son cote). On redemande exactement le
+                  // meme item ensuite (cibleEnAttenteRef pas efface),
+                  // aucune vie perdue.
                   setMessage({ texte: estBloque ? 'Bloqué, réessaie dans quelques secondes !' : 'Raté, pas assez précis ! On continue.', ok: false });
-                  setStreakActuelle(0);
+                  if (estCM2) setStreakActuelle(0);
                 }
               } else if (o.type === 'distracteur') {
                 if (atteint) {
