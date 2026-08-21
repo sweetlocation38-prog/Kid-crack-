@@ -1,0 +1,465 @@
+{
+  "totalLignes": 445,
+  "problematiquesCount": 17,
+  "problematiques": [
+    {
+      "id": "3a853c47-505e-41b0-8cbe-c25032e75198",
+      "niveau": "ce1",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "MOULIN A VENT",
+          "emoji": "🌬️"
+        },
+        {
+          "mot": "FARINE FINE",
+          "emoji": "🌾"
+        },
+        {
+          "mot": "MEUNIER",
+          "emoji": "👨‍🌾"
+        },
+        {
+          "mot": "SAC DE BLE",
+          "emoji": "🌾"
+        }
+      ]
+    },
+    {
+      "id": "90d9755a-6c9a-454c-8554-9c1c25288651",
+      "niveau": "cp",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "SATELLITE",
+          "emoji": "🛰️"
+        },
+        {
+          "mot": "OURAGAN",
+          "emoji": "🌀"
+        },
+        {
+          "mot": "CHAMPIGNON",
+          "emoji": "🍄"
+        },
+        {
+          "mot": "LABYRINTHE",
+          "emoji": "🌀"
+        }
+      ]
+    },
+    {
+      "id": "0c2af018-f950-48ae-a4bc-bd2a898b3778",
+      "niveau": "ms",
+      "palier": 2,
+      "paires": [
+        {
+          "mot": "BALANCOIRE",
+          "emoji": "🛝"
+        },
+        {
+          "mot": "TOBOGGAN",
+          "emoji": "🛝"
+        },
+        {
+          "mot": "SABLE",
+          "emoji": "🏖️"
+        }
+      ]
+    },
+    {
+      "id": "9eaeaa58-7ff2-4518-99ec-99d30e4d5095",
+      "niveau": "ce1",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "COMPAS",
+          "emoji": "📐"
+        },
+        {
+          "mot": "EQUERRE",
+          "emoji": "📏"
+        },
+        {
+          "mot": "GEOMETRIE",
+          "emoji": "🔺"
+        },
+        {
+          "mot": "ANGLE",
+          "emoji": "📐"
+        }
+      ]
+    },
+    {
+      "id": "3a577043-0d20-4d67-bc4b-7874f1e237b1",
+      "niveau": "gs",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "ARC",
+          "emoji": "🏹"
+        },
+        {
+          "mot": "CIBLE",
+          "emoji": "🎯"
+        },
+        {
+          "mot": "FLECHE",
+          "emoji": "🏹"
+        },
+        {
+          "mot": "TIREUR",
+          "emoji": "🧑‍🦯"
+        }
+      ]
+    },
+    {
+      "id": "891f7508-a39f-4377-8d3e-57ff87c6acfc",
+      "niveau": "cp",
+      "palier": 2,
+      "paires": [
+        {
+          "mot": "TROMPE-L'OEIL",
+          "emoji": "🖼️"
+        },
+        {
+          "mot": "CHEVALET",
+          "emoji": "🎨"
+        },
+        {
+          "mot": "PALETTE DE COULEURS",
+          "emoji": "🎨"
+        },
+        {
+          "mot": "PINCEAU FIN",
+          "emoji": "🖌️"
+        }
+      ]
+    },
+    {
+      "id": "aef30d10-2bfc-4225-b627-715e365d8481",
+      "niveau": "ce1",
+      "palier": 1,
+      "paires": [
+        {
+          "mot": "CACAO",
+          "emoji": "🍫"
+        },
+        {
+          "mot": "FEVE",
+          "emoji": "🌱"
+        },
+        {
+          "mot": "CHOCOLATIER",
+          "emoji": "👨‍🍳"
+        },
+        {
+          "mot": "TABLETTE",
+          "emoji": "🍫"
+        }
+      ]
+    },
+    {
+      "id": "c09be0c4-e597-44ed-a1ed-31b007f920c8",
+      "niveau": "ce1",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "RUCHE ANCIENNE",
+          "emoji": "🐝"
+        },
+        {
+          "mot": "ESSAIM",
+          "emoji": "🐝"
+        },
+        {
+          "mot": "CIRE",
+          "emoji": "🕯️"
+        },
+        {
+          "mot": "POLLEN",
+          "emoji": "🌼"
+        }
+      ]
+    },
+    {
+      "id": "876211fe-cfdf-4cc0-961a-20357b3bf045",
+      "niveau": "cp",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "VIKING",
+          "emoji": "⚔️"
+        },
+        {
+          "mot": "PIRATE",
+          "emoji": "🏴‍☠️"
+        },
+        {
+          "mot": "CHEVALIER",
+          "emoji": "🛡️"
+        },
+        {
+          "mot": "ROI",
+          "emoji": "👑"
+        },
+        {
+          "mot": "FORTERESSE",
+          "emoji": "🏰"
+        },
+        {
+          "mot": "EPEE",
+          "emoji": "⚔️"
+        }
+      ]
+    },
+    {
+      "id": "796596e7-2ca7-4c30-8d13-e34115a325d8",
+      "niveau": "ce1",
+      "palier": 2,
+      "paires": [
+        {
+          "mot": "CHEVALIER",
+          "emoji": "⚔️"
+        },
+        {
+          "mot": "CHATEAU",
+          "emoji": "🏰"
+        },
+        {
+          "mot": "ECU",
+          "emoji": "🛡️"
+        },
+        {
+          "mot": "DONJON",
+          "emoji": "🏯"
+        },
+        {
+          "mot": "TOURNOI",
+          "emoji": "🐎"
+        },
+        {
+          "mot": "ARMURE",
+          "emoji": "🛡️"
+        }
+      ]
+    },
+    {
+      "id": "7064aae2-0e67-4e4c-989e-5d23a7367f07",
+      "niveau": "ce1",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "VOLCAN",
+          "emoji": "🌋"
+        },
+        {
+          "mot": "LAVE",
+          "emoji": "🔥"
+        },
+        {
+          "mot": "SEISME",
+          "emoji": "🌍"
+        },
+        {
+          "mot": "ERUPTION",
+          "emoji": "💥"
+        },
+        {
+          "mot": "MAGMA",
+          "emoji": "🌋"
+        },
+        {
+          "mot": "CENDRE",
+          "emoji": "☁️"
+        }
+      ]
+    },
+    {
+      "id": "b88ed4cf-2811-4cee-a2dd-7e2f915a620f",
+      "niveau": "ce1",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "GALAXIE",
+          "emoji": "🌌"
+        },
+        {
+          "mot": "ETOILE",
+          "emoji": "⭐"
+        },
+        {
+          "mot": "COMETE",
+          "emoji": "☄️"
+        },
+        {
+          "mot": "NEBULEUSE",
+          "emoji": "🌌"
+        },
+        {
+          "mot": "TROU-NOIR",
+          "emoji": "⚫"
+        },
+        {
+          "mot": "PLANETE",
+          "emoji": "🪐"
+        }
+      ]
+    },
+    {
+      "id": "dd2056fe-8bef-4bc4-82c8-dc0e3c0848b7",
+      "niveau": "ce2",
+      "palier": 2,
+      "paires": [
+        {
+          "mot": "MOULIN",
+          "emoji": "🏚️"
+        },
+        {
+          "mot": "MEUNIER",
+          "emoji": "👨‍🌾"
+        },
+        {
+          "mot": "BLE",
+          "emoji": "🌾"
+        },
+        {
+          "mot": "FARINE",
+          "emoji": "🌾"
+        },
+        {
+          "mot": "PAIN",
+          "emoji": "🍞"
+        },
+        {
+          "mot": "FOUR",
+          "emoji": "🔥"
+        }
+      ]
+    },
+    {
+      "id": "fdd9f964-7a02-4e52-ab7b-2421bf4645a1",
+      "niveau": "ce2",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "SEISME",
+          "emoji": "🌍"
+        },
+        {
+          "mot": "TSUNAMI",
+          "emoji": "🌊"
+        },
+        {
+          "mot": "ERUPTION",
+          "emoji": "🌋"
+        },
+        {
+          "mot": "OURAGAN",
+          "emoji": "🌀"
+        },
+        {
+          "mot": "TORNADE",
+          "emoji": "🌪️"
+        },
+        {
+          "mot": "INONDATION",
+          "emoji": "🌊"
+        }
+      ]
+    },
+    {
+      "id": "773a93f8-949b-4f85-a564-540be31eee4e",
+      "niveau": "ce2",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "ADN",
+          "emoji": "🧬"
+        },
+        {
+          "mot": "CELLULE",
+          "emoji": "🔬"
+        },
+        {
+          "mot": "GENE",
+          "emoji": "🧬"
+        },
+        {
+          "mot": "MUTATION",
+          "emoji": "🧬"
+        },
+        {
+          "mot": "CHROMOSOME",
+          "emoji": "🧬"
+        },
+        {
+          "mot": "EVOLUTION",
+          "emoji": "🐒"
+        }
+      ]
+    },
+    {
+      "id": "5782e09c-bcb2-443b-87ac-076bac4b5835",
+      "niveau": "ce2",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "PHILOSOPHE",
+          "emoji": "📖"
+        },
+        {
+          "mot": "DEMOCRATIE",
+          "emoji": "🏛️"
+        },
+        {
+          "mot": "SENAT",
+          "emoji": "🏛️"
+        },
+        {
+          "mot": "CITOYEN",
+          "emoji": "👥"
+        },
+        {
+          "mot": "VOTE",
+          "emoji": "🗳️"
+        },
+        {
+          "mot": "LOI",
+          "emoji": "⚖️"
+        }
+      ]
+    },
+    {
+      "id": "cbbe3e53-81b5-45a1-95bf-99f23b7375e0",
+      "niveau": "ce2",
+      "palier": 3,
+      "paires": [
+        {
+          "mot": "ENERGIE",
+          "emoji": "⚡"
+        },
+        {
+          "mot": "EOLIENNE",
+          "emoji": "🌬️"
+        },
+        {
+          "mot": "SOLAIRE",
+          "emoji": "☀️"
+        },
+        {
+          "mot": "BARRAGE",
+          "emoji": "🌊"
+        },
+        {
+          "mot": "CENTRALE",
+          "emoji": "🏭"
+        },
+        {
+          "mot": "ELECTRICITE",
+          "emoji": "⚡"
+        }
+      ]
+    }
+  ]
+}
