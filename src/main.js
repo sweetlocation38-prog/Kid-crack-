@@ -7569,7 +7569,7 @@ function pickTreasureForRung(dist, rows, cols, rung, maxRung) {
   let maxDist = 0;
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (dist[r][c] > maxDist) maxDist = dist[r][c];
   const ratio = Math.max(0.2, Math.min(1, rung / Math.max(1, maxRung)));
-  const target = Math.round(maxDist * ratio);
+  const target = Math.max(1, Math.round(maxDist * ratio)); // jamais 0 : le tresor ne doit jamais tomber sur la case de depart (theorique vu la taille min du labyrinthe, mais gratuit a proteger)
   let best = { r: 0, c: 0, diff: Infinity };
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -9156,6 +9156,7 @@ function BarresLumaScreen({ route, navigation }) {
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
   const [manche, setManche] = useState(null);
+  const [reponduComparaison, setReponduComparaison] = useState(false); // bloque les taps en rafale sur A/B apres une premiere reponse
   const [construitBlocs, setConstruitBlocs] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -9184,6 +9185,7 @@ function BarresLumaScreen({ route, navigation }) {
     setManche(m);
     setConstruitBlocs(0);
     setFeedback(null);
+    setReponduComparaison(false);
     speakSmart(m.consigne);
     setLoading(false);
   }, []);
@@ -9337,16 +9339,21 @@ function BarresLumaScreen({ route, navigation }) {
   }
 
   function handleComparaisonChoix(choix) {
+    if (reponduComparaison) return;
     const isCorrect = choix === manche.bonneReponse;
     if (calibPhase === 'calibrating') {
+      setReponduComparaison(true); // la manche va changer de toute facon, protege le temps du traitement
       speakSmart(isCorrect ? 'Bravo !' : "Ce n'est pas celle-là.");
       handleCalibrationResult(miniJeuId, isCorrect);
       return;
     }
     if (isCorrect) {
+      setReponduComparaison(true); // protege la fenetre avant finishSession (sinon un tap en rafale pouvait fausser erreursRef juste avant qu'il ne soit lu)
       speakSmart('Bravo !');
       setTimeout(() => finishSession(erreursRef.current === 0), 400);
     } else {
+      // Pas de verrou ici : mauvaise reponse en jeu normal, l'enfant doit
+      // pouvoir retenter tout de suite sur la meme manche.
       erreursRef.current += 1;
       setFeedback('Regarde bien laquelle est la plus longue...');
       speakSmart("Ce n'est pas celle-là, réessaie !");
@@ -9364,14 +9371,17 @@ function BarresLumaScreen({ route, navigation }) {
   }
 
   function validerConstruction() {
+    if (reponduComparaison) return;
     const attendu = cibleActuelle();
     const isCorrect = construitBlocs === attendu;
     if (calibPhase === 'calibrating') {
+      setReponduComparaison(true);
       speakSmart(isCorrect ? 'Bravo, le compte est bon !' : "Ce n'est pas tout à fait ça.");
       handleCalibrationResult(miniJeuId, isCorrect);
       return;
     }
     if (isCorrect) {
+      setReponduComparaison(true);
       speakSmart('Bravo, le compte est bon !');
       setTimeout(() => finishSession(erreursRef.current === 0), 400);
     } else {
@@ -10630,6 +10640,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
   const [sessionSummary, setSessionSummary] = useState(null);
   const errorsTotal = useRef(0);
   const retries = useRef(0);
+  const jugementEnCoursRef = useRef(false); // bloque les taps en rafale pendant qu'une erreur est en train d'etre traitee (avant la relecture de la sequence)
   const startedAt = useRef(Date.now());
   const targetLength = useRef(4);
 
@@ -10647,6 +10658,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
   const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
 
   async function playSequence(seq) {
+    jugementEnCoursRef.current = false;
     setPhase('watching');
     await speakSmart(seq.length === 1 ? 'Regarde bien.' : 'Regarde encore.');
     await wait(300);
@@ -10793,13 +10805,14 @@ function CoffreSouvenirsScreen({ route, navigation }) {
   }
 
   function onTilePress(colorIndex) {
-    if (phase !== 'repeating') return;
+    if (phase !== 'repeating' || jugementEnCoursRef.current) return;
     setActiveIndex(colorIndex);
     setTimeout(() => setActiveIndex(null), 250);
 
     if (colorIndex === sequence[userIndex]) {
       const nextUserIndex = userIndex + 1;
       if (nextUserIndex === sequence.length) {
+        jugementEnCoursRef.current = true;
         if (sequence.length >= targetLength.current) {
           if (calibPhase === 'calibrating') {
             const isCorrect = errorsTotal.current === 0;
@@ -10816,6 +10829,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
         setUserIndex(nextUserIndex);
       }
     } else {
+      jugementEnCoursRef.current = true;
       errorsTotal.current += 1;
       retries.current += 1;
       if (retries.current >= 3) {
