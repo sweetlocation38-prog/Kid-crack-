@@ -1,0 +1,695 @@
+{
+  "totalLignes": 422,
+  "problematiquesCount": 17,
+  "problematiques": [
+    {
+      "id": "e5443586-d714-4a53-9145-1d577851166f",
+      "niveau": "cm1",
+      "palier": 1,
+      "evenements": [
+        {
+          "nom": "Prise de la Bastille",
+          "icon": "🏰",
+          "annee": 1789
+        },
+        {
+          "nom": "Déclaration des droits de l'homme",
+          "icon": "📜",
+          "annee": 1789
+        },
+        {
+          "nom": "Exécution de Louis XVI",
+          "icon": "⚔️",
+          "annee": 1793
+        },
+        {
+          "nom": "Napoléon sacré empereur",
+          "icon": "👑",
+          "annee": 1804
+        },
+        {
+          "nom": "Défaite de Napoléon à Waterloo",
+          "icon": "⚔️",
+          "annee": 1815
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "765f6a4c-4ca5-4eb5-a614-dca0c7f8694f",
+      "niveau": "cm1",
+      "palier": 1,
+      "evenements": [
+        {
+          "nom": "Début des Jeux Olympiques modernes",
+          "icon": "🏅",
+          "annee": 1896
+        },
+        {
+          "nom": "Première Coupe du monde de football",
+          "icon": "⚽",
+          "annee": 1930
+        },
+        {
+          "nom": "Premiers Jeux Olympiques d'hiver",
+          "icon": "⛷️",
+          "annee": 1924
+        },
+        {
+          "nom": "Jeux Olympiques de Paris (2e fois)",
+          "icon": "🏅",
+          "annee": 1924
+        },
+        {
+          "nom": "Jeux Olympiques de Paris (3e fois)",
+          "icon": "🏅",
+          "annee": 2024
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "51a05520-6d4a-42f6-be27-d42b3e9490a8",
+      "niveau": "cm1",
+      "palier": 2,
+      "evenements": [
+        {
+          "nom": "Libération de Paris",
+          "icon": "🇫🇷",
+          "annee": 1944
+        },
+        {
+          "nom": "Capitulation de l'Allemagne nazie",
+          "icon": "🕊️",
+          "annee": 1945
+        },
+        {
+          "nom": "Droit de vote des femmes en France",
+          "icon": "🗳️",
+          "annee": 1944
+        },
+        {
+          "nom": "Création de la Sécurité sociale",
+          "icon": "🏥",
+          "annee": 1945
+        },
+        {
+          "nom": "Fin de la guerre d'Algérie",
+          "icon": "🕊️",
+          "annee": 1962
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "0095b01a-01f6-498e-9422-107b1f55d8e8",
+      "niveau": "cm1",
+      "palier": 3,
+      "evenements": [
+        {
+          "nom": "Bombes atomiques d'Hiroshima et Nagasaki",
+          "icon": "💥",
+          "annee": 1945
+        },
+        {
+          "nom": "Début de la guerre froide",
+          "icon": "❄️",
+          "annee": 1947
+        },
+        {
+          "nom": "Indépendance de l'Inde",
+          "icon": "🇮🇳",
+          "annee": 1947
+        },
+        {
+          "nom": "Création de l'État d'Israël",
+          "icon": "🇮🇱",
+          "annee": 1948
+        },
+        {
+          "nom": "Guerre du Vietnam",
+          "icon": "⚔️",
+          "annee": 1955
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "46784ddb-9ee2-4678-a085-3afdf18f41b4",
+      "niveau": "cm1",
+      "palier": 3,
+      "evenements": [
+        {
+          "nom": "Décolonisation de l'Afrique commence",
+          "icon": "🌍",
+          "annee": 1957
+        },
+        {
+          "nom": "Indépendance de l'Algérie",
+          "icon": "🇩🇿",
+          "annee": 1962
+        },
+        {
+          "nom": "Assassinat de Martin Luther King",
+          "icon": "✊",
+          "annee": 1968
+        },
+        {
+          "nom": "Fin de l'apartheid en Afrique du Sud (élection)",
+          "icon": "🇿🇦",
+          "annee": 1994
+        },
+        {
+          "nom": "Nelson Mandela devient président",
+          "icon": "🇿🇦",
+          "annee": 1994
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "48991360-df8c-4638-a4d3-1bf8af703a26",
+      "niveau": "cm2",
+      "palier": 1,
+      "evenements": [
+        {
+          "nom": "Convocation des États généraux de 1789",
+          "icon": "📜",
+          "annee": 1789
+        },
+        {
+          "nom": "Prise de la Bastille",
+          "icon": "🏰",
+          "annee": 1789
+        },
+        {
+          "nom": "Proclamation de la Première République",
+          "icon": "🇫🇷",
+          "annee": 1792
+        },
+        {
+          "nom": "Exécution de Louis XVI",
+          "icon": "⚔️",
+          "annee": 1793
+        },
+        {
+          "nom": "Napoléon sacré empereur",
+          "icon": "👑",
+          "annee": 1804
+        },
+        {
+          "nom": "Défaite de Waterloo",
+          "icon": "⚔️",
+          "annee": 1815
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "585257a3-c1e7-4286-8dfe-2d055f7417e1",
+      "niveau": "cm2",
+      "palier": 1,
+      "evenements": [
+        {
+          "nom": "Fondation de l'ONU",
+          "icon": "🕊️",
+          "annee": 1945
+        },
+        {
+          "nom": "Début de la guerre froide",
+          "icon": "❄️",
+          "annee": 1947
+        },
+        {
+          "nom": "Indépendance de l'Inde",
+          "icon": "🇮🇳",
+          "annee": 1947
+        },
+        {
+          "nom": "Création de l'État d'Israël",
+          "icon": "🇮🇱",
+          "annee": 1948
+        },
+        {
+          "nom": "Fondation de la Communauté économique européenne",
+          "icon": "🇪🇺",
+          "annee": 1957
+        },
+        {
+          "nom": "Indépendance de l'Algérie",
+          "icon": "🇩🇿",
+          "annee": 1962
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "75c870e8-8799-4346-93a9-2db01010ec8c",
+      "niveau": "cm2",
+      "palier": 2,
+      "evenements": [
+        {
+          "nom": "Appel du 18 juin du général de Gaulle",
+          "icon": "📻",
+          "annee": 1940
+        },
+        {
+          "nom": "Rafle du Vél' d'Hiv",
+          "icon": "⚔️",
+          "annee": 1942
+        },
+        {
+          "nom": "Débarquement de Normandie",
+          "icon": "🪖",
+          "annee": 1944
+        },
+        {
+          "nom": "Droit de vote des femmes en France",
+          "icon": "🗳️",
+          "annee": 1944
+        },
+        {
+          "nom": "Capitulation de l'Allemagne nazie",
+          "icon": "🕊️",
+          "annee": 1945
+        },
+        {
+          "nom": "Création de la Sécurité sociale",
+          "icon": "🏥",
+          "annee": 1945
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "0e7759bb-de20-4c40-8009-c46bcc26df77",
+      "niveau": "cm2",
+      "palier": 2,
+      "evenements": [
+        {
+          "nom": "Fin de la guerre d'Indochine",
+          "icon": "🕊️",
+          "annee": 1954
+        },
+        {
+          "nom": "Début de la guerre d'Algérie",
+          "icon": "⚔️",
+          "annee": 1954
+        },
+        {
+          "nom": "Fondation de la Communauté économique européenne",
+          "icon": "🇪🇺",
+          "annee": 1957
+        },
+        {
+          "nom": "Naissance de la Cinquième République",
+          "icon": "🇫🇷",
+          "annee": 1958
+        },
+        {
+          "nom": "Indépendance de l'Algérie",
+          "icon": "🇩🇿",
+          "annee": 1962
+        },
+        {
+          "nom": "Mai 1968",
+          "icon": "🇫🇷",
+          "annee": 1968
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "da451da7-ee2c-428e-8d4b-a4979f991deb",
+      "niveau": "cm2",
+      "palier": 2,
+      "evenements": [
+        {
+          "nom": "Naissance de l'islam à La Mecque",
+          "icon": "🌙",
+          "annee": 622
+        },
+        {
+          "nom": "Hégire, départ de Mahomet vers Médine",
+          "icon": "🌙",
+          "annee": 622
+        },
+        {
+          "nom": "Expansion rapide de l'empire arabo-musulman",
+          "icon": "🏛️",
+          "annee": 700
+        },
+        {
+          "nom": "Fondation de Bagdad, capitale abbasside",
+          "icon": "🏛️",
+          "annee": 762
+        },
+        {
+          "nom": "Âge d'or des sciences arabes",
+          "icon": "📚",
+          "annee": 900
+        },
+        {
+          "nom": "Les invasions mongoles détruisent Bagdad",
+          "icon": "⚔️",
+          "annee": 1258
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "c2d916e0-c75e-4fc2-b072-7c5651047467",
+      "niveau": "cm2",
+      "palier": 3,
+      "evenements": [
+        {
+          "nom": "Jeanne d'Arc délivre Orléans",
+          "icon": "🛡️",
+          "annee": 1429
+        },
+        {
+          "nom": "Jeanne d'Arc brûlée à Rouen",
+          "icon": "🔥",
+          "annee": 1431
+        },
+        {
+          "nom": "Fin de la Guerre de Cent Ans",
+          "icon": "🕊️",
+          "annee": 1453
+        },
+        {
+          "nom": "Prise de Constantinople par les Ottomans",
+          "icon": "⚔️",
+          "annee": 1453
+        },
+        {
+          "nom": "Début de la Renaissance en France",
+          "icon": "🎨",
+          "annee": 1490
+        },
+        {
+          "nom": "Christophe Colomb découvre l'Amérique",
+          "icon": "⛵",
+          "annee": 1492
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "c963da3a-5249-409c-9d66-462d639dbee9",
+      "niveau": "cm2",
+      "palier": 3,
+      "evenements": [
+        {
+          "nom": "Newton énonce la gravitation universelle",
+          "icon": "🍎",
+          "annee": 1687
+        },
+        {
+          "nom": "Début du siècle des Lumières",
+          "icon": "💡",
+          "annee": 1715
+        },
+        {
+          "nom": "Publication de l'Encyclopédie",
+          "icon": "📚",
+          "annee": 1751
+        },
+        {
+          "nom": "Indépendance des États-Unis",
+          "icon": "🇺🇸",
+          "annee": 1776
+        },
+        {
+          "nom": "Prise de la Bastille",
+          "icon": "🏰",
+          "annee": 1789
+        },
+        {
+          "nom": "Déclaration des droits de l'homme",
+          "icon": "📜",
+          "annee": 1789
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "f6095213-f11c-44cb-80ea-7e2401be182d",
+      "niveau": "cm2",
+      "palier": 3,
+      "evenements": [
+        {
+          "nom": "Exécution de Louis XVI",
+          "icon": "⚔️",
+          "annee": 1793
+        },
+        {
+          "nom": "Napoléon sacré empereur",
+          "icon": "👑",
+          "annee": 1804
+        },
+        {
+          "nom": "Code civil des Français",
+          "icon": "📜",
+          "annee": 1804
+        },
+        {
+          "nom": "Campagne de Russie",
+          "icon": "❄️",
+          "annee": 1812
+        },
+        {
+          "nom": "Défaite de Waterloo",
+          "icon": "⚔️",
+          "annee": 1815
+        },
+        {
+          "nom": "Mort de Napoléon à Sainte-Hélène",
+          "icon": "⚰️",
+          "annee": 1821
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "eb96e27c-2fde-46c9-be8a-1c7e3cd0f852",
+      "niveau": "cm2",
+      "palier": 3,
+      "evenements": [
+        {
+          "nom": "Révolution industrielle en Angleterre",
+          "icon": "🏭",
+          "annee": 1760
+        },
+        {
+          "nom": "Abolition de l'esclavage en France",
+          "icon": "📜",
+          "annee": 1848
+        },
+        {
+          "nom": "Unification de l'Italie",
+          "icon": "🇮🇹",
+          "annee": 1861
+        },
+        {
+          "nom": "Guerre de Sécession américaine",
+          "icon": "⚔️",
+          "annee": 1861
+        },
+        {
+          "nom": "Unification de l'Allemagne",
+          "icon": "🇩🇪",
+          "annee": 1871
+        },
+        {
+          "nom": "Inauguration de la Tour Eiffel",
+          "icon": "🗼",
+          "annee": 1889
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "d32df84a-d809-4213-aee3-ea11aab0657c",
+      "niveau": "cm2",
+      "palier": 3,
+      "evenements": [
+        {
+          "nom": "Capitulation de l'Allemagne nazie",
+          "icon": "🕊️",
+          "annee": 1945
+        },
+        {
+          "nom": "Bombes atomiques d'Hiroshima et Nagasaki",
+          "icon": "💥",
+          "annee": 1945
+        },
+        {
+          "nom": "Fondation de l'ONU",
+          "icon": "🕊️",
+          "annee": 1945
+        },
+        {
+          "nom": "Début de la guerre froide",
+          "icon": "❄️",
+          "annee": 1947
+        },
+        {
+          "nom": "Indépendance de l'Inde",
+          "icon": "🇮🇳",
+          "annee": 1947
+        },
+        {
+          "nom": "Création de l'État d'Israël",
+          "icon": "🇮🇱",
+          "annee": 1948
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "2bb5a6d6-0292-42cb-afed-9055d1487736",
+      "niveau": "cm2",
+      "palier": 3,
+      "evenements": [
+        {
+          "nom": "Fondation de la Communauté économique européenne",
+          "icon": "🇪🇺",
+          "annee": 1957
+        },
+        {
+          "nom": "Premier satellite Spoutnik",
+          "icon": "🛰️",
+          "annee": 1957
+        },
+        {
+          "nom": "Indépendance de l'Algérie",
+          "icon": "🇩🇿",
+          "annee": 1962
+        },
+        {
+          "nom": "Premier pas sur la Lune",
+          "icon": "🌕",
+          "annee": 1969
+        },
+        {
+          "nom": "Mai 1968 en France",
+          "icon": "🇫🇷",
+          "annee": 1968
+        },
+        {
+          "nom": "Fin de la guerre du Vietnam",
+          "icon": "🕊️",
+          "annee": 1975
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    },
+    {
+      "id": "561a1464-72ad-47b1-b836-36e1333afd06",
+      "niveau": "cm2",
+      "palier": 3,
+      "evenements": [
+        {
+          "nom": "Élargissement européen à l'Est",
+          "icon": "🇪🇺",
+          "annee": 2004
+        },
+        {
+          "nom": "Crise financière mondiale",
+          "icon": "📉",
+          "annee": 2008
+        },
+        {
+          "nom": "Accords de Paris sur le climat",
+          "icon": "🌍",
+          "annee": 2015
+        },
+        {
+          "nom": "Le Royaume-Uni quitte l'Union européenne",
+          "icon": "🇪🇺",
+          "annee": 2020
+        },
+        {
+          "nom": "Pandémie mondiale de Covid-19",
+          "icon": "🦠",
+          "annee": 2020
+        },
+        {
+          "nom": "Jeux Olympiques de Paris 2024",
+          "icon": "🏅",
+          "annee": 2024
+        },
+        {
+          "nom": "Aujourd'hui",
+          "icon": "🏙️",
+          "annee": 2026
+        }
+      ]
+    }
+  ]
+}
