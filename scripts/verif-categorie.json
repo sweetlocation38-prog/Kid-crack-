@@ -1,0 +1,20 @@
+{
+  "totalLignes": 905,
+  "lignesAvecCategorie": 905,
+  "parCategorie": {
+    "capitale": 310,
+    "drapeau": 241,
+    "animal": 62,
+    "langue": 218,
+    "monument": 36,
+    "ile": 38
+  },
+  "parEtape": {
+    "pays_capitale": 310,
+    "drapeau_pays": 200,
+    "drapeau_capitale": 79,
+    "animal_pays": 62,
+    "langue_pays": 218,
+    "monument_pays": 36
+  }
+}
