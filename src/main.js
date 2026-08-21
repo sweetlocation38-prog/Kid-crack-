@@ -8511,6 +8511,11 @@ function CheminDizainesScreen({ route, navigation }) {
       // meme que la partie ait commence pour de vrai.
       if (!voleurDemarreRef.current) return;
       if (finishedRef.current || !cellsRef.current || !voleurPosRef.current) return;
+      // Le voleur s'arrete aussi pendant qu'une porte a calcul mental est
+      // ouverte - sinon il continuait a bouger (et pouvait voler la
+      // recolte) pendant que l'enfant est bloque, sans pouvoir se
+      // deplacer pour l'esquiver. Trouve en simulant une vraie partie.
+      if (porteActiveRef.current) return;
       const { r, c } = voleurPosRef.current;
       let nr = null, nc = null;
 
