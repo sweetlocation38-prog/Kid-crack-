@@ -1,0 +1,33 @@
+{
+  "totalLignes": 437,
+  "problematiquesCount": 1,
+  "problematiques": [
+    {
+      "id": "81159c00-d17c-42e9-a217-74b05a8a8f13",
+      "niveau": "ce2",
+      "palier": 1,
+      "items": [
+        {
+          "cat": "Reptile",
+          "val": "🐍"
+        },
+        {
+          "cat": "Reptile",
+          "val": "🦎"
+        },
+        {
+          "cat": "Amphibien",
+          "val": "🐸"
+        },
+        {
+          "cat": "Amphibien",
+          "val": "🦎"
+        }
+      ],
+      "categories": [
+        "Reptile",
+        "Amphibien"
+      ]
+    }
+  ]
+}
