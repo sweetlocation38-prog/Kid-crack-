@@ -246,9 +246,12 @@ async function maybePlayMemo(memosConfig, categorie) {
   try {
     const url = pool[Math.floor(Math.random() * pool.length)];
     const { sound } = await Audio.Sound.createAsync({ uri: url });
+    let libere = false;
+    const liberer = () => { if (!libere) { libere = true; sound.unloadAsync().catch(() => {}); } };
     sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) sound.unloadAsync();
+      if (status.didJustFinish) liberer();
     });
+    setTimeout(liberer, 15000); // filet de securite, meme principe que playSoundEffect
     await sound.playAsync();
   } catch (e) {
     // Non bloquant : un memo qui ne joue pas ne doit jamais casser le jeu.
@@ -272,9 +275,12 @@ async function pickAndAddMemo(familleId, categorie) {
 async function playPreview(url) {
   try {
     const { sound } = await Audio.Sound.createAsync({ uri: url });
+    let libere = false;
+    const liberer = () => { if (!libere) { libere = true; sound.unloadAsync().catch(() => {}); } };
     sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) sound.unloadAsync();
+      if (status.didJustFinish) liberer();
     });
+    setTimeout(liberer, 15000);
     await sound.playAsync();
   } catch (e) {
     // Non bloquant.
@@ -4238,18 +4244,30 @@ const PHONEME_AUDIO = {
 // plusieurs sons a la suite dans le bon ordre (ex: fusionner deux sons).
 function playSoundEffectEtAttendre(source) {
   return new Promise((resolve) => {
+    let regle = false;
+    const terminer = (sound) => {
+      if (regle) return;
+      regle = true;
+      if (sound) sound.unloadAsync().catch(() => {});
+      resolve();
+    };
     (async () => {
       try {
         const { sound } = await Audio.Sound.createAsync(source, { volume: 1.0 });
         sound.setOnPlaybackStatusUpdate((status) => {
-          if (status.didJustFinish) {
-            sound.unloadAsync().catch(() => {});
-            resolve();
-          }
+          if (status.didJustFinish) terminer(sound);
         });
+        // Filet de securite : si "didJustFinish" ne se declenche jamais
+        // pour une raison quelconque (appareil lent, coupure), le son est
+        // quand meme libere apres quelques secondes - sans ca, le fichier
+        // audio restait charge en memoire indefiniment a chaque appel,
+        // ce qui pouvait s'accumuler au fil d'une longue partie (Boule
+        // qui Roule appelle cette fonction a chaque lettre attrapee) et
+        // finir par faire planter l'application.
+        setTimeout(() => terminer(sound), 6000);
         await sound.playAsync();
       } catch (e) {
-        resolve();
+        terminer(null);
       }
     })();
   });
@@ -4272,10 +4290,20 @@ async function speakPhonemeOuTexte(texte) {
 async function playSoundEffect(source) {
   try {
     const { sound } = await Audio.Sound.createAsync(source, { volume: 1.0 });
+    let libere = false;
+    const liberer = () => {
+      if (libere) return;
+      libere = true;
+      sound.unloadAsync().catch(() => {});
+    };
     await sound.playAsync();
     sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) sound.unloadAsync().catch(() => {});
+      if (status.didJustFinish) liberer();
     });
+    // Meme filet de securite que playSoundEffectEtAttendre : evite un son
+    // qui reste charge indefiniment si "didJustFinish" ne se declenche
+    // jamais pour une raison quelconque.
+    setTimeout(liberer, 8000);
   } catch (e) {}
 }
 
