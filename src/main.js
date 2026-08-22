@@ -3655,6 +3655,7 @@ function PontDesLettresScreen({ route, navigation }) {
         setFeedback('Bravo !');
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 800);
+        maybePlayMemo(memosConfig.current, 'bonne_reponse');
 
         if (calibPhase === 'calibrating') {
           const isCorrect = calibErrorsRef.current === 0;
@@ -5074,6 +5075,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       setFeedback('Bravo !');
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 800);
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
       maybeSpeakMidSessionEncouragement(round);
 
       setTimeout(async () => {
