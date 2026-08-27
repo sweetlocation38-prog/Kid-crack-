@@ -14,7 +14,7 @@ async function main() {
     return;
   }
 
-  const valerie = profils.find((p) => p.prenom?.toLowerCase() === 'valérie' || p.prenom?.toLowerCase() === 'valerie');
+  const valerie = profils.find((p) => p.prenom?.toLowerCase().startsWith('valérie') || p.prenom?.toLowerCase().startsWith('valerie'));
   if (!valerie) {
     fs.writeFileSync('scripts/debloquer-valerie-result.json', JSON.stringify({ error: 'Profil Valérie introuvable', profilsDisponibles: profils }, null, 2));
     return;
