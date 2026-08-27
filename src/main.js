@@ -2389,6 +2389,7 @@ const GAME_ICONS = {
   chemin_dizaines: '🌾',
   barres_luma: '📏',
   boule_qui_roule: '🔵',
+  mots_fleches: '📝',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
@@ -2412,6 +2413,7 @@ const GAME_SCREENS = {
   chemin_dizaines: 'CheminDizaines',
   barres_luma: 'BarresLuma',
   boule_qui_roule: 'BouleQuiRoule',
+  mots_fleches: 'MotsFleches',
 };
 
 // Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
@@ -11959,6 +11961,342 @@ function EffetCapture({ x, y, bon, onDone }) {
   );
 }
 
+// ============================================================
+// Les Mots Fléchés de la Clairière (jeu bonus, zone "lecture")
+// ============================================================
+// Nombre de mots par grille et affichage (ou non) de la banque de mots
+// selon le niveau - retour de Thierry : mots affiches en MS-GS-CP (4
+// mots), plus rien affiche a partir du CE1 (6 mots, juste l'indice).
+function motsFlechesReglagePourRung(rung) {
+  const estCe1Plus = rung >= rungFromGradeAndPalier('ce1', 1);
+  return { nbMots: estCe1Plus ? 6 : 4, banqueVisible: !estCe1Plus };
+}
+
+const MOTS_FLECHES_LETTRES_SECOURS = ['A', 'E', 'I', 'L', 'M', 'N', 'O', 'R', 'S', 'T'];
+
+function genererClavierPourMot(mot) {
+  const lettresMot = [...new Set(mot.split(''))];
+  const dejaPresentes = new Set(lettresMot);
+  const secours = shuffle(MOTS_FLECHES_LETTRES_SECOURS.filter((l) => !dejaPresentes.has(l)));
+  const nbSecours = Math.min(3, secours.length);
+  return shuffle([...lettresMot, ...secours.slice(0, nbSecours)]);
+}
+
+function MotsFlechesScreen({ route, navigation }) {
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
+  useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
+
+  const { profil } = route.params;
+  const [loading, setLoading] = useState(true);
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const [mots, setMots] = useState([]);
+  const [motActifIndex, setMotActifIndex] = useState(0);
+  const [clavier, setClavier] = useState([]);
+  const [lettreErreur, setLettreErreur] = useState(null);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const errorsTotal = useRef(0);
+  const startedAt = useRef(Date.now());
+
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee');
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [3, 6, 6];
+  const calibMiniJeuIdRef = useRef(null);
+
+  async function chargerGrille(jeuId, currentRung) {
+    setLoading(true);
+    const { niveau, palier } = gradeAndPalierFromRung(currentRung);
+    const { data } = await supabase
+      .from('contenu_mini_jeu')
+      .select('id, donnees')
+      .eq('mini_jeu_id', jeuId)
+      .eq('niveau', niveau)
+      .eq('palier', palier)
+      .eq('actif', true)
+      .limit(10);
+    const pick = (data ?? [])[Math.floor(Math.random() * (data?.length ?? 1))];
+    if (pick) {
+      const items = pick.donnees.mots.map((m) => ({
+        mot: m.mot.toUpperCase(),
+        emoji: m.emoji,
+        definition: m.definition,
+        rempli: [],
+        termine: false,
+      }));
+      setMots(items);
+      setMotActifIndex(0);
+      setClavier(genererClavierPourMot(items[0].mot));
+      speakSmart('Trouve les mots à partir des indices !');
+    }
+    errorsTotal.current = 0;
+    setLoading(false);
+  }
+
+  function terminerCalibrage(finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: calibMiniJeuIdRef.current,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant.
+      }
+    })();
+    setRung(finalRung);
+    setCalibPhase('play');
+    chargerGrille(calibMiniJeuIdRef.current, finalRung);
+  }
+
+  function handleCalibrationResult(isCorrect) {
+    setCalibRoundIndex((i) => i + 1);
+    if (calibStepPhaseRef.current === 'montee') {
+      calibRoundsMonteeRef.current += 1;
+      if (!isCorrect) {
+        calibStepPhaseRef.current = 'descente';
+        calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+        chargerGrille(calibMiniJeuIdRef.current, calibCurrentRungRef.current);
+        return;
+      }
+      if (calibRoundsMonteeRef.current >= 3) {
+        terminerCalibrage(Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current));
+        return;
+      }
+      const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+      calibCurrentRungRef.current = Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current + saut);
+      chargerGrille(calibMiniJeuIdRef.current, calibCurrentRungRef.current);
+      return;
+    }
+
+    calibRoundsDescenteRef.current += 1;
+    if (isCorrect) {
+      terminerCalibrage(Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current));
+      return;
+    }
+    if (calibRoundsDescenteRef.current >= 2) {
+      terminerCalibrage(Math.min(MAX_CONTENT_RUNG, calibCurrentRungRef.current));
+      return;
+    }
+    calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+    chargerGrille(calibMiniJeuIdRef.current, calibCurrentRungRef.current);
+  }
+
+  useEffect(() => {
+    (async () => {
+      const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'mots_fleches').single();
+      if (!jeu) return;
+      setMiniJeuId(jeu.id);
+      calibMiniJeuIdRef.current = jeu.id;
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeu.id)
+        .maybeSingle();
+
+      if (!prog) {
+        const base = Math.min(MAX_CONTENT_RUNG, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        await chargerGrille(jeu.id, base);
+        return;
+      }
+
+      const startRung = Math.min(prog.palier_actuel, MAX_CONTENT_RUNG);
+      setRung(startRung);
+      setCalibPhase('play');
+      await chargerGrille(jeu.id, startRung);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  async function finishSession() {
+    if (!miniJeuId) return;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const precomputedRung = await computeStreakRung({
+      profil, miniJeuId, currentRung: rung, wasPerfect: errorsTotal.current === 0, maxRung: MAX_CONTENT_RUNG,
+    });
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: errorsTotal.current,
+      dureeSecondes: durationSeconds,
+      totalRounds: mots.length,
+      startedAt: startedAt.current,
+      maxRung: MAX_CONTENT_RUNG,
+      precomputedRung,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function activerMot(index) {
+    if (mots[index]?.termine) return;
+    setMotActifIndex(index);
+    setClavier(genererClavierPourMot(mots[index].mot));
+  }
+
+  function onLettrePress(lettre) {
+    const motActif = mots[motActifIndex];
+    if (!motActif || motActif.termine) return;
+    const posAttendue = motActif.rempli.length;
+    if (lettre !== motActif.mot[posAttendue]) {
+      errorsTotal.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
+      setLettreErreur(lettre);
+      setTimeout(() => setLettreErreur(null), 350);
+      return;
+    }
+    const nouveauRempli = [...motActif.rempli, lettre];
+    const motTermine = nouveauRempli.length === motActif.mot.length;
+    const nouveauxMots = mots.map((m, i) => (i === motActifIndex ? { ...m, rempli: nouveauRempli, termine: motTermine } : m));
+    setMots(nouveauxMots);
+
+    if (motTermine) {
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
+      speakSmart(`Bravo, ${motActif.mot} !`);
+      const tousTermines = nouveauxMots.every((m) => m.termine);
+      if (tousTermines) {
+        if (calibPhase === 'calibrating') {
+          const isCorrect = errorsTotal.current === 0;
+          speakSmart(isCorrect ? 'Bravo, grille terminée !' : 'Bien joué, on continue !');
+          setTimeout(() => handleCalibrationResult(isCorrect), 600);
+        } else {
+          setTimeout(finishSession, 600);
+        }
+        return;
+      }
+      const prochain = nouveauxMots.findIndex((m) => !m.termine);
+      if (prochain !== -1) {
+        setMotActifIndex(prochain);
+        setClavier(genererClavierPourMot(nouveauxMots[prochain].mot));
+      }
+    } else {
+      setClavier(genererClavierPourMot(motActif.mot));
+    }
+  }
+
+  if (sessionDone) {
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={() => navigation.goBack()}
+      />
+    );
+  }
+
+  if (loading || mots.length === 0) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  const { banqueVisible } = motsFlechesReglagePourRung(rung);
+  const motActif = mots[motActifIndex];
+
+  return (
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#F5EFE0' }]}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={styles.gameTitle}>
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '📝 Les Mots Fléchés'}
+        </Text>
+        <Text style={{ width: 24 }} />
+      </View>
+
+      {banqueVisible && (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginVertical: 10 }}>
+          {mots.map((m, i) => (
+            <View key={i} style={{
+              paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10,
+              backgroundColor: m.termine ? colors.success : colors.sand, opacity: m.termine ? 0.6 : 1,
+            }}>
+              <Text style={{ fontWeight: '700', color: m.termine ? '#fff' : colors.ink, textDecorationLine: m.termine ? 'line-through' : 'none' }}>
+                {m.mot}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      <View style={{ paddingHorizontal: 12 }}>
+        {mots.map((m, i) => (
+          <Pressable
+            key={i}
+            onPress={() => activerMot(i)}
+            style={{
+              flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10,
+              backgroundColor: i === motActifIndex ? colors.mossSoft : '#fff',
+              borderRadius: 14, padding: 10, borderWidth: 2,
+              borderColor: i === motActifIndex ? colors.mossDeep : 'rgba(0,0,0,0.08)',
+            }}
+          >
+            <Text style={{ fontSize: 28 }}>{m.emoji}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: colors.ink, opacity: 0.75, fontSize: 13, marginBottom: 4 }}>{m.definition}</Text>
+              <View style={{ flexDirection: 'row', gap: 4 }}>
+                {m.mot.split('').map((lettreCible, li) => (
+                  <View key={li} style={{
+                    width: 26, height: 30, borderRadius: 6, alignItems: 'center', justifyContent: 'center',
+                    backgroundColor: li < m.rempli.length ? colors.mossDeep : 'rgba(0,0,0,0.06)',
+                  }}>
+                    <Text style={{ fontWeight: '900', color: li < m.rempli.length ? '#fff' : 'transparent' }}>
+                      {m.rempli[li] ?? lettreCible}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+            <Pressable onPress={() => speakSmart(m.definition)}>
+              <Text style={{ fontSize: 18 }}>🎤</Text>
+            </Pressable>
+          </Pressable>
+        ))}
+      </View>
+
+      {motActif && !motActif.termine && (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginTop: 14, marginBottom: 20 }}>
+          {clavier.map((lettre, i) => (
+            <Pressable
+              key={i}
+              onPress={() => onLettrePress(lettre)}
+              style={{
+                width: 46, height: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
+                backgroundColor: lettreErreur === lettre ? colors.error : colors.gold,
+              }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#fff' }}>{lettre}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+    </ScrollView>
+  );
+}
+
 function BouleQuiRouleScreen({ route, navigation }) {
   const profil = route?.params?.profil ?? null;
   const memosConfig = useRef(null);
@@ -12904,6 +13242,7 @@ export default function RootNavigator() {
             <Stack.Screen name="CheminDizaines" component={CheminDizainesScreen} />
             <Stack.Screen name="BarresLuma" component={BarresLumaScreen} />
             <Stack.Screen name="BouleQuiRoule" component={BouleQuiRouleScreen} />
+            <Stack.Screen name="MotsFleches" component={MotsFlechesScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
