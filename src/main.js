@@ -238,11 +238,22 @@ async function fetchMemosConfig(familleId) {
 // Joue un memo au hasard pour la categorie donnee, avec une probabilite de
 // 1/frequence (donc en moyenne une fois toutes les "frequence" reponses,
 // jamais systematiquement). Ne bloque jamais le jeu si ca echoue.
+let dernierMemoJoueA = 0; // horodatage du dernier memo vocal joue, tous jeux confondus
+
 async function maybePlayMemo(memosConfig, categorie) {
   if (!memosConfig || !memosConfig.frequence) return;
   const pool = memosConfig.memos?.[categorie] ?? [];
   if (pool.length === 0) return;
   if (Math.random() >= 1 / memosConfig.frequence) return;
+  // Empeche plusieurs memos de se lancer en rafale (ex: Boule qui Roule
+  // peut declencher ceci a chaque objet attrape, potentiellement
+  // plusieurs fois par seconde) - retour de Thierry sur des plantages de
+  // plus en plus frequents, plausiblement lies a un empilement de sons
+  // audio charges en meme temps. Un memo a la fois, jamais plus rapproche
+  // que 2 secondes.
+  const maintenant = Date.now();
+  if (maintenant - dernierMemoJoueA < 2000) return;
+  dernierMemoJoueA = maintenant;
   try {
     const url = pool[Math.floor(Math.random() * pool.length)];
     const { sound } = await Audio.Sound.createAsync({ uri: url });
