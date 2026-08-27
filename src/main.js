@@ -3176,7 +3176,7 @@ function SentierScreen({ route, navigation }) {
               onPress={onPressCarte}
             >
               <View style={styles.paysMarkerTopRow}>
-                <Text style={styles.paysMarkerIcon}>{bonusDebloque ? '🕵️' : '🔒'}</Text>
+                <Text style={styles.paysMarkerIcon}>{bonusDebloque ? (GAME_ICONS[bonusJeu.code] ?? '🎁') : '🔒'}</Text>
               </View>
               <Text style={styles.paysMarkerText} numberOfLines={3}>
                 {bonusDebloque ? bonusJeu.nom : 'Jeu secret'}
