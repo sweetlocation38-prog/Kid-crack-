@@ -7096,6 +7096,8 @@ function RondeLuciolesScreen({ route, navigation }) {
 // differente : deux etapes de toucher plutot qu'un seul choix.
 // ============================================================
 function TriVillageScreen({ route, navigation }) {
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -7285,6 +7287,7 @@ function TriVillageScreen({ route, navigation }) {
     if (selected === null) return;
     const item = pool[selected];
     if (item.cat === cat) {
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
       const nextPool = pool.filter((_, i) => i !== selected);
       setPool(nextPool);
       setPlacedCount((c) => c + 1);
@@ -7303,6 +7306,7 @@ function TriVillageScreen({ route, navigation }) {
       setSelected(null);
     } else {
       errorsTotal.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       setSelected(null);
     }
   }
@@ -7813,6 +7817,8 @@ function TrapQuestionModal({ visible, trapData, onAnswer }) {
 }
 
 function LabyrintheGrotteScreen({ route, navigation }) {
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -8059,6 +8065,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   function handleTrapAnswer(correct) {
     if (!activeTrap) return;
     if (correct) {
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
       speakSmart('Bravo, bonne réponse !');
       trapsResolusRef.current.add(activeTrap.cellKey);
       setTrapsResolus(new Set(trapsResolusRef.current));
@@ -8066,6 +8073,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
       trapActiveRef.current = false;
     } else {
       piegesRatesRef.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       speakSmart('Ce n\u2019est pas ça, retour au départ !');
       posRef.current = { r: 0, c: 0 };
       setPos({ r: 0, c: 0 });
@@ -8416,6 +8424,8 @@ function DizainesGridVisual({ cells, rows, cols, pos, visitedSet, jetons, pieges
 }
 
 function CheminDizainesScreen({ route, navigation }) {
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []);
 
   const { profil } = route.params;
@@ -8898,6 +8908,7 @@ function CheminDizainesScreen({ route, navigation }) {
   function verifier() {
     const total = dizaines * 10 + enVrac;
     if (total === target) {
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
       speakSmart('Bravo, le compte est bon !');
       setFeedback(null);
       if (calibPhase === 'calibrating') {
@@ -8908,11 +8919,13 @@ function CheminDizainesScreen({ route, navigation }) {
       }
     } else if (total < target) {
       calibErreursCalculRef.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       const manque = target - total;
       setFeedback(`Il en manque encore ${manque} !`);
       speakSmart(`Il en manque encore ${manque} !`);
     } else {
       calibErreursCalculRef.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       const trop = total - target;
       setFeedback(`Il y en a ${trop} de trop !`);
       speakSmart(`Il y en a ${trop} de trop !`);
@@ -9181,6 +9194,8 @@ function BarreAbstraite({ valeur, valeurMax, couleur, hauteur = 40 }) {
 }
 
 function BarresLumaScreen({ route, navigation }) {
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []);
 
   const { profil } = route.params;
@@ -9381,12 +9396,14 @@ function BarresLumaScreen({ route, navigation }) {
     }
     if (isCorrect) {
       setReponduComparaison(true); // protege la fenetre avant finishSession (sinon un tap en rafale pouvait fausser erreursRef juste avant qu'il ne soit lu)
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
       speakSmart('Bravo !');
       setTimeout(() => finishSession(erreursRef.current === 0), 400);
     } else {
       // Pas de verrou ici : mauvaise reponse en jeu normal, l'enfant doit
       // pouvoir retenter tout de suite sur la meme manche.
       erreursRef.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       setFeedback('Regarde bien laquelle est la plus longue...');
       speakSmart("Ce n'est pas celle-là, réessaie !");
     }
@@ -9414,10 +9431,12 @@ function BarresLumaScreen({ route, navigation }) {
     }
     if (isCorrect) {
       setReponduComparaison(true);
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
       speakSmart('Bravo, le compte est bon !');
       setTimeout(() => finishSession(erreursRef.current === 0), 400);
     } else {
       erreursRef.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       const diff = attendu - construitBlocs;
       const msg = diff > 0 ? `Il en manque encore ${diff} !` : `Il y en a ${-diff} de trop !`;
       setFeedback(msg);
@@ -9580,6 +9599,8 @@ function BarresLumaScreen({ route, navigation }) {
 }
 
 function PuzzleMoulinScreen({ route, navigation }) {
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -9815,6 +9836,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
 
   function onPiecePress(num) {
     if (num === nextExpected) {
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
       const isLast = num === totalPieces.current;
       setNextExpected(num + 1);
       if (isLast) {
@@ -9832,6 +9854,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
       setTimeout(() => setWrongFlash(null), 400);
     } else {
       errorsTotal.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       setWrongFlash(num);
       setTimeout(() => setWrongFlash(null), 400);
     }
@@ -9947,6 +9970,8 @@ function PuzzleMoulinScreen({ route, navigation }) {
 // dates plutot que des numeros arbitraires).
 // ============================================================
 function FriseTempsScreen({ route, navigation }) {
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -10124,6 +10149,7 @@ function FriseTempsScreen({ route, navigation }) {
 
   function onEventPress(nom) {
     if (nom === correctOrder[nextExpectedIndex]) {
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
       const isLast = nextExpectedIndex === correctOrder.length - 1;
       setNextExpectedIndex((i) => i + 1);
       if (isLast) {
@@ -10141,6 +10167,7 @@ function FriseTempsScreen({ route, navigation }) {
       setTimeout(() => setWrongFlash(null), 400);
     } else {
       errorsTotal.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       setWrongFlash(nom);
       setTimeout(() => setWrongFlash(null), 400);
     }
@@ -10296,6 +10323,8 @@ function shuffleCards(paires) {
 }
 
 function MemoryScreen({ route, navigation }) {
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -10501,6 +10530,7 @@ function MemoryScreen({ route, navigation }) {
 
       setTimeout(async () => {
         if (isMatch) {
+          maybePlayMemo(memosConfig.current, 'bonne_reponse');
           const newMatched = [...matched, cards[i1].pairId];
           setMatched(newMatched);
           setFlipped([]);
@@ -10516,6 +10546,7 @@ function MemoryScreen({ route, navigation }) {
           }
         } else {
           errorsTotal.current += 1;
+          maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
           setFlipped([]);
           setBusy(false);
         }
@@ -10658,6 +10689,8 @@ function wait(ms) {
 }
 
 function CoffreSouvenirsScreen({ route, navigation }) {
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -10845,6 +10878,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
       const nextUserIndex = userIndex + 1;
       if (nextUserIndex === sequence.length) {
         jugementEnCoursRef.current = true;
+        maybePlayMemo(memosConfig.current, 'bonne_reponse');
         if (sequence.length >= targetLength.current) {
           if (calibPhase === 'calibrating') {
             const isCorrect = errorsTotal.current === 0;
@@ -10863,6 +10897,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
     } else {
       jugementEnCoursRef.current = true;
       errorsTotal.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
       retries.current += 1;
       if (retries.current >= 3) {
         if (calibPhase === 'calibrating') {
@@ -11926,6 +11961,8 @@ function EffetCapture({ x, y, bon, onDone }) {
 
 function BouleQuiRouleScreen({ route, navigation }) {
   const profil = route?.params?.profil ?? null;
+  const memosConfig = useRef(null);
+  useEffect(() => { if (profil) fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, [profil]);
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const pisteLargeur = screenWidth * BOULE_PISTE_LARGEUR_RATIO;
   // Hauteur de l'en-tete MESUREE reellement a l'ecran (pas un chiffre fixe
@@ -12446,6 +12483,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
               if (o.type === 'cible') {
                 if (atteint && !estBloque) {
+                  maybePlayMemo(memosConfig.current, 'bonne_reponse');
                   setScore((s) => s + 1);
                   setMessage({ texte: mode === 'lettres' ? `Bravo, "${o.valeur}" !` : `Bravo, ${o.valeur} !`, ok: true });
                   if (mode === 'lettres') speakPhonemeOuTexte(o.valeur);
@@ -12479,6 +12517,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
               } else if (o.type === 'distracteur') {
                 if (atteint) {
                   setMessage({ texte: 'Pas celui-là, continue à chercher !', ok: false });
+                  maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
                   if (estCM2) setStreakActuelle(0);
                   declencherEffet(o.x, false);
                   if (c.distracteurCoutePV) perdreUneVie();
