@@ -4484,9 +4484,21 @@ function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
           <Text style={styles.rankUpAvatar}>
             {fiche?.nom_affiche || avatarChainAt(summary.newRank).name}
           </Text>
-          <Pressable style={styles.listenButton} onPress={stopSpeechAndUnduck}>
-            <Text style={styles.listenText}>🔇 Couper le son</Text>
-          </Pressable>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
+            <Pressable
+              style={styles.listenButton}
+              onPress={() => {
+                const displayName = fiche?.nom_affiche || avatarChainAt(summary.newRank).name;
+                const histoire = phraseHistoireAnimal(fiche);
+                speakSmart(histoire ? `${displayName}. ${histoire}` : displayName);
+              }}
+            >
+              <Text style={styles.listenText}>🎤 Réécouter</Text>
+            </Pressable>
+            <Pressable style={styles.listenButton} onPress={stopSpeechAndUnduck}>
+              <Text style={styles.listenText}>🔇 Couper le son</Text>
+            </Pressable>
+          </View>
         </PopIn>
       )}
 
