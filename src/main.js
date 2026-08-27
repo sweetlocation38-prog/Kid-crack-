@@ -2699,22 +2699,21 @@ function RecompensesEarnedModal({ visible, profil, onClose }) {
   }, [visible, profil]);
 
   if (selected) {
+    const histoire = phraseHistoireAnimal(selected.fiche);
     return (
       <Modal visible={visible} animationType="fade" transparent>
         <View style={styles.modalBackdrop}>
           <View style={[styles.modalCard, { alignItems: 'center' }]}>
             <Image source={AVATAR_IMAGES[selected.code]} style={styles.recompenseDetailPhoto} resizeMode="cover" />
             <Text style={[styles.modalTitle, { marginTop: 12 }]}>{selected.name}</Text>
-            {selected.fiche?.fait_amusant ? (
+            {histoire ? (
               <Text style={{ color: colors.ink, textAlign: 'center', marginTop: 6, marginBottom: 14 }}>
-                {selected.fiche.fait_amusant}
+                {histoire}
               </Text>
             ) : null}
             <Pressable
               style={styles.listenButton}
-              onPress={() => speakSmart(
-                selected.fiche?.fait_amusant ? `${selected.name}. ${selected.fiche.fait_amusant}` : selected.name
-              )}
+              onPress={() => speakSmart(histoire ? `${selected.name}. ${histoire}` : selected.name)}
             >
               <Text style={styles.listenText}>🎤 Écouter</Text>
             </Pressable>
@@ -2740,22 +2739,25 @@ function RecompensesEarnedModal({ visible, profil, onClose }) {
             </Text>
           ) : (
             <ScrollView style={{ maxHeight: 380 }}>
-              {fiches.map((a) => (
-                <Pressable key={a.code} style={styles.recompenseRow} onPress={() => setSelected(a)}>
-                  <Image source={AVATAR_IMAGES[a.code]} style={styles.recompensePhoto} resizeMode="cover" />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.recompenseNom}>{a.name}</Text>
-                    {a.fiche?.fait_amusant ? (
-                      <Text style={styles.recompenseFait} numberOfLines={3}>{a.fiche.fait_amusant}</Text>
+              {fiches.map((a) => {
+                const histoireA = phraseHistoireAnimal(a.fiche);
+                return (
+                  <Pressable key={a.code} style={styles.recompenseRow} onPress={() => setSelected(a)}>
+                    <Image source={AVATAR_IMAGES[a.code]} style={styles.recompensePhoto} resizeMode="cover" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.recompenseNom}>{a.name}</Text>
+                      {histoireA ? (
+                        <Text style={styles.recompenseFait} numberOfLines={3}>{histoireA}</Text>
+                      ) : null}
+                    </View>
+                    {histoireA ? (
+                      <Pressable onPress={() => speakSmart(`${a.name}. ${histoireA}`)}>
+                        <Text style={{ fontSize: 20 }}>🎤</Text>
+                      </Pressable>
                     ) : null}
-                  </View>
-                  {a.fiche?.fait_amusant ? (
-                    <Pressable onPress={() => speakSmart(a.fiche.fait_amusant)}>
-                      <Text style={{ fontSize: 20 }}>🎤</Text>
-                    </Pressable>
-                  ) : null}
-                </Pressable>
-              ))}
+                  </Pressable>
+                );
+              })}
             </ScrollView>
           )}
           <Pressable style={[styles.button, { marginTop: 12 }]} onPress={onClose}>
