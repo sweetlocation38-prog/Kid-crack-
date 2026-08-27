@@ -1,0 +1,60 @@
+{
+  "lecture": {
+    "normaux": [
+      "pont_des_lettres",
+      "sons_magiques",
+      "boule_qui_roule"
+    ],
+    "bonus": []
+  },
+  "maths": {
+    "normaux": [
+      "pommes_de_luma",
+      "cachettes_luma",
+      "balance_prairie",
+      "marche_village",
+      "barres_luma"
+    ],
+    "bonus": [
+      "chemin_dizaines"
+    ]
+  },
+  "memoire": {
+    "normaux": [
+      "memoire_etoiles",
+      "coffre_souvenirs",
+      "ronde_lucioles"
+    ],
+    "bonus": []
+  },
+  "logique": {
+    "normaux": [
+      "puzzle_moulin",
+      "tri_village",
+      "empreintes_clairiere",
+      "jeu_intrus",
+      "labyrinthe_grotte"
+    ],
+    "bonus": []
+  },
+  "geographie": {
+    "normaux": [
+      "monde_capitales"
+    ],
+    "bonus": []
+  },
+  "histoire": {
+    "normaux": [
+      "frise_temps"
+    ],
+    "bonus": []
+  },
+  "sciences": {
+    "normaux": [
+      "corps_humain"
+    ],
+    "bonus": [
+      "indices_jardin"
+    ]
+  }
+}
