@@ -1,17 +1,5 @@
 {
-  "error": "Profil Valérie introuvable",
-  "profilsDisponibles": [
-    {
-      "id": "df3f9bf2-5640-4455-8bf9-aff6a07db67a",
-      "prenom": "Valérie tt"
-    },
-    {
-      "id": "24f80536-8adc-419f-b120-5ba932982388",
-      "prenom": "Jules"
-    },
-    {
-      "id": "915613d3-f506-4a0f-ad6a-8b459ff33db5",
-      "prenom": "Emma"
-    }
-  ]
+  "profilId": "df3f9bf2-5640-4455-8bf9-aff6a07db67a",
+  "erreur": null,
+  "succes": true
 }
