@@ -7407,17 +7407,26 @@ function TriVillageScreen({ route, navigation }) {
       </View>
 
       <View style={styles.triPool}>
-        {pool.map((item, i) => (
-          <Pressable
-            key={item.key}
-            style={[styles.triItem, selected === i && styles.triItemSelected]}
-            onPress={() => onItemPress(i)}
-          >
-            <Text style={styles.triItemText} numberOfLines={1} adjustsFontSizeToFit>
-              {item.val}
-            </Text>
-          </Pressable>
-        ))}
+        {pool.map((item, i) => {
+          const longueur = String(item.val).length;
+          // Un emoji/mot court garde une grande police ; une phrase entiere
+          // (contenu sciences/logique) reduit la police et s'etale sur
+          // plusieurs lignes plutot que d'etre coupee - retour de
+          // Thierry, le texte etait illisible, tronque sur une seule
+          // ligne dans une case beaucoup trop petite.
+          const fontSize = longueur <= 4 ? 26 : Math.max(13, 22 - Math.max(0, longueur - 6) * 0.35);
+          return (
+            <Pressable
+              key={item.key}
+              style={[styles.triItem, selected === i && styles.triItemSelected]}
+              onPress={() => onItemPress(i)}
+            >
+              <Text style={[styles.triItemText, { fontSize }]} numberOfLines={4}>
+                {item.val}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <View style={styles.triCategories}>
@@ -13872,11 +13881,12 @@ const styles = StyleSheet.create({
   simonTileActive: { transform: [{ scale: 1.05 }], shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
   triPool: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 20 },
   triItem: {
-    width: 64, height: 64, borderRadius: 16, backgroundColor: '#fff',
+    minWidth: 64, minHeight: 64, maxWidth: '46%', borderRadius: 16, backgroundColor: '#fff',
     alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.08)',
+    paddingHorizontal: 10, paddingVertical: 8,
   },
   triItemSelected: { borderColor: colors.gold, borderWidth: 3, backgroundColor: colors.gold + '33' },
-  triItemText: { fontSize: 22, fontWeight: '700', color: colors.ink, paddingHorizontal: 4 },
+  triItemText: { fontWeight: '700', color: colors.ink, textAlign: 'center' },
   triCategories: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center' },
   triCategoryBox: {
     minWidth: 120, paddingTop: 26, paddingBottom: 16, paddingHorizontal: 14, borderRadius: 18,
