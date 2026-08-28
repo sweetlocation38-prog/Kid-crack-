@@ -1,5 +1,5 @@
 {
   "total": 80,
-  "succes": 0,
-  "erreur": "null value in column \"nom_affiche\" of relation \"fiches_animaux\" violates not-null constraint"
+  "succes": 80,
+  "erreur": null
 }
