@@ -1,0 +1,32 @@
+{
+  "indices_jardin": {
+    "total": 60,
+    "succes": 0,
+    "echecs": [
+      {
+        "lot": 0,
+        "erreur": "new row for relation \"contenu_mini_jeu\" violates check constraint \"contenu_mini_jeu_niveau_check\""
+      }
+    ]
+  },
+  "tri_village": {
+    "total": 60,
+    "succes": 0,
+    "echecs": [
+      {
+        "lot": 0,
+        "erreur": "new row for relation \"contenu_mini_jeu\" violates check constraint \"contenu_mini_jeu_niveau_check\""
+      }
+    ]
+  },
+  "frise_temps": {
+    "total": 60,
+    "succes": 0,
+    "echecs": [
+      {
+        "lot": 0,
+        "erreur": "new row for relation \"contenu_mini_jeu\" violates check constraint \"contenu_mini_jeu_niveau_check\""
+      }
+    ]
+  }
+}
