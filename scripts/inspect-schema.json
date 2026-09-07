@@ -1,0 +1,33 @@
+{
+  "progressionExemple": {
+    "id": "50a7cb39-78be-42c7-9e6c-c93f89dd4371",
+    "profil_id": "24f80536-8adc-419f-b120-5ba932982388",
+    "mini_jeu_id": "c5cde084-71d3-473a-9ccb-ae521f487b2c",
+    "palier_actuel": 15,
+    "details": {
+      "streakRapideBon": 0,
+      "echecsConsecutifs": 0,
+      "nbSessionsHistorique": 20,
+      "tempsMoyenHistorique": 2.834746199372494,
+      "reussitesConsecutives": 0
+    },
+    "temps_reference_secondes": null,
+    "updated_at": "2026-07-21T09:14:13.884646+00:00",
+    "echecs_consecutifs": 0
+  },
+  "profilExemple": {
+    "id": "24f80536-8adc-419f-b120-5ba932982388",
+    "famille_id": "4b9c9bc2-2278-45a2-96f0-c53fa62aa528",
+    "prenom": "Jules",
+    "avatar_personnel": "trophee:furet",
+    "niveau_global": 277,
+    "etape_evolution_actuelle": 1,
+    "date_naissance": null,
+    "niveau_defaut": "cp",
+    "created_at": "2026-07-19T14:38:14.888112+00:00",
+    "photo_url": null,
+    "minutes_max_jour": 20,
+    "avatar_securite": "🧊",
+    "verif_locked_until": null
+  }
+}
