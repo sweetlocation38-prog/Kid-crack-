@@ -3979,6 +3979,100 @@ function ConfettiBurst({ trigger }) {
   );
 }
 
+// ============================================================
+// Systeme de "Niveau" visible (1 a 21, meme echelle que le rang interne
+// MS-1 a CM2-3) - retour de Thierry : les enfants ne voyaient jamais leur
+// progression concretement, ce qui les demotivait et les poussait a
+// "zapper" les jeux qui leur plaisent le moins. Affiche desormais un
+// badge clair "Niveau X" dans chaque jeu, avec une petite animation de
+// celebration quand il augmente.
+function NiveauBadge({ rung }) {
+  if (rung == null) return null;
+  return (
+    <View style={{
+      flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.mossSoft,
+      borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3, alignSelf: 'center',
+    }}>
+      <Text style={{ fontSize: 12, fontWeight: '800', color: colors.mossDeep }}>
+        ⭐ Niveau {rung}
+      </Text>
+    </View>
+  );
+}
+
+function NiveauSuperieurToast({ rung }) {
+  if (rung == null) return null;
+  return (
+    <PopIn style={{
+      position: 'absolute', top: 60, alignSelf: 'center', backgroundColor: colors.gold,
+      borderRadius: 16, paddingHorizontal: 18, paddingVertical: 10, zIndex: 20, elevation: 6,
+    }}>
+      <Text style={{ fontWeight: '900', color: '#fff', fontSize: 15 }}>
+        🎉 Niveau {rung} débloqué !
+      </Text>
+    </PopIn>
+  );
+}
+
+// Detecte une augmentation du rang (donc du "Niveau" affiche) entre deux
+// rendus et retourne le nombre de niveaux gagnes pour attribuer les
+// etoiles correspondantes - un seul niveau gagne la plupart du temps,
+// mais un saut de calibrage peut en gagner plusieurs d'un coup.
+function useNiveauSuperieurDetector(rung, miniJeuId, profilId) {
+  const [toastRung, setToastRung] = useState(null);
+  const rungPrecedentRef = useRef(rung);
+  useEffect(() => {
+    if (rung == null || rungPrecedentRef.current == null) {
+      rungPrecedentRef.current = rung;
+      return;
+    }
+    if (rung > rungPrecedentRef.current) {
+      const gain = rung - rungPrecedentRef.current;
+      setToastRung(rung);
+      setTimeout(() => setToastRung(null), 2200);
+      if (miniJeuId && profilId) {
+        attribuerEtoilesNiveau(profilId, miniJeuId, gain).catch(() => {});
+      }
+    }
+    rungPrecedentRef.current = rung;
+  }, [rung, miniJeuId, profilId]);
+  return toastRung;
+}
+
+// Attribue 1 etoile par niveau gagne pour ce jeu, et verifie apres coup
+// si ca ouvre droit a une recompense parent (moyenne d'etoiles sur tous
+// les jeux joues >= 10).
+async function attribuerEtoilesNiveau(profilId, miniJeuId, gain) {
+  try {
+    const { data: existant } = await supabase
+      .from('etoiles_niveaux')
+      .select('etoiles')
+      .eq('profil_id', profilId)
+      .eq('mini_jeu_id', miniJeuId)
+      .maybeSingle();
+    const nouveauTotal = (existant?.etoiles ?? 0) + gain;
+    await supabase.from('etoiles_niveaux').upsert(
+      { profil_id: profilId, mini_jeu_id: miniJeuId, etoiles: nouveauTotal },
+      { onConflict: 'profil_id,mini_jeu_id' }
+    );
+
+    const { data: toutesEtoiles } = await supabase
+      .from('etoiles_niveaux')
+      .select('etoiles')
+      .eq('profil_id', profilId);
+    if (toutesEtoiles && toutesEtoiles.length > 0) {
+      const moyenne = toutesEtoiles.reduce((s, e) => s + e.etoiles, 0) / toutesEtoiles.length;
+      if (moyenne >= 10) {
+        await supabase.from('profils_enfants')
+          .update({ recompense_parent_disponible: true })
+          .eq('id', profilId);
+      }
+    }
+  } catch (e) {
+    // Non bloquant : la progression du jeu ne doit jamais dependre de ceci.
+  }
+}
+
 function PopIn({ children, delay, style }) {
   const scale = useRef(new Animated.Value(0.7)).current;
   const opacity = useRef(new Animated.Value(0)).current;
