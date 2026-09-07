@@ -1452,8 +1452,8 @@ async function computeStreakRung({
 const GRADE_ORDER = ['ms', 'gs', 'cp', 'ce1', 'ce2', 'cm1', 'cm2', '6e'];
 
 // A augmenter au fur et a mesure qu'on ajoute du contenu pour les niveaux
-// superieurs. Pour l'instant, seul MS/GS/CP existe (3 niveaux x 3 paliers = 9).
-const MAX_CONTENT_RUNG = 21; // cm2, palier 3 (releve depuis 18/cm1 pour couvrir le contenu CM2)
+// superieurs.
+const MAX_CONTENT_RUNG = 24; // 6e, palier 3 - retour de Thierry : Jules a plafonne a 21 (cm2,3) dans plusieurs jeux, trop simple pour lui desormais
 
 function rungFromGradeAndPalier(niveau, palier) {
   const idx = Math.max(0, GRADE_ORDER.indexOf(niveau));
@@ -7112,7 +7112,7 @@ function IndicesJardinScreen({ route, navigation }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
-  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('6e', 3); // retour de Thierry : plafond releve, cm2 etait atteint trop vite par certains enfants
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
@@ -7400,7 +7400,7 @@ function TriVillageScreen({ route, navigation }) {
   const errorsTotal = useRef(0);
   const startedAt = useRef(Date.now());
   const nextRungRef = useRef(null);
-  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('6e', 3); // retour de Thierry : plafond releve, cm2 etait atteint trop vite par certains enfants
 
   // Calibrage adaptatif : chaque exercice complet de tri (tous les objets
   // ranges sans aucune erreur) compte comme une "manche" reussie. Seules
@@ -7763,6 +7763,7 @@ function puzzleModesDisponibles(rung) {
   if (rung >= rungFromGradeAndPalier('ce2', 1)) modes.push('calcul_soustraction');
   if (rung >= rungFromGradeAndPalier('cm1', 1)) modes.push('calcul_multiplication');
   if (rung >= rungFromGradeAndPalier('cm2', 1)) modes.push('calcul_division');
+  if (rung >= rungFromGradeAndPalier('6e', 1)) modes.push('calcul_avance');
   return modes;
 }
 
@@ -8121,7 +8122,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
 
   const { profil } = route.params;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('6e', 3); // retour de Thierry : plafond releve, cm2 etait atteint trop vite par certains enfants
   const { rows, cols } = useMemo(
     () => mazeGridDimensionsForScreen(screenWidth, screenHeight),
     [screenWidth, screenHeight]
@@ -8732,7 +8733,7 @@ function CheminDizainesScreen({ route, navigation }) {
 
   const { profil } = route.params;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('6e', 3); // retour de Thierry : plafond releve, cm2 etait atteint trop vite par certains enfants
   const { rows, cols } = useMemo(
     // Cet ecran a en plus des badges et des boutons sous la grille (contrairement
     // au labyrinthe simple) - on reserve donc davantage d'espace que la fonction
@@ -9505,7 +9506,7 @@ function BarresLumaScreen({ route, navigation }) {
   useEffect(() => { stopBgMusic(); }, []);
 
   const { profil } = route.params;
-  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('6e', 3); // retour de Thierry : plafond releve, cm2 etait atteint trop vite par certains enfants
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
   const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
@@ -9929,7 +9930,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
   const totalPieces = useRef(6);
   const startedAt = useRef(Date.now());
   const nextRungRef = useRef(null);
-  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('6e', 3); // retour de Thierry : plafond releve, cm2 etait atteint trop vite par certains enfants
 
   // Calibrage adaptatif : ici, une "manche" de calibrage est un puzzle
   // COMPLET (pas juste une piece), donc on reduit le nombre de manches
@@ -9982,9 +9983,24 @@ function PuzzleMoulinScreen({ route, navigation }) {
           return { display: `${a} × ${b}`, valeur: a * b };
         }
         // Division : on part du resultat pour garantir une division exacte.
-        const resultat = 2 + Math.floor(Math.random() * 10);
-        const diviseur = 2 + Math.floor(Math.random() * 9);
-        return { display: `${resultat * diviseur} ÷ ${diviseur}`, valeur: resultat };
+        if (mode === 'calcul_division') {
+          const resultat = 2 + Math.floor(Math.random() * 10);
+          const diviseur = 2 + Math.floor(Math.random() * 9);
+          return { display: `${resultat * diviseur} ÷ ${diviseur}`, valeur: resultat };
+        }
+        // Palier 6e : calcul en deux etapes (priorite des operations) et
+        // multiplication a deux chiffres - retour de Thierry, le contenu
+        // ne montait plus en difficulte apres le CM2.
+        const varianteAvancee = Math.random() < 0.5;
+        if (varianteAvancee) {
+          const a = 11 + Math.floor(Math.random() * 9); // 11 a 19
+          const b = 3 + Math.floor(Math.random() * 8); // 3 a 10
+          return { display: `${a} × ${b}`, valeur: a * b };
+        }
+        const x = 2 + Math.floor(Math.random() * 9);
+        const y = 2 + Math.floor(Math.random() * 9);
+        const z = 2 + Math.floor(Math.random() * 15);
+        return { display: `${x} × ${y} + ${z}`, valeur: x * y + z };
       };
       const valeursVues = new Set();
       const calculs = [];
@@ -10302,7 +10318,7 @@ function FriseTempsScreen({ route, navigation }) {
   const errorsTotal = useRef(0);
   const startedAt = useRef(Date.now());
   const nextRungRef = useRef(null);
-  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('6e', 3); // retour de Thierry : plafond releve, cm2 etait atteint trop vite par certains enfants
 
   // Calibrage adaptatif : chaque frise complete (tous les evenements
   // ordonnes sans aucune erreur) compte comme une "manche" reussie.
@@ -11043,7 +11059,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
   const calibRoundsMonteeRef = useRef(0);
   const calibRoundsDescenteRef = useRef(0);
   const CALIB_SAUTS_MONTEE = [3, 6, 6];
-  const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
+  const gameMaxRung = rungFromGradeAndPalier('6e', 3); // retour de Thierry : plafond releve, cm2 etait atteint trop vite par certains enfants
 
   async function playSequence(seq) {
     jugementEnCoursRef.current = false;
