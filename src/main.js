@@ -3390,6 +3390,7 @@ function PontDesLettresScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [round, setRound] = useState(1);
   const [current, setCurrent] = useState(null);
   const [stepIndex, setStepIndex] = useState(0);
@@ -3781,6 +3782,9 @@ function PontDesLettresScreen({ route, navigation }) {
           {calibPhase === 'calibrating' ? `Manche ${calibRoundIndex + 1}` : `${round}/${TOTAL_ROUNDS}`}
         </Text>
       </View>
+
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
 
       <View style={styles.gameCharacter}>
         <BouncingWrap><Maestro size={48} /></BouncingWrap>
@@ -6367,6 +6371,7 @@ function CachettesLumaScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [round, setRound] = useState(1);
   const [promptData, setPromptData] = useState(null); // { d, ...question }
   const [optionsOrder, setOptionsOrder] = useState([]);
@@ -6541,6 +6546,9 @@ function CachettesLumaScreen({ route, navigation }) {
         <Text style={styles.gameTitle}>🗺️ Les Cachettes de Luma</Text>
         <Text style={styles.roundLabel}>{round}/{CACHETTES_TOTAL_ROUNDS}</Text>
       </View>
+
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
 
       <View style={styles.gameCharacter}>
         <BouncingWrap><Luma size={48} /></BouncingWrap>
@@ -6970,6 +6978,7 @@ function IndicesJardinScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [round, setRound] = useState(1);
   const [mystere, setMystere] = useState(null);
   const [revealedCount, setRevealedCount] = useState(1);
@@ -7123,6 +7132,9 @@ function IndicesJardinScreen({ route, navigation }) {
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
 
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
       <View style={styles.gameCharacter}>
         <BouncingWrap><Noisette size={48} /></BouncingWrap>
       </View>
@@ -7239,6 +7251,7 @@ function TriVillageScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [categories, setCategories] = useState([]);
   const [pool, setPool] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -7508,6 +7521,9 @@ function TriVillageScreen({ route, navigation }) {
           {calibPhase === 'calibrating' ? `Manche ${calibRoundIndex + 1}` : `${placedCount}/${totalItems}`}
         </Text>
       </View>
+
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
 
       <View style={styles.gameCharacter}>
         <BouncingWrap><Noisette size={44} /></BouncingWrap>
@@ -7974,6 +7990,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   );
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [cells, setCells] = useState(null);
   const [pos, setPos] = useState({ r: 0, c: 0 });
   const [treasure, setTreasure] = useState({ r: 0, c: 0 });
@@ -8327,6 +8344,9 @@ function LabyrintheGrotteScreen({ route, navigation }) {
         </Text>
       )}
 
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
       <MazeGridVisual
         cells={cells}
         rows={rows}
@@ -8585,6 +8605,7 @@ function CheminDizainesScreen({ route, navigation }) {
   );
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [cells, setCells] = useState(null);
   const [pos, setPos] = useState({ r: 0, c: 0 });
   const [visitedSet, setVisitedSet] = useState(() => new Set());
@@ -9169,6 +9190,9 @@ function CheminDizainesScreen({ route, navigation }) {
         )}
       </View>
 
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
       {feedback && (
         <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '700', marginBottom: 4 }}>
           {feedback}
@@ -9346,6 +9370,7 @@ function BarresLumaScreen({ route, navigation }) {
   const gameMaxRung = rungFromGradeAndPalier('cm2', 3);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [manche, setManche] = useState(null);
   const [reponduComparaison, setReponduComparaison] = useState(false); // bloque les taps en rafale sur A/B apres une premiere reponse
   const [construitBlocs, setConstruitBlocs] = useState(0);
@@ -9653,6 +9678,9 @@ function BarresLumaScreen({ route, navigation }) {
         )}
       </View>
 
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
       {calibPhase === 'calibrating' && (
         <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '700', marginBottom: 4 }}>
           Manche {calibRoundIndex + 1}
@@ -9751,6 +9779,7 @@ function PuzzleMoulinScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [pieces, setPieces] = useState([]);
   const [nextExpected, setNextExpected] = useState(1);
   const [consigneActuelle, setConsigneActuelle] = useState("Touche les pièces dans l'ordre, du numéro 1 au dernier !");
@@ -10068,6 +10097,9 @@ function PuzzleMoulinScreen({ route, navigation }) {
         </Text>
       </View>
 
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
       <View style={styles.gameCharacter}>
         <BouncingWrap><Maestro size={44} /></BouncingWrap>
       </View>
@@ -10122,6 +10154,7 @@ function FriseTempsScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [evenements, setEvenements] = useState([]);
   const [correctOrder, setCorrectOrder] = useState([]);
   const [nextExpectedIndex, setNextExpectedIndex] = useState(0);
@@ -10382,6 +10415,9 @@ function FriseTempsScreen({ route, navigation }) {
         </Text>
       </View>
 
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
       <View style={styles.gameCharacter}>
         <BouncingWrap><Noisette size={44} /></BouncingWrap>
       </View>
@@ -10475,6 +10511,7 @@ function MemoryScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState([]);
   const [matched, setMatched] = useState([]);
@@ -10785,6 +10822,9 @@ function MemoryScreen({ route, navigation }) {
         </Text>
       </View>
 
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
       <View style={styles.gameCharacter}>
         <BouncingWrap><Noisette size={44} /></BouncingWrap>
       </View>
@@ -10841,6 +10881,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [sequence, setSequence] = useState([]);
   const [phase, setPhase] = useState('watching'); // 'watching' | 'repeating'
   const [activeIndex, setActiveIndex] = useState(null);
@@ -11111,6 +11152,9 @@ function CoffreSouvenirsScreen({ route, navigation }) {
           {calibPhase === 'calibrating' ? `Manche ${calibRoundIndex + 1}` : `${sequence.length}/${targetLength.current}`}
         </Text>
       </View>
+
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
 
       <View style={styles.gameCharacter}>
         <BouncingWrap><Noisette size={44} /></BouncingWrap>
@@ -12133,6 +12177,7 @@ function MotsFlechesScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [mots, setMots] = useState([]);
   const [motActifIndex, setMotActifIndex] = useState(0);
   const [clavier, setClavier] = useState([]);
@@ -12369,6 +12414,9 @@ function MotsFlechesScreen({ route, navigation }) {
         <Text style={{ width: 24 }} />
       </View>
 
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
       {banqueVisible && (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginVertical: 10 }}>
           {mots.map((m, i) => (
@@ -12457,6 +12505,7 @@ function MotMystereScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [grille, setGrille] = useState(null); // { grille: string[], mots: [{mot,positions}], motBonus, cellulesBonus }
   const [motsTrouves, setMotsTrouves] = useState([]);
   const [debutSelection, setDebutSelection] = useState(null); // {r,c}
@@ -12718,6 +12767,9 @@ function MotMystereScreen({ route, navigation }) {
         <Text style={{ width: 24 }} />
       </View>
 
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
       <View style={{ alignSelf: 'center', marginVertical: 10 }}>
         {grille.grille.map((rowStr, r) => (
           <View key={r} style={{ flexDirection: 'row' }}>
@@ -12808,6 +12860,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   // de serie...). En calibrage automatique, sauvegarde en base a chaque
   // niveau reussi ; en mode test manuel, reste local a la session.
   const [rungJeu, setRungJeu] = useState(null);
+  const toastNiveau = useNiveauSuperieurDetector(rungJeu, miniJeuId, profil?.id);
 
   const [ballXNorm, setBallXNorm] = useState(0.5);
   const [isPaused, setIsPaused] = useState(false);
@@ -13515,6 +13568,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
         <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '700', color: colors.ink, opacity: 0.75, marginTop: 3 }}>
           Série : {streakActuelle}/{conf.objectifStreak} · Partie : {niveauxCompletesAffiche}/{BOULE_NIVEAUX_PAR_PARTIE}
         </Text>
+        <NiveauBadge rung={rungJeu} />
+        {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
 
         {/* Hauteur fixe reservee (le message apparait/disparait sans arret
             pendant la partie - s'il changeait la hauteur mesuree a chaque
