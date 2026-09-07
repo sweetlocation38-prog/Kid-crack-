@@ -2797,7 +2797,7 @@ function couleurNiveau(niveau) {
   return { emoji: '🟢', couleur: '#3C9A5F' };
 }
 
-function MaProgressionModal({ visible, profil, miniJeux, onClose }) {
+function MaProgressionModal({ visible, profil, miniJeux, onClose, onSelectGame }) {
   const [chargement, setChargement] = useState(true);
   const [lignes, setLignes] = useState([]);
 
@@ -2852,8 +2852,9 @@ function MaProgressionModal({ visible, profil, miniJeux, onClose }) {
                 const { emoji, couleur } = couleurNiveau(l.niveau);
                 const estLePire = i === 0;
                 return (
-                  <View
+                  <Pressable
                     key={l.code}
+                    onPress={() => onSelectGame?.(l.code)}
                     style={{
                       flexDirection: 'row', alignItems: 'center', gap: 10,
                       paddingVertical: 8, paddingHorizontal: 10, borderRadius: 12, marginBottom: 6,
@@ -2877,7 +2878,8 @@ function MaProgressionModal({ visible, profil, miniJeux, onClose }) {
                       ))}
                     </View>
                     {estLePire && <Text style={{ fontSize: 16 }}>👉</Text>}
-                  </View>
+                    <Text style={{ fontSize: 16, color: colors.ink, opacity: 0.5 }}>›</Text>
+                  </Pressable>
                 );
               })}
             </ScrollView>
@@ -3067,6 +3069,10 @@ function WorldMapScreen({ route, navigation }) {
         profil={profil}
         miniJeux={miniJeux}
         onClose={() => setShowProgressionModal(false)}
+        onSelectGame={(code) => {
+          setShowProgressionModal(false);
+          handleGamePress(GAME_SCREENS[code]);
+        }}
       />
     </ScrollView>
   );
