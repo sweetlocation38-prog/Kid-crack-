@@ -4161,16 +4161,21 @@ function useNiveauSuperieurDetector(rung, miniJeuId, profilId) {
 
 // Seuil de "droit a recompense parent" personnalise par enfant - retour
 // de Thierry : un chiffre fixe pour tous n'a pas de sens vu les ecarts de
-// rythme. Calcule une fois pour Jules et Emma a partir de leur vitesse de
-// progression calendaire reelle (niveaux gagnes par semaine depuis la
-// creation du profil), projetee sur 2 mois a raison de l'hypothese de 80
-// minutes de jeu par semaine - voir scripts/calcul-objectifs-etoiles-v2.js
-// pour le detail du calcul. Nouveau profil non liste ici = seuil par
-// defaut prudent de 10, a recalculer manuellement apres quelques semaines
-// de donnees.
+// rythme. Calcule pour Jules et Emma a partir de leur vitesse de
+// progression calendaire reelle, projetee sur 2 mois a 80 min/semaine -
+// voir scripts/calcul-objectifs-etoiles-v3.js. IMPORTANT : le rythme brut
+// observe est gonfle par les sauts de calibrage initiaux (jusqu'a 15
+// niveaux d'un coup par jeu) - le rythme "brut" impliquerait par exemple
+// que Jules termine TOUS les niveaux de TOUS les jeux en seulement 2,6
+// mois, ce qui n'est pas soutenable dans la duree. Une decote de securite
+// a donc ete appliquee (70% pour Jules, 19% pour Emma - plus forte quand
+// le rythme brut est le plus irrealiste). A recalculer dans quelques
+// semaines une fois que la phase de calibrage initiale sera derriere eux
+// et que le rythme observe sera plus representatif d'un rythme de
+// croisiere reel.
 const SEUIL_RECOMPENSE_PAR_PROFIL = {
-  '24f80536-8adc-419f-b120-5ba932982388': 18, // Jules
-  '915613d3-f506-4a0f-ad6a-8b459ff33db5': 11, // Emma
+  '24f80536-8adc-419f-b120-5ba932982388': 11, // Jules
+  '915613d3-f506-4a0f-ad6a-8b459ff33db5': 10, // Emma
 };
 const SEUIL_RECOMPENSE_DEFAUT = 10;
 
