@@ -1,0 +1,145 @@
+{
+  "indices_jardin": {
+    "total": 420,
+    "parNiveau": {
+      "ms-p1": 20,
+      "ms-p2": 20,
+      "ms-p3": 20,
+      "gs-p1": 20,
+      "gs-p2": 20,
+      "gs-p3": 20,
+      "cp-p1": 20,
+      "cp-p2": 20,
+      "cp-p3": 20,
+      "ce1-p1": 20,
+      "ce1-p2": 20,
+      "ce1-p3": 20,
+      "ce2-p1": 20,
+      "ce2-p2": 20,
+      "ce2-p3": 20,
+      "cm1-p2": 20,
+      "cm1-p1": 20,
+      "cm1-p3": 20,
+      "cm2-p1": 20,
+      "cm2-p2": 20,
+      "cm2-p3": 20
+    },
+    "exempleDonnees": {
+      "cible": "Coccinelle",
+      "indices": [
+        "Je suis un insecte à points noirs",
+        "Je mange des pucerons dans le jardin",
+        "On dit que je porte bonheur",
+        "J'ai des ailes rouges qui s'ouvrent en deux"
+      ],
+      "options": [
+        "Coccinelle",
+        "Abeille",
+        "Fourmi"
+      ]
+    }
+  },
+  "tri_village": {
+    "total": 437,
+    "parNiveau": {
+      "ms-p1": 21,
+      "ms-p2": 20,
+      "ms-p3": 20,
+      "gs-p1": 21,
+      "gs-p2": 21,
+      "gs-p3": 20,
+      "cp-p1": 22,
+      "cp-p2": 21,
+      "cp-p3": 20,
+      "ce1-p1": 26,
+      "ce1-p2": 20,
+      "ce1-p3": 20,
+      "ce2-p1": 25,
+      "ce2-p2": 20,
+      "ce2-p3": 20,
+      "cm1-p1": 20,
+      "cm1-p2": 20,
+      "cm1-p3": 20,
+      "cm2-p1": 20,
+      "cm2-p2": 20,
+      "cm2-p3": 20
+    },
+    "exempleDonnees": {
+      "items": [
+        {
+          "cat": "Animaux",
+          "val": "🐶"
+        },
+        {
+          "cat": "Animaux",
+          "val": "🐱"
+        },
+        {
+          "cat": "Animaux",
+          "val": "🐰"
+        },
+        {
+          "cat": "Fruits",
+          "val": "🍎"
+        },
+        {
+          "cat": "Fruits",
+          "val": "🍌"
+        },
+        {
+          "cat": "Fruits",
+          "val": "🍇"
+        }
+      ],
+      "categories": [
+        "Animaux",
+        "Fruits"
+      ]
+    }
+  },
+  "frise_temps": {
+    "total": 422,
+    "parNiveau": {
+      "ms-p1": 22,
+      "ms-p2": 20,
+      "ms-p3": 20,
+      "gs-p1": 20,
+      "gs-p2": 20,
+      "gs-p3": 20,
+      "cp-p1": 20,
+      "cp-p2": 20,
+      "cp-p3": 20,
+      "ce1-p1": 20,
+      "ce1-p2": 20,
+      "ce1-p3": 20,
+      "ce2-p1": 20,
+      "ce2-p2": 20,
+      "ce2-p3": 20,
+      "cm1-p1": 20,
+      "cm1-p2": 20,
+      "cm1-p3": 20,
+      "cm2-p1": 20,
+      "cm2-p2": 20,
+      "cm2-p3": 20
+    },
+    "exempleDonnees": {
+      "evenements": [
+        {
+          "nom": "Oeuf",
+          "icon": "🥚",
+          "annee": 1
+        },
+        {
+          "nom": "Chenille",
+          "icon": "🐛",
+          "annee": 2
+        },
+        {
+          "nom": "Papillon",
+          "icon": "🦋",
+          "annee": 3
+        }
+      ]
+    }
+  }
+}
