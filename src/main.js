@@ -2960,6 +2960,18 @@ function WorldMapScreen({ route, navigation }) {
     navigation.navigate('Continent', { profil, competence });
   }
 
+  // Navigation directe vers un jeu depuis "Ma progression" - meme controle
+  // de limite de temps que handleGamePress (definie dans SentierScreen,
+  // donc pas accessible ici : WorldMapScreen a besoin de sa propre copie).
+  function handleGamePressDepuisProgression(targetScreen) {
+    if (!targetScreen) return;
+    if (limitReached) {
+      setShowGate(true);
+      return;
+    }
+    navigation.navigate(targetScreen, { profil });
+  }
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -3074,7 +3086,7 @@ function WorldMapScreen({ route, navigation }) {
           // Petit delai avant de naviguer : fermer une Modal native et
           // changer d'ecran au meme instant fait planter l'app sur Android
           // (conflit entre l'animation de fermeture et la navigation).
-          setTimeout(() => handleGamePress(GAME_SCREENS[code]), 150);
+          setTimeout(() => handleGamePressDepuisProgression(GAME_SCREENS[code]), 150);
         }}
       />
     </ScrollView>
