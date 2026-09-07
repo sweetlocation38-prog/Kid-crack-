@@ -3071,7 +3071,10 @@ function WorldMapScreen({ route, navigation }) {
         onClose={() => setShowProgressionModal(false)}
         onSelectGame={(code) => {
           setShowProgressionModal(false);
-          handleGamePress(GAME_SCREENS[code]);
+          // Petit delai avant de naviguer : fermer une Modal native et
+          // changer d'ecran au meme instant fait planter l'app sur Android
+          // (conflit entre l'animation de fermeture et la navigation).
+          setTimeout(() => handleGamePress(GAME_SCREENS[code]), 150);
         }}
       />
     </ScrollView>
