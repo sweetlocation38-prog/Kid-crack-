@@ -9417,7 +9417,7 @@ function rondCibleForRung(rung) {
   return 50;
 }
 
-function genererMancheBarres(rung) {
+function genererMancheBarres(rung, maxRung = MAX_CONTENT_RUNG) {
   const mode = barresLumaModeForRung(rung);
   if (mode === 'comparaison') {
     const max = Math.min(9, 3 + Math.floor(rung / 2));
@@ -9454,7 +9454,11 @@ function genererMancheBarres(rung) {
   }
   // toutEtPartie : le tout et une partie sont donnes, il faut construire
   // l'autre partie (vraie soustraction posee via un modele en barres).
-  const ratio = Math.max(0, Math.min(1, (rung - 15) / 6));
+  // Ratio dynamique par rapport au vrai plafond du jeu (pas un diviseur
+  // fixe cale sur l'ancien plafond 21) - retour de Thierry : sinon ce
+  // mode arretait de progresser des le rang 21, meme apres avoir releve
+  // le plafond a 24.
+  const ratio = Math.max(0, Math.min(1, (rung - 15) / Math.max(1, maxRung - 15)));
   const tout = Math.round(24 + ratio * 66); // 24 a 90
   const part1 = Math.max(4, Math.round(tout * (0.25 + Math.random() * 0.35)));
   const part2 = tout - part1;
@@ -9536,7 +9540,7 @@ function BarresLumaScreen({ route, navigation }) {
   const CALIB_SAUTS_MONTEE = [2, 4, 6, 6];
 
   const nouvelleManche = useCallback((currentRung) => {
-    const m = genererMancheBarres(currentRung);
+    const m = genererMancheBarres(currentRung, gameMaxRung);
     setManche(m);
     setConstruitBlocs(0);
     setFeedback(null);
@@ -9580,7 +9584,7 @@ function BarresLumaScreen({ route, navigation }) {
           calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 2);
           setManche(null);
           setLoading(true);
-          const m = genererMancheBarres(calibCurrentRungRef.current);
+          const m = genererMancheBarres(calibCurrentRungRef.current, gameMaxRung);
           setManche(m);
           setConstruitBlocs(0);
           setFeedback(null);
@@ -9594,7 +9598,7 @@ function BarresLumaScreen({ route, navigation }) {
         }
         const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
         calibCurrentRungRef.current = Math.min(gameMaxRung, calibCurrentRungRef.current + saut);
-        const m = genererMancheBarres(calibCurrentRungRef.current);
+        const m = genererMancheBarres(calibCurrentRungRef.current, gameMaxRung);
         setManche(m);
         setConstruitBlocs(0);
         setFeedback(null);
@@ -9613,7 +9617,7 @@ function BarresLumaScreen({ route, navigation }) {
         return;
       }
       calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 2);
-      const m = genererMancheBarres(calibCurrentRungRef.current);
+      const m = genererMancheBarres(calibCurrentRungRef.current, gameMaxRung);
       setManche(m);
       setConstruitBlocs(0);
       setFeedback(null);
@@ -9644,7 +9648,7 @@ function BarresLumaScreen({ route, navigation }) {
         calibRoundsDescenteRef.current = 0;
         setCalibRoundIndex(0);
         setCalibPhase('calibrating');
-        const m = genererMancheBarres(base);
+        const m = genererMancheBarres(base, gameMaxRung);
         setManche(m);
         setConstruitBlocs(0);
         setFeedback(null);
@@ -9800,7 +9804,7 @@ function BarresLumaScreen({ route, navigation }) {
                       calibRoundsDescenteRef.current = 0;
                       setCalibRoundIndex(0);
                       setCalibPhase('calibrating');
-                      const m = genererMancheBarres(base);
+                      const m = genererMancheBarres(base, gameMaxRung);
                       setManche(m);
                       setConstruitBlocs(0);
                       setFeedback(null);
@@ -11016,10 +11020,13 @@ const SIMON_COLORS = [
   { name: 'Jaune', color: '#F5C518' },
 ];
 
-function targetLengthForPalier(palier) {
-  if (palier === 1) return 4;
-  if (palier === 2) return 6;
-  return 8;
+function targetLengthForRung(rung, maxRung = MAX_CONTENT_RUNG) {
+  // Longueur de sequence continue selon le VRAI niveau (pas seulement le
+  // palier 1-3 qui se repetait identique a chaque niveau scolaire) -
+  // retour de Thierry : la sequence plafonnait a 8 des le premier palier
+  // 3 rencontre, quel que soit le niveau scolaire ensuite.
+  const ratio = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
+  return Math.max(3, Math.round(4 + ratio * 10)); // 4 au debut -> 14 au maximum
 }
 
 function wait(ms) {
@@ -11107,8 +11114,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
         calibRoundsDescenteRef.current = 0;
         setCalibRoundIndex(0);
         setCalibPhase('calibrating');
-        const { palier } = gradeAndPalierFromRung(base);
-        targetLength.current = targetLengthForPalier(palier);
+        targetLength.current = targetLengthForRung(base, gameMaxRung);
         setLoading(false);
         startNewSequence([]);
         return;
@@ -11117,8 +11123,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
       const startRung = Math.min(prog.palier_actuel, gameMaxRung);
       setRung(startRung);
       setCalibPhase('play');
-      const { palier } = gradeAndPalierFromRung(startRung);
-      targetLength.current = targetLengthForPalier(palier);
+      targetLength.current = targetLengthForRung(startRung, gameMaxRung);
       setLoading(false);
       startNewSequence([]);
     })();
@@ -11147,8 +11152,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
     errorsTotal.current = 0;
     retries.current = 0;
     setCalibPhase('play');
-    const { palier } = gradeAndPalierFromRung(finalRung);
-    targetLength.current = targetLengthForPalier(palier);
+    targetLength.current = targetLengthForRung(finalRung, gameMaxRung);
     startNewSequence([]);
   }
 
@@ -11161,8 +11165,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
       if (!isCorrect) {
         calibStepPhaseRef.current = 'descente';
         calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
-        const { palier } = gradeAndPalierFromRung(calibCurrentRungRef.current);
-        targetLength.current = targetLengthForPalier(palier);
+        targetLength.current = targetLengthForRung(calibCurrentRungRef.current, gameMaxRung);
         startNewSequence([]);
         return;
       }
@@ -11172,8 +11175,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
       }
       const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
       calibCurrentRungRef.current = Math.min(gameMaxRung, calibCurrentRungRef.current + saut);
-      const { palier } = gradeAndPalierFromRung(calibCurrentRungRef.current);
-      targetLength.current = targetLengthForPalier(palier);
+      targetLength.current = targetLengthForRung(calibCurrentRungRef.current, gameMaxRung);
       startNewSequence([]);
       return;
     }
@@ -11188,8 +11190,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
       return;
     }
     calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
-    const { palier } = gradeAndPalierFromRung(calibCurrentRungRef.current);
-    targetLength.current = targetLengthForPalier(palier);
+    targetLength.current = targetLengthForRung(calibCurrentRungRef.current, gameMaxRung);
     startNewSequence([]);
   }
 
@@ -11289,8 +11290,7 @@ function CoffreSouvenirsScreen({ route, navigation }) {
                       calibRoundsDescenteRef.current = 0;
                       setCalibRoundIndex(0);
                       setCalibPhase('calibrating');
-                      const { palier } = gradeAndPalierFromRung(base);
-                      targetLength.current = targetLengthForPalier(palier);
+                      targetLength.current = targetLengthForRung(base, gameMaxRung);
                       startNewSequence([]);
                     },
                   },
