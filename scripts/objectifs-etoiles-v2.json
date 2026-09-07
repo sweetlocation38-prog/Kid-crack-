@@ -1,0 +1,20 @@
+{
+  "Jules": {
+    "profilId": "24f80536-8adc-419f-b120-5ba932982388",
+    "semainesDepuisCreation": 7.1,
+    "nbJeuxAvecProgres": 19,
+    "totalNiveauxGagnesActuellement": 152,
+    "moyenneEtoilesActuelle": 8,
+    "rythmeMoyenneParSemaine": 1.122,
+    "objectifEtoilesMoyennePersonnalise": 18
+  },
+  "Emma": {
+    "profilId": "915613d3-f506-4a0f-ad6a-8b459ff33db5",
+    "semainesDepuisCreation": 7.1,
+    "nbJeuxAvecProgres": 8,
+    "totalNiveauxGagnesActuellement": 41,
+    "moyenneEtoilesActuelle": 5.13,
+    "rythmeMoyenneParSemaine": 0.722,
+    "objectifEtoilesMoyennePersonnalise": 11
+  }
+}
