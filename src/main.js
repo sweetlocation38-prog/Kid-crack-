@@ -2786,11 +2786,118 @@ function RecompensesEarnedModal({ visible, profil, onClose }) {
 
 
 
+// ============================================================
+// Fenêtre "Ma progression" (icône enfant) - retour de Thierry : les
+// enfants zappent les jeux qui les interessent le moins, il faut des
+// reperes SIMPLES (pas de chiffres bruts) qui montrent ou avancer, avec
+// une recommandation vocale.
+function couleurNiveau(niveau) {
+  if (niveau <= 5) return { emoji: '🔴', couleur: '#E5484D' };
+  if (niveau <= 14) return { emoji: '🟡', couleur: '#F5A623' };
+  return { emoji: '🟢', couleur: '#3C9A5F' };
+}
+
+function MaProgressionModal({ visible, profil, miniJeux, onClose }) {
+  const [chargement, setChargement] = useState(true);
+  const [lignes, setLignes] = useState([]);
+
+  useEffect(() => {
+    if (!visible) return;
+    (async () => {
+      setChargement(true);
+      const { data: progressions } = await supabase
+        .from('progression')
+        .select('mini_jeu_id, palier_actuel')
+        .eq('profil_id', profil.id);
+      const progParId = Object.fromEntries((progressions ?? []).map((p) => [p.mini_jeu_id, p.palier_actuel]));
+
+      const items = miniJeux
+        .filter((j) => !j.est_bonus)
+        .map((j) => ({
+          code: j.code,
+          nom: j.nom,
+          niveau: progParId[j.id] ?? 1,
+        }))
+        .sort((a, b) => a.niveau - b.niveau);
+
+      setLignes(items);
+      setChargement(false);
+    })();
+  }, [visible, profil.id]);
+
+  function lireConseil() {
+    if (lignes.length === 0) return;
+    const pire = lignes[0];
+    const nomEnfant = speechFriendlyName(profil.prenom);
+    const message = lignes.length > 1 && lignes[0].niveau === lignes[1].niveau
+      ? `${nomEnfant}, essaie ${pire.nom} aujourd'hui, tu peux encore beaucoup y progresser !`
+      : `${nomEnfant}, tu es très fort dans plusieurs jeux ! Essaie ${pire.nom}, c'est celui où tu as le plus de progrès à faire.`;
+    speakSmart(message);
+  }
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent>
+      <View style={styles.modalBackdrop}>
+        <View style={[styles.modalCard, { maxHeight: '80%' }]}>
+          <Text style={styles.modalTitle}>🧭 Ma progression</Text>
+          <Pressable style={styles.listenButton} onPress={lireConseil}>
+            <Text style={styles.listenText}>🎤 Quel jeu essayer ?</Text>
+          </Pressable>
+
+          {chargement ? (
+            <ActivityIndicator size="large" color={colors.mossDeep} style={{ marginTop: 20 }} />
+          ) : (
+            <ScrollView style={{ marginTop: 12 }}>
+              {lignes.map((l, i) => {
+                const { emoji, couleur } = couleurNiveau(l.niveau);
+                const estLePire = i === 0;
+                return (
+                  <View
+                    key={l.code}
+                    style={{
+                      flexDirection: 'row', alignItems: 'center', gap: 10,
+                      paddingVertical: 8, paddingHorizontal: 10, borderRadius: 12, marginBottom: 6,
+                      backgroundColor: estLePire ? colors.gold + '33' : 'transparent',
+                      borderWidth: estLePire ? 2 : 0, borderColor: colors.gold,
+                    }}
+                  >
+                    <Text style={{ fontSize: 20 }}>{emoji}</Text>
+                    <Text style={{ flex: 1, fontWeight: '700', color: colors.ink }} numberOfLines={1}>
+                      {l.nom}
+                    </Text>
+                    <View style={{ flexDirection: 'row', gap: 1 }}>
+                      {Array.from({ length: 21 }).map((_, seg) => (
+                        <View
+                          key={seg}
+                          style={{
+                            width: 3, height: 14, borderRadius: 1,
+                            backgroundColor: seg < l.niveau ? couleur : 'rgba(0,0,0,0.1)',
+                          }}
+                        />
+                      ))}
+                    </View>
+                    {estLePire && <Text style={{ fontSize: 16 }}>👉</Text>}
+                  </View>
+                );
+              })}
+            </ScrollView>
+          )}
+
+          <Pressable style={[styles.button, { marginTop: 14 }]} onPress={onClose}>
+            <Text style={styles.buttonText}>Fermer</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 function WorldMapScreen({ route, navigation }) {
   const [profil, setProfil] = useState(route.params.profil);
   const [celebration, setCelebration] = useState(null);
   const [showAvatarInfo, setShowAvatarInfo] = useState(false);
   const [showRecompensesModal, setShowRecompensesModal] = useState(false);
+  const [showProgressionModal, setShowProgressionModal] = useState(false);
   const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
   // Minutes offertes en plus par un parent : partagees via le contexte pour
@@ -2880,6 +2987,9 @@ function WorldMapScreen({ route, navigation }) {
         <Pressable onPress={() => setShowRecompensesModal(true)}>
           <Text style={{ fontSize: 30 }}>🎁</Text>
         </Pressable>
+        <Pressable onPress={() => setShowProgressionModal(true)}>
+          <Text style={{ fontSize: 30 }}>🧭</Text>
+        </Pressable>
         {totalAllowed != null && (
           <TimeGaugeBar remainingSeconds={effectiveRemaining} totalSeconds={effectiveTotal} compact />
         )}
@@ -2951,6 +3061,12 @@ function WorldMapScreen({ route, navigation }) {
         visible={showRecompensesModal}
         profil={profil}
         onClose={() => setShowRecompensesModal(false)}
+      />
+      <MaProgressionModal
+        visible={showProgressionModal}
+        profil={profil}
+        miniJeux={miniJeux}
+        onClose={() => setShowProgressionModal(false)}
       />
     </ScrollView>
   );
