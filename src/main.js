@@ -4159,9 +4159,25 @@ function useNiveauSuperieurDetector(rung, miniJeuId, profilId) {
   return toastRung;
 }
 
-// Attribue 1 etoile par niveau gagne pour ce jeu, et verifie apres coup
-// si ca ouvre droit a une recompense parent (moyenne d'etoiles sur tous
-// les jeux joues >= 10).
+// Seuil de "droit a recompense parent" personnalise par enfant - retour
+// de Thierry : un chiffre fixe pour tous n'a pas de sens vu les ecarts de
+// rythme. Calcule une fois pour Jules et Emma a partir de leur vitesse de
+// progression calendaire reelle (niveaux gagnes par semaine depuis la
+// creation du profil), projetee sur 2 mois a raison de l'hypothese de 80
+// minutes de jeu par semaine - voir scripts/calcul-objectifs-etoiles-v2.js
+// pour le detail du calcul. Nouveau profil non liste ici = seuil par
+// defaut prudent de 10, a recalculer manuellement apres quelques semaines
+// de donnees.
+const SEUIL_RECOMPENSE_PAR_PROFIL = {
+  '24f80536-8adc-419f-b120-5ba932982388': 18, // Jules
+  '915613d3-f506-4a0f-ad6a-8b459ff33db5': 11, // Emma
+};
+const SEUIL_RECOMPENSE_DEFAUT = 10;
+
+function seuilRecompensePersonnalise(profilId) {
+  return SEUIL_RECOMPENSE_PAR_PROFIL[profilId] ?? SEUIL_RECOMPENSE_DEFAUT;
+}
+
 // Attribue 1 etoile par niveau gagne pour ce jeu - stockee directement
 // dans progression.details (deja un champ flexible existant, pas besoin
 // de nouvelle table). Le "droit a recompense parent" n'est jamais
@@ -4186,9 +4202,10 @@ async function attribuerEtoilesNiveau(profilId, miniJeuId, gain) {
   }
 }
 
-// Moyenne d'etoiles sur tous les jeux joues par ce profil - utilisee
-// pour savoir si le seuil de "droit a recompense parent" (10) est
-// atteint. Calculee a la volee, jamais stockee.
+// Moyenne d'etoiles sur tous les jeux joues par ce profil - comparee au
+// seuil personnalise (seuilRecompensePersonnalise) pour savoir si le
+// droit a recompense parent est atteint. Calculee a la volee, jamais
+// stockee.
 async function moyenneEtoilesProfil(profilId) {
   try {
     const { data } = await supabase
