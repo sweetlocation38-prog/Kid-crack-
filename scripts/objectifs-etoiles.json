@@ -1,0 +1,20 @@
+{
+  "Jules": {
+    "profilId": "24f80536-8adc-419f-b120-5ba932982388",
+    "totalNiveauxGagnesActuellement": 152,
+    "totalMinutesJoueesEstimees": 336,
+    "efficaciteNiveauxParMinute": 0.4528,
+    "minutesSurObjectif": 688,
+    "niveauxProjetesSur2Mois": 311.5,
+    "objectifEtoilesMoyennePersonnalise": 312
+  },
+  "Emma": {
+    "profilId": "915613d3-f506-4a0f-ad6a-8b459ff33db5",
+    "totalNiveauxGagnesActuellement": 41,
+    "totalMinutesJoueesEstimees": 196,
+    "efficaciteNiveauxParMinute": 0.2092,
+    "minutesSurObjectif": 688,
+    "niveauxProjetesSur2Mois": 143.9,
+    "objectifEtoilesMoyennePersonnalise": 144
+  }
+}
