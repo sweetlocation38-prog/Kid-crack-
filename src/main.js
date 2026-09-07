@@ -4042,34 +4042,44 @@ function useNiveauSuperieurDetector(rung, miniJeuId, profilId) {
 // Attribue 1 etoile par niveau gagne pour ce jeu, et verifie apres coup
 // si ca ouvre droit a une recompense parent (moyenne d'etoiles sur tous
 // les jeux joues >= 10).
+// Attribue 1 etoile par niveau gagne pour ce jeu - stockee directement
+// dans progression.details (deja un champ flexible existant, pas besoin
+// de nouvelle table). Le "droit a recompense parent" n'est jamais
+// stocke : il est recalcule a la volee partout ou c'est affiche (voir
+// moyenneEtoilesProfil), donc rien a synchroniser.
 async function attribuerEtoilesNiveau(profilId, miniJeuId, gain) {
   try {
     const { data: existant } = await supabase
-      .from('etoiles_niveaux')
-      .select('etoiles')
+      .from('progression')
+      .select('details')
       .eq('profil_id', profilId)
       .eq('mini_jeu_id', miniJeuId)
       .maybeSingle();
-    const nouveauTotal = (existant?.etoiles ?? 0) + gain;
-    await supabase.from('etoiles_niveaux').upsert(
-      { profil_id: profilId, mini_jeu_id: miniJeuId, etoiles: nouveauTotal },
-      { onConflict: 'profil_id,mini_jeu_id' }
-    );
-
-    const { data: toutesEtoiles } = await supabase
-      .from('etoiles_niveaux')
-      .select('etoiles')
-      .eq('profil_id', profilId);
-    if (toutesEtoiles && toutesEtoiles.length > 0) {
-      const moyenne = toutesEtoiles.reduce((s, e) => s + e.etoiles, 0) / toutesEtoiles.length;
-      if (moyenne >= 10) {
-        await supabase.from('profils_enfants')
-          .update({ recompense_parent_disponible: true })
-          .eq('id', profilId);
-      }
-    }
+    const details = existant?.details ?? {};
+    const nouveauTotal = (details.etoiles ?? 0) + gain;
+    await supabase.from('progression').upsert({
+      profil_id: profilId, mini_jeu_id: miniJeuId,
+      details: { ...details, etoiles: nouveauTotal },
+    }, { onConflict: 'profil_id,mini_jeu_id' });
   } catch (e) {
     // Non bloquant : la progression du jeu ne doit jamais dependre de ceci.
+  }
+}
+
+// Moyenne d'etoiles sur tous les jeux joues par ce profil - utilisee
+// pour savoir si le seuil de "droit a recompense parent" (10) est
+// atteint. Calculee a la volee, jamais stockee.
+async function moyenneEtoilesProfil(profilId) {
+  try {
+    const { data } = await supabase
+      .from('progression')
+      .select('details')
+      .eq('profil_id', profilId);
+    if (!data || data.length === 0) return 0;
+    const total = data.reduce((s, row) => s + (row.details?.etoiles ?? 0), 0);
+    return total / data.length;
+  } catch (e) {
+    return 0;
   }
 }
 
@@ -4965,6 +4975,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
   const [noContent, setNoContent] = useState(false);
   const [miniJeuId, setMiniJeuId] = useState(null);
   const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [round, setRound] = useState(1);
   const [promptData, setPromptData] = useState(null);
   const [optionsOrder, setOptionsOrder] = useState([]);
@@ -5382,6 +5393,9 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
         )}
         <Text style={styles.roundLabel}>{round}/{TOTAL_ROUNDS}</Text>
       </View>
+
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
 
       {perfectStreak > 0 && (
         <View style={styles.streakRow}>
