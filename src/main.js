@@ -11482,6 +11482,8 @@ function ReglagesParentauxScreen({ route, navigation }) {
   const [editNiveau, setEditNiveau] = useState('gs');
   const [progressionOuverte, setProgressionOuverte] = useState(null);
   const [progressionParProfil, setProgressionParProfil] = useState({});
+  const [recompenseStatutParProfil, setRecompenseStatutParProfil] = useState({});
+  const [themeOuvertParProfil, setThemeOuvertParProfil] = useState({});
   const [securityEditFor, setSecurityEditFor] = useState(null);
   const [securityChoices, setSecurityChoices] = useState([]);
 
@@ -11617,7 +11619,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
     if (!progressionParProfil[profilId]) {
       const [{ data: progRows }, { data: jeux }] = await Promise.all([
         supabase.from('progression').select('mini_jeu_id, palier_actuel').eq('profil_id', profilId),
-        supabase.from('mini_jeux').select('id, code, nom').order('nom'),
+        supabase.from('mini_jeux').select('id, code, nom, competence').order('nom'),
       ]);
       const jeuxById = Object.fromEntries((jeux ?? []).map((j) => [j.id, j]));
       const lignes = (progRows ?? [])
@@ -11628,6 +11630,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
           const note = Math.max(0, Math.min(10, Math.round((r.palier_actuel / max) * 10)));
           return {
             code: jeu.code, nom: jeu.nom, icon: GAME_ICONS[jeu.code] ?? '🎲', note,
+            competence: jeu.competence ?? 'autre',
             miniJeuId: r.mini_jeu_id, palier: r.palier_actuel, max,
           };
         })
@@ -11635,6 +11638,20 @@ function ReglagesParentauxScreen({ route, navigation }) {
         .sort((a, b) => a.nom.localeCompare(b.nom));
       setProgressionParProfil((prev) => ({ ...prev, [profilId]: lignes }));
     }
+    if (!recompenseStatutParProfil[profilId]) {
+      const moyenne = await moyenneEtoilesProfil(profilId);
+      const seuil = seuilRecompensePersonnalise(profilId);
+      setRecompenseStatutParProfil((prev) => ({
+        ...prev, [profilId]: { moyenne: Number(moyenne.toFixed(1)), seuil, atteint: moyenne >= seuil },
+      }));
+    }
+  }
+
+  function toggleTheme(profilId, competence) {
+    setThemeOuvertParProfil((prev) => {
+      const actuel = prev[profilId];
+      return { ...prev, [profilId]: actuel === competence ? null : competence };
+    });
   }
 
   async function adjustGamePalier(profilId, ligne, delta) {
@@ -11914,41 +11931,95 @@ function ReglagesParentauxScreen({ route, navigation }) {
 
               {progressionOuverte === p.id && (
                 <View style={styles.progressionPanel}>
+                  {recompenseStatutParProfil[p.id] && (
+                    <View style={{
+                      flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10,
+                      padding: 10, borderRadius: 10,
+                      backgroundColor: recompenseStatutParProfil[p.id].atteint ? colors.gold + '44' : 'rgba(0,0,0,0.04)',
+                    }}>
+                      <Text style={{ fontSize: 18 }}>{recompenseStatutParProfil[p.id].atteint ? '🎁' : '⭐'}</Text>
+                      <Text style={{ flex: 1, fontWeight: '700', color: colors.ink, fontSize: 13 }}>
+                        {recompenseStatutParProfil[p.id].atteint
+                          ? 'Droit à récompense disponible !'
+                          : `Moyenne d'étoiles : ${recompenseStatutParProfil[p.id].moyenne}/${recompenseStatutParProfil[p.id].seuil}`}
+                      </Text>
+                    </View>
+                  )}
                   {!progressionParProfil[p.id] ? (
                     <ActivityIndicator color={colors.mossDeep} />
                   ) : progressionParProfil[p.id].length === 0 ? (
                     <Text style={styles.memoEmptyText}>Ce profil n'a encore joué à aucun jeu.</Text>
                   ) : (
-                    progressionParProfil[p.id].map((ligne) => (
-                      <View key={ligne.code} style={styles.progressionRow}>
-                        <Text style={styles.progressionIcon}>{ligne.icon}</Text>
-                        <Text style={styles.progressionNom} numberOfLines={1}>{ligne.nom}</Text>
-                        <View style={styles.progressionGauge}>
-                          {Array.from({ length: 10 }).map((_, i) => (
-                            <View
-                              key={i}
-                              style={[
-                                styles.progressionSegment,
-                                i < ligne.note && styles.progressionSegmentFull,
-                              ]}
-                            />
-                          ))}
-                        </View>
-                        <Text style={styles.progressionNote}>{ligne.note}/10</Text>
-                        <Pressable
-                          style={styles.progressionAdjustBtn}
-                          onPress={() => adjustGamePalier(p.id, ligne, -1)}
-                        >
-                          <Text style={styles.progressionAdjustText}>−</Text>
-                        </Pressable>
-                        <Pressable
-                          style={styles.progressionAdjustBtn}
-                          onPress={() => adjustGamePalier(p.id, ligne, 1)}
-                        >
-                          <Text style={styles.progressionAdjustText}>+</Text>
-                        </Pressable>
-                      </View>
-                    ))
+                    Object.entries(
+                      progressionParProfil[p.id].reduce((groupes, ligne) => {
+                        (groupes[ligne.competence] ??= []).push(ligne);
+                        return groupes;
+                      }, {})
+                    )
+                      .sort((a, b) => a[0].localeCompare(b[0]))
+                      .map(([competence, lignesTheme]) => {
+                        const infoTheme = CONTINENTS.find((c) => c.competence === competence);
+                        const moyenneTheme = lignesTheme.reduce((s, l) => s + l.note, 0) / lignesTheme.length;
+                        const themeEstOuvert = themeOuvertParProfil[p.id] === competence;
+                        return (
+                          <View key={competence} style={{ marginBottom: 8 }}>
+                            <Pressable
+                              style={{
+                                flexDirection: 'row', alignItems: 'center', gap: 8,
+                                paddingVertical: 8, paddingHorizontal: 10, borderRadius: 10,
+                                backgroundColor: infoTheme?.bg ?? '#EEE',
+                              }}
+                              onPress={() => toggleTheme(p.id, competence)}
+                            >
+                              <Text style={{ fontSize: 18 }}>{infoTheme?.emoji ?? '🎲'}</Text>
+                              <Text style={{ flex: 1, fontWeight: '800', color: colors.ink }}>
+                                {infoTheme?.nom ?? competence}
+                              </Text>
+                              <View style={styles.progressionGauge}>
+                                {Array.from({ length: 10 }).map((_, i) => (
+                                  <View
+                                    key={i}
+                                    style={[styles.progressionSegment, i < Math.round(moyenneTheme) && styles.progressionSegmentFull]}
+                                  />
+                                ))}
+                              </View>
+                              <Text style={styles.progressionNote}>{moyenneTheme.toFixed(1)}/10</Text>
+                              <Text style={{ fontSize: 14 }}>{themeEstOuvert ? '▲' : '▼'}</Text>
+                            </Pressable>
+
+                            {themeEstOuvert && lignesTheme.map((ligne) => (
+                              <View key={ligne.code} style={styles.progressionRow}>
+                                <Text style={styles.progressionIcon}>{ligne.icon}</Text>
+                                <Text style={styles.progressionNom} numberOfLines={1}>{ligne.nom}</Text>
+                                <View style={styles.progressionGauge}>
+                                  {Array.from({ length: 10 }).map((_, i) => (
+                                    <View
+                                      key={i}
+                                      style={[
+                                        styles.progressionSegment,
+                                        i < ligne.note && styles.progressionSegmentFull,
+                                      ]}
+                                    />
+                                  ))}
+                                </View>
+                                <Text style={styles.progressionNote}>{ligne.note}/10</Text>
+                                <Pressable
+                                  style={styles.progressionAdjustBtn}
+                                  onPress={() => adjustGamePalier(p.id, ligne, -1)}
+                                >
+                                  <Text style={styles.progressionAdjustText}>−</Text>
+                                </Pressable>
+                                <Pressable
+                                  style={styles.progressionAdjustBtn}
+                                  onPress={() => adjustGamePalier(p.id, ligne, 1)}
+                                >
+                                  <Text style={styles.progressionAdjustText}>+</Text>
+                                </Pressable>
+                              </View>
+                            ))}
+                          </View>
+                        );
+                      })
                   )}
                 </View>
               )}
