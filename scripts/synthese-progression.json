@@ -43,7 +43,7 @@
         "nbSessionsJouees": 7,
         "etoiles": 0,
         "vitesseNiveauxParSession": 2.857,
-        "vitesseNiveauxParSemaine": 2.81,
+        "vitesseNiveauxParSemaine": 2.8,
         "derniereMaj": "2026-07-20T10:16:54.908142+00:00"
       },
       {
@@ -251,7 +251,7 @@
         "nbSessionsJouees": 0,
         "etoiles": 0,
         "vitesseNiveauxParSession": null,
-        "vitesseNiveauxParSemaine": 2.81,
+        "vitesseNiveauxParSemaine": 2.8,
         "derniereMaj": "2026-07-19T17:13:59.093865+00:00"
       }
     ]
