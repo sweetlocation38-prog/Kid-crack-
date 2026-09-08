@@ -11366,31 +11366,66 @@ function CoffreSouvenirsScreen({ route, navigation }) {
 }
 
 function RecompensesScreen({ route, navigation }) {
-  const { profil } = route.params;
+  const { profil: profilInitial } = route.params;
+  const [profil, setProfil] = useState(profilInitial);
   const [recompenses, setRecompenses] = useState([]);
+  const [miniJeux, setMiniJeux] = useState([]);
   const [loading, setLoading] = useState(true);
   const [niveauDeclencheur, setNiveauDeclencheur] = useState('');
   const [description, setDescription] = useState('');
   const [visibleAvant, setVisibleAvant] = useState(true);
+  const [porteeJeuId, setPorteeJeuId] = useState(null); // null = tous les jeux
+  const [showPorteePicker, setShowPorteePicker] = useState(false);
+  const [photoUri, setPhotoUri] = useState(null); // apercu local avant upload
+  const [etape1Actif, setEtape1Actif] = useState(true);
+  const [etape1Valeur, setEtape1Valeur] = useState('50');
+  const [etape2Actif, setEtape2Actif] = useState(true);
+  const [etape2Valeur, setEtape2Valeur] = useState('80');
   const [saving, setSaving] = useState(false);
+  const [togglingActif, setTogglingActif] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('recompenses_parentales')
-      .select('*')
-      .eq('profil_id', profil.id)
-      .order('niveau_declencheur');
+    const [{ data }, { data: jeux }] = await Promise.all([
+      supabase.from('recompenses_parentales').select('*').eq('profil_id', profilInitial.id).order('niveau_declencheur'),
+      supabase.from('mini_jeux').select('id, nom').eq('est_bonus', false).order('nom'),
+    ]);
     setRecompenses(data ?? []);
+    setMiniJeux(jeux ?? []);
     setLoading(false);
-  }, [profil.id]);
+  }, [profilInitial.id]);
 
   useEffect(() => { load(); }, [load]);
+
+  async function handleToggleActivees() {
+    const nouvelleValeur = !profil.recompenses_activees;
+    setTogglingActif(true);
+    await supabase.from('profils_enfants').update({ recompenses_activees: nouvelleValeur }).eq('id', profil.id);
+    setProfil((p) => ({ ...p, recompenses_activees: nouvelleValeur }));
+    setTogglingActif(false);
+  }
+
+  async function handleChoisirPhoto(source) {
+    const uri = source === 'camera' ? await pickImageFromCamera() : await pickImageFromLibrary();
+    if (uri) setPhotoUri(uri);
+  }
 
   async function handleAdd() {
     const niveau = parseInt(niveauDeclencheur, 10);
     if (!niveau || !description.trim()) return;
     setSaving(true);
+
+    let photo_url = null;
+    if (photoUri) {
+      const { url } = await uploadFileToStorage('recompenses-photos', `${profil.id}-${Date.now()}.jpg`, photoUri, 'image/jpeg');
+      photo_url = url;
+    }
+
+    const etapes = [];
+    if (etape1Actif && parseInt(etape1Valeur, 10) > 0) etapes.push(parseInt(etape1Valeur, 10));
+    if (etape2Actif && parseInt(etape2Valeur, 10) > 0) etapes.push(parseInt(etape2Valeur, 10));
+    etapes.sort((a, b) => a - b);
+
     await supabase.from('recompenses_parentales').insert({
       profil_id: profil.id,
       famille_id: profil.famille_id,
@@ -11398,9 +11433,19 @@ function RecompensesScreen({ route, navigation }) {
       description: description.trim(),
       visible_avant: visibleAvant,
       statut: 'a_faire',
+      mini_jeu_id: porteeJeuId,
+      photo_url,
+      etapes_annonce: etapes,
+      derniere_etape_annoncee: 0,
     });
     setNiveauDeclencheur('');
     setDescription('');
+    setPorteeJeuId(null);
+    setPhotoUri(null);
+    setEtape1Actif(true);
+    setEtape1Valeur('50');
+    setEtape2Actif(true);
+    setEtape2Valeur('80');
     setSaving(false);
     load();
   }
@@ -11410,12 +11455,28 @@ function RecompensesScreen({ route, navigation }) {
     load();
   }
 
+  const nomJeuPortee = porteeJeuId ? (miniJeux.find((j) => j.id === porteeJeuId)?.nom ?? '…') : 'Tous les jeux';
+
   return (
     <View style={styles.container}>
       <Pressable onPress={() => navigation.goBack()}>
         <Text style={styles.backLabel}>‹ Retour</Text>
       </Pressable>
       <Text style={styles.title}>🎁 Récompenses pour {profil.prenom}</Text>
+
+      <Pressable style={styles.row} onPress={handleToggleActivees} disabled={togglingActif}>
+        <View style={[styles.checkbox, profil.recompenses_activees && styles.checkboxChecked]}>
+          {profil.recompenses_activees ? <Text style={{ color: '#fff' }}>✓</Text> : null}
+        </View>
+        <Text style={{ color: colors.ink, fontWeight: '700' }}>
+          Activer les récompenses pour {profil.prenom}
+        </Text>
+      </Pressable>
+      {!profil.recompenses_activees && (
+        <Text style={[styles.emptyText, { textAlign: 'left', marginBottom: 10 }]}>
+          Désactivé : {profil.prenom} ne verra aucune annonce de cadeau, même si des récompenses sont configurées ci-dessous.
+        </Text>
+      )}
 
       <View style={styles.rewardForm}>
         <Text style={styles.label}>Niveau qui déclenche la récompense (1 à 1000)</Text>
@@ -11426,6 +11487,12 @@ function RecompensesScreen({ route, navigation }) {
           value={niveauDeclencheur}
           onChangeText={setNiveauDeclencheur}
         />
+
+        <Text style={styles.label}>Ce niveau est compté sur…</Text>
+        <Pressable style={styles.input} onPress={() => setShowPorteePicker(true)}>
+          <Text style={{ color: colors.ink }}>{nomJeuPortee}</Text>
+        </Pressable>
+
         <Text style={styles.label}>Description</Text>
         <TextInput
           style={styles.input}
@@ -11433,14 +11500,65 @@ function RecompensesScreen({ route, navigation }) {
           value={description}
           onChangeText={setDescription}
         />
+
+        <Text style={styles.label}>Photo du cadeau (optionnel)</Text>
+        {photoUri ? (
+          <Image source={{ uri: photoUri }} style={{ width: 80, height: 80, borderRadius: 12, marginBottom: 8 }} />
+        ) : null}
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 8 }}>
+          <Pressable style={[styles.button, { flex: 1, paddingVertical: 8 }]} onPress={() => handleChoisirPhoto('library')}>
+            <Text style={styles.buttonText}>🖼️ Galerie</Text>
+          </Pressable>
+          <Pressable style={[styles.button, { flex: 1, paddingVertical: 8 }]} onPress={() => handleChoisirPhoto('camera')}>
+            <Text style={styles.buttonText}>📷 Photo</Text>
+          </Pressable>
+        </View>
+
         <Pressable style={styles.row} onPress={() => setVisibleAvant(!visibleAvant)}>
           <View style={[styles.checkbox, visibleAvant && styles.checkboxChecked]}>
             {visibleAvant ? <Text style={{ color: '#fff' }}>✓</Text> : null}
           </View>
-          <Text style={{ color: colors.ink }}>Annoncer à l'avance (cadenas visible)</Text>
+          <Text style={{ color: colors.ink }}>Annoncer à l'avance (progression visible pour l'enfant)</Text>
         </Pressable>
+
+        {visibleAvant && (
+          <View style={{ marginTop: 6 }}>
+            <Text style={styles.label}>Étapes d'annonce avant le déblocage</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <Pressable onPress={() => setEtape1Actif(!etape1Actif)}>
+                <View style={[styles.checkbox, etape1Actif && styles.checkboxChecked]}>
+                  {etape1Actif ? <Text style={{ color: '#fff' }}>✓</Text> : null}
+                </View>
+              </Pressable>
+              <TextInput
+                style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                keyboardType="number-pad"
+                value={etape1Valeur}
+                onChangeText={setEtape1Valeur}
+                editable={etape1Actif}
+              />
+              <Text style={{ color: colors.ink }}>%</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Pressable onPress={() => setEtape2Actif(!etape2Actif)}>
+                <View style={[styles.checkbox, etape2Actif && styles.checkboxChecked]}>
+                  {etape2Actif ? <Text style={{ color: '#fff' }}>✓</Text> : null}
+                </View>
+              </Pressable>
+              <TextInput
+                style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                keyboardType="number-pad"
+                value={etape2Valeur}
+                onChangeText={setEtape2Valeur}
+                editable={etape2Actif}
+              />
+              <Text style={{ color: colors.ink }}>%</Text>
+            </View>
+          </View>
+        )}
+
         <Pressable
-          style={[styles.button, { opacity: saving ? 0.5 : 1 }]}
+          style={[styles.button, { opacity: saving ? 0.5 : 1, marginTop: 10 }]}
           onPress={handleAdd}
           disabled={saving}
         >
@@ -11457,12 +11575,17 @@ function RecompensesScreen({ route, navigation }) {
           style={{ marginTop: 16 }}
           renderItem={({ item }) => (
             <View style={styles.rewardRow}>
+              {item.photo_url ? (
+                <Image source={{ uri: item.photo_url }} style={{ width: 40, height: 40, borderRadius: 8, marginRight: 8 }} />
+              ) : null}
               <View style={{ flex: 1 }}>
                 <Text style={styles.rewardRowTitle}>
                   Niveau {item.niveau_declencheur} — {item.description}
                 </Text>
                 <Text style={styles.rewardRowSub}>
-                  {item.statut === 'fait' ? '✅ Débloquée' : item.visible_avant ? '🔒 Annoncée' : '🎁 Surprise'}
+                  {item.mini_jeu_id ? (miniJeux.find((j) => j.id === item.mini_jeu_id)?.nom ?? 'Un jeu') : 'Tous les jeux'}
+                  {'  ·  '}
+                  {item.statut === 'fait' ? '✅ Débloquée' : item.visible_avant ? `🔔 Annoncée (${(item.etapes_annonce ?? []).join('%, ')}%)` : '🎁 Surprise'}
                 </Text>
               </View>
               <Pressable onPress={() => handleDelete(item.id)}>
@@ -11473,6 +11596,36 @@ function RecompensesScreen({ route, navigation }) {
           ListEmptyComponent={<Text style={styles.emptyText}>Aucune récompense pour l'instant.</Text>}
         />
       )}
+
+      <Modal visible={showPorteePicker} animationType="slide" transparent>
+        <View style={styles.modalBackdrop}>
+          <View style={[styles.modalCard, { maxHeight: '70%' }]}>
+            <Text style={styles.modalTitle}>Compter le niveau sur…</Text>
+            <ScrollView>
+              <Pressable
+                style={styles.rewardRow}
+                onPress={() => { setPorteeJeuId(null); setShowPorteePicker(false); }}
+              >
+                <Text style={{ color: colors.ink, fontWeight: porteeJeuId === null ? '800' : '400' }}>
+                  Tous les jeux (niveau global)
+                </Text>
+              </Pressable>
+              {miniJeux.map((j) => (
+                <Pressable
+                  key={j.id}
+                  style={styles.rewardRow}
+                  onPress={() => { setPorteeJeuId(j.id); setShowPorteePicker(false); }}
+                >
+                  <Text style={{ color: colors.ink, fontWeight: porteeJeuId === j.id ? '800' : '400' }}>{j.nom}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+            <Pressable style={styles.button} onPress={() => setShowPorteePicker(false)}>
+              <Text style={styles.buttonText}>Fermer</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -11946,6 +12099,17 @@ function ReglagesParentauxScreen({ route, navigation }) {
               >
                 <Text style={{ fontSize: 18 }}>🔒</Text>
                 <Text style={{ fontWeight: '800', color: colors.mossDeep }}>Changer l'avatar secret de {p.prenom}</Text>
+              </Pressable>
+
+              <Pressable
+                style={{
+                  flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  backgroundColor: colors.gold + '33', borderRadius: 12, paddingVertical: 12, marginTop: 10,
+                }}
+                onPress={() => navigation.navigate('Recompenses', { profil: p })}
+              >
+                <Text style={{ fontSize: 18 }}>🎀</Text>
+                <Text style={{ fontWeight: '800', color: colors.ink }}>Récompenses de {p.prenom}</Text>
               </Pressable>
 
               {securityEditFor === p.id && (
