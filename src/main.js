@@ -11517,7 +11517,11 @@ function RecompensesScreen({ route, navigation }) {
 
   return (
     <>
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.cream }}
+      contentContainerStyle={{ padding: 18, paddingTop: 48, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
+    >
       <Pressable onPress={() => navigation.goBack()}>
         <Text style={styles.backLabel}>‹ Retour</Text>
       </Pressable>
