@@ -11425,24 +11425,34 @@ function RecompensesScreen({ route, navigation }) {
     return `${valeur} ${Math.abs(valeur) <= 1 ? singulier : pluriel}`;
   }
 
+  // Progression actuelle + vitesse hebdomadaire pour une portee donnee
+  // (jeu precis ou global) - reutilisee par le formulaire (avant meme de
+  // choisir un niveau declencheur) et par la liste des recompenses.
+  function statsPourPortee(miniJeuId) {
+    const info = miniJeuId ? statsParJeu[miniJeuId] : null;
+    const actuel = miniJeuId ? (info?.palier ?? 0) : (statsGlobal?.niveau ?? 0);
+    const premiereDate = miniJeuId ? info?.premiereSession : statsGlobal?.premierJour;
+    if (!premiereDate) return { actuel, semaines: null, vitesse: null };
+
+    const joursEcoules = Math.max(1, (Date.now() - new Date(premiereDate).getTime()) / (1000 * 60 * 60 * 24));
+    const semaines = Math.max(1, joursEcoules / 7);
+    const vitesse = actuel / semaines;
+    return { actuel, semaines, vitesse };
+  }
+
   // Calcule progression actuelle / vitesse hebdomadaire / semaines restantes
   // pour une recompense donnee, selon sa portee (un jeu precis ou global).
   // Pas d'historique jour par jour en base : la vitesse est une moyenne
   // depuis le premier jour joue (ou premiere session pour un jeu precis),
   // pas depuis la creation du profil qui peut preceder le premier jeu.
   function statsPourRecompense(item) {
-    const info = item.mini_jeu_id ? statsParJeu[item.mini_jeu_id] : null;
-    const actuel = item.mini_jeu_id ? (info?.palier ?? 0) : (statsGlobal?.niveau ?? 0);
-    const premiereDate = item.mini_jeu_id ? info?.premiereSession : statsGlobal?.premierJour;
-    if (!premiereDate) return { actuel, semaines: null, vitesse: null, semainesRestantes: null };
+    const { actuel, vitesse } = statsPourPortee(item.mini_jeu_id);
+    if (vitesse == null) return { actuel, semaines: null, vitesse: null, semainesRestantes: null };
 
-    const joursEcoules = Math.max(1, (Date.now() - new Date(premiereDate).getTime()) / (1000 * 60 * 60 * 24));
-    const semaines = Math.max(1, joursEcoules / 7);
-    const vitesse = actuel / semaines;
     const restant = item.niveau_declencheur - actuel;
     const semainesRestantes = vitesse > 0 && restant > 0 ? Math.ceil(restant / vitesse) : (restant <= 0 ? 0 : null);
 
-    return { actuel, semaines, vitesse, semainesRestantes };
+    return { actuel, vitesse, semainesRestantes };
   }
 
   async function handleToggleActivees() {
@@ -11527,6 +11537,29 @@ function RecompensesScreen({ route, navigation }) {
       )}
 
       <View style={styles.rewardForm}>
+        <Text style={styles.label}>Ce niveau est compté sur…</Text>
+        <Pressable style={styles.input} onPress={() => setShowPorteePicker(true)}>
+          <Text style={{ color: colors.ink }}>{nomJeuPortee}</Text>
+        </Pressable>
+
+        {(() => {
+          const apercu = statsPourPortee(porteeJeuId);
+          return (
+            <View style={{
+              backgroundColor: colors.mossSoft, borderRadius: 10, padding: 10, marginBottom: 12,
+            }}>
+              <Text style={{ color: colors.ink, fontWeight: '700' }}>
+                {profil.prenom} est actuellement au niveau {apercu.actuel}
+              </Text>
+              <Text style={{ color: colors.ink, marginTop: 2 }}>
+                {apercu.vitesse != null
+                  ? `Vitesse moyenne : ~${accorder(Math.round(apercu.vitesse * 10) / 10, 'niveau/semaine', 'niveaux/semaine')}`
+                  : "Pas encore de session jouée sur cette portée."}
+              </Text>
+            </View>
+          );
+        })()}
+
         <Text style={styles.label}>Niveau qui déclenche la récompense (1 à 1000)</Text>
         <TextInput
           style={styles.input}
@@ -11535,11 +11568,6 @@ function RecompensesScreen({ route, navigation }) {
           value={niveauDeclencheur}
           onChangeText={setNiveauDeclencheur}
         />
-
-        <Text style={styles.label}>Ce niveau est compté sur…</Text>
-        <Pressable style={styles.input} onPress={() => setShowPorteePicker(true)}>
-          <Text style={{ color: colors.ink }}>{nomJeuPortee}</Text>
-        </Pressable>
 
         <Text style={styles.label}>Description</Text>
         <TextInput
