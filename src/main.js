@@ -11383,19 +11383,67 @@ function RecompensesScreen({ route, navigation }) {
   const [etape2Valeur, setEtape2Valeur] = useState('80');
   const [saving, setSaving] = useState(false);
   const [togglingActif, setTogglingActif] = useState(false);
+  const [statsGlobal, setStatsGlobal] = useState(null); // { niveau, premierJour }
+  const [statsParJeu, setStatsParJeu] = useState({}); // { [mini_jeu_id]: { palier, premiereSession } }
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data }, { data: jeux }] = await Promise.all([
+    const [{ data }, { data: jeux }, { data: joursActifs }, { data: progressions }, { data: sessions }] = await Promise.all([
       supabase.from('recompenses_parentales').select('*').eq('profil_id', profilInitial.id).order('niveau_declencheur'),
       supabase.from('mini_jeux').select('id, nom').eq('est_bonus', false).order('nom'),
+      supabase.from('jours_actifs').select('date').eq('profil_id', profilInitial.id).order('date', { ascending: true }).limit(1),
+      supabase.from('progression').select('mini_jeu_id, palier_actuel').eq('profil_id', profilInitial.id),
+      supabase.from('sessions_jeu').select('mini_jeu_id, debut').eq('profil_id', profilInitial.id).order('debut', { ascending: true }),
     ]);
     setRecompenses(data ?? []);
     setMiniJeux(jeux ?? []);
+
+    setStatsGlobal({
+      niveau: profilInitial.niveau_global ?? 0,
+      premierJour: joursActifs?.[0]?.date ?? null,
+    });
+
+    const palierParJeu = Object.fromEntries((progressions ?? []).map((p) => [p.mini_jeu_id, p.palier_actuel]));
+    const premiereSessionParJeu = {};
+    (sessions ?? []).forEach((s) => {
+      if (!premiereSessionParJeu[s.mini_jeu_id]) premiereSessionParJeu[s.mini_jeu_id] = s.debut;
+    });
+    const stats = {};
+    Object.keys(palierParJeu).forEach((jeuId) => {
+      stats[jeuId] = { palier: palierParJeu[jeuId], premiereSession: premiereSessionParJeu[jeuId] ?? null };
+    });
+    setStatsParJeu(stats);
+
     setLoading(false);
-  }, [profilInitial.id]);
+  }, [profilInitial.id, profilInitial.niveau_global]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Accord singulier/pluriel simple pour l'affichage des stats de vitesse
+  // (ex. "1 niveau" vs "3 niveaux", "1 semaine" vs "2 semaines").
+  function accorder(valeur, singulier, pluriel) {
+    return `${valeur} ${Math.abs(valeur) <= 1 ? singulier : pluriel}`;
+  }
+
+  // Calcule progression actuelle / vitesse hebdomadaire / semaines restantes
+  // pour une recompense donnee, selon sa portee (un jeu precis ou global).
+  // Pas d'historique jour par jour en base : la vitesse est une moyenne
+  // depuis le premier jour joue (ou premiere session pour un jeu precis),
+  // pas depuis la creation du profil qui peut preceder le premier jeu.
+  function statsPourRecompense(item) {
+    const info = item.mini_jeu_id ? statsParJeu[item.mini_jeu_id] : null;
+    const actuel = item.mini_jeu_id ? (info?.palier ?? 0) : (statsGlobal?.niveau ?? 0);
+    const premiereDate = item.mini_jeu_id ? info?.premiereSession : statsGlobal?.premierJour;
+    if (!premiereDate) return { actuel, semaines: null, vitesse: null, semainesRestantes: null };
+
+    const joursEcoules = Math.max(1, (Date.now() - new Date(premiereDate).getTime()) / (1000 * 60 * 60 * 24));
+    const semaines = Math.max(1, joursEcoules / 7);
+    const vitesse = actuel / semaines;
+    const restant = item.niveau_declencheur - actuel;
+    const semainesRestantes = vitesse > 0 && restant > 0 ? Math.ceil(restant / vitesse) : (restant <= 0 ? 0 : null);
+
+    return { actuel, semaines, vitesse, semainesRestantes };
+  }
 
   async function handleToggleActivees() {
     const nouvelleValeur = !profil.recompenses_activees;
@@ -11573,7 +11621,9 @@ function RecompensesScreen({ route, navigation }) {
           data={recompenses}
           keyExtractor={(r) => r.id}
           style={{ marginTop: 16 }}
-          renderItem={({ item }) => (
+          renderItem={({ item }) => {
+            const stats = statsPourRecompense(item);
+            return (
             <View style={styles.rewardRow}>
               {item.photo_url ? (
                 <Image source={{ uri: item.photo_url }} style={{ width: 40, height: 40, borderRadius: 8, marginRight: 8 }} />
@@ -11587,12 +11637,27 @@ function RecompensesScreen({ route, navigation }) {
                   {'  ·  '}
                   {item.statut === 'fait' ? '✅ Débloquée' : item.visible_avant ? `🔔 Annoncée (${(item.etapes_annonce ?? []).join('%, ')}%)` : '🎁 Surprise'}
                 </Text>
+                {item.statut !== 'fait' && (
+                  <Text style={[styles.rewardRowSub, { marginTop: 4 }]}>
+                    Progression : {stats.actuel} / {item.niveau_declencheur}
+                    {stats.vitesse != null && (
+                      <>
+                        {'  ·  '}~{accorder(Math.round(stats.vitesse * 10) / 10, 'niveau/semaine', 'niveaux/semaine')}
+                        {stats.semainesRestantes != null && (
+                          <>{'  ·  '}~{accorder(stats.semainesRestantes, 'semaine restante', 'semaines restantes')}</>
+                        )}
+                      </>
+                    )}
+                    {stats.vitesse == null && '  ·  pas encore de session jouée'}
+                  </Text>
+                )}
               </View>
               <Pressable onPress={() => handleDelete(item.id)}>
                 <Text style={{ color: colors.error, fontWeight: '700' }}>Suppr.</Text>
               </Pressable>
             </View>
-          )}
+            );
+          }}
           ListEmptyComponent={<Text style={styles.emptyText}>Aucune récompense pour l'instant.</Text>}
         />
       )}
