@@ -11516,7 +11516,8 @@ function RecompensesScreen({ route, navigation }) {
   const nomJeuPortee = porteeJeuId ? (miniJeux.find((j) => j.id === porteeJeuId)?.nom ?? '…') : 'Tous les jeux';
 
   return (
-    <View style={styles.container}>
+    <>
+    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <Pressable onPress={() => navigation.goBack()}>
         <Text style={styles.backLabel}>‹ Retour</Text>
       </Pressable>
@@ -11644,15 +11645,14 @@ function RecompensesScreen({ route, navigation }) {
 
       {loading ? (
         <ActivityIndicator size="large" color={colors.mossDeep} style={{ marginTop: 20 }} />
+      ) : recompenses.length === 0 ? (
+        <Text style={styles.emptyText}>Aucune récompense pour l'instant.</Text>
       ) : (
-        <FlatList
-          data={recompenses}
-          keyExtractor={(r) => r.id}
-          style={{ marginTop: 16 }}
-          renderItem={({ item }) => {
+        <View style={{ marginTop: 16 }}>
+          {recompenses.map((item) => {
             const stats = statsPourRecompense(item);
             return (
-            <View style={styles.rewardRow}>
+            <View key={item.id} style={styles.rewardRow}>
               {item.photo_url ? (
                 <Image source={{ uri: item.photo_url }} style={{ width: 40, height: 40, borderRadius: 8, marginRight: 8 }} />
               ) : null}
@@ -11685,10 +11685,10 @@ function RecompensesScreen({ route, navigation }) {
               </Pressable>
             </View>
             );
-          }}
-          ListEmptyComponent={<Text style={styles.emptyText}>Aucune récompense pour l'instant.</Text>}
-        />
+          })}
+        </View>
       )}
+    </ScrollView>
 
       <Modal visible={showPorteePicker} animationType="slide" transparent>
         <View style={styles.modalBackdrop}>
@@ -11719,7 +11719,7 @@ function RecompensesScreen({ route, navigation }) {
           </View>
         </View>
       </Modal>
-    </View>
+    </>
   );
 }
 
