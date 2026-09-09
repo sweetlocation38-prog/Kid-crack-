@@ -13639,8 +13639,19 @@ function BouleQuiRouleScreen({ route, navigation }) {
     palierPrecisRef.current = palierPrecis;
 
     if (modeChoisi === 'chiffres') {
-      const etape = BOULE_ETAPES_CONTENU[etapeContenuRef.current - 1] ?? BOULE_ETAPES_CONTENU[0];
-      const { valeur, enonce } = genererCibleEtapeContenu(etape);
+      let valeur;
+      let enonce;
+      try {
+        const indexEtape = Math.max(0, Math.min(BOULE_ETAPES_CONTENU.length - 1, (Number(etapeContenuRef.current) || 1) - 1));
+        const resultat = genererCibleEtapeContenu(BOULE_ETAPES_CONTENU[indexEtape]);
+        valeur = resultat.valeur;
+        enonce = resultat.enonce;
+      } catch (e) {
+        // Repli sur un simple nombre si la generation par etape echoue
+        // pour une raison quelconque : la partie doit toujours pouvoir demarrer.
+        valeur = 1 + Math.floor(Math.random() * 10);
+        enonce = null;
+      }
       cibleEnAttenteRef.current = { valeur, enonce, annonce: false };
       setChiffreAffiche(valeur); // affiche des le debut, pas seulement au premier passage de la boucle
       setEnonceAffiche(enonce ?? '');
@@ -13687,9 +13698,17 @@ function BouleQuiRouleScreen({ route, navigation }) {
     const nouveauRung = Math.min(MAX_CONTENT_RUNG, (rungJeu ?? 1) + 1);
     tentativesEchoueesRef.current = 0;
     setRungJeu(nouveauRung);
-    if (mode === 'chiffres') {
-      etapeContenuRef.current = Math.min(BOULE_ETAPES_CONTENU.length, etapeContenuRef.current + 1);
-      if (profil && miniJeuId) sauvegarderEtapeContenuBoule(profil.id, miniJeuId, etapeContenuRef.current);
+    try {
+      if (mode === 'chiffres') {
+        const actuelle = Number(etapeContenuRef.current) || 1;
+        etapeContenuRef.current = Math.min(BOULE_ETAPES_CONTENU.length, actuelle + 1);
+        if (profil?.id && miniJeuId) {
+          sauvegarderEtapeContenuBoule(profil.id, miniJeuId, etapeContenuRef.current);
+        }
+      }
+    } catch (e) {
+      // Non bloquant : le passage au niveau suivant ne doit jamais
+      // dependre de la sauvegarde de l'etape de contenu.
     }
     if (profil && miniJeuId) {
       supabase.from('progression').upsert(
@@ -13845,8 +13864,17 @@ function BouleQuiRouleScreen({ route, navigation }) {
               const { enonce, resultat } = genererCalcul(reglage);
               cibleEnAttenteRef.current = { valeur: resultat, enonce, annonce: false };
             } else {
-              const etape = BOULE_ETAPES_CONTENU[etapeContenuRef.current - 1] ?? BOULE_ETAPES_CONTENU[0];
-              const { valeur, enonce } = genererCibleEtapeContenu(etape);
+              let valeur;
+              let enonce;
+              try {
+                const indexEtape = Math.max(0, Math.min(BOULE_ETAPES_CONTENU.length - 1, (Number(etapeContenuRef.current) || 1) - 1));
+                const resultat = genererCibleEtapeContenu(BOULE_ETAPES_CONTENU[indexEtape]);
+                valeur = resultat.valeur;
+                enonce = resultat.enonce;
+              } catch (e) {
+                valeur = 1 + Math.floor(Math.random() * 10);
+                enonce = null;
+              }
               cibleEnAttenteRef.current = { valeur, enonce, annonce: false };
             }
             if (cibleEnAttenteRef.current) {
