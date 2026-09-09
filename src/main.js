@@ -4204,6 +4204,29 @@ function seuilRecompensePersonnalise(profilId) {
   return SEUIL_RECOMPENSE_PAR_PROFIL[profilId] ?? SEUIL_RECOMPENSE_DEFAUT;
 }
 
+// Sauvegarde l'etape de CONTENU de La Boule qui Roule (voir
+// BOULE_ETAPES_CONTENU) - meme pattern read-modify-write que
+// attribuerEtoilesNiveau, pour ne pas ecraser d'autres cles deja
+// presentes dans details. La valeur a ecrire est deja connue cote
+// client (etapeContenuRef), on ne fait que la sauvegarder ici.
+async function sauvegarderEtapeContenuBoule(profilId, miniJeuId, nouvelleEtape) {
+  try {
+    const { data: existant } = await supabase
+      .from('progression')
+      .select('details')
+      .eq('profil_id', profilId)
+      .eq('mini_jeu_id', miniJeuId)
+      .maybeSingle();
+    const details = existant?.details ?? {};
+    await supabase.from('progression').upsert({
+      profil_id: profilId, mini_jeu_id: miniJeuId,
+      details: { ...details, boule_etape_contenu: nouvelleEtape },
+    }, { onConflict: 'profil_id,mini_jeu_id' });
+  } catch (e) {
+    // Non bloquant : la partie continue meme si la sauvegarde echoue.
+  }
+}
+
 // Attribue 1 etoile par niveau gagne pour ce jeu - stockee directement
 // dans progression.details (deja un champ flexible existant, pas besoin
 // de nouvelle table). Le "droit a recompense parent" n'est jamais
@@ -12495,6 +12518,63 @@ const BOULE_REGLAGES_AGE = {
   ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvanceMoyenne: 105, tempsReactionCible: 8, intervalleDiversMs: 450, piegeRatio: 0.32, pieceRatio: 0.3, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5], distracteurCoutePV: true, nbLeurresParCible: 4 },
 };
 
+// Etapes de CONTENU du mode "chiffres" - independantes de la vitesse/
+// difficulte (rung). Avance d'un cran a chaque niveau reussi (voir
+// passerNiveauSuivant), donc suit la maitrise reelle de l'enfant et pas
+// son niveau scolaire : d'abord des plages de nombres croissantes, puis
+// une fois maitrisees, les 4 operations dans l'ordre (addition,
+// soustraction, multiplication, division), chacune de plus en plus
+// grande. Retour de Thierry : plus jamais bloque a repeter les memes
+// petits chiffres une fois qu'ils sont acquis.
+const BOULE_ETAPES_CONTENU = [
+  { type: 'nombre', min: 1, max: 10 },
+  { type: 'nombre', min: 5, max: 20 },
+  { type: 'nombre', min: 10, max: 40 },
+  { type: 'nombre', min: 30, max: 70 },
+  { type: 'nombre', min: 60, max: 120 },
+  { type: 'nombre', min: 100, max: 200 },
+  { type: 'nombre', min: 150, max: 300 },
+  { type: 'addition', min: 1, max: 5 },
+  { type: 'addition', min: 5, max: 15 },
+  { type: 'soustraction', min: 1, max: 10 },
+  { type: 'soustraction', min: 5, max: 20 },
+  { type: 'multiplication', min: 2, max: 5 },
+  { type: 'multiplication', min: 2, max: 10 },
+  { type: 'division', min: 2, max: 5 },
+  { type: 'division', min: 2, max: 10 },
+];
+
+// Genere la prochaine cible pour l'etape de contenu donnee - soit un
+// simple nombre a trouver, soit un petit calcul dont il faut trouver le
+// resultat (ex. "4 + 4", cible reelle = 8).
+function genererCibleEtapeContenu(etape) {
+  const rand = (n) => Math.floor(Math.random() * n);
+  const { type, min, max } = etape;
+  if (type === 'nombre') {
+    const valeur = min + rand(max - min + 1);
+    return { valeur, enonce: null };
+  }
+  if (type === 'addition') {
+    const a = min + rand(max - min + 1);
+    const b = min + rand(max - min + 1);
+    return { valeur: a + b, enonce: `${a} + ${b}` };
+  }
+  if (type === 'soustraction') {
+    const a = min + rand(max - min + 1);
+    const b = 1 + rand(a); // toujours <= a, resultat jamais negatif
+    return { valeur: a - b, enonce: `${a} - ${b}` };
+  }
+  if (type === 'multiplication') {
+    const table = min + rand(max - min + 1); // la "table" (2 a 5, puis 2 a 10)
+    const facteur = 1 + rand(10);
+    return { valeur: table * facteur, enonce: `${table} × ${facteur}` };
+  }
+  // division : toujours exacte (pas de reste), diviseur dans la plage de l'etape
+  const diviseur = min + rand(max - min + 1);
+  const quotient = 1 + rand(10);
+  return { valeur: quotient, enonce: `${diviseur * quotient} ÷ ${diviseur}` };
+}
+
 // Quota de pauses degressif : 50% du nombre d'objets a recolter en tout
 // debut d'echelle, jusqu'a 0% des l'entree en CM1 (et au-dela).
 function ratioPausesPourRung(rung) {
@@ -13396,9 +13476,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const blocageJusquaRef = useRef(0); // timestamp : piege "malus" actif jusqu'a (bloque cible/pieces)
 
   // Generateurs de contenu "sans fin" (remplacent l'ancienne liste figee).
-  const compteurChiffreRef = useRef(0); // prochain nombre a demander, mode chiffres
+  const etapeContenuRef = useRef(1); // etape de contenu (nombres puis operations) - propre a l'enfant, sauvegardee
   const cibleEnAttenteRef = useRef(null); // { valeur, enonce? } - item pas encore attrape, redemande tel quel tant qu'il n'est pas reussi
-  const pasChiffreRef = useRef(1);
   const lettresQueueRef = useRef([]); // { valeur, estDebutMot, motParle }
   const fetchingLettresRef = useRef(false);
   const palierPrecisRef = useRef(1);
@@ -13435,11 +13514,12 @@ function BouleQuiRouleScreen({ route, navigation }) {
         try {
           const { data: prog } = await supabase
             .from('progression')
-            .select('palier_actuel')
+            .select('palier_actuel, details')
             .eq('profil_id', profil.id)
             .eq('mini_jeu_id', jeuId)
             .maybeSingle();
           if (prog?.palier_actuel) startRung = prog.palier_actuel;
+          if (prog?.details?.boule_etape_contenu) etapeContenuRef.current = prog.details.boule_etape_contenu;
         } catch (e) {
           // Non bloquant : on part du niveau scolaire par defaut.
         }
@@ -13559,15 +13639,19 @@ function BouleQuiRouleScreen({ route, navigation }) {
     palierPrecisRef.current = palierPrecis;
 
     if (modeChoisi === 'chiffres') {
-      pasChiffreRef.current = c.pasPossibles[Math.floor(Math.random() * c.pasPossibles.length)];
-      compteurChiffreRef.current = pasChiffreRef.current === 1 ? 1 + Math.floor(Math.random() * 3) : pasChiffreRef.current;
-      setChiffreAffiche(compteurChiffreRef.current); // affiche des le debut, pas seulement au premier passage de la boucle
+      const etape = BOULE_ETAPES_CONTENU[etapeContenuRef.current - 1] ?? BOULE_ETAPES_CONTENU[0];
+      const { valeur, enonce } = genererCibleEtapeContenu(etape);
+      cibleEnAttenteRef.current = { valeur, enonce, annonce: false };
+      setChiffreAffiche(valeur); // affiche des le debut, pas seulement au premier passage de la boucle
+      setEnonceAffiche(enonce ?? '');
     } else if (modeChoisi === 'lettres') {
       lettresQueueRef.current = [];
       await assurerQueueLettres(c);
       setChiffreAffiche(lettresQueueRef.current[0]?.valeur ?? null); // affiche des le debut, comme pour les chiffres
+      setEnonceAffiche('');
     } else {
       setChiffreAffiche(null);
+      setEnonceAffiche('');
     }
 
     setStreakActuelle(0);
@@ -13580,7 +13664,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
     setPausesUtilisees(0);
     setMessage(null);
     setIsPaused(false);
-    setEnonceAffiche('');
     nextIdRef.current = 1000;
     prochainSpawnDiversRef.current = Date.now() + 600;
     setChargement(false);
@@ -13604,6 +13687,10 @@ function BouleQuiRouleScreen({ route, navigation }) {
     const nouveauRung = Math.min(MAX_CONTENT_RUNG, (rungJeu ?? 1) + 1);
     tentativesEchoueesRef.current = 0;
     setRungJeu(nouveauRung);
+    if (mode === 'chiffres') {
+      etapeContenuRef.current = Math.min(BOULE_ETAPES_CONTENU.length, etapeContenuRef.current + 1);
+      if (profil && miniJeuId) sauvegarderEtapeContenuBoule(profil.id, miniJeuId, etapeContenuRef.current);
+    }
     if (profil && miniJeuId) {
       supabase.from('progression').upsert(
         { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: nouveauRung },
@@ -13758,11 +13845,16 @@ function BouleQuiRouleScreen({ route, navigation }) {
               const { enonce, resultat } = genererCalcul(reglage);
               cibleEnAttenteRef.current = { valeur: resultat, enonce, annonce: false };
             } else {
-              cibleEnAttenteRef.current = { valeur: compteurChiffreRef.current, annonce: false };
+              const etape = BOULE_ETAPES_CONTENU[etapeContenuRef.current - 1] ?? BOULE_ETAPES_CONTENU[0];
+              const { valeur, enonce } = genererCibleEtapeContenu(etape);
+              cibleEnAttenteRef.current = { valeur, enonce, annonce: false };
             }
             if (cibleEnAttenteRef.current) {
-              if (mode === 'calculs') setEnonceAffiche(cibleEnAttenteRef.current.enonce);
-              else setChiffreAffiche(cibleEnAttenteRef.current.valeur);
+              if (mode === 'calculs' || (mode === 'chiffres' && cibleEnAttenteRef.current.enonce)) {
+                setEnonceAffiche(cibleEnAttenteRef.current.enonce);
+              }
+              setChiffreAffiche(cibleEnAttenteRef.current.valeur);
+              if (mode === 'chiffres' && !cibleEnAttenteRef.current.enonce) setEnonceAffiche('');
             }
           }
 
@@ -13859,7 +13951,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   if (mode === 'lettres') speakPhonemeOuTexte(o.valeur);
                   declencherEffet(o.x, true);
                   // Reussi : on avance vers l'item SUIVANT (jamais avant).
-                  if (mode === 'chiffres') compteurChiffreRef.current += pasChiffreRef.current;
                   cibleEnAttenteRef.current = null;
                   setStreakActuelle((prevStreak) => {
                     const nouveau = prevStreak + 1;
@@ -14048,7 +14139,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
     return { relative, p, y };
   }
 
-  const affichageCible = mode === 'calculs' ? `${enonceAffiche} = ?` : `Cherche : ${chiffreAffiche ?? ''}`;
+  const affichageCible = (mode === 'calculs' || (mode === 'chiffres' && enonceAffiche))
+    ? `${enonceAffiche} = ?`
+    : `Cherche : ${chiffreAffiche ?? ''}`;
 
   const objetsVisibles = objets
     .map((o) => ({ ...o, pos: positionEcran(o.distance) }))
