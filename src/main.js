@@ -11751,8 +11751,91 @@ function RecompensesScreen({ route, navigation }) {
 }
 
 // ============================================================
-// Écran parent : réglages (temps de jeu quotidien, code PIN)
+// Écran parent : ajuster manuellement le niveau (palier) de
+// chaque jeu, un par un - utile quand la progression est trop
+// inégale d'un jeu à l'autre pour un meme enfant. Reutilise
+// l'echelle de rung deja existante partout (1 a MAX_CONTENT_RUNG),
+// rien de nouveau a inventer, juste un controle manuel dessus.
 // ============================================================
+function AjusterNiveauxScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const [lignes, setLignes] = useState([]); // { mini_jeu_id, nom, competence, niveau, saisie }
+  const [loading, setLoading] = useState(true);
+  const [savingId, setSavingId] = useState(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const [{ data: jeux }, { data: progressions }] = await Promise.all([
+      supabase.from('mini_jeux').select('id, code, nom, competence').eq('est_bonus', false).order('competence').order('nom'),
+      supabase.from('progression').select('mini_jeu_id, palier_actuel').eq('profil_id', profil.id),
+    ]);
+    const palierParJeu = Object.fromEntries((progressions ?? []).map((p) => [p.mini_jeu_id, p.palier_actuel]));
+    setLignes((jeux ?? []).map((j) => {
+      const niveau = palierParJeu[j.id] ?? 1;
+      return { mini_jeu_id: j.id, code: j.code, nom: j.nom, competence: j.competence, niveau, saisie: String(niveau) };
+    }));
+    setLoading(false);
+  }, [profil.id]);
+
+  useEffect(() => { load(); }, [load]);
+
+  function changerSaisie(miniJeuId, texte) {
+    setLignes((prev) => prev.map((l) => (l.mini_jeu_id === miniJeuId ? { ...l, saisie: texte } : l)));
+  }
+
+  async function valider(ligne) {
+    const valeur = Math.max(1, Math.min(MAX_CONTENT_RUNG, parseInt(ligne.saisie, 10) || ligne.niveau));
+    setSavingId(ligne.mini_jeu_id);
+    await supabase.from('progression').upsert(
+      { profil_id: profil.id, mini_jeu_id: ligne.mini_jeu_id, palier_actuel: valeur },
+      { onConflict: 'profil_id,mini_jeu_id' }
+    );
+    setLignes((prev) => prev.map((l) => (l.mini_jeu_id === ligne.mini_jeu_id ? { ...l, niveau: valeur, saisie: String(valeur) } : l)));
+    setSavingId(null);
+  }
+
+  return (
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.cream }}
+      contentContainerStyle={{ padding: 18, paddingTop: 48, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <Pressable onPress={() => navigation.goBack()}>
+        <Text style={styles.backLabel}>‹ Retour</Text>
+      </Pressable>
+      <Text style={styles.title}>🎚️ Niveaux des jeux de {profil.prenom}</Text>
+      <Text style={[styles.emptyText, { textAlign: 'left', marginBottom: 14 }]}>
+        Niveau de 1 à {MAX_CONTENT_RUNG}, jeu par jeu. À utiliser si la progression est trop inégale d'un jeu à l'autre.
+      </Text>
+
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.mossDeep} style={{ marginTop: 20 }} />
+      ) : (
+        lignes.map((ligne) => (
+          <View key={ligne.mini_jeu_id} style={[styles.rewardRow, { alignItems: 'center' }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rewardRowTitle}>{GAME_ICONS[ligne.code] ?? ''} {ligne.nom}</Text>
+              <Text style={styles.rewardRowSub}>Niveau actuel : {ligne.niveau} / {MAX_CONTENT_RUNG}</Text>
+            </View>
+            <TextInput
+              style={[styles.input, { width: 60, marginBottom: 0, textAlign: 'center' }]}
+              keyboardType="number-pad"
+              value={ligne.saisie}
+              onChangeText={(t) => changerSaisie(ligne.mini_jeu_id, t)}
+            />
+            <Pressable
+              style={[styles.button, { paddingVertical: 8, paddingHorizontal: 12, marginLeft: 8, opacity: savingId === ligne.mini_jeu_id ? 0.5 : 1 }]}
+              onPress={() => valider(ligne)}
+              disabled={savingId === ligne.mini_jeu_id}
+            >
+              <Text style={styles.buttonText}>OK</Text>
+            </Pressable>
+          </View>
+        ))
+      )}
+    </ScrollView>
+  );
+}
 const MINUTES_STEP = 5;
 const MINUTES_MIN = 5;
 const MINUTES_MAX = 120;
@@ -12230,6 +12313,17 @@ function ReglagesParentauxScreen({ route, navigation }) {
               >
                 <Text style={{ fontSize: 18 }}>🎀</Text>
                 <Text style={{ fontWeight: '800', color: colors.ink }}>Récompenses de {p.prenom}</Text>
+              </Pressable>
+
+              <Pressable
+                style={{
+                  flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  backgroundColor: colors.mossSoft, borderRadius: 12, paddingVertical: 12, marginTop: 10,
+                }}
+                onPress={() => navigation.navigate('AjusterNiveaux', { profil: p })}
+              >
+                <Text style={{ fontSize: 18 }}>🎚️</Text>
+                <Text style={{ fontWeight: '800', color: colors.mossDeep }}>Niveaux des jeux de {p.prenom}</Text>
               </Pressable>
 
               {securityEditFor === p.id && (
@@ -14400,6 +14494,7 @@ export default function RootNavigator() {
             <Stack.Screen name="MotsFleches" component={MotsFlechesScreen} />
             <Stack.Screen name="MotMystere" component={MotMystereScreen} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
+            <Stack.Screen name="AjusterNiveaux" component={AjusterNiveauxScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
           </>
         )}
