@@ -12756,7 +12756,10 @@ async function chargerMotPontDesLettres(niveau, palierValue) {
 }
 
 function genererLeurre(valeurCible, mode) {
-  if (mode === 'chiffres' || mode === 'calculs') {
+  // En mode mixte, la cible peut etre un nombre OU une lettre au meme
+  // niveau de jeu : on decide selon le type reel de la valeur, pas
+  // seulement selon le mode general de la partie.
+  if (typeof valeurCible === 'number') {
     const delta = 1 + Math.floor(Math.random() * 3);
     const candidat = valeurCible + (Math.random() < 0.5 ? -delta : delta);
     return Math.max(0, candidat === valeurCible ? candidat + 1 : candidat);
@@ -13712,13 +13715,19 @@ function BouleQuiRouleScreen({ route, navigation }) {
   // Remplit (en tache de fond, sans bloquer) la reserve de lettres a
   // venir - chaque nouveau mot est prononce au moment ou sa premiere
   // lettre apparaitra reellement (pas a l'avance).
-  async function assurerQueueLettres(c) {
+  async function assurerQueueLettres(c, rungActuel) {
     if (fetchingLettresRef.current || lettresQueueRef.current.length >= 3) return;
     fetchingLettresRef.current = true;
     try {
-      const contenu = await chargerMotPontDesLettres(c.niveauContenu, palierPrecisRef.current);
+      // Le vrai grade scolaire vient du rung (echelle continue, 8 grades),
+      // pas de c.niveauContenu qui ne connait que 3 buckets fixes figes
+      // au demarrage - meme bug que celui deja corrige pour les nombres :
+      // sans ca, les mots ne suivent plus la progression au-dela du
+      // bucket de depart.
+      const { niveau: gradeActuel } = gradeAndPalierFromRung(rungActuel ?? 1);
+      const contenu = await chargerMotPontDesLettres(gradeActuel, palierPrecisRef.current);
       const sequenceMot = contenu?.sequence ?? ['C', 'H', 'A', 'T'];
-      const motParle = joinSequenceForSpeech(sequenceMot, c.niveauContenu);
+      const motParle = joinSequenceForSpeech(sequenceMot, gradeActuel);
       lettresQueueRef.current = [
         ...lettresQueueRef.current,
         ...sequenceMot.map((lettre, i) => ({ valeur: lettre, estDebutMot: i === 0, motParle: i === 0 ? motParle : null })),
@@ -13768,9 +13777,30 @@ function BouleQuiRouleScreen({ route, navigation }) {
       setEnonceAffiche(enonce ?? '');
     } else if (modeChoisi === 'lettres') {
       lettresQueueRef.current = [];
-      await assurerQueueLettres(c);
+      await assurerQueueLettres(c, rung);
       setChiffreAffiche(lettresQueueRef.current[0]?.valeur ?? null); // affiche des le debut, comme pour les chiffres
       setEnonceAffiche('');
+    } else if (modeChoisi === 'mixte') {
+      lettresQueueRef.current = [];
+      if (Math.random() < 0.5) {
+        await assurerQueueLettres(c, rung);
+        setChiffreAffiche(lettresQueueRef.current[0]?.valeur ?? null);
+        setEnonceAffiche('');
+      } else {
+        let valeur;
+        let enonce;
+        try {
+          const resultat = genererCibleEtapeContenu(etapeContenuPourRung(rung));
+          valeur = resultat.valeur;
+          enonce = resultat.enonce;
+        } catch (e) {
+          valeur = 1 + Math.floor(Math.random() * 10);
+          enonce = null;
+        }
+        cibleEnAttenteRef.current = { valeur, enonce, annonce: false };
+        setChiffreAffiche(valeur);
+        setEnonceAffiche(enonce ?? '');
+      }
     } else {
       setChiffreAffiche(null);
       setEnonceAffiche('');
@@ -13961,11 +13991,33 @@ function BouleQuiRouleScreen({ route, navigation }) {
               if (lettresQueueRef.current.length > 0) {
                 const item = lettresQueueRef.current.shift();
                 cibleEnAttenteRef.current = { valeur: item.valeur, motParle: item.estDebutMot ? item.motParle : null, annonce: false };
-                if (lettresQueueRef.current.length < 3) assurerQueueLettres(c);
+                if (lettresQueueRef.current.length < 3) assurerQueueLettres(c, rungJeu);
               }
             } else if (mode === 'calculs') {
               const { enonce, resultat } = genererCalcul(reglage);
               cibleEnAttenteRef.current = { valeur: resultat, enonce, annonce: false };
+            } else if (mode === 'mixte') {
+              if (lettresQueueRef.current.length > 0) {
+                // Termine le mot en cours avant de re-tirer au sort pour le suivant.
+                const item = lettresQueueRef.current.shift();
+                cibleEnAttenteRef.current = { valeur: item.valeur, motParle: item.estDebutMot ? item.motParle : null, annonce: false };
+              } else if (Math.random() < 0.5) {
+                // Tire un nouveau mot - peut prendre un instant le temps du
+                // chargement, un chiffre pourra etre tire au tick suivant.
+                assurerQueueLettres(c, rungJeu);
+              } else {
+                let valeur;
+                let enonce;
+                try {
+                  const resultat = genererCibleEtapeContenu(etapeContenuPourRung(rungJeu));
+                  valeur = resultat.valeur;
+                  enonce = resultat.enonce;
+                } catch (e) {
+                  valeur = 1 + Math.floor(Math.random() * 10);
+                  enonce = null;
+                }
+                cibleEnAttenteRef.current = { valeur, enonce, annonce: false };
+              }
             } else {
               let valeur;
               let enonce;
@@ -13980,11 +14032,11 @@ function BouleQuiRouleScreen({ route, navigation }) {
               cibleEnAttenteRef.current = { valeur, enonce, annonce: false };
             }
             if (cibleEnAttenteRef.current) {
-              if (mode === 'calculs' || (mode === 'chiffres' && cibleEnAttenteRef.current.enonce)) {
+              if (mode === 'calculs' || ((mode === 'chiffres' || mode === 'mixte') && cibleEnAttenteRef.current.enonce)) {
                 setEnonceAffiche(cibleEnAttenteRef.current.enonce);
               }
               setChiffreAffiche(cibleEnAttenteRef.current.valeur);
-              if (mode === 'chiffres' && !cibleEnAttenteRef.current.enonce) setEnonceAffiche('');
+              if ((mode === 'chiffres' || mode === 'mixte') && !cibleEnAttenteRef.current.enonce) setEnonceAffiche('');
               // Nouvelle cible : petite pause pour laisser le temps de la
               // lire, rien ne tombe ni n'avance pendant ce court instant.
               pauseLectureJusquaRef.current = maintenant + dureeLecturePourRung(rungJeu);
@@ -14012,7 +14064,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
               const en = cibleEnAttenteRef.current;
               if (!en.annonce) {
                 if (en.motParle) speakSmart(en.motParle);
-                else if (mode === 'chiffres') speakSmart(`Cherche le nombre ${en.valeur}`);
+                else if ((mode === 'chiffres' || mode === 'mixte') && typeof en.valeur === 'number') speakSmart(`Cherche le nombre ${en.valeur}`);
                 en.annonce = true;
               }
               liste = [...liste, {
@@ -14080,8 +14132,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
                 if (atteint && !estBloque) {
                   maybePlayMemo(memosConfig.current, 'bonne_reponse');
                   setScore((s) => s + 1);
-                  setMessage({ texte: mode === 'lettres' ? `Bravo, "${o.valeur}" !` : `Bravo, ${o.valeur} !`, ok: true });
-                  if (mode === 'lettres') speakPhonemeOuTexte(o.valeur);
+                  const estUneLettre = typeof o.valeur === 'string';
+                  setMessage({ texte: estUneLettre ? `Bravo, "${o.valeur}" !` : `Bravo, ${o.valeur} !`, ok: true });
+                  if (estUneLettre) speakPhonemeOuTexte(o.valeur);
                   declencherEffet(o.x, true);
                   // Reussi : on avance vers l'item SUIVANT (jamais avant).
                   cibleEnAttenteRef.current = null;
@@ -14199,6 +14252,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
         <Pressable style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => demarrerNouvellePartie(reglage, 'calculs')}>
           <Text style={styles.buttonText}>➕ Un calcul (résultat)</Text>
         </Pressable>
+        <Pressable style={[styles.button, { width: 240, marginTop: 10 }]} onPress={() => demarrerNouvellePartie(reglage, 'mixte')}>
+          <Text style={styles.buttonText}>🔤🔢 Un mélange des deux</Text>
+        </Pressable>
       </View>
     );
   }
@@ -14278,7 +14334,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
     return { relative, p, y };
   }
 
-  const affichageCible = (mode === 'calculs' || (mode === 'chiffres' && enonceAffiche))
+  const affichageCible = (mode === 'calculs' || ((mode === 'chiffres' || mode === 'mixte') && enonceAffiche))
     ? `${enonceAffiche} = ?`
     : `Cherche : ${chiffreAffiche ?? ''}`;
 
