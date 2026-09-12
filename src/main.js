@@ -12574,6 +12574,15 @@ const BOULE_VIES_DEPART = 3;
 const BOULE_NIVEAUX_PAR_PARTIE = 5; // au-dela, ecran de fin de partie plutot qu'un enchainement infini de niveaux
 const BOULE_VARIATION_VITESSE = 0.15; // vitesse tiree aleatoirement entre -15% et +15% de la moyenne, a chaque trajet
 
+// Rampe de vitesse en debut de niveau : chaque niveau correspond a un
+// nouveau palier de contenu (nombres ou operation), donc on demarre plus
+// doucement (60% de la vitesse cible) puis on remonte progressivement
+// vitesse pleine a mesure que l'enfant reussit dans CE niveau - le temps
+// de s'habituer aux nouveaux nombres avant que la vitesse ne redevienne
+// exigeante. Retour de Thierry : tout augmenter d'un coup a chaque
+// palier est trop stressant.
+const BOULE_RAMPE_VITESSE_MIN = 0.6;
+
 // Temps de reaction voulu (secondes) avant qu'une lettre/un chiffre a
 // collecter n'arrive a hauteur du joueur, une fois le precedent resolu -
 // volontairement genereux, surtout pour les CM1-CM2 (mots/phrases plus
@@ -13562,6 +13571,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   isPausedRef.current = isPaused;
   const ballXNormRef = useRef(0.5);
   const vitesseAvanceRef = useRef(50); // vitesse "de base" du niveau (fixee au demarrage)
+  const facteurVitesseRef = useRef(1); // petite variation aleatoire fixee au demarrage du niveau, reutilisee par la rampe
   const ralentiJusquaRef = useRef(0); // timestamp : effet "ralentissement" (bonus 30 pieces) actif jusqu'a
   const blocageJusquaRef = useRef(0); // timestamp : piege "malus" actif jusqu'a (bloque cible/pieces)
 
@@ -13718,7 +13728,11 @@ function BouleQuiRouleScreen({ route, navigation }) {
     setFinNiveau(null);
     const c = { ...BOULE_REGLAGES_AGE[cleAge], ...calculerDifficulteDepuisRung(rung) };
     const facteurVitesse = 1 + (Math.random() * 2 - 1) * BOULE_VARIATION_VITESSE;
-    vitesseAvanceRef.current = c.vitesseAvanceMoyenne * facteurVitesse;
+    facteurVitesseRef.current = facteurVitesse;
+    // Demarre en douceur (rampe) : la vitesse pleine ne sera atteinte
+    // qu'apres plusieurs reussites dans ce niveau (voir setStreakActuelle
+    // plus bas), pas des le premier objet.
+    vitesseAvanceRef.current = c.vitesseAvanceMoyenne * facteurVitesse * BOULE_RAMPE_VITESSE_MIN;
     ralentiJusquaRef.current = 0; // le bonus de ralentissement ne survit pas a un nouveau niveau
     blocageJusquaRef.current = 0;
     cibleEnAttenteRef.current = null;
@@ -14056,6 +14070,12 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   cibleEnAttenteRef.current = null;
                   setStreakActuelle((prevStreak) => {
                     const nouveau = prevStreak + 1;
+                    // Rampe : la vitesse remonte progressivement vers sa
+                    // cible a mesure que l'enfant reussit dans CE niveau,
+                    // au lieu d'etre a fond des le premier objet.
+                    const progressionRampe = Math.min(1, nouveau / Math.max(1, conf.objectifStreak - 1));
+                    const facteurRampe = BOULE_RAMPE_VITESSE_MIN + (1 - BOULE_RAMPE_VITESSE_MIN) * progressionRampe;
+                    vitesseAvanceRef.current = conf.vitesseAvanceMoyenne * facteurVitesseRef.current * facteurRampe;
                     if (nouveau >= c.objectifStreak) {
                       niveauxCompletesRef.current += 1;
                       setNiveauxCompletesAffiche(niveauxCompletesRef.current);
