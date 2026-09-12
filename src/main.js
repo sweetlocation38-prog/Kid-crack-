@@ -14401,15 +14401,32 @@ function BouleQuiRouleScreen({ route, navigation }) {
           const estPiegeQuelconque = o.type === 'piege' || o.type === 'piege_mortel' || o.type === 'piege_malus';
           const taille = estPiegeQuelconque ? BOULE_PIEGE_TAILLE : BOULE_ITEM_TAILLE_BASE;
           const estLettreOuChiffre = o.type === 'cible' || o.type === 'distracteur';
-          if (estLettreOuChiffre) {
+          if (estLettreOuChiffre || estPiegeQuelconque) {
             // Le cercle correspond a la vraie zone de contact (pas juste
-            // decoratif) : aide l'enfant a voir precisement ou viser.
+            // decoratif) : aide l'enfant a voir precisement ou viser -
+            // et sa couleur dit d'un coup d'oeil s'il faut foncer dessus
+            // ou l'eviter (retour de Thierry : difficile de juger la
+            // zone de contact, notamment pour les rochers).
             const diametreZone = BOULE_RAYON_COLLISION * 2 * pisteLargeur;
+            const couleurZone = estPiegeQuelconque ? '#E24C4C' : o.type === 'distracteur' ? '#E8A23D' : '#3DAA5C';
+            if (!estLettreOuChiffre) {
+              return (
+                <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, alignItems: 'center', justifyContent: 'center' }}>
+                  <View style={{
+                    position: 'absolute', width: diametreZone, height: diametreZone, borderRadius: diametreZone / 2,
+                    borderWidth: 3, borderColor: couleurZone, opacity: 0.85,
+                  }} />
+                  <Text style={{ fontSize: taille * 0.75 }}>
+                    {o.type === 'piege' ? '🪨' : o.type === 'piege_mortel' ? '💀' : '🌀'}
+                  </Text>
+                </View>
+              );
+            }
             return (
               <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, width: taille, height: taille, alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{
                   position: 'absolute', width: diametreZone, height: diametreZone, borderRadius: diametreZone / 2,
-                  borderWidth: 3, borderColor: colors.mossDeep, opacity: 0.85,
+                  borderWidth: 3, borderColor: couleurZone, opacity: 0.85,
                 }} />
                 <Text
                   style={{
@@ -14428,20 +14445,26 @@ function BouleQuiRouleScreen({ route, navigation }) {
           }
           return (
             <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, alignItems: 'center', justifyContent: 'center' }}>
-              {o.type === 'piece' && (
-                <View style={{
-                  position: 'absolute', width: taille, height: taille, borderRadius: taille / 2,
-                  backgroundColor: '#fff', borderWidth: 2.5, borderColor: colors.gold,
-                }} />
-              )}
-              <Text style={{ fontSize: taille * (estPiegeQuelconque ? 0.75 : 0.5) }}>
-                {o.type === 'piege' ? '🪨' : o.type === 'piege_mortel' ? '💀' : o.type === 'piege_malus' ? '🌀' : '🪙'}
-              </Text>
+              <View style={{
+                position: 'absolute', width: taille, height: taille, borderRadius: taille / 2,
+                backgroundColor: '#fff', borderWidth: 2.5, borderColor: colors.gold,
+              }} />
+              <Text style={{ fontSize: taille * 0.5 }}>🪙</Text>
             </View>
           );
         })}
 
         <View style={{ position: 'absolute', left: ballScreenX - BOULE_TAILLE / 2, top: joueurY - BOULE_TAILLE / 2, width: BOULE_TAILLE, height: BOULE_TAILLE, alignItems: 'center', justifyContent: 'center' }}>
+          {/* Anneau de la vraie zone de contact de l'avatar (son propre
+              rayon compte dans le calcul de collision, voir seuilCollision) -
+              des que cet anneau touche celui d'un objet qui tombe, c'est un
+              contact reel, sinon on peut passer a cote sans risque. */}
+          <View
+            style={{
+              position: 'absolute', width: BOULE_TAILLE + 6, height: BOULE_TAILLE + 6, borderRadius: (BOULE_TAILLE + 6) / 2,
+              borderWidth: 3, borderColor: '#2FA9E8', opacity: 0.9,
+            }}
+          />
           {boucliers > 0 && (
             <View
               style={{
