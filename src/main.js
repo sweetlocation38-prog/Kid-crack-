@@ -12689,6 +12689,15 @@ function interp(rung, maxRung, debut, fin) {
   return debut + (fin - debut) * t;
 }
 
+// Duree (en ms) de la petite pause de lecture juste apres un changement
+// de cible : 0,5s pour un simple chiffre en debut de progression, jusqu'a
+// 2s pour les operations les plus avancees - retour de Thierry : laisser
+// le temps de regarder ce qu'il faut trouver sans risquer de se faire
+// toucher par un piege pendant ce court instant.
+function dureeLecturePourRung(rung) {
+  return interp(rung, MAX_CONTENT_RUNG, 500, 2000);
+}
+
 // Difficulte CONTINUE en fonction du rang exact de l'enfant (et non plus
 // seulement de 3 paliers figes) - retour de Thierry : avec seulement 3
 // paliers, un enfant avance (comme Valerie, dont le rang calibre depasse
@@ -13573,6 +13582,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const vitesseAvanceRef = useRef(50); // vitesse "de base" du niveau (fixee au demarrage)
   const facteurVitesseRef = useRef(1); // petite variation aleatoire fixee au demarrage du niveau, reutilisee par la rampe
   const ralentiJusquaRef = useRef(0); // timestamp : effet "ralentissement" (bonus 30 pieces) actif jusqu'a
+  const pauseLectureJusquaRef = useRef(0); // timestamp : petite pause (rien ne tombe/n'avance) juste apres un changement de cible, pour laisser le temps de lire
   const blocageJusquaRef = useRef(0); // timestamp : piege "malus" actif jusqu'a (bloque cible/pieces)
 
   // Generateurs de contenu "sans fin" (remplacent l'ancienne liste figee).
@@ -13765,6 +13775,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
       setChiffreAffiche(null);
       setEnonceAffiche('');
     }
+    // Premiere cible du niveau : meme petite pause de lecture que pour
+    // les suivantes, avant que quoi que ce soit ne commence a tomber.
+    pauseLectureJusquaRef.current = Date.now() + dureeLecturePourRung(rung);
 
     setStreakActuelle(0);
     setObjets([]);
@@ -13917,7 +13930,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
       const estCM2 = rungJeu != null && rungJeu >= rungFromGradeAndPalier('cm2', 1);
 
       setDistanceParcourue((prevDist) => {
-        const vitesseEffective = vitesseAvanceRef.current * (Date.now() < ralentiJusquaRef.current ? 0.8 : 1);
+        const enPauseLecture = Date.now() < pauseLectureJusquaRef.current;
+        const vitesseEffective = enPauseLecture ? 0 : vitesseAvanceRef.current * (Date.now() < ralentiJusquaRef.current ? 0.8 : 1);
         const nouvelleDistance = prevDist + vitesseEffective * dt;
         // Vraie zone de capture = rayon du cercle visible autour de l'item
         // + rayon de l'AVATAR lui-meme (pas juste son centre, un point
@@ -13971,6 +13985,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
               }
               setChiffreAffiche(cibleEnAttenteRef.current.valeur);
               if (mode === 'chiffres' && !cibleEnAttenteRef.current.enonce) setEnonceAffiche('');
+              // Nouvelle cible : petite pause pour laisser le temps de la
+              // lire, rien ne tombe ni n'avance pendant ce court instant.
+              pauseLectureJusquaRef.current = maintenant + dureeLecturePourRung(rungJeu);
             }
           }
 
@@ -13980,7 +13997,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
           // "paquet" - retour de Thierry : c'etait le vrai probleme, pas
           // la position. Position et vitesse totalement libres, sans
           // contrainte de voie/couloir.
-          if (maintenant >= prochainSpawnDiversRef.current) {
+          if (!enPauseLecture && maintenant >= prochainSpawnDiversRef.current) {
             prochainSpawnDiversRef.current = maintenant + c.intervalleDiversMs * (0.4 + Math.random() * 1.2);
             const aUneCibleEnVol = liste.some((o) => o.type === 'cible');
             const peutSpawnerCible = !aUneCibleEnVol && cibleEnAttenteRef.current != null;
