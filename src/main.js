@@ -4204,29 +4204,6 @@ function seuilRecompensePersonnalise(profilId) {
   return SEUIL_RECOMPENSE_PAR_PROFIL[profilId] ?? SEUIL_RECOMPENSE_DEFAUT;
 }
 
-// Sauvegarde l'etape de CONTENU de La Boule qui Roule (voir
-// BOULE_ETAPES_CONTENU) - meme pattern read-modify-write que
-// attribuerEtoilesNiveau, pour ne pas ecraser d'autres cles deja
-// presentes dans details. La valeur a ecrire est deja connue cote
-// client (etapeContenuRef), on ne fait que la sauvegarder ici.
-async function sauvegarderEtapeContenuBoule(profilId, miniJeuId, nouvelleEtape) {
-  try {
-    const { data: existant } = await supabase
-      .from('progression')
-      .select('details')
-      .eq('profil_id', profilId)
-      .eq('mini_jeu_id', miniJeuId)
-      .maybeSingle();
-    const details = existant?.details ?? {};
-    await supabase.from('progression').upsert({
-      profil_id: profilId, mini_jeu_id: miniJeuId,
-      details: { ...details, boule_etape_contenu: nouvelleEtape },
-    }, { onConflict: 'profil_id,mini_jeu_id' });
-  } catch (e) {
-    // Non bloquant : la partie continue meme si la sauvegarde echoue.
-  }
-}
-
 // Attribue 1 etoile par niveau gagne pour ce jeu - stockee directement
 // dans progression.details (deja un champ flexible existant, pas besoin
 // de nouvelle table). Le "droit a recompense parent" n'est jamais
@@ -12612,31 +12589,50 @@ const BOULE_REGLAGES_AGE = {
   ce2_cm2: { label: 'CE2-CM2 (8-11 ans)', niveauContenu: 'ce2', vitesseAvanceMoyenne: 105, tempsReactionCible: 8, intervalleDiversMs: 450, piegeRatio: 0.32, pieceRatio: 0.3, vitesseSupplPiege: [50, 90], pasPossibles: [2, 3, 5], distracteurCoutePV: true, nbLeurresParCible: 4 },
 };
 
-// Etapes de CONTENU du mode "chiffres" - independantes de la vitesse/
-// difficulte (rung). Avance d'un cran a chaque niveau reussi (voir
-// passerNiveauSuivant), donc suit la maitrise reelle de l'enfant et pas
-// son niveau scolaire : d'abord des plages de nombres croissantes, puis
-// une fois maitrisees, les 4 operations dans l'ordre (addition,
-// soustraction, multiplication, division), chacune de plus en plus
-// grande. Retour de Thierry : plus jamais bloque a repeter les memes
-// petits chiffres une fois qu'ils sont acquis.
+// Etapes de CONTENU du mode "chiffres" - alignees directement sur le
+// niveau (rung, 1 a MAX_CONTENT_RUNG) : le palier N donne l'etape N.
+// Ainsi, augmenter le niveau (a la main dans les reglages, ou en
+// jouant) fait evoluer les DEUX a la fois : la vitesse (deja geree par
+// calculerDifficulteDepuisRung) ET les nombres/operations demandes -
+// plus de niveau qui "n'a l'air de rien changer". Des tranches non
+// chevauchantes d'abord (1-10, 11-20, ...), avec des sauts plus grands
+// ensuite, puis les 4 operations dans l'ordre, du plus simple au plus
+// complexe.
 const BOULE_ETAPES_CONTENU = [
   { type: 'nombre', min: 1, max: 10 },
-  { type: 'nombre', min: 5, max: 20 },
-  { type: 'nombre', min: 10, max: 40 },
-  { type: 'nombre', min: 30, max: 70 },
-  { type: 'nombre', min: 60, max: 120 },
-  { type: 'nombre', min: 100, max: 200 },
-  { type: 'nombre', min: 150, max: 300 },
+  { type: 'nombre', min: 11, max: 20 },
+  { type: 'nombre', min: 21, max: 30 },
+  { type: 'nombre', min: 31, max: 40 },
+  { type: 'nombre', min: 41, max: 50 },
+  { type: 'nombre', min: 50, max: 70 },
+  { type: 'nombre', min: 70, max: 100 },
+  { type: 'nombre', min: 100, max: 150 },
+  { type: 'nombre', min: 150, max: 200 },
+  { type: 'nombre', min: 200, max: 300 },
   { type: 'addition', min: 1, max: 5 },
   { type: 'addition', min: 5, max: 15 },
+  { type: 'addition', min: 10, max: 30 },
   { type: 'soustraction', min: 1, max: 10 },
   { type: 'soustraction', min: 5, max: 20 },
-  { type: 'multiplication', min: 2, max: 5 },
-  { type: 'multiplication', min: 2, max: 10 },
-  { type: 'division', min: 2, max: 5 },
-  { type: 'division', min: 2, max: 10 },
+  { type: 'soustraction', min: 10, max: 50 },
+  { type: 'multiplication', min: 2, max: 5, facteurMax: 10 },
+  { type: 'multiplication', min: 2, max: 10, facteurMax: 10 },
+  { type: 'multiplication', min: 2, max: 12, facteurMax: 12 },
+  { type: 'division', min: 2, max: 5, quotientMax: 10 },
+  { type: 'division', min: 2, max: 10, quotientMax: 10 },
+  { type: 'division', min: 2, max: 12, quotientMax: 12 },
+  { type: 'division', min: 2, max: 12, quotientMax: 15 },
+  { type: 'division', min: 2, max: 12, quotientMax: 20 },
 ];
+
+// Le rung (niveau, 1 a MAX_CONTENT_RUNG) donne directement l'etape de
+// contenu correspondante - voir BOULE_ETAPES_CONTENU. Augmenter le
+// niveau (a la main ou en jouant) fait donc toujours evoluer les
+// nombres/operations, jamais juste la vitesse.
+function etapeContenuPourRung(rung) {
+  const index = Math.max(0, Math.min(BOULE_ETAPES_CONTENU.length - 1, (Number(rung) || 1) - 1));
+  return BOULE_ETAPES_CONTENU[index];
+}
 
 // Genere la prochaine cible pour l'etape de contenu donnee - soit un
 // simple nombre a trouver, soit un petit calcul dont il faut trouver le
@@ -12659,13 +12655,13 @@ function genererCibleEtapeContenu(etape) {
     return { valeur: a - b, enonce: `${a} - ${b}` };
   }
   if (type === 'multiplication') {
-    const table = min + rand(max - min + 1); // la "table" (2 a 5, puis 2 a 10)
-    const facteur = 1 + rand(10);
+    const table = min + rand(max - min + 1); // la "table" (2 a 5, puis 2 a 10, 2 a 12)
+    const facteur = 1 + rand(etape.facteurMax ?? 10);
     return { valeur: table * facteur, enonce: `${table} × ${facteur}` };
   }
   // division : toujours exacte (pas de reste), diviseur dans la plage de l'etape
   const diviseur = min + rand(max - min + 1);
-  const quotient = 1 + rand(10);
+  const quotient = 1 + rand(etape.quotientMax ?? 10);
   return { valeur: quotient, enonce: `${diviseur * quotient} ÷ ${diviseur}` };
 }
 
@@ -13570,7 +13566,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const blocageJusquaRef = useRef(0); // timestamp : piege "malus" actif jusqu'a (bloque cible/pieces)
 
   // Generateurs de contenu "sans fin" (remplacent l'ancienne liste figee).
-  const etapeContenuRef = useRef(1); // etape de contenu (nombres puis operations) - propre a l'enfant, sauvegardee
   const cibleEnAttenteRef = useRef(null); // { valeur, enonce? } - item pas encore attrape, redemande tel quel tant qu'il n'est pas reussi
   const lettresQueueRef = useRef([]); // { valeur, estDebutMot, motParle }
   const fetchingLettresRef = useRef(false);
@@ -13608,12 +13603,11 @@ function BouleQuiRouleScreen({ route, navigation }) {
         try {
           const { data: prog } = await supabase
             .from('progression')
-            .select('palier_actuel, details')
+            .select('palier_actuel')
             .eq('profil_id', profil.id)
             .eq('mini_jeu_id', jeuId)
             .maybeSingle();
           if (prog?.palier_actuel) startRung = prog.palier_actuel;
-          if (prog?.details?.boule_etape_contenu) etapeContenuRef.current = prog.details.boule_etape_contenu;
         } catch (e) {
           // Non bloquant : on part du niveau scolaire par defaut.
         }
@@ -13736,8 +13730,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
       let valeur;
       let enonce;
       try {
-        const indexEtape = Math.max(0, Math.min(BOULE_ETAPES_CONTENU.length - 1, (Number(etapeContenuRef.current) || 1) - 1));
-        const resultat = genererCibleEtapeContenu(BOULE_ETAPES_CONTENU[indexEtape]);
+        const resultat = genererCibleEtapeContenu(etapeContenuPourRung(rung));
         valeur = resultat.valeur;
         enonce = resultat.enonce;
       } catch (e) {
@@ -13792,18 +13785,6 @@ function BouleQuiRouleScreen({ route, navigation }) {
     const nouveauRung = Math.min(MAX_CONTENT_RUNG, (rungJeu ?? 1) + 1);
     tentativesEchoueesRef.current = 0;
     setRungJeu(nouveauRung);
-    try {
-      if (mode === 'chiffres') {
-        const actuelle = Number(etapeContenuRef.current) || 1;
-        etapeContenuRef.current = Math.min(BOULE_ETAPES_CONTENU.length, actuelle + 1);
-        if (profil?.id && miniJeuId) {
-          sauvegarderEtapeContenuBoule(profil.id, miniJeuId, etapeContenuRef.current);
-        }
-      }
-    } catch (e) {
-      // Non bloquant : le passage au niveau suivant ne doit jamais
-      // dependre de la sauvegarde de l'etape de contenu.
-    }
     if (profil && miniJeuId) {
       supabase.from('progression').upsert(
         { profil_id: profil.id, mini_jeu_id: miniJeuId, palier_actuel: nouveauRung },
@@ -13961,8 +13942,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
               let valeur;
               let enonce;
               try {
-                const indexEtape = Math.max(0, Math.min(BOULE_ETAPES_CONTENU.length - 1, (Number(etapeContenuRef.current) || 1) - 1));
-                const resultat = genererCibleEtapeContenu(BOULE_ETAPES_CONTENU[indexEtape]);
+                const resultat = genererCibleEtapeContenu(etapeContenuPourRung(rungJeu));
                 valeur = resultat.valeur;
                 enonce = resultat.enonce;
               } catch (e) {
@@ -14275,16 +14255,21 @@ function BouleQuiRouleScreen({ route, navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: 6 }}>
       <View onLayout={(e) => setHeaderHauteur(e.nativeEvent.layout.height)}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14, flexWrap: 'wrap', rowGap: 4, minHeight: 40 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14, minHeight: 32 }}>
           <Pressable onPress={() => { setReglage(null); setPret(false); setFinNiveau(null); }}>
             <Text style={[styles.backLabel, { fontSize: 13 }]}>‹ Retour</Text>
           </Pressable>
-          <Text style={{ fontWeight: '900', color: colors.mossDeep, fontSize: 26, flexShrink: 1, textAlign: 'center' }}>
-            {affichageCible ?? ' '}
-          </Text>
-          <Text style={{ fontWeight: '800', fontSize: 18, flexShrink: 1 }}>
+          <Text style={{ fontWeight: '800', fontSize: 18 }}>
             <Text style={{ color: colors.gold }}>★ {score} 🪙{nbPieces}{boucliers > 0 ? ` 🛡️${boucliers}` : ''}</Text>
             <Text style={{ color: colors.error }}>  {'❤️'.repeat(vies)}</Text>
+          </Text>
+        </View>
+        <View style={{
+          alignSelf: 'center', backgroundColor: colors.mossDeep, borderRadius: 16,
+          paddingHorizontal: 22, paddingVertical: 6, marginTop: 4, marginBottom: 2,
+        }}>
+          <Text style={{ fontWeight: '900', color: '#fff', fontSize: 32, textAlign: 'center' }} numberOfLines={1} adjustsFontSizeToFit>
+            {affichageCible ?? ' '}
           </Text>
         </View>
         <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '700', color: colors.ink, opacity: 0.75, marginTop: 3 }}>
@@ -14335,9 +14320,13 @@ function BouleQuiRouleScreen({ route, navigation }) {
                 }} />
                 <Text
                   style={{
-                    fontSize: taille * 0.62, fontWeight: '900', color: colors.mossDeep,
+                    fontSize: taille * (String(o.valeur).length <= 1 ? 0.62 : String(o.valeur).length === 2 ? 0.48 : 0.36),
+                    fontWeight: '900', color: colors.mossDeep, width: taille * 0.86, textAlign: 'center',
                     textShadowColor: '#fff', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 6,
                   }}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.5}
                 >
                   {o.valeur}
                 </Text>
