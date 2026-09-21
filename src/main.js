@@ -13357,6 +13357,16 @@ function MotMystereScreen({ route, navigation }) {
     setSessionDone(true);
   }
 
+  // Grille suivante directement (niveau qui vient d'etre calcule dans
+  // sessionSummary), sans repasser par l'ecran de choix du jeu - meme
+  // logique que les autres jeux (ex. proceedToNextRound du Memory).
+  async function proceedToNextGrille() {
+    setSessionDone(false);
+    setRung(sessionSummary.newRung);
+    await chargerGrille(miniJeuId, sessionSummary.newRung);
+    startedAt.current = Date.now();
+  }
+
   // Calcule la ligne droite entre deux cases (si elle existe) : meme
   // ligne, meme colonne, ou diagonale exacte. Retourne la liste des
   // cases traversees, dans l'ordre du debut vers la fin.
@@ -13430,7 +13440,7 @@ function MotMystereScreen({ route, navigation }) {
         profil={profil}
         summary={sessionSummary}
         navigation={navigation}
-        onContinue={() => navigation.goBack()}
+        onContinue={proceedToNextGrille}
       />
     );
   }
