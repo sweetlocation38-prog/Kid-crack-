@@ -2805,14 +2805,15 @@ function MaProgressionModal({ visible, profil, miniJeux, onClose, onSelectGame }
     if (!visible) return;
     (async () => {
       setChargement(true);
-      const { data: progressions } = await supabase
-        .from('progression')
-        .select('mini_jeu_id, palier_actuel')
-        .eq('profil_id', profil.id);
+      const [{ data: progressions }, { data: debloques }] = await Promise.all([
+        supabase.from('progression').select('mini_jeu_id, palier_actuel').eq('profil_id', profil.id),
+        supabase.from('bonus_debloques').select('zone_competence').eq('profil_id', profil.id),
+      ]);
       const progParId = Object.fromEntries((progressions ?? []).map((p) => [p.mini_jeu_id, p.palier_actuel]));
+      const zonesDebloquees = new Set((debloques ?? []).map((d) => d.zone_competence));
 
       const items = miniJeux
-        .filter((j) => !j.est_bonus)
+        .filter((j) => !j.est_bonus || zonesDebloquees.has(j.competence))
         .map((j) => ({
           code: j.code,
           nom: j.nom,
@@ -12163,13 +12164,6 @@ function ReglagesParentauxScreen({ route, navigation }) {
         <Text style={styles.backLabel}>‹ Retour</Text>
       </Pressable>
       <Text style={styles.title}>👪 Réglages parentaux</Text>
-
-      <Pressable
-        style={[styles.button, { backgroundColor: '#B3E5FC', marginBottom: 18 }]}
-        onPress={() => navigation.navigate('BouleQuiRoule')}
-      >
-        <Text style={styles.buttonText}>🧪 Tester le prototype : la Boule qui Roule</Text>
-      </Pressable>
 
       <Text style={[styles.label, { marginTop: 4 }]}>👤 Gérer les profils</Text>
       {profils.map((p) => (
