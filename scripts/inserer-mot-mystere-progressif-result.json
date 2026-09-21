@@ -1,0 +1,12 @@
+{
+  "anciennesLignesDesactivees": null,
+  "erreurDesactivation": null,
+  "total": 360,
+  "succes": 300,
+  "echecs": [
+    {
+      "lot": 3,
+      "erreur": "new row for relation \"contenu_mini_jeu\" violates check constraint \"contenu_mini_jeu_niveau_check\""
+    }
+  ]
+}
