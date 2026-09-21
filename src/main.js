@@ -13204,6 +13204,7 @@ function MotMystereScreen({ route, navigation }) {
   const [celluesSurlignees, setCellulesSurlignees] = useState([]); // pendant la selection en cours
   const [erreurFlash, setErreurFlash] = useState(false);
   const [bonusRevele, setBonusRevele] = useState(false);
+  const [bonusTrouveEnAvance, setBonusTrouveEnAvance] = useState(false);
   const [sessionDone, setSessionDone] = useState(false);
   const [sessionSummary, setSessionSummary] = useState(null);
   const errorsTotal = useRef(0);
@@ -13234,6 +13235,7 @@ function MotMystereScreen({ route, navigation }) {
       setGrille(pick.donnees);
       setMotsTrouves([]);
       setBonusRevele(false);
+      setBonusTrouveEnAvance(false);
       setDebutSelection(null);
       setCellulesSurlignees([]);
       speakSmart('Trouve tous les mots cachés dans la grille !');
@@ -13378,7 +13380,8 @@ function MotMystereScreen({ route, navigation }) {
   }
 
   function onCasePress(r, c) {
-    if (!grille || bonusRevele) return;
+    const niveauTermine = grille && motsTrouves.length === grille.mots.length;
+    if (!grille || niveauTermine) return;
     if (!debutSelection) {
       setDebutSelection({ r, c });
       setCellulesSurlignees([[r, c]]);
@@ -13396,6 +13399,8 @@ function MotMystereScreen({ route, navigation }) {
     const motTrouve = grille.mots.find(
       (m) => !motsTrouves.includes(m.mot) && (m.mot === lettres || m.mot === lettresInverse)
     );
+    const estMotBonus = !bonusTrouveEnAvance && !bonusRevele
+      && (lettres === grille.motBonus || lettresInverse === grille.motBonus);
 
     if (motTrouve) {
       maybePlayMemo(memosConfig.current, 'bonne_reponse');
@@ -13405,10 +13410,15 @@ function MotMystereScreen({ route, navigation }) {
       setDebutSelection(null);
       setCellulesSurlignees([]);
       if (nouveauxTrouves.length === grille.mots.length) {
-        setBonusRevele(true);
-        setTimeout(() => {
-          speakSmart(`Le mot mystère était ${grille.motBonus} !`);
-        }, 400);
+        if (!bonusRevele) {
+          // Pas trouve en avance : revele automatiquement, mais moins
+          // recompense que s'il avait ete repere activement.
+          setBonusRevele(true);
+          if (miniJeuId) attribuerEtoilesNiveau(profil.id, miniJeuId, 1).catch(() => {});
+          setTimeout(() => {
+            speakSmart(`Le mot mystère était ${grille.motBonus} !`);
+          }, 400);
+        }
         setTimeout(() => {
           if (calibPhase === 'calibrating') {
             const isCorrect = errorsTotal.current === 0;
@@ -13418,6 +13428,14 @@ function MotMystereScreen({ route, navigation }) {
           }
         }, 2600);
       }
+    } else if (estMotBonus) {
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
+      speakSmart(`Bravo, tu as trouvé le mot mystère en avance : ${grille.motBonus} ! Deux étoiles bonus !`);
+      setBonusTrouveEnAvance(true);
+      setBonusRevele(true);
+      if (miniJeuId) attribuerEtoilesNiveau(profil.id, miniJeuId, 2).catch(() => {});
+      setDebutSelection(null);
+      setCellulesSurlignees([]);
     } else {
       errorsTotal.current += 1;
       maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
