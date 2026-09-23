@@ -109,6 +109,147 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 
 // ============================================================
+// Journal des plantages - retour de Thierry : les plantages
+// n'apparaissent que dans une notification Android qui disparait
+// au toucher, impossible a capturer. Chaque erreur est donc
+// enregistree automatiquement (table journal_erreurs) : d'abord en
+// local (AsyncStorage, survit a la fermeture de l'appli), puis
+// envoyee a Supabase - au moment de l'erreur si possible, sinon au
+// prochain demarrage. client_id evite les doublons.
+// ============================================================
+const CLE_ERREURS_EN_ATTENTE = 'journal_erreurs_en_attente';
+const contexteErreur = { ecran: null, profilId: null, prenom: null };
+let nbErreursCetteSession = 0;
+let updateIdCourant = null;
+try {
+  // eslint-disable-next-line global-require
+  updateIdCourant = require('expo-updates').updateId ?? null;
+} catch (e) {
+  updateIdCourant = null;
+}
+
+async function envoyerErreursEnAttente() {
+  try {
+    const brut = await AsyncStorage.getItem(CLE_ERREURS_EN_ATTENTE);
+    const enAttente = brut ? JSON.parse(brut) : [];
+    if (enAttente.length === 0) return;
+    const { error } = await supabase
+      .from('journal_erreurs')
+      .upsert(enAttente, { onConflict: 'client_id', ignoreDuplicates: true });
+    if (!error) await AsyncStorage.removeItem(CLE_ERREURS_EN_ATTENTE);
+  } catch (e) {
+    // On reessaiera au prochain demarrage.
+  }
+}
+
+async function enregistrerErreur(erreur, type, pileComposants) {
+  try {
+    nbErreursCetteSession += 1;
+    if (nbErreursCetteSession > 25) return; // garde-fou contre une boucle d'erreurs
+    const entree = {
+      client_id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      survenu_le: new Date().toISOString(),
+      type,
+      message: String(erreur?.message ?? erreur ?? 'inconnu').slice(0, 2000),
+      pile: String(erreur?.stack ?? '').slice(0, 6000),
+      pile_composants: pileComposants ? String(pileComposants).slice(0, 4000) : null,
+      ecran: contexteErreur.ecran,
+      profil_id: contexteErreur.profilId,
+      prenom: contexteErreur.prenom,
+      update_id: updateIdCourant,
+      plateforme: `${Platform.OS} ${Platform.Version}`,
+    };
+    const brut = await AsyncStorage.getItem(CLE_ERREURS_EN_ATTENTE);
+    const enAttente = brut ? JSON.parse(brut) : [];
+    enAttente.push(entree);
+    await AsyncStorage.setItem(CLE_ERREURS_EN_ATTENTE, JSON.stringify(enAttente.slice(-50)));
+    await envoyerErreursEnAttente();
+  } catch (e) {
+    // L'enregistreur ne doit jamais provoquer lui-meme un plantage.
+  }
+}
+
+// Plantages JavaScript non rattrapes (ceux qui ferment l'appli) : on
+// laisse jusqu'a 2 secondes pour enregistrer avant de laisser Android
+// fermer l'appli comme avant.
+if (global.ErrorUtils && !global.__journalErreursInstalle) {
+  global.__journalErreursInstalle = true;
+  const gestionnaireParDefaut = global.ErrorUtils.getGlobalHandler();
+  global.ErrorUtils.setGlobalHandler((erreur, estFatale) => {
+    const delai = new Promise((resolve) => setTimeout(resolve, 2000));
+    Promise.race([enregistrerErreur(erreur, estFatale ? 'fatale' : 'non_fatale'), delai])
+      .finally(() => gestionnaireParDefaut(erreur, estFatale));
+  });
+}
+
+// Promesses rejetees sans .catch() : ne ferment pas l'appli, mais
+// peuvent expliquer un comportement bizarre - enregistrees aussi.
+if (global.HermesInternal?.enablePromiseRejectionTracker) {
+  try {
+    global.HermesInternal.enablePromiseRejectionTracker({
+      allRejections: true,
+      onUnhandled: (_id, erreur) => { enregistrerErreur(erreur, 'promesse'); },
+      onHandled: () => {},
+    });
+  } catch (e) {
+    // Non bloquant.
+  }
+}
+
+// Erreurs d'affichage d'un ecran : au lieu de fermer l'appli, on
+// affiche un ecran de secours qui ramene au debut, et on enregistre.
+class GardienErreurs extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { erreur: null, cle: 0 };
+  }
+
+  static getDerivedStateFromError(erreur) {
+    return { erreur };
+  }
+
+  componentDidCatch(erreur, info) {
+    enregistrerErreur(erreur, 'affichage', info?.componentStack);
+  }
+
+  render() {
+    if (this.state.erreur) {
+      return (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, backgroundColor: '#FFF8E7' }}>
+          <Text style={{ fontSize: 48 }}>🌳</Text>
+          <Text style={{ fontSize: 20, fontWeight: '800', color: '#2F4A2A', textAlign: 'center', marginTop: 12 }}>
+            Oups, un petit souci dans la forêt !
+          </Text>
+          <Pressable
+            onPress={() => this.setState((s) => ({ erreur: null, cle: s.cle + 1 }))}
+            style={{ marginTop: 24, backgroundColor: '#F4A62A', borderRadius: 18, paddingVertical: 14, paddingHorizontal: 28 }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#2F4A2A' }}>On repart !</Text>
+          </Pressable>
+        </View>
+      );
+    }
+    return <React.Fragment key={this.state.cle}>{this.props.children}</React.Fragment>;
+  }
+}
+
+// Ecran et profil en cours, joints a chaque erreur enregistree.
+function mettreAJourContexteErreur(etatNavigation) {
+  try {
+    let route = etatNavigation?.routes?.[etatNavigation.index ?? 0];
+    while (route?.state?.routes) route = route.state.routes[route.state.index ?? 0];
+    contexteErreur.ecran = route?.name ?? null;
+    const profil = route?.params?.profil;
+    if (profil) {
+      contexteErreur.profilId = profil.id ?? null;
+      contexteErreur.prenom = profil.prenom ?? null;
+    }
+  } catch (e) {
+    // Non bloquant.
+  }
+}
+
+// ============================================================
 // Thème
 // ============================================================
 const colors = {
@@ -14572,6 +14713,9 @@ export default function RootNavigator() {
     // L'app reste en portrait partout par defaut ; seul l'ecran de la
     // carte interactive passe temporairement en paysage (voir plus bas).
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+    // Plantages enregistres localement lors d'une session precedente
+    // (appli fermee avant l'envoi) : envoyes maintenant.
+    envoyerErreursEnAttente();
   }, []);
 
   useEffect(() => {
@@ -14594,8 +14738,9 @@ export default function RootNavigator() {
   }
 
   return (
+    <GardienErreurs>
     <ExtraTimeProvider>
-    <NavigationContainer>
+    <NavigationContainer onStateChange={mettreAJourContexteErreur}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!session ? (
           <Stack.Screen name="Auth" component={AuthScreen} />
@@ -14637,6 +14782,7 @@ export default function RootNavigator() {
       </Stack.Navigator>
     </NavigationContainer>
     </ExtraTimeProvider>
+    </GardienErreurs>
   );
 }
 
