@@ -13026,6 +13026,15 @@ function MotsFlechesScreen({ route, navigation }) {
     setSessionDone(true);
   }
 
+  // Grille suivante directement, sans repasser par l'ecran de choix du
+  // jeu - meme correctif que pour Le Mot Mystere.
+  async function proceedToNextGrille() {
+    setSessionDone(false);
+    setRung(sessionSummary.newRung);
+    await chargerGrille(miniJeuId, sessionSummary.newRung);
+    startedAt.current = Date.now();
+  }
+
   function activerMot(index) {
     if (mots[index]?.termine) return;
     setMotActifIndex(index);
@@ -13078,7 +13087,7 @@ function MotsFlechesScreen({ route, navigation }) {
         profil={profil}
         summary={sessionSummary}
         navigation={navigation}
-        onContinue={() => navigation.goBack()}
+        onContinue={proceedToNextGrille}
       />
     );
   }
