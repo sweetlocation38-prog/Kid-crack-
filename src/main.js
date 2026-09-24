@@ -73,6 +73,7 @@ import {
   Alert,
   Image,
   useWindowDimensions,
+  AppState,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
@@ -117,7 +118,6 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 // envoyee a Supabase - au moment de l'erreur si possible, sinon au
 // prochain demarrage. client_id evite les doublons.
 // ============================================================
-const CLE_ERREURS_EN_ATTENTE = 'journal_erreurs_en_attente';
 const contexteErreur = { ecran: null, profilId: null, prenom: null };
 let nbErreursCetteSession = 0;
 let updateIdCourant = null;
@@ -128,20 +128,32 @@ try {
   updateIdCourant = null;
 }
 
+const PREFIXE_CLE_ERREUR = 'journal_erreur_';
+
+// Envoie les erreurs sauvegardees localement (appelee au demarrage
+// suivant, jamais pendant un plantage : le reseau est trop lent/pas
+// fiable a ce moment-la pour qu'on puisse compter dessus).
 async function envoyerErreursEnAttente() {
   try {
-    const brut = await AsyncStorage.getItem(CLE_ERREURS_EN_ATTENTE);
-    const enAttente = brut ? JSON.parse(brut) : [];
-    if (enAttente.length === 0) return;
+    const toutesLesCles = await AsyncStorage.getAllKeys();
+    const cles = toutesLesCles.filter((k) => k.startsWith(PREFIXE_CLE_ERREUR));
+    if (cles.length === 0) return;
+    const paires = await AsyncStorage.multiGet(cles);
+    const entrees = paires.map(([, v]) => { try { return JSON.parse(v); } catch (e) { return null; } }).filter(Boolean);
+    if (entrees.length === 0) { await AsyncStorage.multiRemove(cles); return; }
     const { error } = await supabase
       .from('journal_erreurs')
-      .upsert(enAttente, { onConflict: 'client_id', ignoreDuplicates: true });
-    if (!error) await AsyncStorage.removeItem(CLE_ERREURS_EN_ATTENTE);
+      .upsert(entrees, { onConflict: 'client_id', ignoreDuplicates: true });
+    if (!error) await AsyncStorage.multiRemove(cles);
   } catch (e) {
     // On reessaiera au prochain demarrage.
   }
 }
 
+// Sauvegarde LOCALE seule, un seul appel (cle unique, pas de lecture
+// prealable) pour maximiser les chances d'aboutir avant qu'Android ne
+// termine le processus suite a un plantage fatal. L'envoi reseau se
+// fait uniquement plus tard, au demarrage suivant (envoyerErreursEnAttente).
 async function enregistrerErreur(erreur, type, pileComposants) {
   try {
     nbErreursCetteSession += 1;
@@ -159,24 +171,20 @@ async function enregistrerErreur(erreur, type, pileComposants) {
       update_id: updateIdCourant,
       plateforme: `${Platform.OS} ${Platform.Version}`,
     };
-    const brut = await AsyncStorage.getItem(CLE_ERREURS_EN_ATTENTE);
-    const enAttente = brut ? JSON.parse(brut) : [];
-    enAttente.push(entree);
-    await AsyncStorage.setItem(CLE_ERREURS_EN_ATTENTE, JSON.stringify(enAttente.slice(-50)));
-    await envoyerErreursEnAttente();
+    await AsyncStorage.setItem(PREFIXE_CLE_ERREUR + entree.client_id, JSON.stringify(entree));
   } catch (e) {
     // L'enregistreur ne doit jamais provoquer lui-meme un plantage.
   }
 }
 
 // Plantages JavaScript non rattrapes (ceux qui ferment l'appli) : on
-// laisse jusqu'a 2 secondes pour enregistrer avant de laisser Android
-// fermer l'appli comme avant.
+// laisse un court instant pour ecrire localement (un seul appel, tres
+// rapide) avant de laisser Android fermer l'appli comme avant.
 if (global.ErrorUtils && !global.__journalErreursInstalle) {
   global.__journalErreursInstalle = true;
   const gestionnaireParDefaut = global.ErrorUtils.getGlobalHandler();
   global.ErrorUtils.setGlobalHandler((erreur, estFatale) => {
-    const delai = new Promise((resolve) => setTimeout(resolve, 2000));
+    const delai = new Promise((resolve) => setTimeout(resolve, 1500));
     Promise.race([enregistrerErreur(erreur, estFatale ? 'fatale' : 'non_fatale'), delai])
       .finally(() => gestionnaireParDefaut(erreur, estFatale));
   });
@@ -195,6 +203,50 @@ if (global.HermesInternal?.enablePromiseRejectionTracker) {
     // Non bloquant.
   }
 }
+
+// Detection des plantages NATIFS (hors JavaScript) : un plantage natif
+// ne passe jamais par global.ErrorUtils, invisible pour l'enregistreur
+// ci-dessus. On laisse donc un petit repere en memoire a chaque prise
+// de premier plan ("actif"), efface proprement en passant en arriere-
+// plan ("en_pause"). Si au demarrage suivant le repere dit encore
+// "actif" pour l'ecran ou l'enfant etait, l'appli n'est jamais passee
+// en arriere-plan avant de disparaitre : signe d'une fermeture
+// anormale (plantage, y compris natif), meme sans savoir pourquoi.
+const CLE_REPERE_SESSION = 'repere_session_active';
+
+async function verifierFermetureAnormalePrecedente() {
+  try {
+    const brut = await AsyncStorage.getItem(CLE_REPERE_SESSION);
+    if (!brut) return;
+    const repere = JSON.parse(brut);
+    if (repere?.etat === 'actif') {
+      await enregistrerErreur(
+        { message: 'Fermeture anormale detectee (repere jamais passe en arriere-plan)' },
+        'fermeture_anormale_possible',
+        null
+      );
+      contexteErreur.ecran = repere.ecran ?? null;
+      contexteErreur.profilId = repere.profilId ?? null;
+      contexteErreur.prenom = repere.prenom ?? null;
+    }
+  } catch (e) {
+    // Non bloquant.
+  }
+}
+
+function marquerRepereSession(etat) {
+  AsyncStorage.setItem(CLE_REPERE_SESSION, JSON.stringify({
+    etat,
+    ecran: contexteErreur.ecran,
+    profilId: contexteErreur.profilId,
+    prenom: contexteErreur.prenom,
+    le: new Date().toISOString(),
+  })).catch(() => {});
+}
+
+AppState.addEventListener('change', (etat) => {
+  marquerRepereSession(etat === 'active' ? 'actif' : 'en_pause');
+});
 
 // Erreurs d'affichage d'un ecran : au lieu de fermer l'appli, on
 // affiche un ecran de secours qui ramene au debut, et on enregistre.
@@ -244,6 +296,7 @@ function mettreAJourContexteErreur(etatNavigation) {
       contexteErreur.profilId = profil.id ?? null;
       contexteErreur.prenom = profil.prenom ?? null;
     }
+    marquerRepereSession('actif');
   } catch (e) {
     // Non bloquant.
   }
@@ -14714,8 +14767,14 @@ export default function RootNavigator() {
     // carte interactive passe temporairement en paysage (voir plus bas).
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
     // Plantages enregistres localement lors d'une session precedente
-    // (appli fermee avant l'envoi) : envoyes maintenant.
-    envoyerErreursEnAttente();
+    // (appli fermee avant l'envoi), et detection d'une fermeture
+    // anormale (y compris un plantage natif) via le repere de session :
+    // envoyes maintenant, puis on marque cette nouvelle session active.
+    (async () => {
+      await verifierFermetureAnormalePrecedente();
+      marquerRepereSession('actif');
+      await envoyerErreursEnAttente();
+    })();
   }, []);
 
   useEffect(() => {
