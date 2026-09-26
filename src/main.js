@@ -2596,6 +2596,7 @@ const GAME_ICONS = {
   boule_qui_roule: '🔵',
   mots_fleches: '📝',
   mot_mystere: '🔎',
+  expedition_monde: '🧭',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
@@ -2621,6 +2622,7 @@ const GAME_SCREENS = {
   boule_qui_roule: 'BouleQuiRoule',
   mots_fleches: 'MotsFleches',
   mot_mystere: 'MotMystere',
+  expedition_monde: 'ExpeditionMonde',
 };
 
 // Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
@@ -2767,8 +2769,8 @@ const CONTINENTS = [
     competence: 'geographie',
     zone: { left: 0.02, top: 0.03, width: 0.47, height: 0.21 },
     labelCourt: 'Géographie',
-    paysSlotsFor: { 'monde_capitales': { top: '55%', left: '50%' } },
-    paysVides: [{ top: '40%', left: '25%' }, { top: '78%', left: '65%' }, { top: '68%', left: '20%' }],
+    paysSlotsFor: { 'monde_capitales': { top: '55%', left: '50%' }, 'expedition_monde': { top: '40%', left: '25%' } },
+    paysVides: [{ top: '78%', left: '65%' }, { top: '68%', left: '20%' }],
     blobStyle: { borderTopLeftRadius: 110, borderTopRightRadius: 130, borderBottomLeftRadius: 110, borderBottomRightRadius: 90 }, rot: -2,
     nom: 'La Rivière du Monde',
     emoji: '🌊',
@@ -8718,6 +8720,500 @@ function LabyrintheGrotteScreen({ route, navigation }) {
       />
 
       <TrapQuestionModal
+        visible={activeTrap != null}
+        trapData={activeTrap}
+        onAnswer={handleTrapAnswer}
+      />
+    </ScrollView>
+  );
+}
+
+// ============================================================
+// L'Expedition du Monde (zone "geographie") - meme moteur de labyrinthe
+// que Le Labyrinthe de la Grotte (generation, glissement au doigt,
+// cases-question sur le chemin), mais habille en exploration du monde :
+// le tresor devient un "trophee" a rapporter, et les questions posees en
+// chemin viennent directement du contenu deja existant de Le Monde en
+// Capitales (drapeaux/capitales/langues), au meme niveau que l'enfant y a
+// deja atteint - aucun nouveau contenu a creer, juste un nouvel habillage
+// du moteur qui marche deja tres bien (Jules et Emma jouent tous les deux
+// beaucoup plus au Labyrinthe qu'aux jeux de type quiz classique).
+// ============================================================
+
+// Va chercher une question de geographie adaptee au vrai niveau de
+// l'enfant sur Le Monde en Capitales (meme principe que fetchTrapQuestion
+// pour le Labyrinthe, mais toujours la meme source ici) - reutilise
+// buildGeoPrompt telle quelle, qui sait deja construire la question pour
+// chaque type de contenu (drapeau, capitale, langue, animal, monument...)
+// quel que soit le niveau scolaire.
+async function fetchMondeQuestion(profil) {
+  try {
+    const { data: jeu } = await supabase.from('mini_jeux').select('id').eq('code', 'monde_capitales').single();
+    if (!jeu) return null;
+    const { data: prog } = await supabase
+      .from('progression')
+      .select('palier_actuel')
+      .eq('profil_id', profil.id)
+      .eq('mini_jeu_id', jeu.id)
+      .maybeSingle();
+    const rung = prog?.palier_actuel ?? rungFromGradeAndPalier(profil.niveau_defaut, 1);
+    const { niveau, palier } = gradeAndPalierFromRung(rung);
+    const { data: contenu } = await supabase
+      .from('contenu_mini_jeu')
+      .select('donnees')
+      .eq('mini_jeu_id', jeu.id)
+      .eq('niveau', niveau)
+      .eq('palier', palier)
+      .eq('actif', true);
+    if (!contenu || contenu.length === 0) return null;
+    const pick = contenu[Math.floor(Math.random() * contenu.length)].donnees;
+    const built = buildGeoPrompt(pick);
+    if (!built.options || built.options.length === 0 || built.correct == null) return null;
+    return {
+      question: built.icon ? `${built.icon}  ${built.promptText}` : built.promptText,
+      options: shuffle(built.options),
+      bonneReponse: built.correct,
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+function MondeQuestionModal({ visible, trapData, onAnswer }) {
+  useEffect(() => {
+    if (!visible || !trapData) return;
+    let cancelled = false;
+    (async () => {
+      await speakSmart(trapData.question);
+      for (const opt of trapData.options) {
+        if (cancelled) return;
+        await speakSmart(String(opt));
+      }
+    })();
+    return () => { cancelled = true; Speech.stop(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, trapData]);
+
+  if (!trapData) return null;
+  return (
+    <Modal visible={visible} animationType="fade" transparent>
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalCard}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <Text style={styles.modalTitle}>🧭 Une étape du voyage !</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+            <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, color: colors.ink }}>
+              {trapData.question}
+            </Text>
+            <Pressable onPress={() => speakSmart(trapData.question)} hitSlop={8}>
+              <Text style={{ fontSize: 18 }}>🎤</Text>
+            </Pressable>
+          </View>
+          <View style={{ gap: 10 }}>
+            {trapData.options.map((opt, i) => (
+              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Pressable
+                  style={[styles.button, { flex: 1, marginTop: 0 }]}
+                  onPress={() => onAnswer(reponsesEquivalentes(opt, trapData.bonneReponse))}
+                >
+                  <Text style={styles.buttonText}>{String(opt)}</Text>
+                </Pressable>
+                <Pressable onPress={() => speakSmart(String(opt))} hitSlop={8}>
+                  <Text style={{ fontSize: 16 }}>🎤</Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+async function assurerMiniJeuExpeditionMonde() {
+  try {
+    const { data: existant } = await supabase.from('mini_jeux').select('id').eq('code', 'expedition_monde').maybeSingle();
+    if (existant) return existant.id;
+    const { data: cree } = await supabase
+      .from('mini_jeux')
+      .insert({ code: 'expedition_monde', nom: "L'Expédition du Monde", competence: 'geographie', est_bonus: false })
+      .select('id')
+      .maybeSingle();
+    return cree?.id ?? null;
+  } catch (e) {
+    return null; // non bloquant : le jeu reste jouable en mode local si l'enregistrement echoue
+  }
+}
+
+function ExpeditionMondeScreen({ route, navigation }) {
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
+  useEffect(() => { stopBgMusic(); }, []);
+
+  const { profil } = route.params;
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const gameMaxRung = rungFromGradeAndPalier('6e', 3);
+  const { rows, cols } = useMemo(
+    () => mazeGridDimensionsForScreen(screenWidth, screenHeight),
+    [screenWidth, screenHeight]
+  );
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(() => rungFromGradeAndPalier(profil.niveau_defaut, 1));
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
+  const [cells, setCells] = useState(null);
+  const [pos, setPos] = useState({ r: 0, c: 0 });
+  const [treasure, setTreasure] = useState({ r: 0, c: 0 });
+  const [visitedSet, setVisitedSet] = useState(() => new Set());
+  const [trapsResolus, setTrapsResolus] = useState(() => new Set());
+  const [activeTrap, setActiveTrap] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+  const startedAt = useRef(Date.now());
+  const cellsRef = useRef(null);
+  const posRef = useRef({ r: 0, c: 0 });
+  const treasureRef = useRef({ r: 0, c: 0 });
+  const finishedRef = useRef(false);
+  const stepsCountRef = useRef(0);
+  const targetDistRef = useRef(0);
+  const trapCellsRef = useRef([]);
+  const trapsResolusRef = useRef(new Set());
+  const trapActiveRef = useRef(false);
+  const piegesRatesRef = useRef(0);
+
+  const [calibPhase, setCalibPhase] = useState('checking');
+  const [calibRoundIndex, setCalibRoundIndex] = useState(0);
+  const calibCurrentRungRef = useRef(1);
+  const calibStepPhaseRef = useRef('montee');
+  const calibRoundsMonteeRef = useRef(0);
+  const calibRoundsDescenteRef = useRef(0);
+  const CALIB_SAUTS_MONTEE = [3, 6, 6];
+
+  const loadMaze = useCallback((currentRung) => {
+    setLoading(true);
+    const generated = generateMazeWalls(rows, cols, currentRung, gameMaxRung);
+    const dist = bfsDistances(generated, rows, cols, 0, 0);
+    const t = pickTreasureForRung(dist, rows, cols, currentRung, gameMaxRung);
+    const chemin = bfsPath(generated, dist, 0, 0, t.r, t.c);
+    const pieges = pickTrapCells(chemin, currentRung);
+    cellsRef.current = generated;
+    posRef.current = { r: 0, c: 0 };
+    treasureRef.current = { r: t.r, c: t.c };
+    targetDistRef.current = t.targetDist;
+    trapCellsRef.current = pieges;
+    trapsResolusRef.current = new Set();
+    finishedRef.current = false;
+    stepsCountRef.current = 0;
+    piegesRatesRef.current = 0;
+    setCells(generated);
+    setPos({ r: 0, c: 0 });
+    setTreasure({ r: t.r, c: t.c });
+    setVisitedSet(new Set(['0,0']));
+    setTrapsResolus(new Set());
+    setActiveTrap(null);
+    trapActiveRef.current = false;
+    speakSmart('Fais glisser ton doigt pour explorer la carte et rapporter le trophée ! Réponds bien aux questions du monde en chemin.');
+    setLoading(false);
+  }, [rows, cols, gameMaxRung]);
+
+  useEffect(() => {
+    (async () => {
+      const jeuId = await assurerMiniJeuExpeditionMonde();
+      if (!jeuId) return;
+      setMiniJeuId(jeuId);
+
+      const { data: prog } = await supabase
+        .from('progression')
+        .select('palier_actuel')
+        .eq('profil_id', profil.id)
+        .eq('mini_jeu_id', jeuId)
+        .maybeSingle();
+
+      if (!prog) {
+        const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+        calibCurrentRungRef.current = base;
+        calibStepPhaseRef.current = 'montee';
+        calibRoundsMonteeRef.current = 0;
+        calibRoundsDescenteRef.current = 0;
+        setCalibRoundIndex(0);
+        setCalibPhase('calibrating');
+        loadMaze(base);
+        return;
+      }
+
+      const startRung = Math.min(prog.palier_actuel, gameMaxRung);
+      setRung(startRung);
+      setCalibPhase('play');
+      loadMaze(startRung);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id, rows, cols]);
+
+  function terminerCalibrage(finalRung) {
+    (async () => {
+      try {
+        await supabase.from('progression').upsert(
+          {
+            profil_id: profil.id,
+            mini_jeu_id: miniJeuId,
+            palier_actuel: finalRung,
+            details: { streak: 0 },
+            temps_reference_secondes: null,
+            echecs_consecutifs: 0,
+          },
+          { onConflict: 'profil_id,mini_jeu_id' }
+        );
+      } catch (e) {
+        // Non bloquant.
+      }
+    })();
+    setRung(finalRung);
+    setCalibPhase('play');
+    loadMaze(finalRung);
+  }
+
+  function handleCalibrationResult(isCorrect) {
+    setCalibRoundIndex((i) => i + 1);
+    if (calibStepPhaseRef.current === 'montee') {
+      calibRoundsMonteeRef.current += 1;
+      if (!isCorrect) {
+        calibStepPhaseRef.current = 'descente';
+        calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+        loadMaze(calibCurrentRungRef.current);
+        return;
+      }
+      if (calibRoundsMonteeRef.current >= 3) {
+        terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+        return;
+      }
+      const saut = CALIB_SAUTS_MONTEE[calibRoundsMonteeRef.current] ?? 6;
+      calibCurrentRungRef.current = Math.min(gameMaxRung, calibCurrentRungRef.current + saut);
+      loadMaze(calibCurrentRungRef.current);
+      return;
+    }
+
+    calibRoundsDescenteRef.current += 1;
+    if (isCorrect) {
+      terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    if (calibRoundsDescenteRef.current >= 2) {
+      terminerCalibrage(Math.min(gameMaxRung, calibCurrentRungRef.current));
+      return;
+    }
+    calibCurrentRungRef.current = Math.max(1, calibCurrentRungRef.current - 3);
+    loadMaze(calibCurrentRungRef.current);
+  }
+
+  async function finishSession() {
+    if (!miniJeuId || finishedRef.current) return;
+    finishedRef.current = true;
+    const durationSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+    const newRung = Math.min(gameMaxRung, rung + 1);
+    const precomputedRung = {
+      newRung,
+      direction: newRung > rung ? 'up' : 'same',
+      raison: newRung > rung ? 'parfait_rapide' : 'encore_un_effort',
+    };
+    const summary = await completeSession({
+      profil, miniJeuId, currentRung: rung,
+      erreursTotal: 0,
+      dureeSecondes: durationSeconds,
+      totalRounds: Math.max(1, targetDistRef.current),
+      startedAt: startedAt.current,
+      maxRung: gameMaxRung,
+      precomputedRung,
+    });
+    setSessionSummary(summary);
+    setSessionDone(true);
+  }
+
+  function proceedToNextActivity() {
+    const newRung = sessionSummary?.newRung ?? rung;
+    setSessionDone(false);
+    startedAt.current = Date.now();
+    setRung(newRung);
+    loadMaze(newRung);
+  }
+
+  function tryMoveTo(r, c) {
+    if (finishedRef.current || !cellsRef.current || trapActiveRef.current) return;
+    if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+    const { r: pr, c: pc } = posRef.current;
+    if (r === pr && c === pc) return;
+    const dr = r - pr, dc = c - pc;
+    if (Math.abs(dr) + Math.abs(dc) !== 1) return;
+    if (!canMove(cellsRef.current, pr, pc, dr, dc)) return;
+
+    posRef.current = { r, c };
+    stepsCountRef.current += 1;
+    setPos({ r, c });
+    setVisitedSet((prev) => {
+      const next = new Set(prev);
+      next.add(`${r},${c}`);
+      return next;
+    });
+
+    if (r === treasureRef.current.r && c === treasureRef.current.c) {
+      speakSmart('Bravo, tu as rapporté le trophée du voyage !');
+      if (calibPhase === 'calibrating') {
+        const isCorrect = piegesRatesRef.current === 0;
+        setTimeout(() => handleCalibrationResult(isCorrect), 500);
+      } else {
+        setTimeout(finishSession, 500);
+      }
+      return;
+    }
+
+    const surUnPiege = trapCellsRef.current.some((p) => p.r === r && p.c === c);
+    const dejaResolu = trapsResolusRef.current.has(`${r},${c}`);
+    if (surUnPiege && !dejaResolu) {
+      trapActiveRef.current = true;
+      (async () => {
+        const question = await fetchMondeQuestion(profil);
+        if (question) {
+          setActiveTrap({ ...question, cellKey: `${r},${c}` });
+        } else {
+          trapActiveRef.current = false;
+        }
+      })();
+    }
+  }
+
+  function handleTrapAnswer(correct) {
+    if (!activeTrap) return;
+    if (correct) {
+      maybePlayMemo(memosConfig.current, 'bonne_reponse');
+      speakSmart('Bravo, bonne réponse !');
+      trapsResolusRef.current.add(activeTrap.cellKey);
+      setTrapsResolus(new Set(trapsResolusRef.current));
+      setActiveTrap(null);
+      trapActiveRef.current = false;
+    } else {
+      piegesRatesRef.current += 1;
+      maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
+      speakSmart('Ce n’est pas ça, retour au départ !');
+      posRef.current = { r: 0, c: 0 };
+      setPos({ r: 0, c: 0 });
+      setVisitedSet(new Set(['0,0']));
+      setActiveTrap(null);
+      trapActiveRef.current = false;
+    }
+  }
+
+  const gridRef = useRef(null);
+  const touchAnchorRef = useRef(null);
+  const PAS_GLISSEMENT = MAZE_CELL_SIZE * 0.7;
+
+  function onTouchStart(pageX, pageY) {
+    touchAnchorRef.current = { x: pageX, y: pageY };
+  }
+
+  function onTouchMove(pageX, pageY) {
+    if (!touchAnchorRef.current) {
+      touchAnchorRef.current = { x: pageX, y: pageY };
+      return;
+    }
+    const dx = pageX - touchAnchorRef.current.x;
+    const dy = pageY - touchAnchorRef.current.y;
+    if (Math.abs(dx) < PAS_GLISSEMENT && Math.abs(dy) < PAS_GLISSEMENT) return;
+
+    const { r, c } = posRef.current;
+    let nr = r, nc = c;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      nc = c + (dx > 0 ? 1 : -1);
+    } else {
+      nr = r + (dy > 0 ? 1 : -1);
+    }
+    tryMoveTo(nr, nc);
+    touchAnchorRef.current = { x: pageX, y: pageY };
+  }
+
+  if (sessionDone) {
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={proceedToNextActivity}
+      />
+    );
+  }
+
+  if (loading || !cells) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DFF1FB', paddingTop: 6, paddingBottom: 6 }]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 4 }}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>
+          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🧭 L’Expédition du Monde'}
+        </Text>
+        {calibPhase === 'play' && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Refaire le calibrage ?',
+                "On va refaire quelques voyages pour retrouver le bon niveau. C'est rapide !",
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, on y va !',
+                    onPress: () => {
+                      const base = Math.min(gameMaxRung, rungFromGradeAndPalier(profil.niveau_defaut, 1));
+                      calibCurrentRungRef.current = base;
+                      calibStepPhaseRef.current = 'montee';
+                      calibRoundsMonteeRef.current = 0;
+                      calibRoundsDescenteRef.current = 0;
+                      setCalibRoundIndex(0);
+                      setCalibPhase('calibrating');
+                      loadMaze(base);
+                    },
+                  },
+                ]
+              );
+            }}
+            hitSlop={10}
+          >
+            <Text style={{ fontSize: 18 }}>🔄</Text>
+          </Pressable>
+        )}
+      </View>
+
+      {calibPhase === 'calibrating' && (
+        <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '700', marginBottom: 4 }}>
+          Manche {calibRoundIndex + 1}
+        </Text>
+      )}
+
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
+      <MazeGridVisual
+        cells={cells}
+        rows={rows}
+        cols={cols}
+        pos={pos}
+        start={{ r: 0, c: 0 }}
+        treasure={treasure}
+        visitedSet={visitedSet}
+        trapCells={trapCellsRef.current}
+        trapsResolus={trapsResolus}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        gridRef={gridRef}
+      />
+
+      <MondeQuestionModal
         visible={activeTrap != null}
         trapData={activeTrap}
         onAnswer={handleTrapAnswer}
@@ -14851,6 +15347,7 @@ export default function RootNavigator() {
             <Stack.Screen name="CorpsHumain" component={CorpsHumainScreen} />
             <Stack.Screen name="IndicesJardin" component={IndicesJardinScreen} />
             <Stack.Screen name="LabyrintheGrotte" component={LabyrintheGrotteScreen} />
+            <Stack.Screen name="ExpeditionMonde" component={ExpeditionMondeScreen} />
             <Stack.Screen name="CheminDizaines" component={CheminDizainesScreen} />
             <Stack.Screen name="BarresLuma" component={BarresLumaScreen} />
             <Stack.Screen name="BouleQuiRoule" component={BouleQuiRouleScreen} />
