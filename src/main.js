@@ -13828,6 +13828,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const dernierTapRef = useRef(0);
   const dernierToucheXRef = useRef(null); // derniere position X du doigt dans la zone de deplacement (null = pas de contact)
   const dernierRenduBallRef = useRef(0);
+  const dernierTickHorlogeRef = useRef(0); // timestamp reel du tick precedent - sert a mesurer le vrai dt ecoule (voir boucle de jeu), au lieu de supposer 40ms a chaque fois
 
   // IMPORTANT : memoise via useMemo, pas juste recalcule a chaque rendu.
   // Sans ca, conf est un NOUVEL objet a chaque re-rendu (meme quand rien
@@ -14173,9 +14174,22 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
   useEffect(() => {
     if (!pret || finNiveau) return;
+    dernierTickHorlogeRef.current = Date.now();
     tickRef.current = setInterval(() => {
-      if (isPausedRef.current) return;
-      const dt = 0.04;
+      if (isPausedRef.current) { dernierTickHorlogeRef.current = Date.now(); return; }
+      // dt REEL ecoule depuis le tick precedent, plutot que de supposer que
+      // l'intervalle de 40ms s'est ecoule pile - corrige un bug remonte par
+      // Thierry (vitesse qui varie de facon incoherente) : sur Android, si
+      // le thread JS a un a-coup (rendu, garbage collection...), l'intervalle
+      // reel peut etre bien plus long que 40ms, et l'ancien code avancait
+      // quand meme le jeu d'un seul cran fixe, faisant paraitre le jeu tantot
+      // plus lent, tantot plus rapide selon les a-coups de l'appareil.
+      // Plafonne a 150ms : un vrai gros a-coup (retour d'arriere-plan, etc.)
+      // ne doit pas faire faire un bond enorme au jeu d'un coup.
+      const maintenantHorloge = Date.now();
+      const dtReel = (maintenantHorloge - dernierTickHorlogeRef.current) / 1000;
+      dernierTickHorlogeRef.current = maintenantHorloge;
+      const dt = Math.max(0.001, Math.min(dtReel, 0.15));
       const c = conf;
       // A partir du CM2, une mauvaise reponse (leurre) remet la serie a
       // zero, comme avant - c'est le niveau le plus avance, l'exigence
@@ -14554,7 +14568,16 @@ function BouleQuiRouleScreen({ route, navigation }) {
   function positionEcran(distanceObjet) {
     const relative = distanceObjet - distanceParcourue;
     const p = Math.max(0, Math.min(1, 1 - relative / BOULE_DISTANCE_VISIBLE));
-    const easedP = p * p;
+    // Effet de perspective adouci (1.5 au lieu de 2) - bug remonte par
+    // Thierry (contact incoherent avec les lettres/chiffres) : avec un
+    // exposant de 2, la position AFFICHEE accelere jusqu'a 2x plus vite que
+    // le calcul de contact juste avant la ligne d'attrapage (qui, lui, reste
+    // parfaitement lineaire - voir seuilCollision plus haut) : l'objet
+    // semblait "bondir" pile pres de la boule, decale de l'instant reel ou
+    // le contact se resout. Un exposant plus doux garde l'effet de
+    // perspective (lent au loin, plus rapide pres de la boule) tout en
+    // reduisant cet ecart pres de la ligne de contact.
+    const easedP = Math.pow(p, 1.5);
     const y = horizonY + (joueurY - horizonY) * easedP;
     return { relative, p, y };
   }
