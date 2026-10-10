@@ -6137,8 +6137,8 @@ function buildGeoPrompt(d) {
       };
     case 'pays_capitale':
       return {
-        promptText: `Quelle est la capitale de ${d.pays} ?`,
-        speak: `Quelle est la capitale de ${d.pays} ?`,
+        promptText: `Quelle est la capitale ${d.pays_de ?? 'de ' + d.pays} ?`,
+        speak: `Quelle est la capitale ${d.pays_de ?? 'de ' + d.pays} ?`,
         mandatorySpeak: false, // le nom du pays est deja ecrit a l'ecran
         options: d.options,
         correct: d.reponse,
@@ -6166,8 +6166,8 @@ function buildGeoPrompt(d) {
       };
     case 'langue_pays':
       return {
-        promptText: `Quelle langue parle-t-on principalement en ${d.pays} ?`,
-        speak: `Quelle langue parle-t-on principalement en ${d.pays} ?`,
+        promptText: `Quelle langue parle-t-on principalement ${d.pays_en ?? 'en ' + d.pays} ?`,
+        speak: `Quelle langue parle-t-on principalement ${d.pays_en ?? 'en ' + d.pays} ?`,
         mandatorySpeak: false,
         options: d.options,
         correct: d.reponse,
