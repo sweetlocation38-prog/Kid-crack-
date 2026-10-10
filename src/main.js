@@ -14799,7 +14799,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
               const en = cibleEnAttenteRef.current;
               if (!en.annonce) {
                 if (en.motParle) speakSmart(en.motParle);
-                else if ((mode === 'chiffres' || mode === 'mixte') && typeof en.valeur === 'number') speakSmart(`Cherche le nombre ${en.valeur}`);
+                // Quand un calcul est ecrit a l'ecran (division, etc.), on ne lit JAMAIS la reponse a voix haute.
+                else if ((mode === 'chiffres' || mode === 'mixte') && typeof en.valeur === 'number' && !en.enonce) speakSmart(`Cherche le nombre ${en.valeur}`);
                 en.annonce = true;
               }
               liste = [...liste, {
@@ -14820,14 +14821,14 @@ function BouleQuiRouleScreen({ route, navigation }) {
                   id: nextIdRef.current++,
                   type: typePiege,
                   x: positionLibre(),
-                  distance: nouvelleDistance + 260 + Math.random() * 220,
+                  distance: nouvelleDistance + BOULE_DISTANCE_VISIBLE + Math.random() * 40,
                   vitesseSuppl: vMin + Math.random() * (vMax - vMin),
                 },
               ];
             } else if (roll < (peutSpawnerCible ? 0.3 : 0) + c.piegeRatio + c.pieceRatio) {
               liste = [
                 ...liste,
-                { id: nextIdRef.current++, type: 'piece', x: positionLibre(), distance: nouvelleDistance + 260 + Math.random() * 220 },
+                { id: nextIdRef.current++, type: 'piece', x: positionLibre(), distance: nouvelleDistance + BOULE_DISTANCE_VISIBLE + Math.random() * 40 },
               ];
             } else if (cibleEnAttenteRef.current != null) {
               liste = [...liste, {
