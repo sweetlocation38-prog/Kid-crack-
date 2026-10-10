@@ -5327,7 +5327,7 @@ function EuropeMapChallenge({ pays, onResult }) {
   );
 }
 
-function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions, forcedStartRung, customVisual, onRequestRecalibrate }) {
+function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions, uniformOptions, forcedStartRung, customVisual, onRequestRecalibrate }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
 
   const { profil } = route.params;
@@ -5879,14 +5879,14 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
                 ]}
               >
                 <Text
-                  style={[
+                  style={uniformOptions ? [styles.optionText, { fontSize: uniformOptionFontSize(option) }] : [
                     styles.optionText,
                     estUnEmojiSeul && styles.optionTextIcon,
                     depasseLesAutres && { fontSize: 17 },
                   ]}
                   numberOfLines={singleLineOptions ? 1 : 2}
                   adjustsFontSizeToFit
-                  minimumFontScale={singleLineOptions ? 0.5 : 0.7}
+                  minimumFontScale={uniformOptions ? 0.75 : singleLineOptions ? 0.5 : 0.7}
                 >
                   {String(option)}
                 </Text>
@@ -6215,7 +6215,7 @@ function MondeCapitalesScreen({ route, navigation }) {
         buildPrompt={buildGeoPrompt}
         maxRung={MAX_CONTENT_RUNG}
         themeFilter={choix.filter}
-        singleLineOptions
+        uniformOptions
       />
     );
   }
@@ -7205,7 +7205,7 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
 // "progression" pour ce profil sur ce jeu) ; ensuite, comportement
 // inchange.
 // ============================================================
-function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions, customVisual }) {
+function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPrompt, Character, maxRung, themeFilter, singleLineOptions, uniformOptions, customVisual }) {
   const { profil } = route.params;
   const effectiveMaxRung = maxRung ?? MAX_CONTENT_RUNG;
   // 'checking' : on verifie s'il existe deja une progression pour ce
@@ -7290,6 +7290,7 @@ function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPromp
       maxRung={maxRung}
       themeFilter={themeFilter}
       singleLineOptions={singleLineOptions}
+      uniformOptions={uniformOptions}
       forcedStartRung={forcedStartRung}
       customVisual={customVisual}
       onRequestRecalibrate={() => {
@@ -8817,7 +8818,7 @@ function MondeQuestionModal({ visible, trapData, onAnswer }) {
                   style={[styles.button, { flex: 1, marginTop: 0 }]}
                   onPress={() => onAnswer(reponsesEquivalentes(opt, trapData.bonneReponse))}
                 >
-                  <Text style={styles.buttonText}>{String(opt)}</Text>
+                  <Text style={[styles.buttonText, { fontSize: uniformOptionFontSize(opt), textAlign: 'center' }]} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.75}>{String(opt)}</Text>
                 </Pressable>
                 <Pressable onPress={() => speakSmart(String(opt))} hitSlop={8}>
                   <Text style={{ fontSize: 16 }}>🎤</Text>
@@ -13246,6 +13247,13 @@ const BOULE_DOUBLE_TAP_FENETRE_MS = 380;
 const BOULE_TAP_MOUVEMENT_MAX = 26;
 const BOULE_TAP_DUREE_MAX_MS = 500;
 const BOULE_DISTANCE_VISIBLE = 560;
+
+// Taille de police uniforme des bulles de reponse (geographie) : meme
+// taille pour toutes, sauf les reponses longues qui passent sur 2 lignes
+// avec une police un peu plus petite (jamais plus de 2 lignes).
+function uniformOptionFontSize(option) {
+  return String(option).length <= 11 ? 22 : 19;
+}
 const BOULE_RAYON_COLLISION = 0.075; // taille du CERCLE VISIBLE (rayon) - ne represente plus a lui seul la vraie zone de capture, voir seuilCollision plus bas qui y ajoute le rayon de l'avatar
 // Zone de capture verticale, DES DEUX COTES de la ligne du joueur (avant
 // ET apres) - retour de Thierry : avant, le contact n'etait verifie qu'a
