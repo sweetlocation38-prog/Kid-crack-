@@ -8008,18 +8008,18 @@ function puzzleModesDisponibles(rung) {
 // ============================================================
 const MAZE_CELL_SIZE = 34; // taille fixe, fiable au doigt
 
-function mazeGridDimensionsForScreen(screenWidth, screenHeight) {
+function mazeGridDimensionsForScreen(screenWidth, screenHeight, cellSize = MAZE_CELL_SIZE) {
   const usableWidth = screenWidth - 24;
   const usableHeight = screenHeight - 90; // petit titre compact + marges seulement (plus de mascotte)
-  const cols = Math.max(5, Math.floor(usableWidth / (MAZE_CELL_SIZE + 2)));
-  const rows = Math.max(6, Math.floor(usableHeight / (MAZE_CELL_SIZE + 2)));
+  const cols = Math.max(5, Math.floor(usableWidth / (cellSize + 2)));
+  const rows = Math.max(6, Math.floor(usableHeight / (cellSize + 2)));
   return { rows, cols };
 }
 
 // Genere un labyrinthe parfait par parcours en profondeur avec retour en
 // arriere : chaque case commence entouree de 4 murs, on retire les murs au
 // fur et a mesure qu'on visite des cases voisines non visitees.
-function generateMazeWalls(rows, cols, rung = 1, maxRung = 21) {
+function generateMazeWalls(rows, cols, rung = 1, maxRung = 21, tressageMax = 0.22) {
   const cells = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => ({ top: true, right: true, bottom: true, left: true }))
   );
@@ -8065,7 +8065,7 @@ function generateMazeWalls(rows, cols, rung = 1, maxRung = 21) {
   // diminue, jusqu'a un labyrinthe completement ferme (aucun espace libre,
   // uniquement des couloirs muraille a muraille) au niveau maximum.
   const ratioNiveau = Math.max(0, Math.min(1, (rung - 1) / Math.max(1, maxRung - 1)));
-  const tauxTressage = 0.22 * (1 - ratioNiveau); // 22% au debut -> 0% au maximum
+  const tauxTressage = tressageMax * (1 - ratioNiveau); // 22% au debut -> 0% au maximum
   const murs = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -8119,10 +8119,10 @@ function bfsDistances(cells, rows, cols, startR, startC) {
   return dist;
 }
 
-function pickTreasureForRung(dist, rows, cols, rung, maxRung) {
+function pickTreasureForRung(dist, rows, cols, rung, maxRung, minRatio = 0.2) {
   let maxDist = 0;
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (dist[r][c] > maxDist) maxDist = dist[r][c];
-  const ratio = Math.max(0.2, Math.min(1, rung / Math.max(1, maxRung)));
+  const ratio = Math.max(minRatio, Math.min(1, rung / Math.max(1, maxRung)));
   const target = Math.max(1, Math.round(maxDist * ratio)); // jamais 0 : le tresor ne doit jamais tomber sur la case de depart (theorique vu la taille min du labyrinthe, mais gratuit a proteger)
   let best = { r: 0, c: 0, diff: Infinity };
   for (let r = 0; r < rows; r++) {
@@ -8168,9 +8168,9 @@ function bfsPath(cells, dist, startR, startC, endR, endC) {
 // (jamais la toute premiere ni la toute derniere case), pour qu'un enfant
 // qui suit la route la plus evidente les rencontre forcement. Le nombre de
 // pieges augmente doucement avec le niveau.
-function pickTrapCells(path, rung) {
+function pickTrapCells(path, rung, plus = 1, maxN = 4) {
   if (path.length <= 3) return [];
-  const nbPieges = Math.min(4, Math.max(1, Math.floor(rung / 3) + 1));
+  const nbPieges = Math.min(maxN, Math.max(1, Math.floor(rung / 3) + plus));
   const interieur = path.slice(1, -1);
   if (interieur.length === 0) return [];
   const pas = interieur.length / (nbPieges + 1);
@@ -8182,8 +8182,9 @@ function pickTrapCells(path, rung) {
   return pieges;
 }
 
-function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, trapCells, trapsResolus, onTouchStart, onTouchMove, gridRef }) {
-  const cellSize = MAZE_CELL_SIZE;
+function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, trapCells, trapsResolus, onTouchStart, onTouchMove, gridRef, cellSize: cellSizeProp, showTraps, monsters }) {
+  const cellSize = cellSizeProp ?? MAZE_CELL_SIZE;
+  const monsterAt = new Map((monsters ?? []).map((m) => [`${m.r},${m.c}`, m.emoji]));
   const wallColor = '#3D2E4F';
 
   return (
@@ -8204,6 +8205,8 @@ function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, t
             const isStart = start.r === r && start.c === c;
             const isTreasure = treasure.r === r && treasure.c === c;
             const isTrapResolu = trapsResolus?.has(`${r},${c}`);
+            const isTrapActif = !!showTraps && !isTrapResolu && (trapCells ?? []).some((t) => t.r === r && t.c === c);
+            const monstre = monsterAt.get(`${r},${c}`);
             return (
               <View
                 key={c}
@@ -8221,9 +8224,11 @@ function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, t
                 }}
               >
                 {isPos && <Text style={{ fontSize: cellSize * 0.6 }}>🧑</Text>}
-                {!isPos && isTreasure && <Text style={{ fontSize: cellSize * 0.6 }}>💎</Text>}
-                {!isPos && !isTreasure && isTrapResolu && <Text style={{ fontSize: cellSize * 0.5 }}>⭐</Text>}
-                {!isPos && !isTreasure && !isTrapResolu && isStart && isVisited && (
+                {!isPos && monstre && <Text style={{ fontSize: cellSize * 0.65 }}>{monstre}</Text>}
+                {!isPos && !monstre && isTreasure && <Text style={{ fontSize: cellSize * 0.6 }}>💎</Text>}
+                {!isPos && !monstre && !isTreasure && isTrapActif && <Text style={{ fontSize: cellSize * 0.5 }}>❓</Text>}
+                {!isPos && !monstre && !isTreasure && isTrapResolu && <Text style={{ fontSize: cellSize * 0.5 }}>⭐</Text>}
+                {!isPos && !monstre && !isTreasure && !isTrapActif && !isTrapResolu && isStart && isVisited && (
                   <View style={{ width: cellSize * 0.25, height: cellSize * 0.25, borderRadius: 99, backgroundColor: '#9B7FC4' }} />
                 )}
               </View>
@@ -8771,7 +8776,8 @@ async function fetchMondeQuestion(profil) {
     const built = buildGeoPrompt(pick);
     if (!built.options || built.options.length === 0 || built.correct == null) return null;
     return {
-      question: built.icon ? `${built.icon}  ${built.promptText}` : built.promptText,
+      question: built.promptText,
+      icon: built.icon ?? null,
       options: shuffle(built.options),
       bonneReponse: built.correct,
     };
@@ -8801,8 +8807,11 @@ function MondeQuestionModal({ visible, trapData, onAnswer }) {
       <View style={styles.modalBackdrop}>
         <View style={styles.modalCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-            <Text style={styles.modalTitle}>🧭 Une étape du voyage !</Text>
+            <Text style={styles.modalTitle}>{trapData.monster ? '👾 Un monstre bloque la route !' : '🧭 Une étape du voyage !'}</Text>
           </View>
+          {trapData.icon ? (
+            <Text style={{ fontSize: 96, textAlign: 'center', marginVertical: 6 }}>{trapData.icon}</Text>
+          ) : null}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
             <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, color: colors.ink }}>
               {trapData.question}
@@ -8847,6 +8856,8 @@ async function assurerMiniJeuExpeditionMonde() {
   }
 }
 
+const EXPEDITION_CELL_SIZE = 28; // cases plus petites que le Labyrinthe de la Grotte : labyrinthe plus grand et plus complexe
+
 function ExpeditionMondeScreen({ route, navigation }) {
   const memosConfig = useRef(null);
   useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
@@ -8856,7 +8867,7 @@ function ExpeditionMondeScreen({ route, navigation }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const gameMaxRung = rungFromGradeAndPalier('6e', 3);
   const { rows, cols } = useMemo(
-    () => mazeGridDimensionsForScreen(screenWidth, screenHeight),
+    () => mazeGridDimensionsForScreen(screenWidth, screenHeight, EXPEDITION_CELL_SIZE),
     [screenWidth, screenHeight]
   );
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -8868,6 +8879,9 @@ function ExpeditionMondeScreen({ route, navigation }) {
   const [visitedSet, setVisitedSet] = useState(() => new Set());
   const [trapsResolus, setTrapsResolus] = useState(() => new Set());
   const [activeTrap, setActiveTrap] = useState(null);
+  const [monsters, setMonsters] = useState([]);
+  const monstersRef = useRef([]);
+  const monstreImmuniseJusquaRef = useRef(0);
   const [loading, setLoading] = useState(true);
   const [sessionDone, setSessionDone] = useState(false);
   const [sessionSummary, setSessionSummary] = useState(null);
@@ -8893,11 +8907,25 @@ function ExpeditionMondeScreen({ route, navigation }) {
 
   const loadMaze = useCallback((currentRung) => {
     setLoading(true);
-    const generated = generateMazeWalls(rows, cols, currentRung, gameMaxRung);
+    const generated = generateMazeWalls(rows, cols, currentRung, gameMaxRung, 0.06);
     const dist = bfsDistances(generated, rows, cols, 0, 0);
-    const t = pickTreasureForRung(dist, rows, cols, currentRung, gameMaxRung);
+    const t = pickTreasureForRung(dist, rows, cols, currentRung, gameMaxRung, 0.7);
     const chemin = bfsPath(generated, dist, 0, 0, t.r, t.c);
-    const pieges = pickTrapCells(chemin, currentRung);
+    const pieges = pickTrapCells(chemin, currentRung, 2, 6);
+    // Monstres : 1 au debut, jusqu'a 3 aux niveaux eleves. Ils patrouillent
+    // dans les couloirs, loin du depart ; les toucher declenche une question.
+    let maxDist = 0;
+    for (let rr = 0; rr < rows; rr++) for (let cc = 0; cc < cols; cc++) if (dist[rr][cc] > maxDist) maxDist = dist[rr][cc];
+    const candidats = [];
+    for (let rr = 0; rr < rows; rr++) for (let cc = 0; cc < cols; cc++) {
+      if (dist[rr][cc] >= maxDist * 0.35 && !(rr === t.r && cc === t.c)) candidats.push({ r: rr, c: cc });
+    }
+    const nbMonstres = Math.min(3, 1 + Math.floor(currentRung / 8));
+    const EMOJIS_MONSTRES = ['👾', '🐲', '🦖'];
+    const monstresInit = shuffle(candidats).slice(0, nbMonstres).map((m, i) => ({ ...m, prev: null, emoji: EMOJIS_MONSTRES[i % EMOJIS_MONSTRES.length] }));
+    monstersRef.current = monstresInit;
+    monstreImmuniseJusquaRef.current = Date.now() + 2500;
+    setMonsters(monstresInit);
     cellsRef.current = generated;
     posRef.current = { r: 0, c: 0 };
     treasureRef.current = { r: t.r, c: t.c };
@@ -9038,6 +9066,65 @@ function ExpeditionMondeScreen({ route, navigation }) {
     loadMaze(newRung);
   }
 
+  function deplacerMonstre(m) {
+    const cs = cellsRef.current;
+    const voisins = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+      .map(([dr, dc]) => ({ r: m.r + dr, c: m.c + dc, dr, dc }))
+      .filter((n) => n.r >= 0 && n.r < rows && n.c >= 0 && n.c < cols && canMove(cs, m.r, m.c, n.dr, n.dc))
+      .filter((n) => !(n.r === 0 && n.c === 0) && !(n.r === treasureRef.current.r && n.c === treasureRef.current.c));
+    if (voisins.length === 0) return m;
+    // Evite de repartir d'ou il vient, sauf en cul-de-sac.
+    const sansRetour = voisins.filter((n) => !(m.prev && n.r === m.prev.r && n.c === m.prev.c));
+    const choix = sansRetour.length > 0 ? sansRetour : voisins;
+    const n = choix[Math.floor(Math.random() * choix.length)];
+    return { ...m, r: n.r, c: n.c, prev: { r: m.r, c: m.c } };
+  }
+
+  function repositionnerMonstre(index) {
+    const p = posRef.current;
+    const loin = [];
+    for (let rr = 0; rr < rows; rr++) for (let cc = 0; cc < cols; cc++) {
+      if (Math.abs(rr - p.r) + Math.abs(cc - p.c) >= 8 && !(rr === treasureRef.current.r && cc === treasureRef.current.c) && !(rr === 0 && cc === 0)) loin.push({ r: rr, c: cc });
+    }
+    if (loin.length === 0) return;
+    const n = loin[Math.floor(Math.random() * loin.length)];
+    const copie = [...monstersRef.current];
+    if (copie[index]) copie[index] = { ...copie[index], r: n.r, c: n.c, prev: null };
+    monstersRef.current = copie;
+    setMonsters(copie);
+  }
+
+  function verifierContactMonstre() {
+    if (finishedRef.current || trapActiveRef.current) return;
+    if (Date.now() < monstreImmuniseJusquaRef.current) return;
+    const p = posRef.current;
+    const idx = monstersRef.current.findIndex((m) => m.r === p.r && m.c === p.c);
+    if (idx < 0) return;
+    trapActiveRef.current = true;
+    (async () => {
+      const question = await fetchMondeQuestion(profil);
+      if (question) {
+        setActiveTrap({ ...question, monster: true, monsterIndex: idx, cellKey: null });
+      } else {
+        trapActiveRef.current = false;
+        monstreImmuniseJusquaRef.current = Date.now() + 2000;
+      }
+    })();
+  }
+
+  useEffect(() => {
+    if (calibPhase === 'checking') return undefined;
+    const id = setInterval(() => {
+      if (finishedRef.current || trapActiveRef.current || !cellsRef.current || monstersRef.current.length === 0) return;
+      const suivants = monstersRef.current.map(deplacerMonstre);
+      monstersRef.current = suivants;
+      setMonsters(suivants);
+      verifierContactMonstre();
+    }, 800);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calibPhase, rows, cols]);
+
   function tryMoveTo(r, c) {
     if (finishedRef.current || !cellsRef.current || trapActiveRef.current) return;
     if (r < 0 || r >= rows || c < 0 || c >= cols) return;
@@ -9079,11 +9166,33 @@ function ExpeditionMondeScreen({ route, navigation }) {
           trapActiveRef.current = false;
         }
       })();
+    } else {
+      verifierContactMonstre();
     }
   }
 
   function handleTrapAnswer(correct) {
     if (!activeTrap) return;
+    if (activeTrap.monster) {
+      const idx = activeTrap.monsterIndex;
+      monstreImmuniseJusquaRef.current = Date.now() + 2500;
+      if (correct) {
+        maybePlayMemo(memosConfig.current, 'bonne_reponse');
+        speakSmart('Bravo, le monstre s’enfuit !');
+        repositionnerMonstre(idx);
+      } else {
+        piegesRatesRef.current += 1;
+        maybePlayMemo(memosConfig.current, 'mauvaise_reponse');
+        speakSmart('Ce n’est pas ça, le monstre te renvoie au départ !');
+        posRef.current = { r: 0, c: 0 };
+        setPos({ r: 0, c: 0 });
+        setVisitedSet(new Set(['0,0']));
+        repositionnerMonstre(idx);
+      }
+      setActiveTrap(null);
+      trapActiveRef.current = false;
+      return;
+    }
     if (correct) {
       maybePlayMemo(memosConfig.current, 'bonne_reponse');
       speakSmart('Bravo, bonne réponse !');
@@ -9105,7 +9214,7 @@ function ExpeditionMondeScreen({ route, navigation }) {
 
   const gridRef = useRef(null);
   const touchAnchorRef = useRef(null);
-  const PAS_GLISSEMENT = MAZE_CELL_SIZE * 0.7;
+  const PAS_GLISSEMENT = EXPEDITION_CELL_SIZE * 0.7;
 
   function onTouchStart(pageX, pageY) {
     touchAnchorRef.current = { x: pageX, y: pageY };
@@ -9209,6 +9318,9 @@ function ExpeditionMondeScreen({ route, navigation }) {
         visitedSet={visitedSet}
         trapCells={trapCellsRef.current}
         trapsResolus={trapsResolus}
+        cellSize={EXPEDITION_CELL_SIZE}
+        showTraps
+        monsters={monsters}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         gridRef={gridRef}
