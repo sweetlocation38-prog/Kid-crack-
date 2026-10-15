@@ -7272,7 +7272,6 @@ function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPromp
         Character={Character}
         buildPrompt={buildPrompt}
         maxRung={effectiveMaxRung}
-        customVisual={customVisual}
         singleLineOptions={singleLineOptions}
         uniformOptions={uniformOptions}
         onDone={async (startRung) => {
