@@ -4867,6 +4867,48 @@ function speak(text) {
   if (text) speakSmart(text);
 }
 
+// Diagnostic du son (reglages parentaux) : les erreurs audio sont d'habitude
+// avalees en silence ; ici on les affiche pour comprendre pourquoi un
+// telephone n'a ni musique ni voix.
+async function diagnosticSon() {
+  const lignes = [];
+  try {
+    const voix = await Speech.getAvailableVoicesAsync();
+    const fr = (voix || []).filter((v) => String(v.language || '').toLowerCase().startsWith('fr'));
+    lignes.push(`Voix : ${(voix || []).length} au total, ${fr.length} en français`);
+  } catch (e) {
+    lignes.push(`Voix : erreur (${e?.message ?? e})`);
+  }
+  try {
+    await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: false, shouldDuckAndroid: true });
+    const { sound } = await Audio.Sound.createAsync(MUSIC_TRACKS[DEFAULT_MUSIC_KEY].file, { volume: 1.0 });
+    await sound.playAsync();
+    await new Promise((r) => setTimeout(r, 1200));
+    const st = await sound.getStatusAsync();
+    lignes.push(`Musique : ${st.isLoaded ? (st.isPlaying ? 'lecture OK' : 'chargée mais ne joue pas') : 'non chargée'}`);
+    try { await sound.stopAsync(); await sound.unloadAsync(); } catch (e) {}
+  } catch (e) {
+    lignes.push(`Musique : erreur (${e?.message ?? e})`);
+  }
+  await new Promise((resolve) => {
+    let demarre = false;
+    const fin = setTimeout(() => { lignes.push(`Voix lue : ${demarre ? 'démarrée' : 'rien ne démarre'}`); resolve(); }, 3500);
+    try {
+      Speech.speak('Test du son', {
+        language: 'fr-FR',
+        onStart: () => { demarre = true; },
+        onDone: () => { clearTimeout(fin); lignes.push('Voix lue : OK'); resolve(); },
+        onError: (er) => { clearTimeout(fin); lignes.push(`Voix lue : erreur (${er?.message ?? er})`); resolve(); },
+      });
+    } catch (e) {
+      clearTimeout(fin);
+      lignes.push(`Voix lue : erreur (${e?.message ?? e})`);
+      resolve();
+    }
+  });
+  Alert.alert('Test du son', lignes.join('\n'));
+}
+
 function SessionEndScreen({ profil, summary, navigation, timeUp, onContinue }) {
   const fiche = summary?.ficheAnimal;
 
@@ -13288,6 +13330,9 @@ function ReglagesParentauxScreen({ route, navigation }) {
         </Pressable>
 
         <Text style={[styles.label, { marginTop: 24 }]}>🎙️ Mémos vocaux</Text>
+        <Pressable style={[styles.button, { marginBottom: 10 }]} onPress={diagnosticSon}>
+          <Text style={styles.buttonText}>🔊 Tester le son</Text>
+        </Pressable>
         <Text style={[styles.label, { marginTop: 4 }]}>🎵 Musique d'ambiance</Text>
         <Text style={styles.helperText}>
           Joue doucement sur la carte et dans les sentiers, jamais pendant les jeux
