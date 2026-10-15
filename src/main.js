@@ -4088,9 +4088,9 @@ function PontDesLettresScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🌉 Le Pont des Lettres'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={styles.gameTitle}>🌉 Le Pont des Lettres</Text>
+        )}
         {calibPhase === 'play' && (
           <Pressable
             onPress={() => {
@@ -6954,6 +6954,18 @@ function CachettesLumaScreen({ route, navigation }) {
 // que de faire s'ennuyer un enfant deja a l'aise.
 const CALIBRAGE_SAUTS_MONTEE = [2, 4, 6, 6];
 
+// Signe distinctif : un badge orange bien visible tant que la partie est un
+// TEST DE NIVEAU (calibrage), pour la reconnaitre d'un coup d'oeil.
+function TestNiveauPill() {
+  return (
+    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+      <View style={{ backgroundColor: '#F28C28', borderRadius: 99, paddingHorizontal: 12, paddingVertical: 5, borderWidth: 2, borderColor: '#B85F00' }}>
+        <Text style={{ color: '#fff', fontWeight: '900', fontSize: 14, letterSpacing: 0.5 }}>🔍 TEST DE NIVEAU</Text>
+      </View>
+    </View>
+  );
+}
+
 // Elements visuels d'une question (icone, ligne d'emojis, texte a lire...) :
 // partages entre le jeu normal et le test de calibrage, pour que la question
 // soit identique (sinon il manque l'enonce, ex. prix/paye du marche).
@@ -7145,7 +7157,7 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
   return (
     <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame(jeuCode) }]}>
       <View style={styles.topBar}>
-        <Text style={styles.gameTitle}>🔍 On découvre ton niveau !</Text>
+        <TestNiveauPill />
         <Text style={styles.roundLabel}>Manche {roundIndex + 1}</Text>
       </View>
 
@@ -7865,9 +7877,9 @@ function TriVillageScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🗂️ Le Tri du Village'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={styles.gameTitle}>🗂️ Le Tri du Village</Text>
+        )}
         {calibPhase === 'play' && (
           <Pressable
             onPress={() => {
@@ -8695,9 +8707,9 @@ function LabyrintheGrotteScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🌀 Le Labyrinthe de la Grotte'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>🌀 Le Labyrinthe de la Grotte</Text>
+        )}
         {calibPhase === 'play' && (
           <Pressable
             onPress={() => {
@@ -9295,9 +9307,9 @@ function ExpeditionMondeScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🧭 L’Expédition du Monde'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>🧭 L’Expédition du Monde</Text>
+        )}
         {calibPhase === 'play' && (
           <Pressable
             onPress={() => {
@@ -10125,9 +10137,9 @@ function CheminDizainesScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🌾 Le Chemin des Dizaines'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>🌾 Le Chemin des Dizaines</Text>
+        )}
         {calibPhase === 'play' && (
           <Pressable
             onPress={() => {
@@ -10639,9 +10651,9 @@ function BarresLumaScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '📏 Les Barres de Luma'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={styles.gameTitle}>📏 Les Barres de Luma</Text>
+        )}
         {calibPhase === 'play' && (
           <Pressable
             onPress={() => {
@@ -11074,9 +11086,9 @@ function PuzzleMoulinScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🧩 Le Puzzle du Moulin'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={styles.gameTitle}>🧩 Le Puzzle du Moulin</Text>
+        )}
         {calibPhase === 'play' && (
           <Pressable
             onPress={() => {
@@ -11391,9 +11403,9 @@ function FriseTempsScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '📜 La Frise du Temps'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={styles.gameTitle}>📜 La Frise du Temps</Text>
+        )}
         {calibPhase === 'play' && (
           <Pressable
             onPress={() => {
@@ -11799,9 +11811,9 @@ function MemoryScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '⭐ Le Mémory des Étoiles'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={styles.gameTitle}>⭐ Le Mémory des Étoiles</Text>
+        )}
         {calibPhase === 'play' && (
           <Pressable
             onPress={() => {
@@ -12125,9 +12137,9 @@ function CoffreSouvenirsScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🧰 Le Coffre aux Souvenirs'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={styles.gameTitle}>🧰 Le Coffre aux Souvenirs</Text>
+        )}
         {calibPhase === 'play' && (
           <Pressable
             onPress={() => {
@@ -13950,9 +13962,9 @@ function MotsFlechesScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '📝 Les Mots Fléchés'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={styles.gameTitle}>📝 Les Mots Fléchés</Text>
+        )}
         <Text style={{ width: 24 }} />
       </View>
 
@@ -14331,9 +14343,9 @@ function MotMystereScreen({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
-        <Text style={styles.gameTitle}>
-          {calibPhase === 'calibrating' ? '🔍 On découvre ton niveau !' : '🔎 Le Mot Mystère'}
-        </Text>
+        {calibPhase === 'calibrating' ? <TestNiveauPill /> : (
+          <Text style={styles.gameTitle}>🔎 Le Mot Mystère</Text>
+        )}
         <Text style={{ width: 24 }} />
       </View>
 
