@@ -8192,7 +8192,7 @@ function pickTrapCells(path, rung, plus = 1, maxN = 4) {
   return pieges;
 }
 
-function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, trapCells, trapsResolus, onTouchStart, onTouchMove, gridRef, cellSize: cellSizeProp, showTraps, monsters }) {
+function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, trapCells, trapsResolus, onTouchStart, onTouchMove, gridRef, cellSize: cellSizeProp, showTraps, monsters, onLockScroll }) {
   const cellSize = cellSizeProp ?? MAZE_CELL_SIZE;
   const monsterAt = new Map((monsters ?? []).map((m) => [`${m.r},${m.c}`, m.emoji]));
   const wallColor = '#3D2E4F';
@@ -8203,8 +8203,11 @@ function MazeGridVisual({ cells, rows, cols, pos, start, treasure, visitedSet, t
       collapsable={false}
       onStartShouldSetResponder={() => true}
       onMoveShouldSetResponder={() => true}
-      onResponderGrant={(e) => onTouchStart(e.nativeEvent.pageX, e.nativeEvent.pageY)}
+      onResponderGrant={(e) => { onLockScroll && onLockScroll(true); onTouchStart(e.nativeEvent.pageX, e.nativeEvent.pageY); }}
       onResponderMove={(e) => onTouchMove(e.nativeEvent.pageX, e.nativeEvent.pageY)}
+      onResponderRelease={() => onLockScroll && onLockScroll(false)}
+      onResponderTerminate={() => onLockScroll && onLockScroll(false)}
+      onResponderTerminationRequest={() => false}
       style={{ alignSelf: 'center', marginVertical: 12, backgroundColor: '#EDE7F6', borderRadius: 6 }}
     >
       {cells.map((row, r) => (
@@ -8350,6 +8353,7 @@ function TrapQuestionModal({ visible, trapData, onAnswer }) {
 }
 
 function LabyrintheGrotteScreen({ route, navigation }) {
+  const [scrollLocked, setScrollLocked] = useState(false);
   const memosConfig = useRef(null);
   useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
@@ -8672,7 +8676,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DCD3E8', paddingTop: 6, paddingBottom: 6 }]}>
+    <ScrollView scrollEnabled={!scrollLocked} contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DCD3E8', paddingTop: 6, paddingBottom: 6 }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 4 }}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -8733,6 +8737,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         gridRef={gridRef}
+        onLockScroll={setScrollLocked}
       />
 
       <TrapQuestionModal
@@ -8869,6 +8874,7 @@ async function assurerMiniJeuExpeditionMonde() {
 const EXPEDITION_CELL_SIZE = 28; // cases plus petites que le Labyrinthe de la Grotte : labyrinthe plus grand et plus complexe
 
 function ExpeditionMondeScreen({ route, navigation }) {
+  const [scrollLocked, setScrollLocked] = useState(false);
   const memosConfig = useRef(null);
   useEffect(() => { fetchMemosConfig(route.params.profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []);
@@ -9270,7 +9276,7 @@ function ExpeditionMondeScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DFF1FB', paddingTop: 6, paddingBottom: 6 }]}>
+    <ScrollView scrollEnabled={!scrollLocked} contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DFF1FB', paddingTop: 6, paddingBottom: 6 }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 4 }}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -9334,6 +9340,7 @@ function ExpeditionMondeScreen({ route, navigation }) {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         gridRef={gridRef}
+        onLockScroll={setScrollLocked}
       />
 
       <MondeQuestionModal
