@@ -7007,7 +7007,7 @@ function PromptExtras({ promptData, customVisual }) {
   );
 }
 
-function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, maxRung, onDone, customVisual }) {
+function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, maxRung, onDone, customVisual, singleLineOptions, uniformOptions }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
   const [promptData, setPromptData] = useState(null);
   const [optionsOrder, setOptionsOrder] = useState([]);
@@ -7160,7 +7160,7 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
         <Text style={styles.promptText}>{promptData.promptText}</Text>
         <Pressable
           style={styles.listenButton}
-          onPress={() => speakSmart(promptData.speak || promptData.promptText)}
+          onPress={() => promptData.soundEffect ? playSoundEffect(promptData.soundEffect) : speakSmart(promptData.speak || promptData.promptText)}
         >
           <Text style={styles.listenText}>🎤 Écouter</Text>
         </Pressable>
@@ -7194,10 +7194,10 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
                 ]}
               >
                 <Text
-                  style={[styles.optionText, estUnEmojiSeul && styles.optionTextIcon]}
-                  numberOfLines={2}
+                  style={uniformOptions ? [styles.optionText, { fontSize: uniformOptionFontSize(option) }] : [styles.optionText, estUnEmojiSeul && styles.optionTextIcon]}
+                  numberOfLines={singleLineOptions ? 1 : 2}
                   adjustsFontSizeToFit
-                  minimumFontScale={0.7}
+                  minimumFontScale={uniformOptions ? 0.75 : singleLineOptions ? 0.5 : 0.7}
                 >
                   {String(option)}
                 </Text>
@@ -7272,6 +7272,9 @@ function CalibratedChoiceGame({ route, navigation, jeuCode, jeuTitre, buildPromp
         Character={Character}
         buildPrompt={buildPrompt}
         maxRung={effectiveMaxRung}
+        customVisual={customVisual}
+        singleLineOptions={singleLineOptions}
+        uniformOptions={uniformOptions}
         onDone={async (startRung) => {
           // Sauvegarde immediate : si l'enfant quitte avant la fin de la
           // toute premiere session (les 20 manches), le calibrage ne doit
@@ -8374,7 +8377,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const gameMaxRung = rungFromGradeAndPalier('6e', 3); // retour de Thierry : plafond releve, cm2 etait atteint trop vite par certains enfants
   const { rows, cols } = useMemo(
-    () => mazeGridDimensionsForScreen(screenWidth, screenHeight),
+    () => mazeGridDimensionsForScreen(screenWidth, screenHeight - 85),
     [screenWidth, screenHeight]
   );
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -8688,7 +8691,7 @@ function LabyrintheGrotteScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView scrollEnabled={!scrollLocked} contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DCD3E8', paddingTop: 6, paddingBottom: 6 }]}>
+    <ScrollView scrollEnabled={false} contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DCD3E8', paddingTop: 6, paddingBottom: 6 }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 4 }}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -8895,7 +8898,7 @@ function ExpeditionMondeScreen({ route, navigation }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const gameMaxRung = rungFromGradeAndPalier('6e', 3);
   const { rows, cols } = useMemo(
-    () => mazeGridDimensionsForScreen(screenWidth, screenHeight, EXPEDITION_CELL_SIZE),
+    () => mazeGridDimensionsForScreen(screenWidth, screenHeight - 85, EXPEDITION_CELL_SIZE),
     [screenWidth, screenHeight]
   );
   const [miniJeuId, setMiniJeuId] = useState(null);
@@ -9288,7 +9291,7 @@ function ExpeditionMondeScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView scrollEnabled={!scrollLocked} contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DFF1FB', paddingTop: 6, paddingBottom: 6 }]}>
+    <ScrollView scrollEnabled={false} contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: '#DFF1FB', paddingTop: 6, paddingBottom: 6 }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 4 }}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
