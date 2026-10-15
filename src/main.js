@@ -5789,49 +5789,7 @@ function ChoiceGameScreen({ route, navigation, jeuCode, jeuTitre, buildPrompt, C
       ) : null}
 
       <View style={styles.promptZone}>
-        {promptData.icon ? <Text style={styles.icon}>{promptData.icon}</Text> : null}
-        {promptData.visual && !customVisual ? <Text style={styles.visualRow}>{promptData.visual}</Text> : null}
-        {promptData.emojiCount != null ? (
-          <View style={{ marginBottom: 10 }}>
-            {promptData.emojiDistracteurIcon ? (
-              <EmojiCountRowMixed
-                count={promptData.emojiCount}
-                emoji={promptData.emojiIcon ?? '🍎'}
-                distracteurCount={promptData.emojiDistracteurCount}
-                distracteurEmoji={promptData.emojiDistracteurIcon}
-                size={30}
-              />
-            ) : (
-              <EmojiCountRow count={promptData.emojiCount} emoji={promptData.emojiIcon ?? '🍎'} size={30} />
-            )}
-          </View>
-        ) : null}
-        {promptData.emojiSplit ? (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 18, justifyContent: 'center', marginBottom: 10 }}>
-            <View style={{ maxWidth: '42%' }}>
-              <EmojiCountRow count={promptData.emojiSplit[0]} emoji={promptData.emojiIcon ?? '🍎'} size={26} />
-            </View>
-            <View style={{ maxWidth: '42%' }}>
-              <EmojiCountRow count={promptData.emojiSplit[1]} emoji={promptData.emojiIcon ?? '🍎'} size={26} />
-            </View>
-          </View>
-        ) : null}
-        {promptData.emojiCompare ? (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
-            <View style={{ maxWidth: '40%' }}>
-              <EmojiCountRow count={promptData.emojiCompare[0]} emoji={promptData.emojiIcon ?? '🍎'} size={22} />
-            </View>
-            <Text style={{ fontWeight: '800', color: colors.mossDeep }}>VS</Text>
-            <View style={{ maxWidth: '40%' }}>
-              <EmojiCountRow count={promptData.emojiCompare[1]} emoji={promptData.emojiIcon ?? '🍎'} size={22} />
-            </View>
-          </View>
-        ) : null}
-        {promptData.texteAffiche ? (
-          <View style={styles.readingBox}>
-            <Text style={styles.readingText}>{promptData.texteAffiche}</Text>
-          </View>
-        ) : null}
+        <PromptExtras promptData={promptData} customVisual={customVisual} />
         <Text style={styles.promptText}>{promptData.promptText}</Text>
         {promptData.speak ? (
           <Pressable
@@ -6996,7 +6954,60 @@ function CachettesLumaScreen({ route, navigation }) {
 // que de faire s'ennuyer un enfant deja a l'aise.
 const CALIBRAGE_SAUTS_MONTEE = [2, 4, 6, 6];
 
-function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, maxRung, onDone }) {
+// Elements visuels d'une question (icone, ligne d'emojis, texte a lire...) :
+// partages entre le jeu normal et le test de calibrage, pour que la question
+// soit identique (sinon il manque l'enonce, ex. prix/paye du marche).
+function PromptExtras({ promptData, customVisual }) {
+  return (
+    <>
+        {promptData.icon ? <Text style={styles.icon}>{promptData.icon}</Text> : null}
+        {promptData.visual && !customVisual ? <Text style={styles.visualRow}>{promptData.visual}</Text> : null}
+        {promptData.emojiCount != null ? (
+          <View style={{ marginBottom: 10 }}>
+            {promptData.emojiDistracteurIcon ? (
+              <EmojiCountRowMixed
+                count={promptData.emojiCount}
+                emoji={promptData.emojiIcon ?? '🍎'}
+                distracteurCount={promptData.emojiDistracteurCount}
+                distracteurEmoji={promptData.emojiDistracteurIcon}
+                size={30}
+              />
+            ) : (
+              <EmojiCountRow count={promptData.emojiCount} emoji={promptData.emojiIcon ?? '🍎'} size={30} />
+            )}
+          </View>
+        ) : null}
+        {promptData.emojiSplit ? (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 18, justifyContent: 'center', marginBottom: 10 }}>
+            <View style={{ maxWidth: '42%' }}>
+              <EmojiCountRow count={promptData.emojiSplit[0]} emoji={promptData.emojiIcon ?? '🍎'} size={26} />
+            </View>
+            <View style={{ maxWidth: '42%' }}>
+              <EmojiCountRow count={promptData.emojiSplit[1]} emoji={promptData.emojiIcon ?? '🍎'} size={26} />
+            </View>
+          </View>
+        ) : null}
+        {promptData.emojiCompare ? (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
+            <View style={{ maxWidth: '40%' }}>
+              <EmojiCountRow count={promptData.emojiCompare[0]} emoji={promptData.emojiIcon ?? '🍎'} size={22} />
+            </View>
+            <Text style={{ fontWeight: '800', color: colors.mossDeep }}>VS</Text>
+            <View style={{ maxWidth: '40%' }}>
+              <EmojiCountRow count={promptData.emojiCompare[1]} emoji={promptData.emojiIcon ?? '🍎'} size={22} />
+            </View>
+          </View>
+        ) : null}
+        {promptData.texteAffiche ? (
+          <View style={styles.readingBox}>
+            <Text style={styles.readingText}>{promptData.texteAffiche}</Text>
+          </View>
+        ) : null}
+    </>
+  );
+}
+
+function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, maxRung, onDone, customVisual }) {
   useEffect(() => { stopBgMusic(); }, []); // pas de musique pendant les jeux, pour la concentration
   const [promptData, setPromptData] = useState(null);
   const [optionsOrder, setOptionsOrder] = useState([]);
@@ -7145,6 +7156,7 @@ function CalibrationTest({ profil, jeuCode, jeuTitre, Character, buildPrompt, ma
       ) : null}
 
       <View style={styles.promptZone}>
+        <PromptExtras promptData={promptData} customVisual={customVisual} />
         <Text style={styles.promptText}>{promptData.promptText}</Text>
         <Pressable
           style={styles.listenButton}
