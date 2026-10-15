@@ -2096,6 +2096,7 @@ function ProfileSelectScreen({ navigation }) {
     })();
   }, [familleId]);
 
+  const loadingProfilsRef = useRef(false);
   const loadProfils = useCallback(async () => {
     setLoading(true);
     const { data: userData } = await supabase.auth.getUser();
@@ -2103,19 +2104,21 @@ function ProfileSelectScreen({ navigation }) {
       setLoading(false);
       return;
     }
-    let { data: famille } = await supabase
-      .from('familles')
-      .select('id')
-      .eq('parent_user_id', userData.user.id)
-      .maybeSingle();
-
-    if (!famille) {
-      const { data: created } = await supabase
+    if (loadingProfilsRef.current) return;
+    loadingProfilsRef.current = true;
+    const pickFamille = async () => {
+      const { data: rows } = await supabase
         .from('familles')
-        .insert({ parent_user_id: userData.user.id })
         .select('id')
-        .single();
-      famille = created;
+        .eq('parent_user_id', userData.user.id)
+        .order('created_at', { ascending: true })
+        .limit(1);
+      return rows && rows[0] ? rows[0] : null;
+    };
+    let famille = await pickFamille();
+    if (!famille) {
+      await supabase.from('familles').insert({ parent_user_id: userData.user.id });
+      famille = await pickFamille();
     }
 
     if (famille) {
@@ -2127,6 +2130,7 @@ function ProfileSelectScreen({ navigation }) {
         .order('prenom');
       setProfils(profilsData ?? []);
     }
+    loadingProfilsRef.current = false;
     setLoading(false);
   }, []);
 
@@ -2454,7 +2458,7 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
   async function handleCreate() {
     if (!familleId || !prenom.trim() || !securityAvatar) return;
     setSaving(true);
-    const { data: inserted } = await supabase
+    const { data: inserted, error: insertError } = await supabase
       .from('profils_enfants')
       .insert({
         famille_id: familleId,
@@ -2466,6 +2470,12 @@ function AddProfileModal({ visible, familleId, onClose, onCreated }) {
       })
       .select('id')
       .single();
+
+    if (insertError || !inserted) {
+      setSaving(false);
+      Alert.alert('Profil non créé', `${insertError ? insertError.message : 'Erreur inconnue'}. Vérifiez la connexion et réessayez.`);
+      return;
+    }
 
     if (inserted && photoUri) {
       const { url, error } = await uploadFileToStorage(
