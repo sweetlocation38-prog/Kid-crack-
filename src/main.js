@@ -9685,75 +9685,129 @@ function mjBuildPairs(kind, rung, count) {
   return out;
 }
 
-// Taille du plateau selon le niveau : beaucoup de cartes des les petits niveaux.
+// Taille du plateau selon le niveau : beaucoup de cartes, plusieurs etages.
 function mjProfile(rung) {
-  if (rung <= 3) return { cols: 6, rows: 4, layers: 1, piles: 1, depth: 3 };
-  if (rung <= 6) return { cols: 6, rows: 4, layers: 2, piles: 2, depth: 3 };
-  if (rung <= 9) return { cols: 7, rows: 4, layers: 2, piles: 2, depth: 3 };
-  if (rung <= 12) return { cols: 8, rows: 4, layers: 2, piles: 3, depth: 3 };
-  if (rung <= 15) return { cols: 8, rows: 4, layers: 3, piles: 3, depth: 4 };
-  if (rung <= 21) return { cols: 8, rows: 5, layers: 2, piles: 3, depth: 4 };
-  return { cols: 8, rows: 5, layers: 3, piles: 4, depth: 4 };
+  if (rung <= 3) return { cols: 6, rows: 5, layers: 3, total: 30, piles: 1, depth: 3 };
+  if (rung <= 6) return { cols: 7, rows: 6, layers: 3, total: 40, piles: 2, depth: 3 };
+  if (rung <= 9) return { cols: 7, rows: 6, layers: 4, total: 50, piles: 2, depth: 3 };
+  if (rung <= 12) return { cols: 8, rows: 6, layers: 4, total: 60, piles: 3, depth: 3 };
+  if (rung <= 15) return { cols: 8, rows: 7, layers: 4, total: 70, piles: 3, depth: 4 };
+  if (rung <= 21) return { cols: 8, rows: 7, layers: 5, total: 80, piles: 4, depth: 4 };
+  return { cols: 8, rows: 7, layers: 5, total: 90, piles: 4, depth: 4 };
 }
 
-// Plateau en pyramide a recouvrement partiel : positions en DEMI-cartes
-// (x, y). Chaque etage est decale d'une demi-carte, comme au vrai Mahjong.
-// Les "tas" (p = numero du tas, k = rang dans le tas, 0 = dessus) sont des
-// piles au milieu : seule la carte du dessus est visible.
+// Plateau irregulier a recouvrement partiel : l'etage 0 est une forme
+// organique, les etages du dessus se posent en alignement ou decales d'une
+// demi-carte (x, y en DEMI-cartes). Les "tas" (p = numero du tas, k = rang
+// dans le tas, 0 = dessus) sont des piles au milieu : seule la carte du
+// dessus est visible.
 function mjBuildLayout(prof) {
-  const { cols, rows, layers, piles, depth } = prof;
-  const pileCells = [];
-  if (piles > 0 && rows >= 3 && cols >= 3) {
-    const cands = [];
-    for (let c = 1; c < cols - 1; c += 1) for (let r = 1; r < rows - 1; r += 1) cands.push({ c, r });
-    for (const cell of shuffle(cands)) {
-      if (pileCells.length >= piles) break;
-      if (pileCells.every((q) => Math.abs(q.c - cell.c) >= 2 || Math.abs(q.r - cell.r) >= 2)) pileCells.push(cell);
+  const { cols, rows, layers, total, piles, depth } = prof;
+  const FR = [0.46, 0.28, 0.16, 0.07, 0.03].slice(0, layers);
+  const sum = FR.reduce((a, b) => a + b, 0);
+  const key = (c, r) => `${c},${r}`;
+  const nb = (c, r) => [[c + 1, r], [c - 1, r], [c, r + 1], [c, r - 1]];
+  const set = new Set();
+  set.add(key(Math.floor(cols / 2), Math.floor(rows / 2)));
+  const cellsTarget = Math.min(cols * rows, Math.max(8, Math.round((total * FR[0]) / sum) - piles * (depth - 1)));
+  let guard = 0;
+  while (set.size < cellsTarget && guard < 2000) {
+    guard += 1;
+    const frontier = [];
+    set.forEach((k) => {
+      const [c, r] = k.split(',').map(Number);
+      nb(c, r).forEach(([a, b]) => {
+        if (a >= 0 && a < cols && b >= 0 && b < rows && !set.has(key(a, b))) frontier.push([a, b]);
+      });
+    });
+    if (!frontier.length) break;
+    let best = null;
+    let bestScore = -1;
+    for (let q = 0; q < 3; q += 1) {
+      const [a, b] = frontier[Math.floor(Math.random() * frontier.length)];
+      const score = nb(a, b).filter(([x, y]) => set.has(key(x, y))).length + Math.random();
+      if (score > bestScore) { bestScore = score; best = [a, b]; }
     }
+    set.add(key(best[0], best[1]));
+  }
+  const cells = [...set].map((k) => { const [c, r] = k.split(',').map(Number); return { c, r }; })
+    .sort((a, b) => (a.r - b.r) || (a.c - b.c));
+
+  // Tas : sur des cases bien a l'interieur de la forme.
+  const pileCells = [];
+  const interior = shuffle(cells.filter((q) => nb(q.c, q.r).every(([a, b]) => set.has(key(a, b)))));
+  for (const cell of interior) {
+    if (pileCells.length >= piles) break;
+    if (pileCells.every((q) => Math.abs(q.c - cell.c) >= 2 || Math.abs(q.r - cell.r) >= 2)) pileCells.push(cell);
   }
   const pileOf = {};
-  pileCells.forEach((pc, idx) => { pileOf[`${pc.c},${pc.r}`] = idx; });
+  pileCells.forEach((pc, idx) => { pileOf[key(pc.c, pc.r)] = idx; });
+
   const out = [];
-  for (let k = 0; k < layers; k += 1) {
-    const w = cols - k;
-    const h = rows - k;
-    if (w < 1 || h < 1) break;
-    for (let r = 0; r < h; r += 1) {
-      for (let c = 0; c < w; c += 1) {
-        const x = 2 * c + k;
-        const y = 2 * r + k;
-        if (k === 0) {
-          const idx = pileOf[`${c},${r}`];
-          if (idx !== undefined) {
-            for (let q = 0; q < depth; q += 1) out.push({ x, y, l: 0, p: idx, k: q });
-          } else {
-            out.push({ x, y, l: 0, p: null, k: 0 });
-          }
-          continue;
-        }
-        if (pileCells.some((pc) => Math.abs(x - 2 * pc.c) < 2 && Math.abs(y - 2 * pc.r) < 2)) continue;
-        out.push({ x, y, l: k, p: null, k: 0 });
-      }
+  cells.forEach(({ c, r }) => {
+    const idx = pileOf[key(c, r)];
+    if (idx !== undefined) {
+      for (let q = 0; q < depth; q += 1) out.push({ x: 2 * c, y: 2 * r, l: 0, p: idx, k: q });
+    } else {
+      out.push({ x: 2 * c, y: 2 * r, l: 0, p: null, k: 0 });
     }
+  });
+
+  const foot = pileCells.map((pc) => ({ x: 2 * pc.c, y: 2 * pc.r }));
+  const cx = cells.reduce((a, q) => a + 2 * q.c, 0) / cells.length;
+  const cy = cells.reduce((a, q) => a + 2 * q.r, 0) / cells.length;
+  let prev = out.filter((t) => t.p == null);
+  for (let k = 1; k < layers; k += 1) {
+    const nk = Math.round((total * FR[k]) / sum);
+    const seen = new Set();
+    const cand = [];
+    prev.forEach((t) => {
+      [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]].forEach(([dx, dy]) => {
+        const x = t.x + dx;
+        const y = t.y + dy;
+        const kk = `${x},${y}`;
+        if (seen.has(kk)) return;
+        seen.add(kk);
+        const support = prev.filter((u) => Math.abs(u.x - x) < 2 && Math.abs(u.y - y) < 2).length;
+        const aligned = prev.some((u) => u.x === x && u.y === y);
+        if (support < (aligned ? 1 : 2)) return;
+        if (foot.some((f) => Math.abs(f.x - x) < 2 && Math.abs(f.y - y) < 2)) return;
+        cand.push({ x, y, s: (Math.abs(x - cx) + Math.abs(y - cy)) / 2 + Math.random() * 2.2 });
+      });
+    });
+    cand.sort((a, b) => a.s - b.s);
+    const layer = [];
+    for (const c of cand) {
+      if (layer.length >= nk) break;
+      if (layer.some((u) => Math.abs(u.x - c.x) < 2 && Math.abs(u.y - c.y) < 2)) continue;
+      layer.push({ x: c.x, y: c.y, l: k, p: null, k: 0 });
+    }
+    if (!layer.length) break;
+    layer.forEach((u) => out.push(u));
+    prev = layer;
   }
   if (out.length % 2 === 1) {
     for (let i = out.length - 1; i >= 0; i -= 1) {
       if (out[i].p == null) { out.splice(i, 1); break; }
     }
   }
-  return out;
+  const minX = Math.min(...out.map((t) => t.x));
+  const minY = Math.min(...out.map((t) => t.y));
+  return out.map((t) => ({ ...t, x: t.x - minX, y: t.y - minY }));
 }
 
-// Une carte est libre si : elle est le dessus de son tas, aucune carte ne la
-// recouvre (meme en partie) et au moins un de ses cotes (gauche ou droite)
-// est vide.
+// Une carte est libre si : elle est dans le bandeau, ou bien elle est le
+// dessus de son tas, aucune carte ne la recouvre (meme en partie) et au moins
+// un de ses cotes (gauche ou droite) est vide.
 function mjIsFree(tiles, alive, i) {
   const t = tiles[i];
+  if (t.tray) return true;
   let left = false;
   let right = false;
   for (const j of alive) {
     if (j === i) continue;
     const u = tiles[j];
+    if (u.tray) continue;
     if (u.p != null && u.p === t.p && u.k < t.k) return false;
     if (u.l > t.l && Math.abs(u.x - t.x) < 2 && Math.abs(u.y - t.y) < 2) return false;
     if (u.l === t.l && Math.abs(u.y - t.y) < 2) {
@@ -9768,9 +9822,9 @@ function mjIsFree(tiles, alive, i) {
 // Carte cachee sous une autre carte de son tas.
 function mjIsHidden(tiles, alive, i) {
   const t = tiles[i];
-  if (t.p == null) return false;
+  if (t.tray || t.p == null) return false;
   for (const j of alive) {
-    if (j !== i && tiles[j].p === t.p && tiles[j].k < t.k) return true;
+    if (j !== i && !tiles[j].tray && tiles[j].p === t.p && tiles[j].k < t.k) return true;
   }
   return false;
 }
@@ -9779,7 +9833,7 @@ function mjIsHidden(tiles, alive, i) {
 // au hasard et on leur donne une paire - le plateau est donc toujours soluble.
 // Renvoie null si aucune distribution n'est trouvee.
 function mjDeal(layout, pairs) {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
+  for (let attempt = 0; attempt < 60; attempt += 1) {
     const alive = new Set(layout.map((_, i) => i));
     const order = [];
     let stuck = false;
@@ -9845,12 +9899,13 @@ function mjRang(plateaux) {
 const MJ_CADEAUX = ['🦄', '🐉', '🚀', '🏰', '🎨', '🧁', '🦋', '🐬', '🌈', '🎡'];
 
 // Jokers : se gagnent en montant de niveau, en reussissant bien un plateau,
-// en changeant de rang, et via des bonus gratuits a la fin de certains plateaux.
+// en changeant de rang, via des cartes "joker" sur le plateau et des bonus
+// gratuits a la fin de certains plateaux.
 const MJ_JOKERS = [
-  { id: 'undo', e: '↩️', nom: 'Retour', voix: 'Je reviens en arrière !' },
-  { id: 'hint', e: '💡', nom: 'Indice', voix: 'Regarde bien !' },
   { id: 'shuffle', e: '🔀', nom: 'Mélange', voix: 'Je mélange les cartes !' },
   { id: 'loupe', e: '🔍', nom: 'Loupe', voix: 'Touche un tas pour regarder dessous.' },
+  { id: 'hint', e: '💡', nom: 'Indice', voix: 'Regarde bien !' },
+  { id: 'undo', e: '↩️', nom: 'Retour', voix: 'Je reviens en arrière !' },
   { id: 'wild', e: '🃏', nom: 'Passe-partout', voix: 'Touche une carte libre, elle part avec sa jumelle.' },
 ];
 const MJ_JK_DEFAUT = { undo: 2, hint: 2, shuffle: 1, loupe: 1, wild: 1 };
@@ -9907,6 +9962,7 @@ function MahjongSavoirsScreen({ route, navigation }) {
   const finishedRef = useRef(false);
   const modeRef = useRef('maths');
   const errBy = useRef({ maths: 0, francais: 0 });
+  const bonusRef = useRef(0);
   const jokersUsedRef = useRef(0);
   const startedAt = useRef(Date.now());
   const miniJeuIdRef = useRef(null);
@@ -9916,7 +9972,7 @@ function MahjongSavoirsScreen({ route, navigation }) {
   function showMsg(m) {
     setMsg(m);
     if (msgTimer.current) clearTimeout(msgTimer.current);
-    msgTimer.current = setTimeout(() => setMsg(null), 3000);
+    msgTimer.current = setTimeout(() => setMsg(null), 3200);
   }
 
   function setArmedBoth(v) {
@@ -9935,15 +9991,26 @@ function MahjongSavoirsScreen({ route, navigation }) {
       return [...mjBuildPairs('maths', d.rM, nm), ...mjBuildPairs('francais', d.rF, n - nm)];
     };
     const tryDeal = (profile) => {
-      let layout = mjBuildLayout(profile);
-      const pairs = pairsFor(layout.length / 2);
-      // Securite : si le niveau n'a pas assez de variantes, on retire des cartes du dessus.
-      if (pairs.length * 2 < layout.length) layout = layout.slice(0, pairs.length * 2);
-      return mjDeal(layout, pairs.slice(0, layout.length / 2));
+      for (let q = 0; q < 14; q += 1) {
+        let layout = mjBuildLayout(profile);
+        const pairs = pairsFor(layout.length / 2);
+        // Securite : si le niveau n'a pas assez de variantes, on retire des cartes du dessus.
+        if (pairs.length * 2 < layout.length) layout = layout.slice(0, pairs.length * 2);
+        const dealt = mjDeal(layout, pairs.slice(0, layout.length / 2));
+        if (dealt) return dealt;
+      }
+      return null;
     };
     let dealt = tryDeal(prof);
     if (!dealt) dealt = tryDeal({ ...prof, piles: 0 });
-    if (!dealt) dealt = tryDeal({ cols: 4, rows: 3, layers: 1, piles: 0, depth: 0 });
+    if (!dealt) dealt = tryDeal({ cols: 4, rows: 3, layers: 1, total: 12, piles: 0, depth: 0 });
+
+    // Cartes bonus : "x2" (2 etoiles en plus) et "joker" (un joker offert).
+    const nTags = Math.max(2, Math.round(dealt.length / 18));
+    shuffle(dealt.map((_, i) => i)).slice(0, nTags).forEach((i, q) => {
+      dealt[i] = { ...dealt[i], tag: q % 2 === 0 ? 'x2' : 'joker' };
+    });
+
     tilesRef.current = dealt;
     removedRef.current = new Set();
     selectedRef.current = null;
@@ -9952,6 +10019,7 @@ function MahjongSavoirsScreen({ route, navigation }) {
     finishedRef.current = false;
     modeRef.current = m;
     errBy.current = { maths: 0, francais: 0 };
+    bonusRef.current = 0;
     jokersUsedRef.current = 0;
     startedAt.current = Date.now();
     armedRef.current = null;
@@ -9964,7 +10032,9 @@ function MahjongSavoirsScreen({ route, navigation }) {
     setWrongPair(null);
     setHint(null);
     const intro = m === 'maths' ? 'Un plateau de maths !' : m === 'francais' ? 'Un plateau de français !' : 'Un plateau surprise !';
-    speakSmart(`${intro} Retire deux cartes libres qui vont ensemble.`);
+    const premier = (d.plateaux ?? 0) < 1;
+    speakSmart(`${intro} Retire deux cartes libres qui vont ensemble.${premier ? ' Tu peux mettre jusqu’à trois cartes de côté dans le bandeau du haut.' : ''}`);
+    if (premier) showMsg('Touche une carte puis le bandeau pour la mettre de côté (3 maximum).');
   }, []);
 
   useEffect(() => {
@@ -10020,11 +10090,41 @@ function MahjongSavoirsScreen({ route, navigation }) {
     return s;
   }
 
-  async function finishPlateau() {
+  async function finishPlateau(lost = false) {
     if (finishedRef.current) return;
     finishedRef.current = true;
     const t = tilesRef.current;
     const d = { ...detailsRef.current };
+    d.lastMode = modeRef.current;
+
+    if (lost) {
+      // Plateau perdu : ni etoiles, ni changement de niveau. On garde juste l'etat des jokers.
+      if (miniJeuIdRef.current) {
+        try {
+          await supabase.from('progression').upsert(
+            {
+              profil_id: profil.id,
+              mini_jeu_id: miniJeuIdRef.current,
+              palier_actuel: rungRef.current,
+              details: d,
+              temps_reference_secondes: null,
+              echecs_consecutifs: 0,
+            },
+            { onConflict: 'profil_id,mini_jeu_id' }
+          );
+        } catch (e) {
+          // Non bloquant.
+        }
+      }
+      detailsRef.current = d;
+      setDetails(d);
+      setJk(d.jk);
+      setSessionSummary(null);
+      setResult({ lost: true, newRungDisp: rungRef.current });
+      speakSmart('Oh non, ce plateau est perdu ! Ce n’est pas grave, on en recommence un autre. Tu vas y arriver !');
+      return;
+    }
+
     const pBy = { maths: 0, francais: 0 };
     t.forEach((x) => { pBy[x.subj] += 0.5; });
     const nPairs = t.length / 2;
@@ -10053,16 +10153,16 @@ function MahjongSavoirsScreen({ route, navigation }) {
     const ratio = errTotal / nPairs;
     let stars = ratio <= 0.1 ? 3 : ratio <= 0.4 ? 2 : 1;
     if (jokersUsedRef.current >= 3) stars = Math.min(stars, 2);
+    const bonus = bonusRef.current;
     const prevRang = mjRang(d.plateaux ?? 0);
     d.plateaux = (d.plateaux ?? 0) + 1;
-    d.etoiles = (d.etoiles ?? 0) + stars;
+    d.etoiles = (d.etoiles ?? 0) + stars + bonus;
     const rang = mjRang(d.plateaux);
     let gift = null;
     if (d.plateaux % 5 === 0) {
       gift = MJ_CADEAUX[(d.plateaux / 5 - 1) % MJ_CADEAUX.length];
       d.cadeaux = [...(d.cadeaux ?? []), gift].slice(-30);
     }
-    d.lastMode = modeRef.current;
 
     // Jokers gagnes
     const jkNew = { ...MJ_JK_DEFAUT, ...(d.jk ?? {}) };
@@ -10112,54 +10212,107 @@ function MahjongSavoirsScreen({ route, navigation }) {
     setJk(d.jk);
     const prochain = MJ_RANGS.find((x) => x.min > d.plateaux);
     setSessionSummary(summary);
-    setResult({ stars, rang, gift, gains, ups, downs, prochain, plateaux: d.plateaux, newRungDisp });
+    setResult({ stars, bonus, rang, gift, gains, ups, downs, prochain, plateaux: d.plateaux, newRungDisp });
     maybePlayMemo(memosConfig.current, 'bonne_reponse');
     const etoilesTxt = stars === 1 ? 'une étoile' : `${stars} étoiles`;
     speakSmart(`Bravo ! Tu as trouvé toutes les paires, tu gagnes ${etoilesTxt} !${gains.length ? ' Et tu gagnes des jokers !' : ''}${gift ? ' Et un cadeau !' : ''}`);
   }
 
+  // Melange les cartes restantes du plateau (les cartes du bandeau restent).
   function reshuffleRemaining() {
     const t = tilesRef.current;
     const rem = removedRef.current;
-    const idx = [];
-    t.forEach((_, i) => { if (!rem.has(i)) idx.push(i); });
-    const groups = {};
-    idx.forEach((i) => { (groups[t[i].key] = groups[t[i].key] || []).push(i); });
-    const pairs = [];
-    Object.keys(groups).forEach((key) => {
-      const g = groups[key];
-      for (let q = 0; q + 1 < g.length; q += 2) {
-        const a = t[g[q]];
-        const b = t[g[q + 1]];
-        mjIdCounter += 1;
-        pairs.push({ id: `p${mjIdCounter}`, key, subj: a.subj, a: { t: a.t, v: a.v }, b: { t: b.t, v: b.v } });
-      }
+    const board = [];
+    let trayCount = 0;
+    t.forEach((x, i) => {
+      if (rem.has(i)) return;
+      if (x.tray) trayCount += 1;
+      else board.push(i);
     });
-    const positions = idx.map((i) => ({ x: t[i].x, y: t[i].y, l: t[i].l, p: t[i].p, k: t[i].k }));
-    if (pairs.length * 2 !== positions.length) return false;
-    const dealt = mjDeal(positions, pairs);
-    if (!dealt) return false;
-    const next = t.slice();
-    idx.forEach((i, k) => { next[i] = dealt[k]; });
-    tilesRef.current = next;
-    setTiles(next);
-    return true;
+    if (trayCount === 0) {
+      const groups = {};
+      board.forEach((i) => { (groups[t[i].key] = groups[t[i].key] || []).push(i); });
+      const pairs = [];
+      Object.keys(groups).forEach((key) => {
+        const g = groups[key];
+        for (let q = 0; q + 1 < g.length; q += 2) {
+          const a = t[g[q]];
+          const b = t[g[q + 1]];
+          mjIdCounter += 1;
+          pairs.push({ id: `p${mjIdCounter}`, key, subj: a.subj, a: { t: a.t, v: a.v, tag: a.tag }, b: { t: b.t, v: b.v, tag: b.tag } });
+        }
+      });
+      const positions = board.map((i) => ({ x: t[i].x, y: t[i].y, l: t[i].l, p: t[i].p, k: t[i].k }));
+      if (pairs.length * 2 !== positions.length) return false;
+      const dealt = mjDeal(positions, pairs);
+      if (!dealt) return false;
+      const next = t.slice();
+      board.forEach((i, k) => { next[i] = dealt[k]; });
+      tilesRef.current = next;
+      setTiles(next);
+      return true;
+    }
+    // Des cartes sont dans le bandeau : on redistribue au hasard et on garde un tirage qui laisse un coup.
+    for (let attempt = 0; attempt < 80; attempt += 1) {
+      const contents = shuffle(board.map((i) => ({ t: t[i].t, v: t[i].v, key: t[i].key, subj: t[i].subj, tag: t[i].tag })));
+      const next = t.slice();
+      board.forEach((i, k) => { next[i] = { ...t[i], ...contents[k] }; });
+      if (mjHasMove(next, rem)) {
+        tilesRef.current = next;
+        setTiles(next);
+        return true;
+      }
+    }
+    return false;
   }
 
   function afterRemoval(nextRem) {
     const t = tilesRef.current;
     if (nextRem.size >= t.length) {
       lockedRef.current = true;
-      setTimeout(finishPlateau, 500);
+      setTimeout(() => finishPlateau(false), 500);
       return;
     }
     if (!mjHasMove(t, nextRem)) {
       if (reshuffleRemaining()) {
         speakSmart('Plus de coup possible, je mélange les cartes !');
+        showMsg('🔀 Plus de coup possible : les cartes sont mélangées !');
       } else {
         lockedRef.current = true;
-        setTimeout(finishPlateau, 500);
+        speakSmart('Plus aucun coup possible !');
+        setTimeout(() => finishPlateau(true), 700);
       }
+    }
+  }
+
+  // Recompenses des cartes bonus : x2 = 2 etoiles en plus, joker = un joker offert.
+  function claimTags(i, j) {
+    const t = tilesRef.current.slice();
+    let changed = false;
+    [i, j].forEach((q) => {
+      const tag = t[q].tag;
+      if (!tag) return;
+      t[q] = { ...t[q], tag: null };
+      changed = true;
+      if (tag === 'x2') {
+        bonusRef.current += 2;
+        showMsg('⭐⭐ Carte x2 : 2 étoiles bonus !');
+        speakSmart('Deux étoiles bonus !');
+      } else if (tag === 'joker') {
+        const d = detailsRef.current;
+        const open = MJ_JOKERS.filter((jj) => (d.jk[jj.id] ?? 0) < MJ_JK_MAX);
+        if (open.length) {
+          const jj = open[Math.floor(Math.random() * open.length)];
+          d.jk = { ...d.jk, [jj.id]: (d.jk[jj.id] ?? 0) + 1 };
+          setJk(d.jk);
+          showMsg(`🃏 Joker gagné : ${jj.e}`);
+          speakSmart('Tu gagnes un joker !');
+        }
+      }
+    });
+    if (changed) {
+      tilesRef.current = t;
+      setTiles(t);
     }
   }
 
@@ -10172,6 +10325,7 @@ function MahjongSavoirsScreen({ route, navigation }) {
     selectedRef.current = null;
     setRemoved(nextRem);
     setSelected(null);
+    claimTags(i, j);
     afterRemoval(nextRem);
   }
 
@@ -10194,8 +10348,8 @@ function MahjongSavoirsScreen({ route, navigation }) {
 
     // Joker loupe : regarder sous le dessus d'un tas.
     if (armedRef.current === 'loupe') {
-      if (tile.p == null) { showMsg('Touche un tas de cartes !'); return; }
-      const below = [...alive].filter((j) => t[j].p === tile.p && j !== i);
+      if (tile.p == null || tile.tray) { showMsg('Touche un tas de cartes !'); return; }
+      const below = [...alive].filter((j) => t[j].p === tile.p && j !== i && !t[j].tray);
       setArmedBoth(null);
       if (!below.length) { showMsg('Ce tas n’a plus de carte cachée.'); return; }
       spend('loupe');
@@ -10249,24 +10403,77 @@ function MahjongSavoirsScreen({ route, navigation }) {
     }, 600);
   }
 
+  // Bandeau : on y met de cote une carte libre pour atteindre celles du dessous.
+  // Elle ne peut plus en sortir qu'en la jumelant. 3 cartes maximum : la 4e fait perdre.
+  function onTapTray() {
+    if (finishedRef.current || lockedRef.current || !tilesRef.current) return;
+    const sel = selectedRef.current;
+    if (sel == null) {
+      showMsg('Choisis d’abord une carte libre, puis touche le bandeau.');
+      return;
+    }
+    const t0 = tilesRef.current;
+    if (t0[sel].tray) {
+      showMsg('Cette carte est déjà dans le bandeau.');
+      return;
+    }
+    const trayCount = t0.filter((x, i) => x.tray && !removedRef.current.has(i)).length;
+    const doStash = () => {
+      const nt = tilesRef.current.slice();
+      nt[sel] = { ...nt[sel], tray: true };
+      tilesRef.current = nt;
+      setTiles(nt);
+      histRef.current.push({ stash: sel });
+      selectedRef.current = null;
+      setSelected(null);
+      if (trayCount + 1 >= 4) {
+        lockedRef.current = true;
+        speakSmart('Le bandeau est plein !');
+        setTimeout(() => finishPlateau(true), 700);
+        return;
+      }
+      if (trayCount + 1 === 3) {
+        speakSmart('Attention, il ne reste plus qu’une place !');
+        showMsg('⚠️ Dernière place du bandeau !');
+      }
+      afterRemoval(removedRef.current);
+    };
+    if (trayCount >= 3) {
+      Alert.alert(
+        'Dernière place !',
+        'Si tu mets cette carte dans le bandeau, tu perds le plateau. Tu veux continuer ?',
+        [{ text: 'Non', style: 'cancel' }, { text: 'Oui', onPress: doStash }]
+      );
+    } else {
+      doStash();
+    }
+  }
+
   function useJoker(type) {
     if (finishedRef.current || lockedRef.current || !tilesRef.current) return;
     const d = detailsRef.current;
     const def = MJ_JOKERS.find((j) => j.id === type);
-    if (!(d.jk[type] > 0)) {
+    if (!((d.jk[type] ?? 0) > 0)) {
       showMsg('Plus de joker ! Tu en gagnes en réussissant des plateaux.');
       return;
     }
     if (type === 'undo') {
       const h = histRef.current;
       if (!h.length) { showMsg('Rien à annuler.'); return; }
-      const [i, j] = h.pop();
-      const nr = new Set(removedRef.current);
-      nr.delete(i);
-      nr.delete(j);
-      removedRef.current = nr;
+      const last = h.pop();
+      if (Array.isArray(last)) {
+        const nr = new Set(removedRef.current);
+        nr.delete(last[0]);
+        nr.delete(last[1]);
+        removedRef.current = nr;
+        setRemoved(nr);
+      } else {
+        const nt = tilesRef.current.slice();
+        nt[last.stash] = { ...nt[last.stash], tray: false };
+        tilesRef.current = nt;
+        setTiles(nt);
+      }
       selectedRef.current = null;
-      setRemoved(nr);
       setSelected(null);
       spend('undo');
       speakSmart(def.voix);
@@ -10331,7 +10538,7 @@ function MahjongSavoirsScreen({ route, navigation }) {
 
   function onNext() {
     const s = sessionSummary;
-    if (s && (s.reward || s.rankChanged || s.bonusZone?.unlocked)) {
+    if (!result?.lost && s && (s.reward || s.rankChanged || s.bonusZone?.unlocked)) {
       setSessionDone(true);
       return;
     }
@@ -10357,10 +10564,11 @@ function MahjongSavoirsScreen({ route, navigation }) {
     );
   }
 
-  // Geometrie : positions en demi-cartes.
-  const maxXu = Math.max(...tiles.map((x) => x.x)) + 2;
-  const maxYu = Math.max(...tiles.map((x) => x.y)) + 2;
-  const maxL = Math.max(...tiles.map((x) => x.l));
+  // Geometrie : positions en demi-cartes (les cartes du bandeau ne comptent pas).
+  const onBoard = tiles.filter((x) => !x.tray);
+  const maxXu = Math.max(...onBoard.map((x) => x.x), 0) + 2;
+  const maxYu = Math.max(...onBoard.map((x) => x.y), 0) + 2;
+  const maxL = Math.max(...onBoard.map((x) => x.l), 0);
   const colsF = maxXu / 2;
   const rowsF = maxYu / 2;
   const tw = Math.min(48, Math.floor((screenWidth - 24 - maxL * 3) / colsF));
@@ -10369,14 +10577,53 @@ function MahjongSavoirsScreen({ route, navigation }) {
   const boardH = Math.round(rowsF * th) + maxL * 3 + 8;
   const aliveSet = new Set();
   tiles.forEach((_, k) => { if (!removed.has(k)) aliveSet.add(k); });
-  const visible = [...aliveSet].filter((i) => !mjIsHidden(tiles, aliveSet, i))
+  const visible = [...aliveSet].filter((i) => !tiles[i].tray && !mjIsHidden(tiles, aliveSet, i))
     .sort((a, b) => (tiles[a].l - tiles[b].l) || (tiles[a].y - tiles[b].y) || (tiles[a].x - tiles[b].x));
+  const trayIdx = [...aliveSet].filter((i) => tiles[i].tray);
   const pileCount = {};
-  aliveSet.forEach((i) => { if (tiles[i].p != null) pileCount[tiles[i].p] = (pileCount[tiles[i].p] ?? 0) + 1; });
+  aliveSet.forEach((i) => { if (!tiles[i].tray && tiles[i].p != null) pileCount[tiles[i].p] = (pileCount[tiles[i].p] ?? 0) + 1; });
   const posLeft = (x) => 3 + (x * tw) / 2;
   const posTop = (y, l) => 3 + maxL * 3 + (y * th) / 2 - l * 3;
   const rang = mjRang(details.plateaux ?? 0);
-  const modeLabel = mode === 'maths' ? '🔢 Plateau de maths' : mode === 'francais' ? '🔤 Plateau de français' : '🎲 Plateau surprise';
+  const modeLabel = mode === 'maths' ? '🔢 Maths' : mode === 'francais' ? '🔤 Français' : '🎲 Surprise';
+
+  const renderFace = (i, w, h, extra) => {
+    const x = tiles[i];
+    const free = mjIsFree(tiles, aliveSet, i);
+    const isSel = selected === i;
+    const isWrong = wrongPair != null && wrongPair.includes(i);
+    const isHint = hint != null && hint.includes(i);
+    const base = x.subj === 'maths' ? '#FFF3C4' : '#E3F2FD';
+    const len = x.t.length;
+    const fs = len <= 3 ? w * 0.48 : len <= 6 ? w * 0.28 : len <= 10 ? w * 0.2 : w * 0.15;
+    return (
+      <Pressable
+        key={i}
+        onPress={() => onTapTile(i)}
+        style={[{
+          width: w,
+          height: h,
+          borderRadius: 7,
+          backgroundColor: isWrong ? '#FFCDD2' : free ? base : '#D7CCC8',
+          borderWidth: 2,
+          borderColor: isWrong ? '#D32F2F' : isSel ? '#E65100' : isHint ? '#FBC02D' : '#8D6E63',
+          opacity: free ? 1 : 0.7,
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 1,
+        }, extra]}
+      >
+        <Text numberOfLines={4} adjustsFontSizeToFit minimumFontScale={0.4} style={{ fontSize: fs, fontWeight: '800', color: colors.ink, textAlign: 'center' }}>
+          {x.t}
+        </Text>
+        {x.tag != null && (
+          <View style={{ position: 'absolute', top: -5, right: -5, backgroundColor: x.tag === 'x2' ? '#D32F2F' : '#6A1B9A', borderRadius: 6, paddingHorizontal: 3, minWidth: 18, alignItems: 'center' }}>
+            <Text style={{ color: '#FFF', fontSize: 10, fontWeight: '900' }}>{x.tag === 'x2' ? 'x2' : '🃏'}</Text>
+          </View>
+        )}
+      </Pressable>
+    );
+  };
 
   return (
     <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('mahjong_savoirs'), paddingTop: 6, paddingBottom: 24, paddingHorizontal: 6 }]}>
@@ -10397,43 +10644,34 @@ function MahjongSavoirsScreen({ route, navigation }) {
       <NiveauBadge rung={rung} />
       {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
 
-      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 6 }}>
-        {MJ_JOKERS.map((j) => {
-          const n = jk[j.id] ?? 0;
-          const on = armed === j.id;
-          return (
-            <Pressable
-              key={j.id}
-              onPress={() => useJoker(j.id)}
-              style={{
-                alignItems: 'center',
-                minWidth: 56,
-                paddingVertical: 4,
-                paddingHorizontal: 4,
-                borderRadius: 12,
-                borderWidth: 2,
-                borderColor: on ? '#E65100' : '#8D6E63',
-                backgroundColor: on ? '#FFE082' : '#FFFDF5',
-                opacity: n > 0 ? 1 : 0.4,
-              }}
-            >
-              <Text style={{ fontSize: 22 }}>{j.e}</Text>
-              <Text style={{ fontSize: 10, fontWeight: '800', color: colors.ink }}>{j.nom}</Text>
-              <Text style={{ fontSize: 11, fontWeight: '800', color: colors.mossDeep }}>×{n}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-      <View style={{ minHeight: 22, justifyContent: 'center' }}>
+      <View style={{ minHeight: 20, justifyContent: 'center' }}>
         {msg != null && <Text style={{ textAlign: 'center', color: colors.ink, fontWeight: '700', fontSize: 13 }}>{msg}</Text>}
       </View>
 
-      <View style={{ width: boardW, height: boardH, alignSelf: 'center', marginTop: 2 }}>
+      {/* Bandeau : 4 cases, 3 cartes maximum en reserve */}
+      <Pressable
+        onPress={onTapTray}
+        style={{ alignSelf: 'center', flexDirection: 'row', gap: 6, backgroundColor: '#5D4037', borderRadius: 12, borderWidth: 3, borderColor: '#8D6E63', padding: 6, marginBottom: 6 }}
+      >
+        {[0, 1, 2, 3].map((slot) => {
+          const i = trayIdx[slot];
+          return (
+            <View
+              key={slot}
+              style={{ width: tw + 4, height: th + 4, borderRadius: 8, backgroundColor: slot === 3 ? '#4E1F1F' : '#3E2723', alignItems: 'center', justifyContent: 'center' }}
+            >
+              {i != null ? renderFace(i, tw, th, null) : slot === 3 ? <Text style={{ color: '#EF9A9A', fontSize: 16 }}>⚠️</Text> : null}
+            </View>
+          );
+        })}
+      </Pressable>
+
+      <View style={{ width: boardW, height: boardH, alignSelf: 'center' }}>
         {visible.filter((i) => tiles[i].p != null && pileCount[tiles[i].p] > 1).map((i) => {
           const x = tiles[i];
-          const n = Math.min(2, pileCount[x.p] - 1);
+          const n = Math.min(3, pileCount[x.p] - 1);
           const peeking = peek != null && peek.p === x.p;
-          const below = [...aliveSet].filter((j) => tiles[j].p === x.p && j !== i).sort((a, b) => tiles[a].k - tiles[b].k)[0];
+          const below = [...aliveSet].filter((j) => !tiles[j].tray && tiles[j].p === x.p && j !== i).sort((a, b) => tiles[a].k - tiles[b].k)[0];
           const out = [];
           for (let q = n; q >= 1; q -= 1) {
             out.push(
@@ -10447,16 +10685,16 @@ function MahjongSavoirsScreen({ route, navigation }) {
                   width: tw,
                   height: th,
                   borderRadius: 7,
-                  backgroundColor: '#A1887F',
+                  backgroundColor: '#388E3C',
                   borderWidth: 2,
-                  borderColor: '#6D4C41',
+                  borderColor: '#1B5E20',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
                 {q === 1 && (
                   <Text numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.4} style={{ fontSize: peeking ? tw * 0.3 : tw * 0.4, fontWeight: '800', color: '#FFF', textAlign: 'center' }}>
-                    {peeking && below != null ? tiles[below].t : '?'}
+                    {peeking && below != null ? tiles[below].t : '🍀'}
                   </Text>
                 )}
               </View>
@@ -10466,49 +10704,52 @@ function MahjongSavoirsScreen({ route, navigation }) {
         })}
         {visible.map((i) => {
           const x = tiles[i];
-          const free = mjIsFree(tiles, aliveSet, i);
-          const isSel = selected === i;
-          const isWrong = wrongPair != null && wrongPair.includes(i);
-          const isHint = hint != null && hint.includes(i);
-          const base = x.subj === 'maths' ? '#FFF3C4' : '#E3F2FD';
-          const len = x.t.length;
-          const fs = len <= 3 ? tw * 0.48 : len <= 6 ? tw * 0.28 : len <= 10 ? tw * 0.2 : tw * 0.15;
           const count = x.p != null ? pileCount[x.p] : 0;
           return (
-            <Pressable
-              key={i}
-              onPress={() => onTapTile(i)}
-              style={{
-                position: 'absolute',
-                left: posLeft(x.x) + x.l * 2,
-                top: posTop(x.y, x.l),
-                width: tw,
-                height: th,
-                borderRadius: 7,
-                backgroundColor: isWrong ? '#FFCDD2' : free ? base : '#D7CCC8',
-                borderWidth: 2,
-                borderColor: isWrong ? '#D32F2F' : isSel ? '#E65100' : isHint ? '#FBC02D' : '#8D6E63',
-                opacity: free ? 1 : 0.7,
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 1,
-                elevation: 2 + x.l * 3,
-              }}
+            <View
+              key={`w${i}`}
+              pointerEvents="box-none"
+              style={{ position: 'absolute', left: posLeft(x.x) + x.l * 2, top: posTop(x.y, x.l), width: tw, height: th, elevation: 2 + x.l * 3 }}
             >
-              <Text
-                numberOfLines={4}
-                adjustsFontSizeToFit
-                minimumFontScale={0.4}
-                style={{ fontSize: fs, fontWeight: '800', color: colors.ink, textAlign: 'center' }}
-              >
-                {x.t}
-              </Text>
+              {renderFace(i, tw, th, null)}
               {count > 1 && (
-                <View style={{ position: 'absolute', top: -6, right: -6, backgroundColor: '#6D4C41', borderRadius: 9, minWidth: 18, height: 18, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '800' }}>{count}</Text>
+                <View pointerEvents="none" style={{ position: 'absolute', top: -7, left: -7, backgroundColor: '#F57C00', borderRadius: 9, minWidth: 18, height: 18, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '900' }}>{count}</Text>
                 </View>
               )}
-            </Pressable>
+            </View>
+          );
+        })}
+      </View>
+
+      {/* Jokers en bas, en gros boutons ronds */}
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 12 }}>
+        {MJ_JOKERS.map((j) => {
+          const n = jk[j.id] ?? 0;
+          const on = armed === j.id;
+          return (
+            <View key={j.id} style={{ alignItems: 'center' }}>
+              <Pressable
+                onPress={() => useJoker(j.id)}
+                style={{
+                  width: 54,
+                  height: 54,
+                  borderRadius: 27,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 3,
+                  borderColor: on ? '#FFEB3B' : '#E0A33B',
+                  backgroundColor: on ? '#B26A1F' : '#8D5A2B',
+                  opacity: n > 0 ? 1 : 0.6,
+                }}
+              >
+                <Text style={{ fontSize: 24 }}>{j.e}</Text>
+                <View style={{ position: 'absolute', top: -6, right: -6, backgroundColor: n > 0 ? '#C62828' : '#2E7D32', borderRadius: 10, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '900' }}>{n > 0 ? n : '+'}</Text>
+                </View>
+              </Pressable>
+              <Text style={{ fontSize: 10, fontWeight: '800', color: colors.ink, marginTop: 2 }}>{j.nom}</Text>
+            </View>
           );
         })}
       </View>
@@ -10516,13 +10757,27 @@ function MahjongSavoirsScreen({ route, navigation }) {
       <Modal visible={result != null} animationType="fade" transparent>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            {result && (
+            {result && result.lost && (
+              <>
+                <Text style={styles.modalTitle}>😢 Plateau perdu</Text>
+                <Text style={{ textAlign: 'center', color: colors.ink, marginTop: 8 }}>
+                  Ce n’est pas grave, tu gardes ton niveau et tes jokers. On en recommence un autre !
+                </Text>
+                <Pressable style={[styles.button, { marginTop: 16 }]} onPress={onNext}>
+                  <Text style={styles.buttonText}>Un autre plateau ▶</Text>
+                </Pressable>
+              </>
+            )}
+            {result && !result.lost && (
               <>
                 <Text style={styles.modalTitle}>🎉 Plateau réussi !</Text>
                 <Text style={{ textAlign: 'center', fontSize: 40, marginVertical: 6 }}>
                   {'⭐'.repeat(result.stars)}{'☆'.repeat(3 - result.stars)}
                 </Text>
-                <Text style={{ textAlign: 'center', fontSize: 16, color: colors.ink, fontWeight: '700' }}>
+                {result.bonus > 0 && (
+                  <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '800' }}>+ {result.bonus} étoiles bonus ⭐</Text>
+                )}
+                <Text style={{ textAlign: 'center', fontSize: 16, color: colors.ink, fontWeight: '700', marginTop: 4 }}>
                   {result.rang.e} {result.rang.nom}  ·  {result.plateaux} plateau{result.plateaux > 1 ? 'x' : ''}
                 </Text>
                 {result.prochain && (
