@@ -10418,6 +10418,15 @@ function MahjongSavoirsScreen({ route, navigation }) {
       return;
     }
     const trayCount = t0.filter((x, i) => x.tray && !removedRef.current.has(i)).length;
+    // 4e carte : autorisee seulement si elle forme une paire avec une carte du bandeau.
+    if (trayCount >= 3) {
+      const mate = t0.findIndex((x, i) => i !== sel && x.tray && !removedRef.current.has(i) && x.key === t0[sel].key);
+      if (mate >= 0) {
+        if (t0[sel].v) speakSmart(t0[sel].v);
+        removePair(sel, mate);
+        return;
+      }
+    }
     const doStash = () => {
       const nt = tilesRef.current.slice();
       nt[sel] = { ...nt[sel], tray: true };
@@ -10441,7 +10450,7 @@ function MahjongSavoirsScreen({ route, navigation }) {
     if (trayCount >= 3) {
       Alert.alert(
         'Dernière place !',
-        'Si tu mets cette carte dans le bandeau, tu perds le plateau. Tu veux continuer ?',
+        'Cette carte ne va avec aucune carte du bandeau : si tu la mets, tu perds le plateau. Tu veux continuer ?',
         [{ text: 'Non', style: 'cancel' }, { text: 'Oui', onPress: doStash }]
       );
     } else {
