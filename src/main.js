@@ -2607,6 +2607,7 @@ const GAME_ICONS = {
   mots_fleches: '📝',
   mot_mystere: '🔎',
   expedition_monde: '🧭',
+  mahjong_savoirs: '🀄',
 };
 const GAME_SCREENS = {
   pont_des_lettres: 'PontDesLettres',
@@ -2633,6 +2634,7 @@ const GAME_SCREENS = {
   mots_fleches: 'MotsFleches',
   mot_mystere: 'MotMystere',
   expedition_monde: 'ExpeditionMonde',
+  mahjong_savoirs: 'MahjongSavoirs',
 };
 
 // Plafond de progression (en "crans") pour chaque jeu — sert a afficher une
@@ -2706,8 +2708,8 @@ const CONTINENTS = [
     competence: 'lecture',
     zone: { left: 0.51, top: 0.55, width: 0.47, height: 0.21 },
     labelCourt: 'Lecture',
-    paysSlotsFor: { 'pont_des_lettres': { top: '58%', left: '30%' }, 'sons_magiques': { top: '58%', left: '70%' } },
-    paysVides: [{ top: '82%', left: '30%' }, { top: '82%', left: '70%' }],
+    paysSlotsFor: { 'pont_des_lettres': { top: '58%', left: '30%' }, 'sons_magiques': { top: '58%', left: '70%' }, 'mahjong_savoirs': { top: '82%', left: '30%' } },
+    paysVides: [{ top: '82%', left: '70%' }],
     blobStyle: { borderTopLeftRadius: 120, borderTopRightRadius: 60, borderBottomLeftRadius: 40, borderBottomRightRadius: 140 }, rot: -3,
     nom: 'La Clairière des Histoires',
     emoji: '🏞️',
@@ -9421,6 +9423,830 @@ function ExpeditionMondeScreen({ route, navigation }) {
 }
 
 // ============================================================
+// Le Mahjong des Savoirs (zone "lecture") - mahjong en pyramide : on
+// retire deux cartes LIBRES qui vont ensemble (calcul <-> resultat,
+// image <-> mot, singulier <-> pluriel...). Chaque plateau est soit de
+// maths, soit de francais, soit "surprise" (les deux), choisi selon ce
+// que l'enfant a fait avant : alternance par defaut, et plus souvent la
+// matiere ou il a le plus d'erreurs. Un niveau (cran) par matiere, qui
+// monte ou descend selon les erreurs de chaque plateau. Etoiles, rangs et
+// cadeaux tous les 5 plateaux. Tout le contenu est genere par le code :
+// rien a creer en base.
+// ============================================================
+
+let mjIdCounter = 0;
+
+function mjSpeakMath(t) {
+  return String(t)
+    .replace(/\+/g, ' plus ')
+    .replace(/−/g, ' moins ')
+    .replace(/×/g, ' fois ')
+    .replace(/÷/g, ' divisé par ')
+    .replace(/%/g, ' pour cent')
+    .replace(/²/g, ' au carré')
+    .replace(/\//g, ' sur ')
+    .replace(/\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// "texte|voix" -> { t: texte affiche, v: texte lu a voix haute (null = muet) }
+function mjTile(str, isMaths, mute) {
+  const s = String(str);
+  const i = s.indexOf('|');
+  const t = i >= 0 ? s.slice(0, i) : s;
+  const vv = i >= 0 ? s.slice(i + 1) : null;
+  const v = mute ? null : (vv ?? (isMaths ? mjSpeakMath(t) : t));
+  return { t, v };
+}
+
+// Une paire de maths adaptee au cran (1 = MS ... 24 = 6e) : [carteA, carteB].
+function mjMathsPair(rung) {
+  const rr = Math.max(1, Math.min(MAX_CONTENT_RUNG, rung));
+  const g = Math.floor((rr - 1) / 3);
+  const p = ((rr - 1) % 3) + 1;
+  const r = (n) => Math.floor(Math.random() * n);
+  const between = (a, b) => a + r(b - a + 1);
+  const pick = (arr) => arr[r(arr.length)];
+  const S = String;
+  switch (g) {
+    case 0: { // MS : chiffre <-> quantite
+      const n = between(1, p === 1 ? 5 : p === 2 ? 8 : 10);
+      const dots = n > 5 ? '●●●●●\n' + '●'.repeat(n - 5) : '●'.repeat(n);
+      return [S(n), dots + '|des points'];
+    }
+    case 1: { // GS : petites additions
+      const max = p === 1 ? 8 : p === 2 ? 10 : 12;
+      const a = between(1, max - 1);
+      const b = between(1, max - a);
+      return [`${a}+${b}`, S(a + b)];
+    }
+    case 2: { // CP : additions / soustractions jusqu'a 20
+      const mode = p === 1 ? 0 : p === 2 ? 1 : r(2);
+      if (mode === 0) {
+        const a = between(3, 14);
+        const b = between(2, 20 - a);
+        return [`${a}+${b}`, S(a + b)];
+      }
+      const a = between(6, 20);
+      const b = between(2, a - 2);
+      return [`${a}−${b}`, S(a - b)];
+    }
+    case 3: { // CE1 : additions a 2 chiffres, doubles/moities, tables 2-5-10
+      if (p === 1) {
+        const a = between(11, 60);
+        const b = between(5, 35);
+        return [`${a}+${b}`, S(a + b)];
+      }
+      if (p === 2) {
+        const n = between(6, 40);
+        return r(2) === 0 ? [`double de ${n}`, S(2 * n)] : [`moitié de ${2 * n}`, S(n)];
+      }
+      return [`${pick([2, 5, 10])}×${between(3, 9)}`, null];
+    }
+    case 4: { // CE2 : tables de multiplication
+      if (p === 1) return [`${between(2, 5)}×${between(2, 9)}`, null];
+      if (p === 2) return [`${between(6, 9)}×${between(3, 9)}`, null];
+      if (r(2) === 0) return [`${between(12, 25)}×${between(2, 5)}`, null];
+      const a = between(120, 480);
+      const b = between(35, 99);
+      return [`${a}+${b}`, S(a + b)];
+    }
+    case 5: { // CM1 : divisions, fractions <-> decimaux
+      if (p === 1) {
+        const x = between(2, 9);
+        const y = between(2, 9);
+        return [`${x * y}÷${x}`, S(y)];
+      }
+      if (p === 2) {
+        return pick([['1/2', '0,5'], ['1/4', '0,25'], ['3/4', '0,75'], ['1/10', '0,1'], ['1/5', '0,2'], ['2/5', '0,4'], ['3/10', '0,3'], ['1/20', '0,05'], ['4/5', '0,8'], ['7/10', '0,7']]);
+      }
+      return [`${between(12, 19)}×${between(3, 9)}`, null];
+    }
+    case 6: { // CM2 : fractions <-> pourcentages, pourcentage d'un nombre
+      if (p === 1) {
+        return pick([['1/2', '50%'], ['1/4', '25%'], ['3/4', '75%'], ['1/5', '20%'], ['1/10', '10%'], ['2/5', '40%'], ['3/5', '60%'], ['4/5', '80%'], ['3/10', '30%'], ['7/10', '70%']]);
+      }
+      if (p === 2) {
+        const pc = pick([10, 20, 25, 50, 75]);
+        const base = pick([40, 80, 100, 120, 200]);
+        return [`${pc}% de ${base}`, S((pc * base) / 100)];
+      }
+      return [`${between(11, 19)}×${between(11, 19)}`, null];
+    }
+    default: { // 6e : carres, fractions d'un nombre, nombres relatifs
+      if (p === 1) {
+        const n = between(3, 12);
+        return [`${n}²`, S(n * n)];
+      }
+      if (p === 2) {
+        const den = pick([3, 4, 5, 6]);
+        const num = between(1, den - 1);
+        const k = between(2, 9);
+        return [`${num}/${den} de ${den * k}`, S(num * k)];
+      }
+      const a = between(2, 9);
+      const b = between(a + 1, 15);
+      return r(2) === 0 ? [`−${a}+${b}`, S(b - a)] : [`${a}−${b}`, `−${b - a}`];
+    }
+  }
+}
+
+// Banques de francais, de la plus facile a la plus difficile. Chaque entree :
+// [carteA, carteB, muetB]. "texte|voix" : texte affiche | texte lu.
+// muetB = la carte B n'est pas lue (l'enfant doit LIRE le mot).
+const MJ_LETTRES = ['A', 'E', 'I', 'O', 'U', 'L', 'M', 'S', 'P', 'R', 'T', 'B', 'D', 'F', 'N', 'C', 'G', 'V', 'Z', 'H', 'J', 'K', 'Q', 'W', 'X', 'Y'];
+const MJ_FR_BANKS = [
+  // MS : majuscule <-> minuscule
+  MJ_LETTRES.map((L) => [L, L.toLowerCase()]),
+  // GS : image <-> premiere lettre
+  [
+    ['🐱|chat', 'C|la lettre C'], ['🌙|lune', 'L|la lettre L'], ['🏠|maison', 'M|la lettre M'], ['☀️|soleil', 'S|la lettre S'],
+    ['🍎|pomme', 'P|la lettre P'], ['🌹|rose', 'R|la lettre R'], ['🚗|voiture', 'V|la lettre V'], ['🍌|banane', 'B|la lettre B'],
+    ['🐘|éléphant', 'E|la lettre E'], ['🍓|fraise', 'F|la lettre F'], ['🐸|grenouille', 'G|la lettre G'], ['🐻|ours', 'O|la lettre O'],
+    ['🌳|arbre', 'A|la lettre A'], ['🐢|tortue', 'T|la lettre T'], ['🐉|dragon', 'D|la lettre D'],
+  ],
+  // CP : image <-> mot ecrit (lire !), puis son <-> image
+  [
+    ['🐱|chat', 'chat', true], ['🌙|lune', 'lune', true], ['🏠|maison', 'maison', true], ['☀️|soleil', 'soleil', true],
+    ['🍎|pomme', 'pomme', true], ['🐟|poisson', 'poisson', true], ['🌹|rose', 'rose', true], ['🚗|voiture', 'voiture', true],
+    ['🐘|éléphant', 'éléphant', true], ['🍌|banane', 'banane', true], ['🐶|chien', 'chien', true], ['🦁|lion', 'lion', true],
+    ['🍓|fraise', 'fraise', true], ['🚲|vélo', 'vélo', true], ['🎈|ballon', 'ballon', true], ['🥕|carotte', 'carotte', true],
+    ['🐴|cheval', 'cheval', true], ['🐸|grenouille', 'grenouille', true], ['🐻|ours', 'ours', true], ['⭐|étoile', 'étoile', true],
+    ['🌳|arbre', 'arbre', true], ['🐢|tortue', 'tortue', true], ['✈️|avion', 'avion', true], ['🥖|pain', 'pain', true],
+    ['ch|le son ch', '🚿|douche'], ['ou|le son ou', '🦉|hibou'], ['on|le son on', '🎈|ballon'], ['an|le son an', '🍌|banane'],
+    ['in|le son in', '🍇|raisin'], ['oi|le son oi', '🐦|oiseau'], ['eau|le son o', '🎂|gâteau'], ['ph|le son f', '🐘|éléphant'],
+    ['ai|le son è', '🥛|lait'], ['gn|le son gn', '🍄|champignon'],
+  ],
+  // CE1 : contraires, singulier <-> pluriel
+  [
+    ['grand', 'petit'], ['chaud', 'froid'], ['haut', 'bas'], ['jour', 'nuit'], ['lent', 'rapide'], ['plein', 'vide'],
+    ['joyeux', 'triste'], ['jeune', 'vieux'], ['ouvrir', 'fermer'], ['gros', 'maigre'], ['dur', 'mou'], ['sec', 'mouillé'],
+    ['un chat', 'des chats'], ['une fleur', 'des fleurs'], ['un cheval', 'des chevaux'], ['un journal', 'des journaux'],
+    ['un animal', 'des animaux'], ['un oiseau', 'des oiseaux'], ['un bijou', 'des bijoux'], ['un genou', 'des genoux'],
+    ['un travail', 'des travaux'], ['un œil', 'des yeux'],
+  ],
+  // CE2 : masculin <-> feminin, synonymes, homophones
+  [
+    ['le lion', 'la lionne'], ['le chat', 'la chatte'], ['le roi', 'la reine'], ['un boulanger', 'une boulangère'],
+    ['un acteur', 'une actrice'], ['un chanteur', 'une chanteuse'], ['le tigre', 'la tigresse'], ['un directeur', 'une directrice'],
+    ['content', 'heureux'], ['rapide', 'vite'], ['beau', 'joli'], ['commencer', 'débuter'], ['grand', 'immense'],
+    ['fatigué', 'épuisé'], ['cadeau', 'présent'], ['peur', 'frayeur'],
+    ['Il ___ faim.|Il, bip, faim', 'a'], ['Je vais ___ l’école.|Je vais, bip, l’école', 'à'], ['Pain ___ beurre.|Pain, bip, beurre', 'et'],
+    ['Il ___ gentil.|Il, bip, gentil', 'est'], ['___ chien dort.|bip, chien dort', 'Son'], ['Ils ___ gentils.|Ils, bip, gentils', 'sont'],
+    ['___ mange.|bip, mange', 'On'], ['Ils ___ faim.|Ils, bip, faim', 'ont'], ['Thé ___ café ?|Thé, bip, café', 'ou'], ['___ es-tu ?|bip, es-tu', 'Où'],
+  ],
+  // CM1 : infinitif <-> conjugue, famille de mots, prefixes
+  [
+    ['chanter', 'nous chantons'], ['finir', 'ils finissent'], ['aller', 'je vais'], ['avoir', 'tu as'], ['être', 'nous sommes'],
+    ['faire', 'vous faites'], ['prendre', 'je prends'], ['dire', 'vous dites'], ['venir', 'ils viennent'], ['pouvoir', 'je peux'],
+    ['voir', 'nous voyons'], ['mettre', 'tu mets'], ['partir', 'elle part'], ['savoir', 'je sais'],
+    ['dent', 'dentiste'], ['lait', 'laitier'], ['terre', 'terrestre'], ['jardin', 'jardinier'], ['fleur', 'fleuriste'],
+    ['montagne', 'montagnard'], ['peur', 'peureux'], ['lune', 'lunaire'],
+    ['possible', 'impossible'], ['heureux', 'malheureux'], ['lisible', 'illisible'], ['honnête', 'malhonnête'], ['patient', 'impatient'],
+  ],
+  // CM2 : participes passes, contraires difficiles, synonymes
+  [
+    ['manger', 'mangé'], ['finir', 'fini'], ['prendre', 'pris'], ['voir', 'vu'], ['faire', 'fait'], ['dire', 'dit'],
+    ['mettre', 'mis'], ['écrire', 'écrit'], ['ouvrir', 'ouvert'], ['venir', 'venu'], ['boire', 'bu'], ['pouvoir', 'pu'],
+    ['généreux', 'avare'], ['courageux', 'lâche'], ['ancien', 'moderne'], ['rare', 'fréquent'], ['visible', 'invisible'],
+    ['accepter', 'refuser'], ['gagner', 'perdre'], ['robuste', 'solide'], ['hardi', 'audacieux'], ['minuscule', 'microscopique'],
+    ['___ garçon est grand.|bip, garçon est grand', 'Ce'], ['Il ___ lave.|Il, bip, lave', 'se'], ['Il va ___.|Il va, bip', 'manger'], ['J’ai ___ le livre.|J’ai, bip, le livre', 'lu'],
+  ],
+  // 6e : vocabulaire de grammaire, temps des verbes
+  [
+    ['un verbe', 'mot qui dit une action'], ['un adjectif', 'mot qui décrit un nom'], ['un adverbe', 'mot qui précise le verbe'],
+    ['un pronom', 'mot qui remplace un nom'], ['un synonyme', 'mot de sens proche'], ['un antonyme', 'mot de sens contraire'],
+    ['un homonyme', 'mot qui sonne pareil'], ['le sujet', 'celui qui fait l’action'], ['un herbivore', 'mange des plantes'], ['un carnivore', 'mange de la viande'],
+    ['je chante', 'présent'], ['je chantais', 'imparfait'], ['j’ai chanté', 'passé composé'], ['je chanterai', 'futur'],
+    ['je chanterais', 'conditionnel'], ['chante !', 'impératif'],
+  ],
+];
+
+function mjBuildPairs(kind, rung, count) {
+  const out = [];
+  const used = new Set();
+  const push = (ta, tb, subj) => {
+    if (!ta.t || !tb.t || used.has(ta.t) || used.has(tb.t) || ta.t === tb.t) return false;
+    used.add(ta.t);
+    used.add(tb.t);
+    mjIdCounter += 1;
+    out.push({ id: `p${mjIdCounter}`, subj, a: ta, b: tb });
+    return true;
+  };
+  const rr = Math.max(1, Math.min(MAX_CONTENT_RUNG, rung));
+
+  if (kind === 'maths') {
+    const r3 = () => Math.floor(Math.random() * 3);
+    let guard = 0;
+    while (out.length < count && guard < 500) {
+      guard += 1;
+      // Si le niveau a trop peu de variantes pour remplir le plateau, on
+      // pioche aussi un peu en dessous plutot que de bloquer.
+      const useR = guard > 120 ? Math.max(1, rr - r3()) : rr;
+      let [a, b] = mjMathsPair(useR);
+      if (b == null) {
+        // multiplication : le resultat est calcule ici pour garder une seule source de verite
+        const m = String(a).match(/^(\d+)×(\d+)$/);
+        b = m ? String(Number(m[1]) * Number(m[2])) : '?';
+      }
+      push(mjTile(a, true), mjTile(b, true), 'maths');
+    }
+    return out;
+  }
+
+  // Francais : on pioche dans la banque du niveau (plus facile d'abord selon
+  // le palier), puis le reste de la banque, puis les banques en dessous.
+  const g = Math.floor((rr - 1) / 3);
+  const p = ((rr - 1) % 3) + 1;
+  const bank = MJ_FR_BANKS[Math.min(g, MJ_FR_BANKS.length - 1)];
+  const take = p === 1 ? Math.ceil(bank.length * 0.5) : p === 2 ? Math.ceil(bank.length * 0.8) : bank.length;
+  const candidates = [
+    ...shuffle(bank.slice(0, take)),
+    ...shuffle(bank.slice(take)),
+  ];
+  for (let k = g - 1; k >= 0; k -= 1) candidates.push(...shuffle(MJ_FR_BANKS[k]));
+  for (const [a, b, mute] of candidates) {
+    if (out.length >= count) break;
+    push(mjTile(a, false, false), mjTile(b, false, !!mute), 'francais');
+  }
+  return out;
+}
+
+function mjTileCount(rung) {
+  if (rung <= 2) return 12;
+  if (rung <= 5) return 16;
+  if (rung <= 9) return 20;
+  if (rung <= 14) return 24;
+  return 30;
+}
+
+function mjLayout(nTiles) {
+  const rect = (c0, r0, w, h, l) => {
+    const o = [];
+    for (let r = r0; r < r0 + h; r += 1) for (let c = c0; c < c0 + w; c += 1) o.push({ c, r, l });
+    return o;
+  };
+  if (nTiles <= 12) return rect(0, 0, 4, 3, 0);
+  if (nTiles <= 16) return [...rect(0, 0, 4, 3, 0), ...rect(1, 1, 2, 2, 1)];
+  if (nTiles <= 20) return [...rect(0, 0, 4, 4, 0), ...rect(1, 1, 2, 2, 1)];
+  if (nTiles <= 24) return [...rect(0, 0, 5, 4, 0), ...rect(1, 1, 2, 2, 1)];
+  return [...rect(0, 0, 6, 4, 0), ...rect(1, 1, 3, 2, 1)];
+}
+
+// Une carte est libre si aucune carte n'est posee dessus ET si au moins un de
+// ses cotes (gauche ou droite, meme rangee, meme etage) est vide.
+function mjIsFree(tiles, alive, i) {
+  const t = tiles[i];
+  let left = false;
+  let right = false;
+  for (const j of alive) {
+    if (j === i) continue;
+    const u = tiles[j];
+    if (u.c === t.c && u.r === t.r && u.l === t.l + 1) return false;
+    if (u.l === t.l && u.r === t.r) {
+      if (u.c === t.c - 1) left = true;
+      if (u.c === t.c + 1) right = true;
+    }
+  }
+  return !(left && right);
+}
+
+// Distribue les paires sur les positions en "jouant a l'envers" : on retire
+// deux cartes libres au hasard et on leur donne une paire - le plateau est
+// donc toujours soluble. Renvoie null si aucune distribution n'est trouvee.
+function mjDeal(layout, pairs) {
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    const alive = new Set(layout.map((_, i) => i));
+    const order = [];
+    let stuck = false;
+    while (alive.size > 0) {
+      const free = [...alive].filter((i) => mjIsFree(layout, alive, i));
+      if (free.length < 2) { stuck = true; break; }
+      const i = free.splice(Math.floor(Math.random() * free.length), 1)[0];
+      const j = free[Math.floor(Math.random() * free.length)];
+      order.push([i, j]);
+      alive.delete(i);
+      alive.delete(j);
+    }
+    if (stuck) continue;
+    const ps = shuffle(pairs);
+    const tiles = layout.map((p) => ({ ...p }));
+    order.forEach(([i, j], k) => {
+      const pr = ps[k];
+      const flip = Math.random() < 0.5;
+      tiles[i] = { ...tiles[i], pair: pr.id, subj: pr.subj, ...(flip ? pr.a : pr.b) };
+      tiles[j] = { ...tiles[j], pair: pr.id, subj: pr.subj, ...(flip ? pr.b : pr.a) };
+    });
+    return tiles;
+  }
+  return null;
+}
+
+function mjHasMove(tiles, removed) {
+  const alive = new Set();
+  tiles.forEach((_, i) => { if (!removed.has(i)) alive.add(i); });
+  const seen = new Set();
+  for (const i of alive) {
+    if (!mjIsFree(tiles, alive, i)) continue;
+    if (seen.has(tiles[i].pair)) return true;
+    seen.add(tiles[i].pair);
+  }
+  return false;
+}
+
+function mjChooseMode(d) {
+  if ((d.plateaux ?? 0) >= 2 && Math.random() < 0.15) return 'mixte';
+  const eM = d.eM ?? 0.3;
+  const eF = d.eF ?? 0.3;
+  if (Math.abs(eM - eF) >= 0.15) {
+    const weak = eM > eF ? 'maths' : 'francais';
+    const other = weak === 'maths' ? 'francais' : 'maths';
+    return Math.random() < 0.67 ? weak : other;
+  }
+  return d.lastMode === 'maths' ? 'francais' : 'maths';
+}
+
+const MJ_RANGS = [
+  { min: 0, nom: 'Apprenti', e: '🌱' },
+  { min: 5, nom: 'Bronze', e: '🥉' },
+  { min: 15, nom: 'Argent', e: '🥈' },
+  { min: 30, nom: 'Or', e: '🥇' },
+  { min: 50, nom: 'Maître du Mahjong', e: '👑' },
+];
+function mjRang(plateaux) {
+  let rang = MJ_RANGS[0];
+  MJ_RANGS.forEach((r) => { if (plateaux >= r.min) rang = r; });
+  return rang;
+}
+const MJ_CADEAUX = ['🦄', '🐉', '🚀', '🏰', '🎨', '🧁', '🦋', '🐬', '🌈', '🎡'];
+
+async function assurerMiniJeuMahjong() {
+  try {
+    const { data: existant } = await supabase.from('mini_jeux').select('id').eq('code', 'mahjong_savoirs').maybeSingle();
+    if (existant) return existant.id;
+    const { data: cree } = await supabase
+      .from('mini_jeux')
+      .insert({ code: 'mahjong_savoirs', nom: 'Le Mahjong des Savoirs', competence: 'lecture', est_bonus: false })
+      .select('id')
+      .maybeSingle();
+    return cree?.id ?? null;
+  } catch (e) {
+    return null; // non bloquant : le jeu reste jouable en local si l'enregistrement echoue
+  }
+}
+
+function MahjongSavoirsScreen({ route, navigation }) {
+  const { profil } = route.params;
+  const { width: screenWidth } = useWindowDimensions();
+  const memosConfig = useRef(null);
+  useEffect(() => { fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
+  useEffect(() => { stopBgMusic(); }, []);
+
+  const baseRung = Math.max(1, Math.min(MAX_CONTENT_RUNG, rungFromGradeAndPalier(profil.niveau_defaut, 1)));
+  const [miniJeuId, setMiniJeuId] = useState(null);
+  const [rung, setRung] = useState(baseRung);
+  const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
+  const [details, setDetails] = useState(null);
+  const detailsRef = useRef(null);
+  const [mode, setMode] = useState('maths');
+  const [tiles, setTiles] = useState(null);
+  const [removed, setRemoved] = useState(() => new Set());
+  const [selected, setSelected] = useState(null);
+  const [wrongPair, setWrongPair] = useState(null);
+  const [hint, setHint] = useState(null);
+  const [result, setResult] = useState(null);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
+
+  const tilesRef = useRef(null);
+  const removedRef = useRef(new Set());
+  const selectedRef = useRef(null);
+  const lockedRef = useRef(false);
+  const finishedRef = useRef(false);
+  const modeRef = useRef('maths');
+  const errBy = useRef({ maths: 0, francais: 0 });
+  const startedAt = useRef(Date.now());
+  const miniJeuIdRef = useRef(null);
+  const rungRef = useRef(baseRung);
+
+  const startBoard = useCallback((d) => {
+    const m = mjChooseMode(d);
+    const r = m === 'maths' ? d.rM : m === 'francais' ? d.rF : Math.round((d.rM + d.rF) / 2);
+    const nTiles = mjTileCount(r);
+    const nPairs = nTiles / 2;
+    let pairs;
+    if (m === 'maths') pairs = mjBuildPairs('maths', d.rM, nPairs);
+    else if (m === 'francais') pairs = mjBuildPairs('francais', d.rF, nPairs);
+    else {
+      const nm = Math.ceil(nPairs / 2);
+      pairs = [...mjBuildPairs('maths', d.rM, nm), ...mjBuildPairs('francais', d.rF, nPairs - nm)];
+    }
+    let layout = mjLayout(nTiles);
+    // Securite : si un niveau n'a pas assez de variantes, on reduit le plateau.
+    if (pairs.length * 2 < layout.length) {
+      const n = Math.max(6, pairs.length) * 2;
+      layout = mjLayout(n <= 12 ? 12 : n <= 16 ? 16 : n <= 20 ? 20 : n <= 24 ? 24 : 30);
+      layout = layout.slice(0, Math.min(layout.length, pairs.length * 2));
+    }
+    let dealt = mjDeal(layout, pairs.slice(0, layout.length / 2));
+    if (!dealt) dealt = mjDeal(mjLayout(12), pairs.slice(0, 6));
+    tilesRef.current = dealt;
+    removedRef.current = new Set();
+    selectedRef.current = null;
+    lockedRef.current = false;
+    finishedRef.current = false;
+    modeRef.current = m;
+    errBy.current = { maths: 0, francais: 0 };
+    startedAt.current = Date.now();
+    setMode(m);
+    setTiles(dealt);
+    setRemoved(new Set());
+    setSelected(null);
+    setWrongPair(null);
+    setHint(null);
+    const intro = m === 'maths' ? 'Un plateau de maths !' : m === 'francais' ? 'Un plateau de français !' : 'Un plateau surprise !';
+    speakSmart(`${intro} Retire deux cartes libres qui vont ensemble.`);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const jeuId = await assurerMiniJeuMahjong();
+      miniJeuIdRef.current = jeuId;
+      setMiniJeuId(jeuId);
+      let prog = null;
+      if (jeuId) {
+        try {
+          const { data } = await supabase
+            .from('progression')
+            .select('palier_actuel, details')
+            .eq('profil_id', profil.id)
+            .eq('mini_jeu_id', jeuId)
+            .maybeSingle();
+          prog = data;
+        } catch (e) {
+          prog = null;
+        }
+      }
+      const saved = prog?.details ?? {};
+      const start = prog?.palier_actuel ? Math.min(MAX_CONTENT_RUNG, prog.palier_actuel) : baseRung;
+      const d = {
+        rM: saved.rM ?? start,
+        rF: saved.rF ?? start,
+        nM: saved.nM ?? 0,
+        nF: saved.nF ?? 0,
+        eM: saved.eM ?? null,
+        eF: saved.eF ?? null,
+        plateaux: saved.plateaux ?? 0,
+        etoiles: saved.etoiles ?? 0,
+        cadeaux: saved.cadeaux ?? [],
+        lastMode: saved.lastMode ?? null,
+      };
+      detailsRef.current = d;
+      setDetails(d);
+      setRung(start);
+      rungRef.current = start;
+      startBoard(d);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profil.id]);
+
+  async function finishPlateau() {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
+    const t = tilesRef.current;
+    const d = { ...detailsRef.current };
+    const pBy = { maths: 0, francais: 0 };
+    t.forEach((x) => { pBy[x.subj] += 0.5; });
+    const nPairs = t.length / 2;
+    const ups = [];
+    const downs = [];
+    ['maths', 'francais'].forEach((s) => {
+      if (!pBy[s]) return;
+      const rate = errBy.current[s] / pBy[s];
+      const kR = s === 'maths' ? 'rM' : 'rF';
+      const kN = s === 'maths' ? 'nM' : 'nF';
+      const kE = s === 'maths' ? 'eM' : 'eF';
+      const n = d[kN] ?? 0;
+      let nr = d[kR];
+      if (rate <= 0.2) {
+        nr = Math.min(MAX_CONTENT_RUNG, nr + (rate === 0 && n < 3 ? 2 : 1));
+        if (nr > d[kR]) ups.push(s);
+      } else if (rate >= 0.75) {
+        nr = Math.max(1, nr - 1);
+        if (nr < d[kR]) downs.push(s);
+      }
+      d[kR] = nr;
+      d[kN] = n + 1;
+      d[kE] = Math.round(((d[kE] ?? 0.3) * 0.6 + Math.min(1, rate) * 0.4) * 100) / 100;
+    });
+    const errTotal = errBy.current.maths + errBy.current.francais;
+    const ratio = errTotal / nPairs;
+    const stars = ratio <= 0.1 ? 3 : ratio <= 0.4 ? 2 : 1;
+    d.plateaux = (d.plateaux ?? 0) + 1;
+    d.etoiles = (d.etoiles ?? 0) + stars;
+    let gift = null;
+    if (d.plateaux % 5 === 0) {
+      gift = MJ_CADEAUX[(d.plateaux / 5 - 1) % MJ_CADEAUX.length];
+      d.cadeaux = [...(d.cadeaux ?? []), gift].slice(-30);
+    }
+    d.lastMode = modeRef.current;
+    const newRungDisp = Math.max(1, Math.min(MAX_CONTENT_RUNG, Math.round((d.rM + d.rF) / 2)));
+    const direction = ups.length ? 'up' : downs.length ? 'down' : 'same';
+    const raison = ups.length ? 'parfait_rapide' : downs.length ? 'erreurs_beaucoup' : 'encore_un_effort';
+
+    let summary = null;
+    if (miniJeuIdRef.current) {
+      try {
+        summary = await completeSession({
+          profil,
+          miniJeuId: miniJeuIdRef.current,
+          currentRung: rungRef.current,
+          erreursTotal: Math.round(errTotal),
+          dureeSecondes: Math.round((Date.now() - startedAt.current) / 1000),
+          totalRounds: nPairs,
+          startedAt: startedAt.current,
+          maxRung: MAX_CONTENT_RUNG,
+          precomputedRung: { newRung: newRungDisp, direction, raison, details: d },
+        });
+      } catch (e) {
+        summary = null;
+      }
+    }
+    detailsRef.current = d;
+    setDetails(d);
+    const rang = mjRang(d.plateaux);
+    const prochain = MJ_RANGS.find((x) => x.min > d.plateaux);
+    setSessionSummary(summary);
+    setResult({ stars, rang, gift, ups, downs, prochain, plateaux: d.plateaux, newRungDisp });
+    maybePlayMemo(memosConfig.current, 'bonne_reponse');
+    const etoilesTxt = stars === 1 ? 'une étoile' : `${stars} étoiles`;
+    speakSmart(`Bravo ! Tu as trouvé toutes les paires, tu gagnes ${etoilesTxt} !${gift ? ' Et tu gagnes un cadeau !' : ''}`);
+  }
+
+  function reshuffleRemaining() {
+    const t = tilesRef.current;
+    const rem = removedRef.current;
+    const idx = [];
+    t.forEach((_, i) => { if (!rem.has(i)) idx.push(i); });
+    const groups = {};
+    idx.forEach((i) => {
+      const x = t[i];
+      if (!groups[x.pair]) groups[x.pair] = { id: x.pair, subj: x.subj, a: { t: x.t, v: x.v }, b: null };
+      else groups[x.pair].b = { t: x.t, v: x.v };
+    });
+    const pairs = Object.values(groups).filter((g) => g.b);
+    const positions = idx.map((i) => ({ c: t[i].c, r: t[i].r, l: t[i].l }));
+    const dealt = mjDeal(positions, pairs);
+    if (!dealt) return false;
+    const next = t.slice();
+    idx.forEach((i, k) => { next[i] = dealt[k]; });
+    tilesRef.current = next;
+    setTiles(next);
+    speakSmart('Je mélange les cartes !');
+    return true;
+  }
+
+  function onTapTile(i) {
+    if (finishedRef.current || lockedRef.current || !tilesRef.current) return;
+    const t = tilesRef.current;
+    const rem = removedRef.current;
+    if (rem.has(i)) return;
+    const alive = new Set();
+    t.forEach((_, k) => { if (!rem.has(k)) alive.add(k); });
+    if (!mjIsFree(t, alive, i)) return;
+    setHint(null);
+    const tile = t[i];
+    if (tile.v) speakSmart(tile.v);
+    const sel = selectedRef.current;
+    if (sel == null) {
+      selectedRef.current = i;
+      setSelected(i);
+      return;
+    }
+    if (sel === i) {
+      selectedRef.current = null;
+      setSelected(null);
+      return;
+    }
+    if (t[sel].pair === tile.pair) {
+      const nextRem = new Set(rem);
+      nextRem.add(sel);
+      nextRem.add(i);
+      removedRef.current = nextRem;
+      selectedRef.current = null;
+      setRemoved(nextRem);
+      setSelected(null);
+      if (nextRem.size >= t.length) {
+        lockedRef.current = true;
+        setTimeout(finishPlateau, 500);
+        return;
+      }
+      if (!mjHasMove(t, nextRem)) {
+        if (!reshuffleRemaining()) {
+          lockedRef.current = true;
+          setTimeout(finishPlateau, 500);
+        }
+      }
+      return;
+    }
+    errBy.current[t[sel].subj] += 1;
+    if (tile.subj !== t[sel].subj) errBy.current[tile.subj] += 1;
+    lockedRef.current = true;
+    selectedRef.current = null;
+    setSelected(null);
+    setWrongPair([sel, i]);
+    setTimeout(() => {
+      setWrongPair(null);
+      lockedRef.current = false;
+    }, 600);
+  }
+
+  function onHint() {
+    if (finishedRef.current || !tilesRef.current) return;
+    const t = tilesRef.current;
+    const rem = removedRef.current;
+    const alive = new Set();
+    t.forEach((_, k) => { if (!rem.has(k)) alive.add(k); });
+    const seen = {};
+    for (const i of alive) {
+      if (!mjIsFree(t, alive, i)) continue;
+      if (seen[t[i].pair] != null) {
+        const j = seen[t[i].pair];
+        errBy.current[t[i].subj] += 0.5;
+        selectedRef.current = null;
+        setSelected(null);
+        setHint([j, i]);
+        setTimeout(() => setHint(null), 2500);
+        speakSmart('Regarde ces deux cartes !');
+        return;
+      }
+      seen[t[i].pair] = i;
+    }
+  }
+
+  function proceed() {
+    setResult(null);
+    setSessionDone(false);
+    const d = detailsRef.current;
+    rungRef.current = result?.newRungDisp ?? rungRef.current;
+    setRung(rungRef.current);
+    startBoard(d);
+  }
+
+  function onNext() {
+    const s = sessionSummary;
+    if (s && (s.reward || s.rankChanged || s.bonusZone?.unlocked)) {
+      setSessionDone(true);
+      return;
+    }
+    proceed();
+  }
+
+  if (sessionDone) {
+    return (
+      <SessionEndScreen
+        profil={profil}
+        summary={sessionSummary}
+        navigation={navigation}
+        onContinue={proceed}
+      />
+    );
+  }
+
+  if (!tiles || !details) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.mossDeep} />
+      </View>
+    );
+  }
+
+  const cols = Math.max(...tiles.map((x) => x.c)) + 1;
+  const rows = Math.max(...tiles.map((x) => x.r)) + 1;
+  const gap = 4;
+  const tw = Math.min(64, Math.floor((screenWidth - 40) / cols) - gap);
+  const th = Math.round(tw * 1.25);
+  const boardW = cols * (tw + gap) + 14;
+  const boardH = rows * (th + gap) + 16;
+  const aliveSet = new Set();
+  tiles.forEach((_, k) => { if (!removed.has(k)) aliveSet.add(k); });
+  const order = tiles.map((_, k) => k).filter((k) => !removed.has(k)).sort((a, b) => (tiles[a].l - tiles[b].l) || (tiles[a].r - tiles[b].r) || (tiles[a].c - tiles[b].c));
+  const rang = mjRang(details.plateaux ?? 0);
+  const modeLabel = mode === 'maths' ? '🔢 Plateau de maths' : mode === 'francais' ? '🔤 Plateau de français' : '🎲 Plateau surprise';
+
+  return (
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('mahjong_savoirs'), paddingTop: 6, paddingBottom: 24 }]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 4 }}>
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={styles.back}>‹</Text>
+        </Pressable>
+        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>🀄 Le Mahjong des Savoirs</Text>
+        <Pressable onPress={onHint} hitSlop={10}>
+          <Text style={{ fontSize: 26 }}>💡</Text>
+        </Pressable>
+      </View>
+
+      <Text style={{ textAlign: 'center', color: colors.ink, fontWeight: '700' }}>
+        ⭐ {details.etoiles ?? 0}  ·  {rang.e} {rang.nom}
+      </Text>
+      {(details.cadeaux ?? []).length > 0 && (
+        <Text style={{ textAlign: 'center', fontSize: 18, marginTop: 2 }}>{(details.cadeaux ?? []).slice(-8).join(' ')}</Text>
+      )}
+      <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '800', marginTop: 4 }}>{modeLabel}</Text>
+
+      <NiveauBadge rung={rung} />
+      {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
+
+      <View style={{ width: boardW, height: boardH, alignSelf: 'center', marginTop: 10 }}>
+        {order.map((i) => {
+          const x = tiles[i];
+          const free = mjIsFree(tiles, aliveSet, i);
+          const isSel = selected === i;
+          const isWrong = wrongPair != null && wrongPair.includes(i);
+          const isHint = hint != null && hint.includes(i);
+          const base = x.subj === 'maths' ? '#FFF3C4' : '#E3F2FD';
+          const len = x.t.length;
+          const fs = len <= 3 ? tw * 0.5 : len <= 6 ? tw * 0.3 : len <= 10 ? tw * 0.22 : tw * 0.17;
+          return (
+            <Pressable
+              key={i}
+              onPress={() => onTapTile(i)}
+              style={{
+                position: 'absolute',
+                left: 7 + x.c * (tw + gap) + x.l * 5,
+                top: 8 + x.r * (th + gap) - x.l * 5,
+                width: tw,
+                height: th,
+                borderRadius: 9,
+                backgroundColor: isWrong ? '#FFCDD2' : free ? base : '#D7CCC8',
+                borderWidth: 3,
+                borderColor: isWrong ? '#D32F2F' : isSel ? '#E65100' : isHint ? '#FBC02D' : '#8D6E63',
+                opacity: free ? 1 : 0.65,
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 2,
+                elevation: 2 + x.l * 3,
+              }}
+            >
+              <Text
+                numberOfLines={4}
+                adjustsFontSizeToFit
+                minimumFontScale={0.5}
+                style={{ fontSize: fs, fontWeight: '800', color: colors.ink, textAlign: 'center' }}
+              >
+                {x.t}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <Modal visible={result != null} animationType="fade" transparent>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            {result && (
+              <>
+                <Text style={styles.modalTitle}>🎉 Plateau réussi !</Text>
+                <Text style={{ textAlign: 'center', fontSize: 40, marginVertical: 6 }}>
+                  {'⭐'.repeat(result.stars)}{'☆'.repeat(3 - result.stars)}
+                </Text>
+                <Text style={{ textAlign: 'center', fontSize: 16, color: colors.ink, fontWeight: '700' }}>
+                  {result.rang.e} {result.rang.nom}  ·  {result.plateaux} plateau{result.plateaux > 1 ? 'x' : ''}
+                </Text>
+                {result.prochain && (
+                  <Text style={{ textAlign: 'center', color: colors.ink, marginTop: 2 }}>
+                    Encore {result.prochain.min - result.plateaux} pour devenir {result.prochain.nom} {result.prochain.e}
+                  </Text>
+                )}
+                {result.ups.length > 0 && (
+                  <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '800', marginTop: 8 }}>
+                    📈 Tu montes de niveau en {result.ups.map((s) => (s === 'maths' ? 'maths' : 'français')).join(' et ')} !
+                  </Text>
+                )}
+                {result.downs.length > 0 && result.ups.length === 0 && (
+                  <Text style={{ textAlign: 'center', color: colors.ink, marginTop: 8 }}>
+                    On s'entraîne un peu plus facile en {result.downs.map((s) => (s === 'maths' ? 'maths' : 'français')).join(' et ')}, tu vas y arriver !
+                  </Text>
+                )}
+                {result.gift && (
+                  <Text style={{ textAlign: 'center', fontSize: 22, marginTop: 10 }}>
+                    🎁 Nouveau cadeau : {result.gift}
+                  </Text>
+                )}
+                <Pressable style={[styles.button, { marginTop: 16 }]} onPress={onNext}>
+                  <Text style={styles.buttonText}>Plateau suivant ▶</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+    </ScrollView>
+  );
+}
+
+// ============================================================
 // Le Chemin des Dizaines (jeu bonus cache de "Le Bois des Nombres",
 // competence maths) - travaille la numeration en base 10
 // (dizaines/unites), pilier CP-CE1 de la methode de Singapour, absent du
@@ -15557,6 +16383,7 @@ export default function RootNavigator() {
             <Stack.Screen name="IndicesJardin" component={IndicesJardinScreen} />
             <Stack.Screen name="LabyrintheGrotte" component={LabyrintheGrotteScreen} />
             <Stack.Screen name="ExpeditionMonde" component={ExpeditionMondeScreen} />
+            <Stack.Screen name="MahjongSavoirs" component={MahjongSavoirsScreen} />
             <Stack.Screen name="CheminDizaines" component={CheminDizainesScreen} />
             <Stack.Screen name="BarresLuma" component={BarresLumaScreen} />
             <Stack.Screen name="BouleQuiRoule" component={BouleQuiRouleScreen} />
