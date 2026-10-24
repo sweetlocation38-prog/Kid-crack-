@@ -9423,9 +9423,10 @@ function ExpeditionMondeScreen({ route, navigation }) {
 }
 
 // ============================================================
-// Le Mahjong des Savoirs (zone "lecture") - mahjong en pyramide : on
-// retire deux cartes LIBRES qui vont ensemble (calcul <-> resultat,
-// image <-> mot, singulier <-> pluriel...). Chaque plateau est soit de
+// Le Mahjong des Savoirs (zone "lecture") - mahjong en pyramide a cartes
+// qui se recouvrent partiellement, avec des tas de cartes cachees et des
+// jokers : on retire deux cartes LIBRES qui vont ensemble (calcul <->
+// resultat, image <-> mot, singulier <-> pluriel...). Chaque plateau est soit de
 // maths, soit de francais, soit "surprise" (les deux), choisi selon ce
 // que l'enfant a fait avant : alternance par defaut, et plus souvent la
 // matiere ou il a le plus d'erreurs. Un niveau (cran) par matiere, qui
@@ -9470,10 +9471,17 @@ function mjMathsPair(rung) {
   const pick = (arr) => arr[r(arr.length)];
   const S = String;
   switch (g) {
-    case 0: { // MS : chiffre <-> quantite
+    case 0: { // MS : chiffre <-> quantite, quantite <-> quantite (dessins differents)
       const n = between(1, p === 1 ? 5 : p === 2 ? 8 : 10);
-      const dots = n > 5 ? '●●●●●\n' + '●'.repeat(n - 5) : '●'.repeat(n);
-      return [S(n), dots + '|des points'];
+      const PICTOS = [['●', 'des points'], ['🍎', 'des pommes'], ['⭐', 'des étoiles'], ['🐟', 'des poissons'], ['🌸', 'des fleurs']];
+      const draw = (pc) => (n > 5 ? pc[0].repeat(5) + '\n' + pc[0].repeat(n - 5) : pc[0].repeat(n)) + '|' + pc[1];
+      const i1 = r(PICTOS.length);
+      let i2 = r(PICTOS.length - 1);
+      if (i2 >= i1) i2 += 1;
+      const mode = r(3);
+      if (mode === 0) return [S(n), draw(PICTOS[i1]), S(n)];
+      if (mode === 1) return [draw(PICTOS[i1]), draw(PICTOS[i2]), S(n)];
+      return [draw(PICTOS[i1]), S(n), S(n)];
     }
     case 1: { // GS : petites additions
       const max = p === 1 ? 8 : p === 2 ? 10 : 12;
@@ -9623,79 +9631,122 @@ const MJ_FR_BANKS = [
   ],
 ];
 
+// Construit les paires du plateau. key = ce qui fait que deux cartes vont
+// ensemble : en maths, la VALEUR (2+3 et 1+4 et 5 vont tous ensemble) ; en
+// francais, l'identifiant de la paire.
 function mjBuildPairs(kind, rung, count) {
   const out = [];
-  const used = new Set();
-  const push = (ta, tb, subj) => {
-    if (!ta.t || !tb.t || used.has(ta.t) || used.has(tb.t) || ta.t === tb.t) return false;
-    used.add(ta.t);
-    used.add(tb.t);
+  const textCount = {};
+  const keyCount = {};
+  const rr = Math.max(1, Math.min(MAX_CONTENT_RUNG, rung));
+  const tryPush = (ta, tb, subj, key, strict) => {
+    if (!ta.t || !tb.t || ta.t === tb.t) return false;
+    const cap = strict ? 1 : 2;
+    if ((textCount[ta.t] ?? 0) >= cap || (textCount[tb.t] ?? 0) >= cap) return false;
+    if (!strict && (keyCount[key] ?? 0) >= 4) return false;
+    textCount[ta.t] = (textCount[ta.t] ?? 0) + 1;
+    textCount[tb.t] = (textCount[tb.t] ?? 0) + 1;
+    keyCount[key] = (keyCount[key] ?? 0) + 1;
     mjIdCounter += 1;
-    out.push({ id: `p${mjIdCounter}`, subj, a: ta, b: tb });
+    out.push({ id: `p${mjIdCounter}`, key: strict ? `p${mjIdCounter}` : `m:${key}`, subj, a: ta, b: tb });
     return true;
   };
-  const rr = Math.max(1, Math.min(MAX_CONTENT_RUNG, rung));
 
   if (kind === 'maths') {
-    const r3 = () => Math.floor(Math.random() * 3);
     let guard = 0;
-    while (out.length < count && guard < 500) {
+    while (out.length < count && guard < 800) {
       guard += 1;
       // Si le niveau a trop peu de variantes pour remplir le plateau, on
       // pioche aussi un peu en dessous plutot que de bloquer.
-      const useR = guard > 120 ? Math.max(1, rr - r3()) : rr;
-      let [a, b] = mjMathsPair(useR);
+      const useR = guard > 200 ? Math.max(1, rr - Math.floor(Math.random() * 4)) : rr;
+      let [a, b, k] = mjMathsPair(useR);
       if (b == null) {
-        // multiplication : le resultat est calcule ici pour garder une seule source de verite
         const m = String(a).match(/^(\d+)×(\d+)$/);
         b = m ? String(Number(m[1]) * Number(m[2])) : '?';
       }
-      push(mjTile(a, true), mjTile(b, true), 'maths');
+      const key = k ?? String(b).split('|')[0];
+      tryPush(mjTile(a, true), mjTile(b, true), 'maths', String(key), false);
     }
     return out;
   }
 
-  // Francais : on pioche dans la banque du niveau (plus facile d'abord selon
-  // le palier), puis le reste de la banque, puis les banques en dessous.
+  // Francais : banque du niveau (plus facile d'abord selon le palier), puis le
+  // reste de la banque, puis les banques en dessous.
   const g = Math.floor((rr - 1) / 3);
   const p = ((rr - 1) % 3) + 1;
   const bank = MJ_FR_BANKS[Math.min(g, MJ_FR_BANKS.length - 1)];
   const take = p === 1 ? Math.ceil(bank.length * 0.5) : p === 2 ? Math.ceil(bank.length * 0.8) : bank.length;
-  const candidates = [
-    ...shuffle(bank.slice(0, take)),
-    ...shuffle(bank.slice(take)),
-  ];
+  const candidates = [...shuffle(bank.slice(0, take)), ...shuffle(bank.slice(take))];
   for (let k = g - 1; k >= 0; k -= 1) candidates.push(...shuffle(MJ_FR_BANKS[k]));
   for (const [a, b, mute] of candidates) {
     if (out.length >= count) break;
-    push(mjTile(a, false, false), mjTile(b, false, !!mute), 'francais');
+    tryPush(mjTile(a, false, false), mjTile(b, false, !!mute), 'francais', '', true);
   }
   return out;
 }
 
-function mjTileCount(rung) {
-  if (rung <= 2) return 12;
-  if (rung <= 5) return 16;
-  if (rung <= 9) return 20;
-  if (rung <= 14) return 24;
-  return 30;
+// Taille du plateau selon le niveau : beaucoup de cartes des les petits niveaux.
+function mjProfile(rung) {
+  if (rung <= 3) return { cols: 6, rows: 4, layers: 1, piles: 1, depth: 3 };
+  if (rung <= 6) return { cols: 6, rows: 4, layers: 2, piles: 2, depth: 3 };
+  if (rung <= 9) return { cols: 7, rows: 4, layers: 2, piles: 2, depth: 3 };
+  if (rung <= 12) return { cols: 8, rows: 4, layers: 2, piles: 3, depth: 3 };
+  if (rung <= 15) return { cols: 8, rows: 4, layers: 3, piles: 3, depth: 4 };
+  if (rung <= 21) return { cols: 8, rows: 5, layers: 2, piles: 3, depth: 4 };
+  return { cols: 8, rows: 5, layers: 3, piles: 4, depth: 4 };
 }
 
-function mjLayout(nTiles) {
-  const rect = (c0, r0, w, h, l) => {
-    const o = [];
-    for (let r = r0; r < r0 + h; r += 1) for (let c = c0; c < c0 + w; c += 1) o.push({ c, r, l });
-    return o;
-  };
-  if (nTiles <= 12) return rect(0, 0, 4, 3, 0);
-  if (nTiles <= 16) return [...rect(0, 0, 4, 3, 0), ...rect(1, 1, 2, 2, 1)];
-  if (nTiles <= 20) return [...rect(0, 0, 4, 4, 0), ...rect(1, 1, 2, 2, 1)];
-  if (nTiles <= 24) return [...rect(0, 0, 5, 4, 0), ...rect(1, 1, 2, 2, 1)];
-  return [...rect(0, 0, 6, 4, 0), ...rect(1, 1, 3, 2, 1)];
+// Plateau en pyramide a recouvrement partiel : positions en DEMI-cartes
+// (x, y). Chaque etage est decale d'une demi-carte, comme au vrai Mahjong.
+// Les "tas" (p = numero du tas, k = rang dans le tas, 0 = dessus) sont des
+// piles au milieu : seule la carte du dessus est visible.
+function mjBuildLayout(prof) {
+  const { cols, rows, layers, piles, depth } = prof;
+  const pileCells = [];
+  if (piles > 0 && rows >= 3 && cols >= 3) {
+    const cands = [];
+    for (let c = 1; c < cols - 1; c += 1) for (let r = 1; r < rows - 1; r += 1) cands.push({ c, r });
+    for (const cell of shuffle(cands)) {
+      if (pileCells.length >= piles) break;
+      if (pileCells.every((q) => Math.abs(q.c - cell.c) >= 2 || Math.abs(q.r - cell.r) >= 2)) pileCells.push(cell);
+    }
+  }
+  const pileOf = {};
+  pileCells.forEach((pc, idx) => { pileOf[`${pc.c},${pc.r}`] = idx; });
+  const out = [];
+  for (let k = 0; k < layers; k += 1) {
+    const w = cols - k;
+    const h = rows - k;
+    if (w < 1 || h < 1) break;
+    for (let r = 0; r < h; r += 1) {
+      for (let c = 0; c < w; c += 1) {
+        const x = 2 * c + k;
+        const y = 2 * r + k;
+        if (k === 0) {
+          const idx = pileOf[`${c},${r}`];
+          if (idx !== undefined) {
+            for (let q = 0; q < depth; q += 1) out.push({ x, y, l: 0, p: idx, k: q });
+          } else {
+            out.push({ x, y, l: 0, p: null, k: 0 });
+          }
+          continue;
+        }
+        if (pileCells.some((pc) => Math.abs(x - 2 * pc.c) < 2 && Math.abs(y - 2 * pc.r) < 2)) continue;
+        out.push({ x, y, l: k, p: null, k: 0 });
+      }
+    }
+  }
+  if (out.length % 2 === 1) {
+    for (let i = out.length - 1; i >= 0; i -= 1) {
+      if (out[i].p == null) { out.splice(i, 1); break; }
+    }
+  }
+  return out;
 }
 
-// Une carte est libre si aucune carte n'est posee dessus ET si au moins un de
-// ses cotes (gauche ou droite, meme rangee, meme etage) est vide.
+// Une carte est libre si : elle est le dessus de son tas, aucune carte ne la
+// recouvre (meme en partie) et au moins un de ses cotes (gauche ou droite)
+// est vide.
 function mjIsFree(tiles, alive, i) {
   const t = tiles[i];
   let left = false;
@@ -9703,18 +9754,30 @@ function mjIsFree(tiles, alive, i) {
   for (const j of alive) {
     if (j === i) continue;
     const u = tiles[j];
-    if (u.c === t.c && u.r === t.r && u.l === t.l + 1) return false;
-    if (u.l === t.l && u.r === t.r) {
-      if (u.c === t.c - 1) left = true;
-      if (u.c === t.c + 1) right = true;
+    if (u.p != null && u.p === t.p && u.k < t.k) return false;
+    if (u.l > t.l && Math.abs(u.x - t.x) < 2 && Math.abs(u.y - t.y) < 2) return false;
+    if (u.l === t.l && Math.abs(u.y - t.y) < 2) {
+      const dx = t.x - u.x;
+      if (dx > 0 && dx <= 3) left = true;
+      if (dx < 0 && dx >= -3) right = true;
     }
   }
   return !(left && right);
 }
 
-// Distribue les paires sur les positions en "jouant a l'envers" : on retire
-// deux cartes libres au hasard et on leur donne une paire - le plateau est
-// donc toujours soluble. Renvoie null si aucune distribution n'est trouvee.
+// Carte cachee sous une autre carte de son tas.
+function mjIsHidden(tiles, alive, i) {
+  const t = tiles[i];
+  if (t.p == null) return false;
+  for (const j of alive) {
+    if (j !== i && tiles[j].p === t.p && tiles[j].k < t.k) return true;
+  }
+  return false;
+}
+
+// Distribue les paires en "jouant a l'envers" : on retire deux cartes libres
+// au hasard et on leur donne une paire - le plateau est donc toujours soluble.
+// Renvoie null si aucune distribution n'est trouvee.
 function mjDeal(layout, pairs) {
   for (let attempt = 0; attempt < 80; attempt += 1) {
     const alive = new Set(layout.map((_, i) => i));
@@ -9735,8 +9798,8 @@ function mjDeal(layout, pairs) {
     order.forEach(([i, j], k) => {
       const pr = ps[k];
       const flip = Math.random() < 0.5;
-      tiles[i] = { ...tiles[i], pair: pr.id, subj: pr.subj, ...(flip ? pr.a : pr.b) };
-      tiles[j] = { ...tiles[j], pair: pr.id, subj: pr.subj, ...(flip ? pr.b : pr.a) };
+      tiles[i] = { ...tiles[i], key: pr.key, subj: pr.subj, ...(flip ? pr.a : pr.b) };
+      tiles[j] = { ...tiles[j], key: pr.key, subj: pr.subj, ...(flip ? pr.b : pr.a) };
     });
     return tiles;
   }
@@ -9749,8 +9812,8 @@ function mjHasMove(tiles, removed) {
   const seen = new Set();
   for (const i of alive) {
     if (!mjIsFree(tiles, alive, i)) continue;
-    if (seen.has(tiles[i].pair)) return true;
-    seen.add(tiles[i].pair);
+    if (seen.has(tiles[i].key)) return true;
+    seen.add(tiles[i].key);
   }
   return false;
 }
@@ -9781,6 +9844,18 @@ function mjRang(plateaux) {
 }
 const MJ_CADEAUX = ['🦄', '🐉', '🚀', '🏰', '🎨', '🧁', '🦋', '🐬', '🌈', '🎡'];
 
+// Jokers : se gagnent en montant de niveau, en reussissant bien un plateau,
+// en changeant de rang, et via des bonus gratuits a la fin de certains plateaux.
+const MJ_JOKERS = [
+  { id: 'undo', e: '↩️', nom: 'Retour', voix: 'Je reviens en arrière !' },
+  { id: 'hint', e: '💡', nom: 'Indice', voix: 'Regarde bien !' },
+  { id: 'shuffle', e: '🔀', nom: 'Mélange', voix: 'Je mélange les cartes !' },
+  { id: 'loupe', e: '🔍', nom: 'Loupe', voix: 'Touche un tas pour regarder dessous.' },
+  { id: 'wild', e: '🃏', nom: 'Passe-partout', voix: 'Touche une carte libre, elle part avec sa jumelle.' },
+];
+const MJ_JK_DEFAUT = { undo: 2, hint: 2, shuffle: 1, loupe: 1, wild: 1 };
+const MJ_JK_MAX = 5;
+
 async function assurerMiniJeuMahjong() {
   try {
     const { data: existant } = await supabase.from('mini_jeux').select('id').eq('code', 'mahjong_savoirs').maybeSingle();
@@ -9809,12 +9884,16 @@ function MahjongSavoirsScreen({ route, navigation }) {
   const toastNiveau = useNiveauSuperieurDetector(rung, miniJeuId, profil.id);
   const [details, setDetails] = useState(null);
   const detailsRef = useRef(null);
+  const [jk, setJk] = useState(MJ_JK_DEFAUT);
   const [mode, setMode] = useState('maths');
   const [tiles, setTiles] = useState(null);
   const [removed, setRemoved] = useState(() => new Set());
   const [selected, setSelected] = useState(null);
   const [wrongPair, setWrongPair] = useState(null);
   const [hint, setHint] = useState(null);
+  const [armed, setArmed] = useState(null);
+  const [peek, setPeek] = useState(null);
+  const [msg, setMsg] = useState(null);
   const [result, setResult] = useState(null);
   const [sessionDone, setSessionDone] = useState(false);
   const [sessionSummary, setSessionSummary] = useState(null);
@@ -9822,43 +9901,62 @@ function MahjongSavoirsScreen({ route, navigation }) {
   const tilesRef = useRef(null);
   const removedRef = useRef(new Set());
   const selectedRef = useRef(null);
+  const histRef = useRef([]);
+  const armedRef = useRef(null);
   const lockedRef = useRef(false);
   const finishedRef = useRef(false);
   const modeRef = useRef('maths');
   const errBy = useRef({ maths: 0, francais: 0 });
+  const jokersUsedRef = useRef(0);
   const startedAt = useRef(Date.now());
   const miniJeuIdRef = useRef(null);
   const rungRef = useRef(baseRung);
+  const msgTimer = useRef(null);
+
+  function showMsg(m) {
+    setMsg(m);
+    if (msgTimer.current) clearTimeout(msgTimer.current);
+    msgTimer.current = setTimeout(() => setMsg(null), 3000);
+  }
+
+  function setArmedBoth(v) {
+    armedRef.current = v;
+    setArmed(v);
+  }
 
   const startBoard = useCallback((d) => {
     const m = mjChooseMode(d);
     const r = m === 'maths' ? d.rM : m === 'francais' ? d.rF : Math.round((d.rM + d.rF) / 2);
-    const nTiles = mjTileCount(r);
-    const nPairs = nTiles / 2;
-    let pairs;
-    if (m === 'maths') pairs = mjBuildPairs('maths', d.rM, nPairs);
-    else if (m === 'francais') pairs = mjBuildPairs('francais', d.rF, nPairs);
-    else {
-      const nm = Math.ceil(nPairs / 2);
-      pairs = [...mjBuildPairs('maths', d.rM, nm), ...mjBuildPairs('francais', d.rF, nPairs - nm)];
-    }
-    let layout = mjLayout(nTiles);
-    // Securite : si un niveau n'a pas assez de variantes, on reduit le plateau.
-    if (pairs.length * 2 < layout.length) {
-      const n = Math.max(6, pairs.length) * 2;
-      layout = mjLayout(n <= 12 ? 12 : n <= 16 ? 16 : n <= 20 ? 20 : n <= 24 ? 24 : 30);
-      layout = layout.slice(0, Math.min(layout.length, pairs.length * 2));
-    }
-    let dealt = mjDeal(layout, pairs.slice(0, layout.length / 2));
-    if (!dealt) dealt = mjDeal(mjLayout(12), pairs.slice(0, 6));
+    const prof = mjProfile(r);
+    const pairsFor = (n) => {
+      if (m === 'maths') return mjBuildPairs('maths', d.rM, n);
+      if (m === 'francais') return mjBuildPairs('francais', d.rF, n);
+      const nm = Math.ceil(n / 2);
+      return [...mjBuildPairs('maths', d.rM, nm), ...mjBuildPairs('francais', d.rF, n - nm)];
+    };
+    const tryDeal = (profile) => {
+      let layout = mjBuildLayout(profile);
+      const pairs = pairsFor(layout.length / 2);
+      // Securite : si le niveau n'a pas assez de variantes, on retire des cartes du dessus.
+      if (pairs.length * 2 < layout.length) layout = layout.slice(0, pairs.length * 2);
+      return mjDeal(layout, pairs.slice(0, layout.length / 2));
+    };
+    let dealt = tryDeal(prof);
+    if (!dealt) dealt = tryDeal({ ...prof, piles: 0 });
+    if (!dealt) dealt = tryDeal({ cols: 4, rows: 3, layers: 1, piles: 0, depth: 0 });
     tilesRef.current = dealt;
     removedRef.current = new Set();
     selectedRef.current = null;
+    histRef.current = [];
     lockedRef.current = false;
     finishedRef.current = false;
     modeRef.current = m;
     errBy.current = { maths: 0, francais: 0 };
+    jokersUsedRef.current = 0;
     startedAt.current = Date.now();
+    armedRef.current = null;
+    setArmed(null);
+    setPeek(null);
     setMode(m);
     setTiles(dealt);
     setRemoved(new Set());
@@ -9901,15 +9999,26 @@ function MahjongSavoirsScreen({ route, navigation }) {
         etoiles: saved.etoiles ?? 0,
         cadeaux: saved.cadeaux ?? [],
         lastMode: saved.lastMode ?? null,
+        lastDay: saved.lastDay ?? null,
+        jk: { ...MJ_JK_DEFAUT, ...(saved.jk ?? {}) },
       };
       detailsRef.current = d;
       setDetails(d);
+      setJk(d.jk);
       setRung(start);
       rungRef.current = start;
       startBoard(d);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profil.id]);
+
+  function aliveSetOf() {
+    const t = tilesRef.current;
+    const rem = removedRef.current;
+    const s = new Set();
+    t.forEach((_, k) => { if (!rem.has(k)) s.add(k); });
+    return s;
+  }
 
   async function finishPlateau() {
     if (finishedRef.current) return;
@@ -9942,15 +10051,40 @@ function MahjongSavoirsScreen({ route, navigation }) {
     });
     const errTotal = errBy.current.maths + errBy.current.francais;
     const ratio = errTotal / nPairs;
-    const stars = ratio <= 0.1 ? 3 : ratio <= 0.4 ? 2 : 1;
+    let stars = ratio <= 0.1 ? 3 : ratio <= 0.4 ? 2 : 1;
+    if (jokersUsedRef.current >= 3) stars = Math.min(stars, 2);
+    const prevRang = mjRang(d.plateaux ?? 0);
     d.plateaux = (d.plateaux ?? 0) + 1;
     d.etoiles = (d.etoiles ?? 0) + stars;
+    const rang = mjRang(d.plateaux);
     let gift = null;
     if (d.plateaux % 5 === 0) {
       gift = MJ_CADEAUX[(d.plateaux / 5 - 1) % MJ_CADEAUX.length];
       d.cadeaux = [...(d.cadeaux ?? []), gift].slice(-30);
     }
     d.lastMode = modeRef.current;
+
+    // Jokers gagnes
+    const jkNew = { ...MJ_JK_DEFAUT, ...(d.jk ?? {}) };
+    const gains = [];
+    const gain = (n) => {
+      for (let q = 0; q < n; q += 1) {
+        const open = MJ_JOKERS.filter((j) => jkNew[j.id] < MJ_JK_MAX);
+        if (!open.length) return;
+        const j = open[Math.floor(Math.random() * open.length)];
+        jkNew[j.id] += 1;
+        gains.push(j.e);
+      }
+    };
+    ups.forEach(() => gain(1));
+    if (stars === 3) gain(1);
+    if (rang.min > prevRang.min) gain(2);
+    if (gift) gain(2);
+    if (d.plateaux % 3 === 0) gain(1);
+    const today = new Date().toISOString().slice(0, 10);
+    if (d.lastDay !== today) { gain(1); d.lastDay = today; }
+    d.jk = jkNew;
+
     const newRungDisp = Math.max(1, Math.min(MAX_CONTENT_RUNG, Math.round((d.rM + d.rF) / 2)));
     const direction = ups.length ? 'up' : downs.length ? 'down' : 'same';
     const raison = ups.length ? 'parfait_rapide' : downs.length ? 'erreurs_beaucoup' : 'encore_un_effort';
@@ -9975,13 +10109,13 @@ function MahjongSavoirsScreen({ route, navigation }) {
     }
     detailsRef.current = d;
     setDetails(d);
-    const rang = mjRang(d.plateaux);
+    setJk(d.jk);
     const prochain = MJ_RANGS.find((x) => x.min > d.plateaux);
     setSessionSummary(summary);
-    setResult({ stars, rang, gift, ups, downs, prochain, plateaux: d.plateaux, newRungDisp });
+    setResult({ stars, rang, gift, gains, ups, downs, prochain, plateaux: d.plateaux, newRungDisp });
     maybePlayMemo(memosConfig.current, 'bonne_reponse');
     const etoilesTxt = stars === 1 ? 'une étoile' : `${stars} étoiles`;
-    speakSmart(`Bravo ! Tu as trouvé toutes les paires, tu gagnes ${etoilesTxt} !${gift ? ' Et tu gagnes un cadeau !' : ''}`);
+    speakSmart(`Bravo ! Tu as trouvé toutes les paires, tu gagnes ${etoilesTxt} !${gains.length ? ' Et tu gagnes des jokers !' : ''}${gift ? ' Et un cadeau !' : ''}`);
   }
 
   function reshuffleRemaining() {
@@ -9990,21 +10124,62 @@ function MahjongSavoirsScreen({ route, navigation }) {
     const idx = [];
     t.forEach((_, i) => { if (!rem.has(i)) idx.push(i); });
     const groups = {};
-    idx.forEach((i) => {
-      const x = t[i];
-      if (!groups[x.pair]) groups[x.pair] = { id: x.pair, subj: x.subj, a: { t: x.t, v: x.v }, b: null };
-      else groups[x.pair].b = { t: x.t, v: x.v };
+    idx.forEach((i) => { (groups[t[i].key] = groups[t[i].key] || []).push(i); });
+    const pairs = [];
+    Object.keys(groups).forEach((key) => {
+      const g = groups[key];
+      for (let q = 0; q + 1 < g.length; q += 2) {
+        const a = t[g[q]];
+        const b = t[g[q + 1]];
+        mjIdCounter += 1;
+        pairs.push({ id: `p${mjIdCounter}`, key, subj: a.subj, a: { t: a.t, v: a.v }, b: { t: b.t, v: b.v } });
+      }
     });
-    const pairs = Object.values(groups).filter((g) => g.b);
-    const positions = idx.map((i) => ({ c: t[i].c, r: t[i].r, l: t[i].l }));
+    const positions = idx.map((i) => ({ x: t[i].x, y: t[i].y, l: t[i].l, p: t[i].p, k: t[i].k }));
+    if (pairs.length * 2 !== positions.length) return false;
     const dealt = mjDeal(positions, pairs);
     if (!dealt) return false;
     const next = t.slice();
     idx.forEach((i, k) => { next[i] = dealt[k]; });
     tilesRef.current = next;
     setTiles(next);
-    speakSmart('Je mélange les cartes !');
     return true;
+  }
+
+  function afterRemoval(nextRem) {
+    const t = tilesRef.current;
+    if (nextRem.size >= t.length) {
+      lockedRef.current = true;
+      setTimeout(finishPlateau, 500);
+      return;
+    }
+    if (!mjHasMove(t, nextRem)) {
+      if (reshuffleRemaining()) {
+        speakSmart('Plus de coup possible, je mélange les cartes !');
+      } else {
+        lockedRef.current = true;
+        setTimeout(finishPlateau, 500);
+      }
+    }
+  }
+
+  function removePair(i, j) {
+    const nextRem = new Set(removedRef.current);
+    nextRem.add(i);
+    nextRem.add(j);
+    removedRef.current = nextRem;
+    histRef.current.push([i, j]);
+    selectedRef.current = null;
+    setRemoved(nextRem);
+    setSelected(null);
+    afterRemoval(nextRem);
+  }
+
+  function spend(type) {
+    const d = detailsRef.current;
+    d.jk = { ...d.jk, [type]: Math.max(0, (d.jk[type] ?? 0) - 1) };
+    jokersUsedRef.current += 1;
+    setJk(d.jk);
   }
 
   function onTapTile(i) {
@@ -10012,11 +10187,40 @@ function MahjongSavoirsScreen({ route, navigation }) {
     const t = tilesRef.current;
     const rem = removedRef.current;
     if (rem.has(i)) return;
-    const alive = new Set();
-    t.forEach((_, k) => { if (!rem.has(k)) alive.add(k); });
-    if (!mjIsFree(t, alive, i)) return;
+    const alive = aliveSetOf();
+    if (mjIsHidden(t, alive, i)) return;
     setHint(null);
     const tile = t[i];
+
+    // Joker loupe : regarder sous le dessus d'un tas.
+    if (armedRef.current === 'loupe') {
+      if (tile.p == null) { showMsg('Touche un tas de cartes !'); return; }
+      const below = [...alive].filter((j) => t[j].p === tile.p && j !== i);
+      setArmedBoth(null);
+      if (!below.length) { showMsg('Ce tas n’a plus de carte cachée.'); return; }
+      spend('loupe');
+      setPeek({ p: tile.p });
+      setTimeout(() => setPeek(null), 4000);
+      const nextIdx = below.sort((a, b) => t[a].k - t[b].k)[0];
+      if (t[nextIdx].v) speakSmart(t[nextIdx].v);
+      return;
+    }
+
+    if (!mjIsFree(t, alive, i)) return;
+
+    // Joker passe-partout : la carte part avec sa jumelle, meme cachee ou bloquee.
+    if (armedRef.current === 'wild') {
+      const cands = [...alive].filter((j) => j !== i && t[j].key === tile.key);
+      if (!cands.length) { setArmedBoth(null); return; }
+      const j = cands.find((q) => mjIsFree(t, alive, q)) ?? cands[0];
+      setArmedBoth(null);
+      spend('wild');
+      errBy.current[tile.subj] += 0.25;
+      if (tile.v) speakSmart(tile.v);
+      removePair(i, j);
+      return;
+    }
+
     if (tile.v) speakSmart(tile.v);
     const sel = selectedRef.current;
     if (sel == null) {
@@ -10029,25 +10233,8 @@ function MahjongSavoirsScreen({ route, navigation }) {
       setSelected(null);
       return;
     }
-    if (t[sel].pair === tile.pair) {
-      const nextRem = new Set(rem);
-      nextRem.add(sel);
-      nextRem.add(i);
-      removedRef.current = nextRem;
-      selectedRef.current = null;
-      setRemoved(nextRem);
-      setSelected(null);
-      if (nextRem.size >= t.length) {
-        lockedRef.current = true;
-        setTimeout(finishPlateau, 500);
-        return;
-      }
-      if (!mjHasMove(t, nextRem)) {
-        if (!reshuffleRemaining()) {
-          lockedRef.current = true;
-          setTimeout(finishPlateau, 500);
-        }
-      }
+    if (t[sel].key === tile.key) {
+      removePair(sel, i);
       return;
     }
     errBy.current[t[sel].subj] += 1;
@@ -10062,27 +10249,75 @@ function MahjongSavoirsScreen({ route, navigation }) {
     }, 600);
   }
 
-  function onHint() {
-    if (finishedRef.current || !tilesRef.current) return;
-    const t = tilesRef.current;
-    const rem = removedRef.current;
-    const alive = new Set();
-    t.forEach((_, k) => { if (!rem.has(k)) alive.add(k); });
-    const seen = {};
-    for (const i of alive) {
-      if (!mjIsFree(t, alive, i)) continue;
-      if (seen[t[i].pair] != null) {
-        const j = seen[t[i].pair];
-        errBy.current[t[i].subj] += 0.5;
+  function useJoker(type) {
+    if (finishedRef.current || lockedRef.current || !tilesRef.current) return;
+    const d = detailsRef.current;
+    const def = MJ_JOKERS.find((j) => j.id === type);
+    if (!(d.jk[type] > 0)) {
+      showMsg('Plus de joker ! Tu en gagnes en réussissant des plateaux.');
+      return;
+    }
+    if (type === 'undo') {
+      const h = histRef.current;
+      if (!h.length) { showMsg('Rien à annuler.'); return; }
+      const [i, j] = h.pop();
+      const nr = new Set(removedRef.current);
+      nr.delete(i);
+      nr.delete(j);
+      removedRef.current = nr;
+      selectedRef.current = null;
+      setRemoved(nr);
+      setSelected(null);
+      spend('undo');
+      speakSmart(def.voix);
+      return;
+    }
+    if (type === 'shuffle') {
+      if (reshuffleRemaining()) {
         selectedRef.current = null;
         setSelected(null);
-        setHint([j, i]);
-        setTimeout(() => setHint(null), 2500);
-        speakSmart('Regarde ces deux cartes !');
-        return;
+        histRef.current = [];
+        spend('shuffle');
+        speakSmart(def.voix);
+      } else {
+        showMsg('Impossible de mélanger maintenant.');
       }
-      seen[t[i].pair] = i;
+      return;
     }
+    if (type === 'hint') {
+      const t = tilesRef.current;
+      const alive = aliveSetOf();
+      const sel = selectedRef.current;
+      let pair = null;
+      if (sel != null) {
+        const cands = [...alive].filter((j) => j !== sel && t[j].key === t[sel].key && !mjIsHidden(t, alive, j));
+        if (!cands.length) { showMsg('Sa jumelle est cachée dans un tas !'); return; }
+        const j = cands.find((q) => mjIsFree(t, alive, q)) ?? cands[0];
+        pair = [sel, j];
+      } else {
+        const seen = {};
+        for (const i of alive) {
+          if (!mjIsFree(t, alive, i)) continue;
+          if (seen[t[i].key] != null) { pair = [seen[t[i].key], i]; break; }
+          seen[t[i].key] = i;
+        }
+      }
+      if (!pair) { showMsg('Pas de paire libre pour le moment.'); return; }
+      errBy.current[t[pair[0]].subj] += 0.25;
+      spend('hint');
+      setHint(pair);
+      setTimeout(() => setHint(null), 3000);
+      speakSmart(def.voix);
+      return;
+    }
+    // loupe / passe-partout : on arme le joker, le prochain toucher l'utilise.
+    if (armedRef.current === type) {
+      setArmedBoth(null);
+      return;
+    }
+    setArmedBoth(type);
+    showMsg(def.voix);
+    speakSmart(def.voix);
   }
 
   function proceed() {
@@ -10122,44 +10357,114 @@ function MahjongSavoirsScreen({ route, navigation }) {
     );
   }
 
-  const cols = Math.max(...tiles.map((x) => x.c)) + 1;
-  const rows = Math.max(...tiles.map((x) => x.r)) + 1;
-  const gap = 4;
-  const tw = Math.min(64, Math.floor((screenWidth - 40) / cols) - gap);
-  const th = Math.round(tw * 1.25);
-  const boardW = cols * (tw + gap) + 14;
-  const boardH = rows * (th + gap) + 16;
+  // Geometrie : positions en demi-cartes.
+  const maxXu = Math.max(...tiles.map((x) => x.x)) + 2;
+  const maxYu = Math.max(...tiles.map((x) => x.y)) + 2;
+  const maxL = Math.max(...tiles.map((x) => x.l));
+  const colsF = maxXu / 2;
+  const rowsF = maxYu / 2;
+  const tw = Math.min(48, Math.floor((screenWidth - 24 - maxL * 3) / colsF));
+  const th = Math.round(tw * 1.2);
+  const boardW = Math.round(colsF * tw) + maxL * 3 + 6;
+  const boardH = Math.round(rowsF * th) + maxL * 3 + 8;
   const aliveSet = new Set();
   tiles.forEach((_, k) => { if (!removed.has(k)) aliveSet.add(k); });
-  const order = tiles.map((_, k) => k).filter((k) => !removed.has(k)).sort((a, b) => (tiles[a].l - tiles[b].l) || (tiles[a].r - tiles[b].r) || (tiles[a].c - tiles[b].c));
+  const visible = [...aliveSet].filter((i) => !mjIsHidden(tiles, aliveSet, i))
+    .sort((a, b) => (tiles[a].l - tiles[b].l) || (tiles[a].y - tiles[b].y) || (tiles[a].x - tiles[b].x));
+  const pileCount = {};
+  aliveSet.forEach((i) => { if (tiles[i].p != null) pileCount[tiles[i].p] = (pileCount[tiles[i].p] ?? 0) + 1; });
+  const posLeft = (x) => 3 + (x * tw) / 2;
+  const posTop = (y, l) => 3 + maxL * 3 + (y * th) / 2 - l * 3;
   const rang = mjRang(details.plateaux ?? 0);
   const modeLabel = mode === 'maths' ? '🔢 Plateau de maths' : mode === 'francais' ? '🔤 Plateau de français' : '🎲 Plateau surprise';
 
   return (
-    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('mahjong_savoirs'), paddingTop: 6, paddingBottom: 24 }]}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 4 }}>
+    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('mahjong_savoirs'), paddingTop: 6, paddingBottom: 24, paddingHorizontal: 6 }]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 2 }}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
         </Pressable>
         <Text style={{ fontSize: 15, fontWeight: '800', color: colors.ink, marginLeft: 6, flex: 1 }}>🀄 Le Mahjong des Savoirs</Text>
-        <Pressable onPress={onHint} hitSlop={10}>
-          <Text style={{ fontSize: 26 }}>💡</Text>
-        </Pressable>
       </View>
 
       <Text style={{ textAlign: 'center', color: colors.ink, fontWeight: '700' }}>
-        ⭐ {details.etoiles ?? 0}  ·  {rang.e} {rang.nom}
+        ⭐ {details.etoiles ?? 0}  ·  {rang.e} {rang.nom}  ·  {modeLabel}
       </Text>
       {(details.cadeaux ?? []).length > 0 && (
-        <Text style={{ textAlign: 'center', fontSize: 18, marginTop: 2 }}>{(details.cadeaux ?? []).slice(-8).join(' ')}</Text>
+        <Text style={{ textAlign: 'center', fontSize: 16, marginTop: 1 }}>{(details.cadeaux ?? []).slice(-8).join(' ')}</Text>
       )}
-      <Text style={{ textAlign: 'center', color: colors.mossDeep, fontWeight: '800', marginTop: 4 }}>{modeLabel}</Text>
 
       <NiveauBadge rung={rung} />
       {toastNiveau != null && <NiveauSuperieurToast rung={toastNiveau} />}
 
-      <View style={{ width: boardW, height: boardH, alignSelf: 'center', marginTop: 10 }}>
-        {order.map((i) => {
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 6 }}>
+        {MJ_JOKERS.map((j) => {
+          const n = jk[j.id] ?? 0;
+          const on = armed === j.id;
+          return (
+            <Pressable
+              key={j.id}
+              onPress={() => useJoker(j.id)}
+              style={{
+                alignItems: 'center',
+                minWidth: 56,
+                paddingVertical: 4,
+                paddingHorizontal: 4,
+                borderRadius: 12,
+                borderWidth: 2,
+                borderColor: on ? '#E65100' : '#8D6E63',
+                backgroundColor: on ? '#FFE082' : '#FFFDF5',
+                opacity: n > 0 ? 1 : 0.4,
+              }}
+            >
+              <Text style={{ fontSize: 22 }}>{j.e}</Text>
+              <Text style={{ fontSize: 10, fontWeight: '800', color: colors.ink }}>{j.nom}</Text>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: colors.mossDeep }}>×{n}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      <View style={{ minHeight: 22, justifyContent: 'center' }}>
+        {msg != null && <Text style={{ textAlign: 'center', color: colors.ink, fontWeight: '700', fontSize: 13 }}>{msg}</Text>}
+      </View>
+
+      <View style={{ width: boardW, height: boardH, alignSelf: 'center', marginTop: 2 }}>
+        {visible.filter((i) => tiles[i].p != null && pileCount[tiles[i].p] > 1).map((i) => {
+          const x = tiles[i];
+          const n = Math.min(2, pileCount[x.p] - 1);
+          const peeking = peek != null && peek.p === x.p;
+          const below = [...aliveSet].filter((j) => tiles[j].p === x.p && j !== i).sort((a, b) => tiles[a].k - tiles[b].k)[0];
+          const out = [];
+          for (let q = n; q >= 1; q -= 1) {
+            out.push(
+              <View
+                key={`b${i}-${q}`}
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: posLeft(x.x) + q * 3,
+                  top: posTop(x.y, x.l) - q * 3,
+                  width: tw,
+                  height: th,
+                  borderRadius: 7,
+                  backgroundColor: '#A1887F',
+                  borderWidth: 2,
+                  borderColor: '#6D4C41',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {q === 1 && (
+                  <Text numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.4} style={{ fontSize: peeking ? tw * 0.3 : tw * 0.4, fontWeight: '800', color: '#FFF', textAlign: 'center' }}>
+                    {peeking && below != null ? tiles[below].t : '?'}
+                  </Text>
+                )}
+              </View>
+            );
+          }
+          return out;
+        })}
+        {visible.map((i) => {
           const x = tiles[i];
           const free = mjIsFree(tiles, aliveSet, i);
           const isSel = selected === i;
@@ -10167,36 +10472,42 @@ function MahjongSavoirsScreen({ route, navigation }) {
           const isHint = hint != null && hint.includes(i);
           const base = x.subj === 'maths' ? '#FFF3C4' : '#E3F2FD';
           const len = x.t.length;
-          const fs = len <= 3 ? tw * 0.5 : len <= 6 ? tw * 0.3 : len <= 10 ? tw * 0.22 : tw * 0.17;
+          const fs = len <= 3 ? tw * 0.48 : len <= 6 ? tw * 0.28 : len <= 10 ? tw * 0.2 : tw * 0.15;
+          const count = x.p != null ? pileCount[x.p] : 0;
           return (
             <Pressable
               key={i}
               onPress={() => onTapTile(i)}
               style={{
                 position: 'absolute',
-                left: 7 + x.c * (tw + gap) + x.l * 5,
-                top: 8 + x.r * (th + gap) - x.l * 5,
+                left: posLeft(x.x) + x.l * 2,
+                top: posTop(x.y, x.l),
                 width: tw,
                 height: th,
-                borderRadius: 9,
+                borderRadius: 7,
                 backgroundColor: isWrong ? '#FFCDD2' : free ? base : '#D7CCC8',
-                borderWidth: 3,
+                borderWidth: 2,
                 borderColor: isWrong ? '#D32F2F' : isSel ? '#E65100' : isHint ? '#FBC02D' : '#8D6E63',
-                opacity: free ? 1 : 0.65,
+                opacity: free ? 1 : 0.7,
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: 2,
+                padding: 1,
                 elevation: 2 + x.l * 3,
               }}
             >
               <Text
                 numberOfLines={4}
                 adjustsFontSizeToFit
-                minimumFontScale={0.5}
+                minimumFontScale={0.4}
                 style={{ fontSize: fs, fontWeight: '800', color: colors.ink, textAlign: 'center' }}
               >
                 {x.t}
               </Text>
+              {count > 1 && (
+                <View style={{ position: 'absolute', top: -6, right: -6, backgroundColor: '#6D4C41', borderRadius: 9, minWidth: 18, height: 18, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '800' }}>{count}</Text>
+                </View>
+              )}
             </Pressable>
           );
         })}
@@ -10229,8 +10540,13 @@ function MahjongSavoirsScreen({ route, navigation }) {
                     On s'entraîne un peu plus facile en {result.downs.map((s) => (s === 'maths' ? 'maths' : 'français')).join(' et ')}, tu vas y arriver !
                   </Text>
                 )}
+                {result.gains.length > 0 && (
+                  <Text style={{ textAlign: 'center', fontSize: 20, marginTop: 10 }}>
+                    🃏 Jokers gagnés : {result.gains.join(' ')}
+                  </Text>
+                )}
                 {result.gift && (
-                  <Text style={{ textAlign: 'center', fontSize: 22, marginTop: 10 }}>
+                  <Text style={{ textAlign: 'center', fontSize: 22, marginTop: 8 }}>
                     🎁 Nouveau cadeau : {result.gift}
                   </Text>
                 )}
