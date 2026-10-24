@@ -9864,12 +9864,19 @@ function mjHasMove(tiles, removed) {
   const alive = new Set();
   tiles.forEach((_, i) => { if (!removed.has(i)) alive.add(i); });
   const seen = new Set();
+  let trayN = 0;
+  let freeBoard = false;
+  for (const i of alive) {
+    if (tiles[i].tray) trayN += 1;
+  }
   for (const i of alive) {
     if (!mjIsFree(tiles, alive, i)) continue;
+    if (!tiles[i].tray) freeBoard = true;
     if (seen.has(tiles[i].key)) return true;
     seen.add(tiles[i].key);
   }
-  return false;
+  // Tant que le bandeau n'est pas plein, on peut toujours y ranger une carte libre.
+  return freeBoard && trayN < 3;
 }
 
 function mjChooseMode(d) {
@@ -9947,6 +9954,8 @@ function MahjongSavoirsScreen({ route, navigation }) {
   const [wrongPair, setWrongPair] = useState(null);
   const [hint, setHint] = useState(null);
   const [armed, setArmed] = useState(null);
+  const [flipped, setFlipped] = useState(() => new Set());
+  const flippedRef = useRef(new Set());
   const [peek, setPeek] = useState(null);
   const [msg, setMsg] = useState(null);
   const [result, setResult] = useState(null);
@@ -10024,6 +10033,8 @@ function MahjongSavoirsScreen({ route, navigation }) {
     startedAt.current = Date.now();
     armedRef.current = null;
     setArmed(null);
+    flippedRef.current = new Set();
+    setFlipped(new Set());
     setPeek(null);
     setMode(m);
     setTiles(dealt);
@@ -10033,8 +10044,8 @@ function MahjongSavoirsScreen({ route, navigation }) {
     setHint(null);
     const intro = m === 'maths' ? 'Un plateau de maths !' : m === 'francais' ? 'Un plateau de français !' : 'Un plateau surprise !';
     const premier = (d.plateaux ?? 0) < 1;
-    speakSmart(`${intro} Retire deux cartes libres qui vont ensemble.${premier ? ' Tu peux mettre jusqu’à trois cartes de côté dans le bandeau du haut.' : ''}`);
-    if (premier) showMsg('Touche une carte puis le bandeau pour la mettre de côté (3 maximum).');
+    speakSmart(`${intro} Touche une carte libre : elle va dans le bandeau du haut. Touche sa jumelle pour les retirer.${premier ? ' Attention, trois cartes au maximum dans le bandeau !' : ''}`);
+    if (premier) showMsg('Une carte touchée va dans le bandeau. Sa jumelle la fait partir ! (3 maximum)');
   }, []);
 
   useEffect(() => {
@@ -10375,66 +10386,37 @@ function MahjongSavoirsScreen({ route, navigation }) {
       return;
     }
 
+    if (tile.tray) {
+      if (tile.v) speakSmart(tile.v);
+      showMsg('Cette carte attend sa jumelle !');
+      return;
+    }
+    // Carte d'un tas : face cachee. Un toucher la retourne, un second la range.
+    if (tile.p != null && !flippedRef.current.has(i)) {
+      const nf = new Set(flippedRef.current);
+      nf.add(i);
+      flippedRef.current = nf;
+      setFlipped(nf);
+      if (tile.v) speakSmart(tile.v);
+      return;
+    }
     if (tile.v) speakSmart(tile.v);
-    const sel = selectedRef.current;
-    if (sel == null) {
-      selectedRef.current = i;
-      setSelected(i);
+    // Sa jumelle est deja dans le bandeau : la paire part.
+    const mate = [...alive].find((j) => j !== i && t[j].tray && t[j].key === tile.key);
+    if (mate != null) {
+      removePair(i, mate);
       return;
     }
-    if (sel === i) {
-      selectedRef.current = null;
-      setSelected(null);
-      return;
-    }
-    if (t[sel].key === tile.key) {
-      removePair(sel, i);
-      return;
-    }
-    errBy.current[t[sel].subj] += 1;
-    if (tile.subj !== t[sel].subj) errBy.current[tile.subj] += 1;
-    lockedRef.current = true;
-    selectedRef.current = null;
-    setSelected(null);
-    setWrongPair([sel, i]);
-    setTimeout(() => {
-      setWrongPair(null);
-      lockedRef.current = false;
-    }, 600);
-  }
-
-  // Bandeau : on y met de cote une carte libre pour atteindre celles du dessous.
-  // Elle ne peut plus en sortir qu'en la jumelant. 3 cartes maximum : la 4e fait perdre.
-  function onTapTray() {
-    if (finishedRef.current || lockedRef.current || !tilesRef.current) return;
-    const sel = selectedRef.current;
-    if (sel == null) {
-      showMsg('Choisis d’abord une carte libre, puis touche le bandeau.');
-      return;
-    }
-    const t0 = tilesRef.current;
-    if (t0[sel].tray) {
-      showMsg('Cette carte est déjà dans le bandeau.');
-      return;
-    }
-    const trayCount = t0.filter((x, i) => x.tray && !removedRef.current.has(i)).length;
-    // 4e carte : autorisee seulement si elle forme une paire avec une carte du bandeau.
-    if (trayCount >= 3) {
-      const mate = t0.findIndex((x, i) => i !== sel && x.tray && !removedRef.current.has(i) && x.key === t0[sel].key);
-      if (mate >= 0) {
-        if (t0[sel].v) speakSmart(t0[sel].v);
-        removePair(sel, mate);
-        return;
-      }
-    }
+    const trayCount = [...alive].filter((j) => t[j].tray).length;
     const doStash = () => {
+      // Ranger une carte dont la jumelle n'est pas libre compte pour un petit essai.
+      const twinFree = [...alive].some((j) => j !== i && !t[j].tray && t[j].key === tile.key && mjIsFree(t, alive, j));
+      if (!twinFree) errBy.current[tile.subj] += 0.25;
       const nt = tilesRef.current.slice();
-      nt[sel] = { ...nt[sel], tray: true };
+      nt[i] = { ...nt[i], tray: true };
       tilesRef.current = nt;
       setTiles(nt);
-      histRef.current.push({ stash: sel });
-      selectedRef.current = null;
-      setSelected(null);
+      histRef.current.push({ stash: i });
       if (trayCount + 1 >= 4) {
         lockedRef.current = true;
         speakSmart('Le bandeau est plein !');
@@ -10450,12 +10432,16 @@ function MahjongSavoirsScreen({ route, navigation }) {
     if (trayCount >= 3) {
       Alert.alert(
         'Dernière place !',
-        'Cette carte ne va avec aucune carte du bandeau : si tu la mets, tu perds le plateau. Tu veux continuer ?',
+        'Cette carte ne va avec aucune carte du bandeau : si tu la ranges, tu perds le plateau. Tu veux continuer ?',
         [{ text: 'Non', style: 'cancel' }, { text: 'Oui', onPress: doStash }]
       );
     } else {
       doStash();
     }
+  }
+
+  function onTapTray() {
+    showMsg('Touche une carte libre : elle va dans le bandeau. Sa jumelle la fera partir.');
   }
 
   function useJoker(type) {
@@ -10599,6 +10585,17 @@ function MahjongSavoirsScreen({ route, navigation }) {
   const renderFace = (i, w, h, extra) => {
     const x = tiles[i];
     const free = mjIsFree(tiles, aliveSet, i);
+    if (!x.tray && x.p != null && !flipped.has(i)) {
+      return (
+        <Pressable
+          key={i}
+          onPress={() => onTapTile(i)}
+          style={[{ width: w, height: h, borderRadius: 7, backgroundColor: '#388E3C', borderWidth: 2, borderColor: free ? '#E65100' : '#1B5E20', alignItems: 'center', justifyContent: 'center' }, extra]}
+        >
+          <Text style={{ fontSize: w * 0.45 }}>🍀</Text>
+        </Pressable>
+      );
+    }
     const isSel = selected === i;
     const isWrong = wrongPair != null && wrongPair.includes(i);
     const isHint = hint != null && hint.includes(i);
