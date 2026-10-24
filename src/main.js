@@ -434,7 +434,13 @@ async function fetchMemosConfig(familleId) {
 // jamais systematiquement). Ne bloque jamais le jeu si ca echoue.
 let dernierMemoJoueA = 0; // horodatage du dernier memo vocal joue, tous jeux confondus
 
+// Son des jeux : coupe par l'enfant (icone haut-parleur), remis a zero quand on
+// change de jeu. lastSpokenText = derniere phrase dite, pour l'icone "repeter".
+let gameVoiceMuted = false;
+let lastSpokenText = '';
+
 async function maybePlayMemo(memosConfig, categorie) {
+  if (gameVoiceMuted) return;
   if (!memosConfig || !memosConfig.frequence) return;
   const pool = memosConfig.memos?.[categorie] ?? [];
   if (pool.length === 0) return;
@@ -4738,6 +4744,7 @@ const PHONEME_AUDIO = {
 // plusieurs sons a la suite dans le bon ordre (ex: fusionner deux sons).
 function playSoundEffectEtAttendre(source) {
   return new Promise((resolve) => {
+    if (gameVoiceMuted) { resolve(); return; }
     let regle = false;
     const terminer = (sound) => {
       if (regle) return;
@@ -4782,6 +4789,7 @@ async function speakPhonemeOuTexte(texte) {
 }
 
 async function playSoundEffect(source) {
+  if (gameVoiceMuted) return;
   try {
     const { sound } = await Audio.Sound.createAsync(source, { volume: 1.0 });
     let libere = false;
@@ -4833,6 +4841,11 @@ function speakSmart(text) {
       resolve();
       return;
     }
+    lastSpokenText = raw;
+    if (gameVoiceMuted) {
+      resolve();
+      return;
+    }
     // Arrete systematiquement toute lecture en cours avant d'en lancer une
     // nouvelle : deux appels vocaux qui se chevauchent peuvent bloquer le
     // moteur de synthese vocale sur certains telephones.
@@ -4867,6 +4880,54 @@ function speakSmart(text) {
 
 function speak(text) {
   if (text) speakSmart(text);
+}
+
+// Enveloppe de tous les jeux : deux petites icones discretes en haut a droite.
+// 🔇/🔊 coupe ou remet la voix et les sons du jeu (remis a zero a chaque
+// nouveau jeu), 🎤 repete la derniere phrase dite.
+function withGameControls(Game) {
+  function Wrapped(props) {
+    const [muted, setMuted] = useState(false);
+    useEffect(() => {
+      gameVoiceMuted = false;
+      lastSpokenText = '';
+      return () => {
+        gameVoiceMuted = false;
+        lastSpokenText = '';
+      };
+    }, []);
+    const toggle = () => {
+      const next = !gameVoiceMuted;
+      gameVoiceMuted = next;
+      setMuted(next);
+      if (next) stopSpeechAndUnduck();
+    };
+    const replay = () => {
+      if (gameVoiceMuted || !lastSpokenText) return;
+      speakSmart(lastSpokenText);
+    };
+    const btn = { width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(255,255,255,0.65)', borderWidth: 1, borderColor: 'rgba(0,0,0,0.15)', alignItems: 'center', justifyContent: 'center' };
+    return (
+      <View style={{ flex: 1 }}>
+        <Game {...props} />
+        <View pointerEvents="box-none" style={{ position: 'absolute', top: Platform.OS === 'ios' ? 52 : 30, right: 8, flexDirection: 'row', gap: 8, opacity: 0.8 }}>
+          <Pressable onPress={replay} style={[btn, muted ? { opacity: 0.4 } : null]} hitSlop={6}>
+            <Text style={{ fontSize: 16 }}>🎤</Text>
+          </Pressable>
+          <Pressable onPress={toggle} style={btn} hitSlop={6}>
+            <Text style={{ fontSize: 16 }}>{muted ? '🔇' : '🔊'}</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+  return Wrapped;
+}
+const GAME_WRAPPED = {};
+function gw(Game) {
+  const k = Game.name || String(Game);
+  if (!GAME_WRAPPED[k]) GAME_WRAPPED[k] = withGameControls(Game);
+  return GAME_WRAPPED[k];
 }
 
 // Diagnostic du son (reglages parentaux) : les erreurs audio sont d'habitude
@@ -16941,31 +17002,31 @@ export default function RootNavigator() {
             <Stack.Screen name="SecurityAvatarSetup" component={SecurityAvatarSetupScreen} />
             <Stack.Screen name="WorldMap" component={WorldMapScreen} />
             <Stack.Screen name="Continent" component={SentierScreen} />
-            <Stack.Screen name="PontDesLettres" component={PontDesLettresScreen} />
-            <Stack.Screen name="SonsMagiques" component={SonsMagiquesScreen} />
-            <Stack.Screen name="PommesDeLuma" component={PommesDeLumaScreen} />
-            <Stack.Screen name="MemoireEtoiles" component={MemoryScreen} />
-            <Stack.Screen name="CoffreSouvenirs" component={CoffreSouvenirsScreen} />
-            <Stack.Screen name="MondeCapitales" component={MondeCapitalesScreen} />
-            <Stack.Screen name="JeuIntrus" component={JeuIntrusScreen} />
-            <Stack.Screen name="EmpreintesClairiere" component={EmpreintesClairiereScreen} />
-            <Stack.Screen name="BalancePrairie" component={BalancePrairieScreen} />
-            <Stack.Screen name="MarcheVillage" component={MarcheVillageScreen} />
-            <Stack.Screen name="CachettesLuma" component={CachettesLumaScreen} />
-            <Stack.Screen name="RondeLucioles" component={RondeLuciolesScreen} />
-            <Stack.Screen name="TriVillage" component={TriVillageScreen} />
-            <Stack.Screen name="PuzzleMoulin" component={PuzzleMoulinScreen} />
-            <Stack.Screen name="FriseTemps" component={FriseTempsScreen} />
-            <Stack.Screen name="CorpsHumain" component={CorpsHumainScreen} />
-            <Stack.Screen name="IndicesJardin" component={IndicesJardinScreen} />
-            <Stack.Screen name="LabyrintheGrotte" component={LabyrintheGrotteScreen} />
-            <Stack.Screen name="ExpeditionMonde" component={ExpeditionMondeScreen} />
-            <Stack.Screen name="MahjongSavoirs" component={MahjongSavoirsScreen} />
-            <Stack.Screen name="CheminDizaines" component={CheminDizainesScreen} />
-            <Stack.Screen name="BarresLuma" component={BarresLumaScreen} />
-            <Stack.Screen name="BouleQuiRoule" component={BouleQuiRouleScreen} />
-            <Stack.Screen name="MotsFleches" component={MotsFlechesScreen} />
-            <Stack.Screen name="MotMystere" component={MotMystereScreen} />
+            <Stack.Screen name="PontDesLettres" component={gw(PontDesLettresScreen)} />
+            <Stack.Screen name="SonsMagiques" component={gw(SonsMagiquesScreen)} />
+            <Stack.Screen name="PommesDeLuma" component={gw(PommesDeLumaScreen)} />
+            <Stack.Screen name="MemoireEtoiles" component={gw(MemoryScreen)} />
+            <Stack.Screen name="CoffreSouvenirs" component={gw(CoffreSouvenirsScreen)} />
+            <Stack.Screen name="MondeCapitales" component={gw(MondeCapitalesScreen)} />
+            <Stack.Screen name="JeuIntrus" component={gw(JeuIntrusScreen)} />
+            <Stack.Screen name="EmpreintesClairiere" component={gw(EmpreintesClairiereScreen)} />
+            <Stack.Screen name="BalancePrairie" component={gw(BalancePrairieScreen)} />
+            <Stack.Screen name="MarcheVillage" component={gw(MarcheVillageScreen)} />
+            <Stack.Screen name="CachettesLuma" component={gw(CachettesLumaScreen)} />
+            <Stack.Screen name="RondeLucioles" component={gw(RondeLuciolesScreen)} />
+            <Stack.Screen name="TriVillage" component={gw(TriVillageScreen)} />
+            <Stack.Screen name="PuzzleMoulin" component={gw(PuzzleMoulinScreen)} />
+            <Stack.Screen name="FriseTemps" component={gw(FriseTempsScreen)} />
+            <Stack.Screen name="CorpsHumain" component={gw(CorpsHumainScreen)} />
+            <Stack.Screen name="IndicesJardin" component={gw(IndicesJardinScreen)} />
+            <Stack.Screen name="LabyrintheGrotte" component={gw(LabyrintheGrotteScreen)} />
+            <Stack.Screen name="ExpeditionMonde" component={gw(ExpeditionMondeScreen)} />
+            <Stack.Screen name="MahjongSavoirs" component={gw(MahjongSavoirsScreen)} />
+            <Stack.Screen name="CheminDizaines" component={gw(CheminDizainesScreen)} />
+            <Stack.Screen name="BarresLuma" component={gw(BarresLumaScreen)} />
+            <Stack.Screen name="BouleQuiRoule" component={gw(BouleQuiRouleScreen)} />
+            <Stack.Screen name="MotsFleches" component={gw(MotsFlechesScreen)} />
+            <Stack.Screen name="MotMystere" component={gw(MotMystereScreen)} />
             <Stack.Screen name="Recompenses" component={RecompensesScreen} />
             <Stack.Screen name="AjusterNiveaux" component={AjusterNiveauxScreen} />
             <Stack.Screen name="ReglagesParentaux" component={ReglagesParentauxScreen} />
