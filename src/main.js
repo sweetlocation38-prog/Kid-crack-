@@ -9748,13 +9748,13 @@ function mjBuildPairs(kind, rung, count) {
 
 // Taille du plateau selon le niveau : beaucoup de cartes, plusieurs etages.
 function mjProfile(rung) {
-  if (rung <= 3) return { cols: 6, rows: 5, layers: 3, total: 30, piles: 1, depth: 3 };
-  if (rung <= 6) return { cols: 7, rows: 6, layers: 3, total: 40, piles: 2, depth: 3 };
-  if (rung <= 9) return { cols: 7, rows: 6, layers: 4, total: 50, piles: 2, depth: 3 };
-  if (rung <= 12) return { cols: 8, rows: 6, layers: 4, total: 60, piles: 3, depth: 3 };
-  if (rung <= 15) return { cols: 8, rows: 7, layers: 4, total: 70, piles: 3, depth: 4 };
-  if (rung <= 21) return { cols: 8, rows: 7, layers: 5, total: 80, piles: 4, depth: 4 };
-  return { cols: 8, rows: 7, layers: 5, total: 90, piles: 4, depth: 4 };
+  if (rung <= 3) return { cols: 6, rows: 6, layers: 3, total: 36, piles: 1, depth: 3 };
+  if (rung <= 6) return { cols: 7, rows: 6, layers: 3, total: 46, piles: 2, depth: 3 };
+  if (rung <= 9) return { cols: 7, rows: 7, layers: 4, total: 58, piles: 2, depth: 3 };
+  if (rung <= 12) return { cols: 8, rows: 7, layers: 4, total: 70, piles: 3, depth: 3 };
+  if (rung <= 15) return { cols: 8, rows: 8, layers: 4, total: 84, piles: 3, depth: 4 };
+  if (rung <= 21) return { cols: 8, rows: 8, layers: 5, total: 98, piles: 4, depth: 4 };
+  return { cols: 8, rows: 9, layers: 5, total: 112, piles: 4, depth: 4 };
 }
 
 // Plateau irregulier a recouvrement partiel : l'etage 0 est une forme
@@ -9823,7 +9823,7 @@ function mjBuildLayout(prof) {
     const seen = new Set();
     const cand = [];
     prev.forEach((t) => {
-      [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]].forEach(([dx, dy]) => {
+      [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]].forEach(([dx, dy]) => {
         const x = t.x + dx;
         const y = t.y + dy;
         const kk = `${x},${y}`;
@@ -9831,7 +9831,8 @@ function mjBuildLayout(prof) {
         seen.add(kk);
         const support = prev.filter((u) => Math.abs(u.x - x) < 2 && Math.abs(u.y - y) < 2).length;
         const aligned = prev.some((u) => u.x === x && u.y === y);
-        if (support < (aligned ? 1 : 2)) return;
+        if (aligned) return; // jamais pile sur une carte : toujours decale pour voir dessous
+        if (support < 2) return;
         if (foot.some((f) => Math.abs(f.x - x) < 2 && Math.abs(f.y - y) < 2)) return;
         cand.push({ x, y, s: (Math.abs(x - cx) + Math.abs(y - cy)) / 2 + Math.random() * 2.2 });
       });
@@ -10016,6 +10017,10 @@ function MahjongSavoirsScreen({ route, navigation }) {
   const [hint, setHint] = useState(null);
   const [armed, setArmed] = useState(null);
   const [flipped, setFlipped] = useState(() => new Set());
+  const [dragIdx, setDragIdx] = useState(null);
+  const dragRef = useRef(null);
+  const dragStart = useRef(null);
+  const dragXY = useRef(new Animated.ValueXY()).current;
   const flippedRef = useRef(new Set());
   const [peek, setPeek] = useState(null);
   const [msg, setMsg] = useState(null);
@@ -10408,6 +10413,31 @@ function MahjongSavoirsScreen({ route, navigation }) {
     setJk(d.jk);
   }
 
+  // Glisser une carte libre (appui long puis mouvement) : on voit dessous ;
+  // au relacher elle revient a sa place, sans rien declencher.
+  function startDrag(i, e) {
+    if (finishedRef.current || lockedRef.current || !tilesRef.current) return;
+    const t = tilesRef.current;
+    const alive = aliveSetOf();
+    if (t[i].tray || mjIsHidden(t, alive, i) || !mjIsFree(t, alive, i)) return;
+    dragRef.current = i;
+    dragStart.current = e && e.nativeEvent ? { x: e.nativeEvent.pageX, y: e.nativeEvent.pageY } : null;
+    dragXY.setValue({ x: 0, y: 0 });
+    setDragIdx(i);
+  }
+  function moveDrag(e) {
+    if (dragRef.current == null) return;
+    const n = e.nativeEvent;
+    if (!dragStart.current) dragStart.current = { x: n.pageX, y: n.pageY };
+    dragXY.setValue({ x: n.pageX - dragStart.current.x, y: n.pageY - dragStart.current.y });
+  }
+  function endDrag() {
+    if (dragRef.current == null) return;
+    dragRef.current = null;
+    dragStart.current = null;
+    Animated.spring(dragXY, { toValue: { x: 0, y: 0 }, useNativeDriver: false, friction: 7 }).start(() => setDragIdx(null));
+  }
+
   function onTapTile(i) {
     if (finishedRef.current || lockedRef.current || !tilesRef.current) return;
     const t = tilesRef.current;
@@ -10651,6 +10681,8 @@ function MahjongSavoirsScreen({ route, navigation }) {
         <Pressable
           key={i}
           onPress={() => onTapTile(i)}
+          onLongPress={(e) => startDrag(i, e)}
+          delayLongPress={220}
           style={[{ width: w, height: h, borderRadius: 7, backgroundColor: '#388E3C', borderWidth: 2, borderColor: free ? '#E65100' : '#1B5E20', alignItems: 'center', justifyContent: 'center' }, extra]}
         >
           <Text style={{ fontSize: w * 0.45 }}>🍀</Text>
@@ -10660,20 +10692,23 @@ function MahjongSavoirsScreen({ route, navigation }) {
     const isSel = selected === i;
     const isWrong = wrongPair != null && wrongPair.includes(i);
     const isHint = hint != null && hint.includes(i);
-    const base = x.subj === 'maths' ? '#FFF3C4' : '#E3F2FD';
+    const base = x.subj === 'maths' ? '#FFE9A8' : '#C9E4FB';
+    const rim = x.subj === 'maths' ? '#E0A100' : '#1E7BD6';
     const len = x.t.length;
     const fs = len <= 3 ? w * 0.48 : len <= 6 ? w * 0.28 : len <= 10 ? w * 0.2 : w * 0.15;
     return (
       <Pressable
         key={i}
         onPress={() => onTapTile(i)}
+        onLongPress={(e) => startDrag(i, e)}
+        delayLongPress={220}
         style={[{
           width: w,
           height: h,
           borderRadius: 7,
           backgroundColor: isWrong ? '#FFCDD2' : free ? base : '#D7CCC8',
           borderWidth: 2,
-          borderColor: isWrong ? '#D32F2F' : isSel ? '#E65100' : isHint ? '#FBC02D' : '#8D6E63',
+          borderColor: isWrong ? '#D32F2F' : isSel ? '#E65100' : isHint ? '#FBC02D' : rim,
           opacity: free ? 1 : 0.7,
           alignItems: 'center',
           justifyContent: 'center',
@@ -10693,7 +10728,7 @@ function MahjongSavoirsScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('mahjong_savoirs'), paddingTop: 6, paddingBottom: 24, paddingHorizontal: 6 }]}>
+    <ScrollView scrollEnabled={dragIdx == null} contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('mahjong_savoirs'), paddingTop: 6, paddingBottom: 24, paddingHorizontal: 6 }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 2 }}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -10733,7 +10768,12 @@ function MahjongSavoirsScreen({ route, navigation }) {
         })}
       </Pressable>
 
-      <View style={{ width: boardW, height: boardH, alignSelf: 'center' }}>
+      <View
+        onTouchMove={moveDrag}
+        onTouchEnd={endDrag}
+        onTouchCancel={endDrag}
+        style={{ width: boardW, height: boardH, alignSelf: 'center' }}
+      >
         {visible.filter((i) => tiles[i].p != null && pileCount[tiles[i].p] > 1).map((i) => {
           const x = tiles[i];
           const n = Math.min(3, pileCount[x.p] - 1);
@@ -10772,11 +10812,15 @@ function MahjongSavoirsScreen({ route, navigation }) {
         {visible.map((i) => {
           const x = tiles[i];
           const count = x.p != null ? pileCount[x.p] : 0;
+          const dragging = dragIdx === i;
           return (
-            <View
+            <Animated.View
               key={`w${i}`}
               pointerEvents="box-none"
-              style={{ position: 'absolute', left: posLeft(x.x) + x.l * 2, top: posTop(x.y, x.l), width: tw, height: th, elevation: 2 + x.l * 3 }}
+              style={[
+                { position: 'absolute', left: posLeft(x.x) + x.l * 2, top: posTop(x.y, x.l), width: tw, height: th, elevation: 2 + x.l * 3 },
+                dragging ? { zIndex: 999, elevation: 60, opacity: 0.88, transform: dragXY.getTranslateTransform() } : null,
+              ]}
             >
               {renderFace(i, tw, th, null)}
               {count > 1 && (
@@ -10784,7 +10828,7 @@ function MahjongSavoirsScreen({ route, navigation }) {
                   <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '900' }}>{count}</Text>
                 </View>
               )}
-            </View>
+            </Animated.View>
           );
         })}
       </View>
