@@ -9997,7 +9997,7 @@ async function assurerMiniJeuMahjong() {
 
 function MahjongSavoirsScreen({ route, navigation }) {
   const { profil } = route.params;
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const memosConfig = useRef(null);
   useEffect(() => { fetchMemosConfig(profil.famille_id).then((cfg) => { memosConfig.current = cfg; }); }, []);
   useEffect(() => { stopBgMusic(); }, []);
@@ -10018,6 +10018,7 @@ function MahjongSavoirsScreen({ route, navigation }) {
   const [armed, setArmed] = useState(null);
   const [flipped, setFlipped] = useState(() => new Set());
   const [dragIdx, setDragIdx] = useState(null);
+  const [fingerOnBoard, setFingerOnBoard] = useState(false);
   const dragRef = useRef(null);
   const dragStart = useRef(null);
   const dragXY = useRef(new Animated.ValueXY()).current;
@@ -10657,7 +10658,10 @@ function MahjongSavoirsScreen({ route, navigation }) {
   const maxL = Math.max(...onBoard.map((x) => x.l), 0);
   const colsF = maxXu / 2;
   const rowsF = maxYu / 2;
-  const tw = Math.min(48, Math.floor((screenWidth - 24 - maxL * 3) / colsF));
+  // Le plateau doit tenir a l'ecran (sans defilement) pour que le glisser ne fasse pas defiler la page.
+  const twW = Math.floor((screenWidth - 24 - maxL * 3) / colsF);
+  const twH = Math.floor((screenHeight - 360 - maxL * 3) / (rowsF * 1.2));
+  const tw = Math.max(28, Math.min(48, twW, twH));
   const th = Math.round(tw * 1.2);
   const boardW = Math.round(colsF * tw) + maxL * 3 + 6;
   const boardH = Math.round(rowsF * th) + maxL * 3 + 8;
@@ -10728,7 +10732,7 @@ function MahjongSavoirsScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView scrollEnabled={dragIdx == null} contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('mahjong_savoirs'), paddingTop: 6, paddingBottom: 24, paddingHorizontal: 6 }]}>
+    <ScrollView scrollEnabled={dragIdx == null && !fingerOnBoard} contentContainerStyle={[styles.gameScreenScroll, { backgroundColor: themeBgForGame('mahjong_savoirs'), paddingTop: 6, paddingBottom: 24, paddingHorizontal: 6 }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 2 }}>
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹</Text>
@@ -10769,9 +10773,10 @@ function MahjongSavoirsScreen({ route, navigation }) {
       </Pressable>
 
       <View
+        onTouchStart={() => setFingerOnBoard(true)}
         onTouchMove={moveDrag}
-        onTouchEnd={endDrag}
-        onTouchCancel={endDrag}
+        onTouchEnd={() => { setFingerOnBoard(false); endDrag(); }}
+        onTouchCancel={() => { setFingerOnBoard(false); endDrag(); }}
         style={{ width: boardW, height: boardH, alignSelf: 'center' }}
       >
         {visible.filter((i) => tiles[i].p != null && pileCount[tiles[i].p] > 1).map((i) => {
