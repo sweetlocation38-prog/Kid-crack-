@@ -439,8 +439,30 @@ let dernierMemoJoueA = 0; // horodatage du dernier memo vocal joue, tous jeux co
 let gameVoiceMuted = false;
 let lastSpokenText = '';
 
+// Pet rigolo : toutes les 5 mauvaises reponses (tous jeux confondus, compteur
+// remis a zero a chaque nouveau jeu), on alterne entre deux sons de pet.
+// Tous les jeux passent par maybePlayMemo(..., 'mauvaise_reponse') quand
+// l'enfant se trompe, donc un seul point d'accroche suffit.
+const PETS_ERREURS = [
+  require('../assets/audio/divers/pet_dessin_anime.mp3'),
+  require('../assets/audio/divers/pet_toilettes.mp3'),
+];
+const ERREURS_ENTRE_DEUX_PETS = 5;
+let compteurErreursPet = 0;
+let prochainPetErreur = 0;
+
 async function maybePlayMemo(memosConfig, categorie) {
   if (gameVoiceMuted) return;
+  if (categorie === 'mauvaise_reponse') {
+    compteurErreursPet += 1;
+    if (compteurErreursPet >= ERREURS_ENTRE_DEUX_PETS) {
+      compteurErreursPet = 0;
+      const source = PETS_ERREURS[prochainPetErreur % PETS_ERREURS.length];
+      prochainPetErreur += 1;
+      playSoundEffect(source); // le pet remplace le memo vocal pour cette erreur
+      return;
+    }
+  }
   if (!memosConfig || !memosConfig.frequence) return;
   const pool = memosConfig.memos?.[categorie] ?? [];
   if (pool.length === 0) return;
@@ -4926,9 +4948,11 @@ function withGameControls(Game) {
     useEffect(() => {
       gameVoiceMuted = false;
       lastSpokenText = '';
+      compteurErreursPet = 0;
       return () => {
         gameVoiceMuted = false;
         lastSpokenText = '';
+        compteurErreursPet = 0;
       };
     }, []);
     const toggle = () => {
