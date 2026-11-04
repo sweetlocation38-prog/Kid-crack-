@@ -4834,6 +4834,38 @@ function stopSpeechAndUnduck() {
   unduckBgMusicAfterSpeech();
 }
 
+// ============================================================
+// Voix de la guide : plusieurs "personnalites" (hauteur + vitesse) et, en
+// option, un timbre precis parmi les voix francaises du telephone. Reglage
+// par appareil (AsyncStorage), applique a toute la synthese vocale.
+// ============================================================
+const VOIX_PRESETS = [
+  { key: 'standard', e: '🙂', nom: 'Classique', desc: 'La voix d\'origine', pitch: 1.0, rateMul: 1.0 },
+  { key: 'joyeuse', e: '🌞', nom: 'Joyeuse', desc: 'Pétillante, pleine d\'entrain', pitch: 1.25, rateMul: 1.1 },
+  { key: 'maitresse', e: '🎓', nom: 'Maîtresse douce', desc: 'Sérieuse mais chaleureuse, claire', pitch: 1.05, rateMul: 0.95 },
+  { key: 'lente', e: '🐢', nom: 'Calme et lente', desc: 'Pour les tout-petits ou les débuts', pitch: 1.0, rateMul: 0.78 },
+  { key: 'conteur', e: '📖', nom: 'Conteur', desc: 'Grave, rassurante, comme une histoire', pitch: 0.8, rateMul: 0.88 },
+  { key: 'lutin', e: '🧚', nom: 'Petit lutin', desc: 'Aiguë et rigolote', pitch: 1.6, rateMul: 1.1 },
+  { key: 'robot', e: '🤖', nom: 'Robot rigolo', desc: 'Grave et amusante', pitch: 0.55, rateMul: 1.0 },
+  { key: 'dynamique', e: '⚡', nom: 'Dynamique', desc: 'Rapide et énergique, pour les grands', pitch: 1.1, rateMul: 1.25 },
+];
+const CLE_VOIX = 'voix_reglages_v1';
+let voixReglages = { preset: 'standard', voiceId: null };
+(async () => {
+  try {
+    const brut = await AsyncStorage.getItem(CLE_VOIX);
+    if (brut) voixReglages = { ...voixReglages, ...JSON.parse(brut) };
+  } catch (e) {}
+})();
+async function sauverVoixReglages(patch) {
+  voixReglages = { ...voixReglages, ...patch };
+  try { await AsyncStorage.setItem(CLE_VOIX, JSON.stringify(voixReglages)); } catch (e) {}
+}
+function voixPresetCourant() {
+  return VOIX_PRESETS.find((v) => v.key === voixReglages.preset) ?? VOIX_PRESETS[0];
+}
+const PHRASE_ECHANTILLON = 'Bonjour ! Je suis ta guide. On joue ensemble ?';
+
 function speakSmart(text) {
   return new Promise((resolve) => {
     const raw = String(text ?? '').trim();
@@ -4852,7 +4884,8 @@ function speakSmart(text) {
     Speech.stop();
     duckBgMusicForSpeech();
     const clauses = raw.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [raw];
-    const rate = raw.length > 50 ? 0.72 : 0.85;
+    const preset = voixPresetCourant();
+    const rate = Math.min(1.5, Math.max(0.45, (raw.length > 50 ? 0.72 : 0.85) * preset.rateMul));
     let i = 0;
     function next() {
       if (i >= clauses.length) {
@@ -4869,6 +4902,8 @@ function speakSmart(text) {
       Speech.speak(clause, {
         language: 'fr-FR',
         rate,
+        pitch: preset.pitch,
+        ...(voixReglages.voiceId ? { voice: voixReglages.voiceId } : {}),
         onDone: next,
         onStopped: next,
         onError: next,
@@ -14182,6 +14217,95 @@ const FREQUENCE_CHOICES = [
   { value: 20, label: 'Tous les 20' },
 ];
 
+function VoixGuideReglages() {
+  const [preset, setPreset] = useState(voixReglages.preset);
+  const [voiceId, setVoiceId] = useState(voixReglages.voiceId);
+  const [voix, setVoix] = useState([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const brut = await AsyncStorage.getItem(CLE_VOIX);
+        if (brut) {
+          const v = JSON.parse(brut);
+          setPreset(v.preset ?? 'standard');
+          setVoiceId(v.voiceId ?? null);
+        }
+      } catch (e) {}
+      try {
+        const toutes = await Speech.getAvailableVoicesAsync();
+        const fr = (toutes || []).filter((v) => String(v.language || '').toLowerCase().startsWith('fr'));
+        fr.sort((a, b) => String(b.quality ?? '').localeCompare(String(a.quality ?? '')) || String(a.name).localeCompare(String(b.name)));
+        setVoix(fr.slice(0, 12));
+      } catch (e) {}
+    })();
+  }, []);
+
+  async function choisirPreset(key) {
+    setPreset(key);
+    await sauverVoixReglages({ preset: key });
+    speakSmart(PHRASE_ECHANTILLON);
+  }
+  async function choisirVoix(id) {
+    setVoiceId(id);
+    await sauverVoixReglages({ voiceId: id });
+    speakSmart(PHRASE_ECHANTILLON);
+  }
+
+  return (
+    <View style={{ marginBottom: 14 }}>
+      <Text style={[styles.label, { marginTop: 4 }]}>🗣️ Voix de la guide</Text>
+      <Text style={styles.helperText}>Touche une ambiance pour l'écouter. Ce réglage est propre à ce téléphone.</Text>
+      <View style={{ gap: 8, marginTop: 6 }}>
+        {VOIX_PRESETS.map((v) => {
+          const actif = v.key === preset;
+          return (
+            <Pressable
+              key={v.key}
+              onPress={() => choisirPreset(v.key)}
+              style={{
+                flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 14,
+                backgroundColor: actif ? colors.mossSoft : '#fff', borderWidth: 2, borderColor: actif ? colors.mossDeep : colors.sand,
+              }}
+            >
+              <Text style={{ fontSize: 26 }}>{v.e}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontWeight: '800', color: colors.ink }}>{v.nom}{actif ? '  ✓' : ''}</Text>
+                <Text style={{ fontSize: 12, color: colors.ink, opacity: 0.7 }}>{v.desc}</Text>
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+      {voix.length > 1 && (
+        <View style={{ marginTop: 12 }}>
+          <Text style={[styles.label, { marginTop: 0 }]}>Timbre de la voix</Text>
+          <Text style={styles.helperText}>Les voix françaises installées sur ce téléphone (« Auto » = celle par défaut).</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 }}>
+            <Pressable
+              onPress={() => choisirVoix(null)}
+              style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 99, backgroundColor: !voiceId ? colors.mossSoft : '#fff', borderWidth: 2, borderColor: !voiceId ? colors.mossDeep : colors.sand }}
+            >
+              <Text style={{ fontWeight: '700', color: colors.ink }}>Auto</Text>
+            </Pressable>
+            {voix.map((v, idx) => {
+              const actif = voiceId === v.identifier;
+              return (
+                <Pressable
+                  key={v.identifier}
+                  onPress={() => choisirVoix(v.identifier)}
+                  style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 99, backgroundColor: actif ? colors.mossSoft : '#fff', borderWidth: 2, borderColor: actif ? colors.mossDeep : colors.sand }}
+                >
+                  <Text style={{ fontWeight: '700', color: colors.ink }}>Voix {idx + 1}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      )}
+    </View>
+  );
+}
+
 function ReglagesParentauxScreen({ route, navigation }) {
   const { familleId } = route.params;
   const [loading, setLoading] = useState(true);
@@ -14794,6 +14918,7 @@ function ReglagesParentauxScreen({ route, navigation }) {
         </Pressable>
 
         <Text style={[styles.label, { marginTop: 24 }]}>🎙️ Mémos vocaux</Text>
+        <VoixGuideReglages />
         <Pressable style={[styles.button, { marginBottom: 10 }]} onPress={diagnosticSon}>
           <Text style={styles.buttonText}>🔊 Tester le son</Text>
         </Pressable>
