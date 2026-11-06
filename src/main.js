@@ -16100,6 +16100,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const isPausedRef = useRef(false);
   isPausedRef.current = isPaused;
   const ballXNormRef = useRef(0.5);
+  const ballViewRef = useRef(null);
   const vitesseAvanceRef = useRef(50); // vitesse "de base" du niveau (fixee au demarrage)
   const facteurVitesseRef = useRef(1); // petite variation aleatoire fixee au demarrage du niveau, reutilisee par la rampe
   const ralentiJusquaRef = useRef(0); // timestamp : effet "ralentissement" (bonus 30 pieces) actif jusqu'a
@@ -16197,16 +16198,18 @@ function BouleQuiRouleScreen({ route, navigation }) {
     dernierToucheXRef.current = pageX;
     const nouveauX = Math.max(0, Math.min(1, ballXNormRef.current + dx / pisteLargeur));
     ballXNormRef.current = nouveauX;
-    const maintenant = Date.now();
-    if (maintenant - dernierRenduBallRef.current >= 33) {
-      dernierRenduBallRef.current = maintenant;
-      setBallXNorm(nouveauX);
+    // Deplacement DIRECT de l'avatar, sans passer par un re-rendu React :
+    // l'ecran de jeu est lourd (objets qui tombent, 25 rendus/s) et l'ancien
+    // setState throttle faisait attendre l'avatar derriere ces rendus -> retard
+    // sur le doigt et pierres prises (retour de Thierry). setNativeProps met a
+    // jour la position instantanement ; la collision lit deja la valeur fraiche.
+    if (ballViewRef.current) {
+      ballViewRef.current.setNativeProps({ style: { left: nouveauX * pisteLargeur - BOULE_TAILLE / 2 } });
     }
   }
   function onZoneDeplacementFin() {
     dernierToucheXRef.current = null;
     dernierRenduBallRef.current = 0;
-    setBallXNorm(ballXNormRef.current);
   }
 
   function onTouchDebut(e) {
@@ -16885,7 +16888,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
     .filter((o) => o.pos.relative > -20 && o.pos.relative <= BOULE_DISTANCE_VISIBLE)
     .sort((a, b) => b.pos.relative - a.pos.relative);
 
-  const ballScreenX = ballXNorm * pisteLargeur;
+  const ballScreenX = ballXNormRef.current * pisteLargeur;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: 6 }}>
@@ -16996,7 +16999,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
           );
         })}
 
-        <View style={{ position: 'absolute', left: ballScreenX - BOULE_TAILLE / 2, top: joueurY - BOULE_TAILLE / 2, width: BOULE_TAILLE, height: BOULE_TAILLE, alignItems: 'center', justifyContent: 'center' }}>
+        <View ref={ballViewRef} collapsable={false} style={{ position: 'absolute', left: ballScreenX - BOULE_TAILLE / 2, top: joueurY - BOULE_TAILLE / 2, width: BOULE_TAILLE, height: BOULE_TAILLE, alignItems: 'center', justifyContent: 'center' }}>
           {/* Anneau de la vraie zone de contact de l'avatar (son propre
               rayon compte dans le calcul de collision, voir seuilCollision) -
               des que cet anneau touche celui d'un objet qui tombe, c'est un
