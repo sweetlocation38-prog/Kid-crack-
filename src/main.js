@@ -16102,6 +16102,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
   const ballXNormRef = useRef(0.5);
   const ballViewRef = useRef(null);
   const objetsRef = useRef([]);
+  const objViewRefs = useRef({});
+  const positionEcranRef = useRef(null);
   const distanceRef = useRef(0);
   const vitesseAvanceRef = useRef(50); // vitesse "de base" du niveau (fixee au demarrage)
   const facteurVitesseRef = useRef(1); // petite variation aleatoire fixee au demarrage du niveau, reutilisee par la rampe
@@ -16475,7 +16477,9 @@ function BouleQuiRouleScreen({ route, navigation }) {
   useEffect(() => {
     if (!pret || finNiveau) return;
     dernierTickHorlogeRef.current = Date.now();
-    tickRef.current = setInterval(() => {
+    let actif = true;
+    let rafId = null;
+    const tick = () => {
       if (isPausedRef.current) { dernierTickHorlogeRef.current = Date.now(); return; }
       // dt REEL ecoule depuis le tick precedent, plutot que de supposer que
       // l'intervalle de 40ms s'est ecoule pile - corrige un bug remonte par
@@ -16732,15 +16736,40 @@ function BouleQuiRouleScreen({ route, navigation }) {
             }
             suivants.push({ ...o, distance: distanceActuelle });
           }
+          const ancienne = objetsRef.current;
+          const memeListe = suivants.length === ancienne.length && suivants.every((o, i) => o.id === ancienne[i].id);
           objetsRef.current = suivants;
-          setObjets(suivants);
+          distanceRef.current = nouvelleDistance;
+          if (!memeListe) {
+            // Apparition / disparition d'un objet : seul cas ou React redessine.
+            setObjets(suivants);
+          } else {
+            // Sinon : positions mises a jour directement, sans re-rendu.
+            const posFn = positionEcranRef.current;
+            for (const o of suivants) {
+              const vue = objViewRefs.current[o.id];
+              if (!vue || !posFn) continue;
+              const ep = o.type === 'piege' || o.type === 'piege_mortel' || o.type === 'piege_malus' ? BOULE_PIEGE_TAILLE : BOULE_ITEM_TAILLE_BASE;
+              vue.setNativeProps({ style: { top: posFn(o.distance).y - ep / 2 } });
+            }
+          }
         }
-
-        distanceRef.current = nouvelleDistance;
-        setDistanceParcourue(nouvelleDistance);
       }
-    }, 40);
-    return () => clearInterval(tickRef.current);
+    };
+    // Boucle d'animation calee sur l'ecran (~60 images/s) au lieu d'un
+    // setInterval de 40 ms (25/s) : les objets sont deplaces directement
+    // (setNativeProps) SANS re-rendu React a chaque image, donc plus aucun
+    // a-coup meme sur un telephone modeste.
+    const boucle = () => {
+      if (!actif) return;
+      tick();
+      rafId = requestAnimationFrame(boucle);
+    };
+    rafId = requestAnimationFrame(boucle);
+    return () => {
+      actif = false;
+      if (rafId != null) cancelAnimationFrame(rafId);
+    };
   }, [pret, finNiveau, conf, mode, reglage]);
 
   // --- Ecran 1 : choix de l'age (uniquement en mode test parental) ---
@@ -16870,7 +16899,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
   }
 
   function positionEcran(distanceObjet) {
-    const relative = distanceObjet - distanceParcourue;
+    const relative = distanceObjet - distanceRef.current;
     const p = Math.max(0, Math.min(1, 1 - relative / BOULE_DISTANCE_VISIBLE));
     // Effet de perspective adouci (1.5 au lieu de 2) - bug remonte par
     // Thierry (contact incoherent avec les lettres/chiffres) : avec un
@@ -16886,11 +16915,13 @@ function BouleQuiRouleScreen({ route, navigation }) {
     return { relative, p, y };
   }
 
+  positionEcranRef.current = positionEcran;
+
   const affichageCible = (mode === 'calculs' || ((mode === 'chiffres' || mode === 'mixte') && enonceAffiche))
     ? `${enonceAffiche} = ?`
     : `Cherche : ${chiffreAffiche ?? ''}`;
 
-  const objetsVisibles = objets
+  const objetsVisibles = objetsRef.current
     .map((o) => ({ ...o, pos: positionEcran(o.distance) }))
     .filter((o) => o.pos.relative > -20 && o.pos.relative <= BOULE_DISTANCE_VISIBLE)
     .sort((a, b) => b.pos.relative - a.pos.relative);
@@ -16963,7 +16994,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
             const couleurZone = estPiegeQuelconque ? '#E24C4C' : o.type === 'distracteur' ? '#E8A23D' : '#3DAA5C';
             if (!estLettreOuChiffre) {
               return (
-                <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, alignItems: 'center', justifyContent: 'center' }}>
+                <View key={o.id} collapsable={false} ref={(r) => { if (r) objViewRefs.current[o.id] = r; else delete objViewRefs.current[o.id]; }} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, alignItems: 'center', justifyContent: 'center' }}>
                   <View style={{
                     position: 'absolute', width: diametreZone, height: diametreZone, borderRadius: diametreZone / 2,
                     borderWidth: 3, borderColor: couleurZone, opacity: 0.85,
@@ -16975,7 +17006,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
               );
             }
             return (
-              <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, width: taille, height: taille, alignItems: 'center', justifyContent: 'center' }}>
+              <View key={o.id} collapsable={false} ref={(r) => { if (r) objViewRefs.current[o.id] = r; else delete objViewRefs.current[o.id]; }} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, width: taille, height: taille, alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{
                   position: 'absolute', width: diametreZone, height: diametreZone, borderRadius: diametreZone / 2,
                   borderWidth: 3, borderColor: couleurZone, opacity: 0.85,
@@ -16996,7 +17027,7 @@ function BouleQuiRouleScreen({ route, navigation }) {
             );
           }
           return (
-            <View key={o.id} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, alignItems: 'center', justifyContent: 'center' }}>
+            <View key={o.id} collapsable={false} ref={(r) => { if (r) objViewRefs.current[o.id] = r; else delete objViewRefs.current[o.id]; }} style={{ position: 'absolute', left: x - taille / 2, top: o.pos.y - taille / 2, alignItems: 'center', justifyContent: 'center' }}>
               <View style={{
                 position: 'absolute', width: taille, height: taille, borderRadius: taille / 2,
                 backgroundColor: '#fff', borderWidth: 2.5, borderColor: colors.gold,
