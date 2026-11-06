@@ -16101,6 +16101,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
   isPausedRef.current = isPaused;
   const ballXNormRef = useRef(0.5);
   const ballViewRef = useRef(null);
+  const objetsRef = useRef([]);
+  const distanceRef = useRef(0);
   const vitesseAvanceRef = useRef(50); // vitesse "de base" du niveau (fixee au demarrage)
   const facteurVitesseRef = useRef(1); // petite variation aleatoire fixee au demarrage du niveau, reutilisee par la rampe
   const ralentiJusquaRef = useRef(0); // timestamp : effet "ralentissement" (bonus 30 pieces) actif jusqu'a
@@ -16333,6 +16335,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
 
     setStreakActuelle(0);
     setObjets([]);
+    objetsRef.current = [];
+    distanceRef.current = 0;
     setEffets([]);
     setDistanceParcourue(0);
     ballXNormRef.current = 0.5;
@@ -16494,7 +16498,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
       // rocher classique 🪨 la remet a zero, pour garder un vrai enjeu.
       const estCM2 = rungJeu != null && rungJeu >= rungFromGradeAndPalier('cm2', 1);
 
-      setDistanceParcourue((prevDist) => {
+      {
+        const prevDist = distanceRef.current;
         const enPauseLecture = Date.now() < pauseLectureJusquaRef.current;
         const vitesseEffective = enPauseLecture ? 0 : vitesseAvanceRef.current * (Date.now() < ralentiJusquaRef.current ? 0.8 : 1);
         const nouvelleDistance = prevDist + vitesseEffective * dt;
@@ -16508,8 +16513,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
         const seuilCollision = BOULE_RAYON_COLLISION + rayonAvatarNorm;
         const maintenant = Date.now();
 
-        setObjets((prevObjets) => {
-          let liste = prevObjets;
+        {
+          let liste = objetsRef.current;
 
           // La cible SEULE doit etre resolue (attrapee ou ratee) avant
           // Plus de "vagues groupees" du tout : chaque chiffre/lettre (bon
@@ -16727,11 +16732,13 @@ function BouleQuiRouleScreen({ route, navigation }) {
             }
             suivants.push({ ...o, distance: distanceActuelle });
           }
-          return suivants;
-        });
+          objetsRef.current = suivants;
+          setObjets(suivants);
+        }
 
-        return nouvelleDistance;
-      });
+        distanceRef.current = nouvelleDistance;
+        setDistanceParcourue(nouvelleDistance);
+      }
     }, 40);
     return () => clearInterval(tickRef.current);
   }, [pret, finNiveau, conf, mode, reglage]);
@@ -17060,6 +17067,8 @@ function BouleQuiRouleScreen({ route, navigation }) {
         onResponderGrant={(e) => onZoneDeplacementDebut(e.nativeEvent.pageX)}
         onResponderMove={(e) => onZoneDeplacementMouvement(e.nativeEvent.pageX)}
         onResponderRelease={onZoneDeplacementFin}
+        onResponderTerminate={onZoneDeplacementFin}
+        onResponderTerminationRequest={() => false}
         style={{
           width: pisteLargeur, height: 80, alignSelf: 'center', marginTop: 6,
           backgroundColor: '#E4DCC8', borderRadius: 14, alignItems: 'center', justifyContent: 'center',
